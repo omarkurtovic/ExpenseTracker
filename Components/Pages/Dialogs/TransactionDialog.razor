@@ -1,0 +1,58 @@
+@using ExpenseTracker.Database.Models
+@using ExpenseTracker.Services
+@inject TransactionService TransactionService
+
+<MudDialog>
+    <TitleContent>
+        Transaction
+    </TitleContent>
+    <DialogContent>
+        <div style="display: flex; flex-direction: column; gap: 0.5rem; min-width: 350px;">
+            <MudSelect @bind-Value="Transaction.Type" Label="Type">
+                @foreach (TransactionType item in Enum.GetValues(typeof(TransactionType)))
+                {
+                    <MudSelectItem Value="@item">@item</MudSelectItem>
+                }
+            </MudSelect>
+            <MudNumericField @bind-Value="Transaction.Amount" Label="Amount" Variant="Variant.Text">
+            </MudNumericField>
+            <MudDatePicker Label="Date" @bind-Date="_date" />
+            <MudTextField @bind-Value="Transaction.Description" Label="Description" Variant="Variant.Text">
+            </MudTextField>
+        </div>
+    </DialogContent>
+    <DialogActions>
+        <div style="display: flex; flex-direction: row; gap: 1rem;">
+            <MudButton Color="Color.Primary" OnClick="Submit">Save</MudButton>
+            <MudButton OnClick="Cancel">Cancel</MudButton>
+        </div>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter]
+    private IMudDialogInstance MudDialog { get; set; }
+
+    private DateTime? _date = DateTime.Today;
+    private Transaction Transaction;
+    protected override void OnInitialized()
+    {
+        Transaction = new Transaction();
+        Transaction.Type = TransactionType.Expense;
+        Transaction.Date = DateTime.Now;
+    }
+    private async void Submit()
+    {
+        if(_date.HasValue){
+            Transaction.Date = (DateTime)_date;
+        }
+        else{
+            Transaction.Date = DateTime.Now;
+        }
+        
+        await TransactionService.Save(Transaction);
+        MudDialog.Close(DialogResult.Ok(result: true));
+    }
+
+    private void Cancel() => MudDialog.Cancel();
+}
