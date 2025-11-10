@@ -33,10 +33,15 @@
         MyTransactions = await TransactionService.GetAllAsync();
     }
 
-    private Task OpenTransactionDialogAsync()
+    private async Task OpenTransactionDialogAsync()
     {
         var options = new DialogOptions { CloseOnEscapeKey = true };
 
-        return DialogService.ShowAsync<TransactionDialog>("Simple Dialog", options);
+        var dialog = await DialogService.ShowAsync<TransactionDialog>("Simple Dialog", options);
+        var result = await dialog.Result;
+        if (!result.Canceled)
+        {
+            MyTransactions = await TransactionService.GetAllAsync();
+        }
     }
 }

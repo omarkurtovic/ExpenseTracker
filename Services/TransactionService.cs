@@ -16,7 +16,7 @@ namespace ExpenseTracker.Services
         public async Task<List<Transaction>> GetAllAsync()
         {
             using var context = await _contextFactory.CreateDbContextAsync();
-            return await context.Transactions.ToListAsync();
+            return await context.Transactions.OrderByDescending(t => t.Date).ToListAsync();
         }
         
         public async Task Save(Transaction transaction)
