@@ -16,11 +16,14 @@ namespace ExpenseTracker.Services
         public async Task<List<Transaction>> GetAllAsync()
         {
             using var context = await _contextFactory.CreateDbContextAsync();
-            return await context.Transactions.OrderByDescending(t => t.Date).ToListAsync();
+            return await context.Transactions.Include(t => t.Category).OrderByDescending(t => t.Date).ToListAsync();
         }
 
         public async Task Save(Transaction transaction)
         {
+            // otherwise it will try to save the category as well
+            transaction.Category = null;
+            
             using var context = await _contextFactory.CreateDbContextAsync();
             if (transaction.Id == 0)
             {
@@ -29,10 +32,10 @@ namespace ExpenseTracker.Services
             else
             {
                 var oldTransaction = await context.Transactions.SingleAsync(t => t.Id == transaction.Id);
-                oldTransaction.Type = transaction.Type;
-                oldTransaction.Amount = transaction.Amount;
-                oldTransaction.Date = transaction.Date;
-                oldTransaction.Description = transaction.Description;
+                if (oldTransaction != null)
+                {
+                    context.Entry(oldTransaction).CurrentValues.SetValues(transaction);
+                }
             }
             await context.SaveChangesAsync();
         }
@@ -40,7 +43,7 @@ namespace ExpenseTracker.Services
         public async Task<Transaction?> GetAsync(int transactionId)
         {
             using var context = await _contextFactory.CreateDbContextAsync();
-            return await context.Transactions.SingleAsync(t => t.Id == transactionId);
+            return await context.Transactions.Include(t => t.Category).SingleAsync(t => t.Id == transactionId);
         }
     }
 }

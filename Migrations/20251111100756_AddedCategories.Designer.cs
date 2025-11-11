@@ -4,6 +4,7 @@ using Database;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ExpenseTracker.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251111100756_AddedCategories")]
+    partial class AddedCategories
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -34,9 +37,6 @@ namespace ExpenseTracker.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("Type")
-                        .HasColumnType("int");
-
                     b.HasKey("Id");
 
                     b.ToTable("Categories");
@@ -45,68 +45,52 @@ namespace ExpenseTracker.Migrations
                         new
                         {
                             Id = 1,
-                            Name = "Groceries",
-                            Type = 1
+                            Name = "Groceries"
                         },
                         new
                         {
                             Id = 2,
-                            Name = "Eating Out",
-                            Type = 1
+                            Name = "Eating Out"
                         },
                         new
                         {
                             Id = 3,
-                            Name = "Shopping",
-                            Type = 1
+                            Name = "Shopping"
                         },
                         new
                         {
                             Id = 4,
-                            Name = "Transportation",
-                            Type = 1
+                            Name = "Transportation"
                         },
                         new
                         {
                             Id = 5,
-                            Name = "Vehicle",
-                            Type = 1
+                            Name = "Vehicle"
                         },
                         new
                         {
                             Id = 6,
-                            Name = "Communication",
-                            Type = 1
+                            Name = "Communication"
                         },
                         new
                         {
                             Id = 7,
-                            Name = "Health and Wellness",
-                            Type = 1
+                            Name = "Health and Wellness"
                         },
                         new
                         {
                             Id = 8,
-                            Name = "Education",
-                            Type = 1
+                            Name = "Education"
                         },
                         new
                         {
                             Id = 9,
-                            Name = "Entertainment",
-                            Type = 1
+                            Name = "Entertainment"
                         },
                         new
                         {
                             Id = 10,
-                            Name = "Pets",
-                            Type = 1
-                        },
-                        new
-                        {
-                            Id = 11,
-                            Name = "Salary",
-                            Type = 0
+                            Name = "Pets"
                         });
                 });
 
@@ -130,6 +114,9 @@ namespace ExpenseTracker.Migrations
 
                     b.Property<string>("Description")
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Type")
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
 

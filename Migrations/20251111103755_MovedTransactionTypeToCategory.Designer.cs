@@ -4,6 +4,7 @@ using Database;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ExpenseTracker.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251111103755_MovedTransactionTypeToCategory")]
+    partial class MovedTransactionTypeToCategory
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -46,66 +49,60 @@ namespace ExpenseTracker.Migrations
                         {
                             Id = 1,
                             Name = "Groceries",
-                            Type = 1
+                            Type = 0
                         },
                         new
                         {
                             Id = 2,
                             Name = "Eating Out",
-                            Type = 1
+                            Type = 0
                         },
                         new
                         {
                             Id = 3,
                             Name = "Shopping",
-                            Type = 1
+                            Type = 0
                         },
                         new
                         {
                             Id = 4,
                             Name = "Transportation",
-                            Type = 1
+                            Type = 0
                         },
                         new
                         {
                             Id = 5,
                             Name = "Vehicle",
-                            Type = 1
+                            Type = 0
                         },
                         new
                         {
                             Id = 6,
                             Name = "Communication",
-                            Type = 1
+                            Type = 0
                         },
                         new
                         {
                             Id = 7,
                             Name = "Health and Wellness",
-                            Type = 1
+                            Type = 0
                         },
                         new
                         {
                             Id = 8,
                             Name = "Education",
-                            Type = 1
+                            Type = 0
                         },
                         new
                         {
                             Id = 9,
                             Name = "Entertainment",
-                            Type = 1
+                            Type = 0
                         },
                         new
                         {
                             Id = 10,
                             Name = "Pets",
-                            Type = 1
-                        },
-                        new
-                        {
-                            Id = 11,
-                            Name = "Salary",
                             Type = 0
                         });
                 });

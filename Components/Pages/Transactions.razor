@@ -17,9 +17,10 @@
     <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="@(() => OpenTransactionDialogAsync(null))">Add</MudButton>
     <MudDataGrid Items="@MyTransactions">
         <Columns>
-            <PropertyColumn Property="t => t.Amount"></PropertyColumn>
-            <PropertyColumn Property="t => t.Date"></PropertyColumn>
-            <PropertyColumn Property="t => t.Description"></PropertyColumn>
+            <PropertyColumn Property="t => t.Amount" Title="Amount"></PropertyColumn>
+            <PropertyColumn Property="t => t.Date" Title="Date"></PropertyColumn>
+            <PropertyColumn Property="t => t.Category.Name" Title="Category"></PropertyColumn>
+            <PropertyColumn Property="t => t.Description" Title="Description"></PropertyColumn>
             <TemplateColumn>
                 <CellTemplate>
                     <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="@(() => OpenTransactionDialogAsync(context.Item.Id))">Edit</MudButton>
