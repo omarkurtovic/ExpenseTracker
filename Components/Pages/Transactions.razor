@@ -5,6 +5,7 @@
 @rendermode InteractiveServer
 @inject TransactionService TransactionService
 @inject CategoryService CategoryService
+@inject AccountService AccountService 
 @inject IDialogService DialogService
 @inject NotificationService NotificationService
 
@@ -18,6 +19,18 @@
     <h1>Transactions</h1>
     <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="@(() => OpenTransactionDialogAsync(null))">Add</MudButton>
     <div class="filter-container">
+        <MudSelect T="int?" Label="Account" @bind-Value="accountId"
+             @bind-Value:after="this.FilterChanged">
+            <MudSelectItem Value="@((int?)null)">All</MudSelectItem>
+            @if(Accounts is not null){
+                @foreach (var account in Accounts)
+                {
+                    <MudSelectItem Value="@((int?)account.Id)">@account.Name</MudSelectItem>
+                }
+            }
+        </MudSelect>
+
+
         <MudSelect T="TransactionType?" Label="Type" @bind-Value="transactionType"
              @bind-Value:after="this.FilterChanged">
             <MudSelectItem Value="@((TransactionType?)null)">All</MudSelectItem>
@@ -42,7 +55,11 @@
 
         <MudDataGrid Items="@MyTransactions" Class="data-grid">
             <Columns>
-                <PropertyColumn Property="t => t.Amount" Title="Amount"></PropertyColumn>
+                <TemplateColumn Title="Amount">
+                    <CellTemplate>
+                        @(context.Item.Category.Type == TransactionType.Expense ? -context.Item.Amount : context.Item.Amount)
+                    </CellTemplate>
+                </TemplateColumn>
                 <PropertyColumn Property="t => t.Date" Title="Date"></PropertyColumn>
                 <PropertyColumn Property="t => t.Category.Name" Title="Category"></PropertyColumn>
                 <PropertyColumn Property="t => t.Description" Title="Description"></PropertyColumn>
@@ -53,7 +70,7 @@
                 </TemplateColumn>
                 <TemplateColumn>
                     <CellTemplate>
-                        <MudButton Variant="Variant.Filled" Color="Color.Error" OnClick="@(() => OpenConfirmDialog(context.Item.Id))">Delete</MudButton>
+                        <MudButton Variant="Variant.Filled" Color="Color.Error" OnClick="@(() => ConfirmDelete(context.Item.Id))">Delete</MudButton>
                     </CellTemplate>
                 </TemplateColumn>
             </Columns>
@@ -65,20 +82,40 @@
 @code {
     private List<Transaction> MyTransactions;
     private List<Category> Categories;
+    private List<Account> Accounts;
     private TransactionType? transactionType;
     private int? categoryId;
 
+    private int? accountId;
     protected override async Task OnInitializedAsync()
     {
         MyTransactions = await TransactionService.GetAllAsync();
         Categories = await CategoryService.GetAllAsync();
+        Accounts = await AccountService.GetAllAsync();
 
         transactionType = null;
         categoryId = null;
+        accountId = null;
     }
 
     private async Task OpenTransactionDialogAsync(int? transaction_id)
     {
+        // no point making transaction if we don't have any categories or accounts
+
+        if ((await CategoryService.GetAllAsync()).Count == 0)
+        {
+            await NotificationService.ShowError("No categories found! Create some then try again!");
+            return;
+        }
+
+        if ((await AccountService.GetAllAsync()).Count == 0)
+        {
+            await NotificationService.ShowError("No accounts found! Create some then try again!");
+            return;
+        }
+
+
+
         var options = new DialogOptions { CloseOnEscapeKey = true, };
         var parameters = new DialogParameters<TransactionDialog>
         {
@@ -93,7 +130,7 @@
         }
     }
 
-    private async Task OpenConfirmDialog(int transaction_id)
+    private async Task ConfirmDelete(int transaction_id)
     {
         var options = new DialogOptions { CloseOnEscapeKey = true };
         var parameters = new DialogParameters<ConfirmDialog>
@@ -137,6 +174,10 @@
             else{
                 MyTransactions = MyTransactions.Where(t => t.Category.Id == categoryId).ToList();
             }
+        }
+
+        if(accountId is not null){
+            MyTransactions = MyTransactions.Where(t => t.AccountId == accountId).ToList();
         }
     }
 

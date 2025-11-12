@@ -1,0 +1,84 @@
+@using ExpenseTracker.Database.Models
+@using ExpenseTracker.Services
+@inject AccountService AccountService
+@inject NotificationService NotificationService
+
+<MudDialog>
+    <TitleContent>
+        Account
+    </TitleContent>
+    <DialogContent>
+            <MudForm @ref="form">
+                <div style="display: flex; flex-direction: column; gap: 1rem; min-width: 350px;">
+                    
+                    @if(Account is not null){
+                        <MudTextField @bind-Value="Account.Name" Label="Name" Variant="Variant.Text">
+                        </MudTextField>
+                    }
+
+                    @if(Account is not null){
+                        <MudNumericField @bind-Value="Account.InitialBalace" Label="Initial Balance" Variant="Variant.Text" Required="true"
+                            RequiredError="Initial balace is required!">
+                        </MudNumericField>
+                    }
+                </div>
+            </MudForm>
+    </DialogContent>
+    <DialogActions>
+        <div style="display: flex; flex-direction: row; gap: 1rem;">
+            <MudButton Color="Color.Primary" OnClick="Submit">Save</MudButton>
+            <MudButton OnClick="Cancel">Cancel</MudButton>
+        </div>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    MudForm form;
+
+    [CascadingParameter]
+    private IMudDialogInstance MudDialog { get; set; }
+
+    [Parameter]
+    public int? AccountId { get; set; }
+    private Account Account {get; set; }
+    
+    protected override async Task OnInitializedAsync()
+    {
+        Account = new Account();
+    }
+
+    protected override async Task OnParametersSetAsync(){
+        
+        if (AccountId == null)
+        {
+            return;
+        }
+
+        Account = await AccountService.GetAsync((int)AccountId);
+
+        // if we failed to get the transaction break immediately
+        if (Account == null)
+        {
+            MudDialog.Close();
+            return;
+        }
+        StateHasChanged();
+    }
+
+    private async void Submit()
+    {
+        await form.Validate();
+        if (!form.IsValid)
+        {
+            return;
+        }
+
+        // since we validate first
+        
+        await AccountService.SaveAsync(Account);
+        await NotificationService.ShowSuccess("Account succesfully saved! ");
+        MudDialog.Close(DialogResult.Ok(result: true));
+    }
+
+    private void Cancel() => MudDialog.Cancel();
+}

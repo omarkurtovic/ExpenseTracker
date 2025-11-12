@@ -23,7 +23,7 @@ namespace ExpenseTracker.Services
             await _dialogService.ShowAsync<AlertDialog>("Success", parameters, options);
         }
         
-        private async Task ShowFailureDialog(string message){
+        public async Task ShowError(string message){
             var options = new DialogOptions { CloseOnEscapeKey = true };
             var parameters = new DialogParameters<AlertDialog>
                 {

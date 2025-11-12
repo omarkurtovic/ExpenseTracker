@@ -13,7 +13,7 @@ namespace ExpenseTracker.Services
         {
             _contextFactory = contextFactory;
         }
-        public async Task<List<AccountWithBalance>> GetAllAsync()
+        public async Task<List<AccountWithBalance>> GetAllWithBalanceAsync()
         {
             using var context = await _contextFactory.CreateDbContextAsync();
             return await context.Accounts.Include(a => a.Transactions)
@@ -24,6 +24,31 @@ namespace ExpenseTracker.Services
                 InitialBalance = a.InitialBalace,
                 CurrentBalance = a.InitialBalace + a.Transactions.Sum(t => t.Amount),
             }).ToListAsync();
+        }
+
+        public async Task<List<Account>> GetAllAsync()
+        {
+            using var context = await _contextFactory.CreateDbContextAsync();
+            return await context.Accounts.ToListAsync();
+        }
+
+        public async Task<Account> GetAsync(int accountId)
+        {
+            using var context = await _contextFactory.CreateDbContextAsync();
+            return await context.Accounts.SingleAsync(a => a.Id == accountId);
+        }
+        public async Task<AccountWithBalance> GetWithBalanceAsync(int accountId)
+        {
+            using var context = await _contextFactory.CreateDbContextAsync();
+            return await context.Accounts
+            .Include(a => a.Transactions)
+            .Select(a => new AccountWithBalance()
+            {
+                Id = a.Id,
+                Name = a.Name,
+                InitialBalance = a.InitialBalace,
+                CurrentBalance = a.InitialBalace + a.Transactions.Sum(t => t.Amount),
+            }).SingleAsync(a => a.Id == accountId);
         }
 
         public async Task SaveAsync(Account account)
@@ -48,9 +73,13 @@ namespace ExpenseTracker.Services
         public async Task DeleteAsync(int accountId)
         {
             using var context = await _contextFactory.CreateDbContextAsync();
-            var account = await context.Accounts.SingleAsync(a => a.Id == accountId);
-            context.Accounts.Remove(account);
-            await context.SaveChangesAsync();
+            await context.Transactions
+                .Where(t => t.AccountId == accountId)
+                .ExecuteDeleteAsync();
+            
+            await context.Accounts
+                .Where(a => a.Id == accountId)
+                .ExecuteDeleteAsync();
         }
     }
 }

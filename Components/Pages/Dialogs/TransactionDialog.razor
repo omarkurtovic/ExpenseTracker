@@ -2,6 +2,7 @@
 @using ExpenseTracker.Services
 @inject TransactionService TransactionService
 @inject CategoryService CategoryService
+@inject AccountService AccountService
 @inject NotificationService NotificationService
 
 <MudDialog>
@@ -11,6 +12,16 @@
     <DialogContent>
             <MudForm @ref="form">
                 <div style="display: flex; flex-direction: column; gap: 1rem; min-width: 350px;">
+                @if(Account is not null){
+                        <MudSelect @bind-Value="Account.Id" Label="Account" Required="true"
+                            RequiredError="Account is required!">
+                            @foreach (var account in Accounts)
+                            {
+                                <MudSelectItem Value="@account.Id">@account.Name</MudSelectItem>
+                            }
+                        </MudSelect>
+                    }
+
                     <MudSelect T="TransactionType" Label="Type" Required="true" @bind-Value="_type"
                         RequiredError="Type of transaction is required!" @bind-Value:after="this.TransactionTypeChanged">
                         @foreach (TransactionType item in Enum.GetValues(typeof(TransactionType)))
@@ -77,6 +88,9 @@
     private Category Category = new();
     private List<Category> Categories = new List<Category>();
 
+    private Account Account = new();
+    private List<Account> Accounts = new List<Account>();
+
     protected override async Task OnInitializedAsync()
     {
         Transaction = new Transaction();
@@ -88,6 +102,7 @@
 
         if (Categories.Count == 0)
         {
+            await NotificationService.ShowError("No categories found! Create some then try again!");
             MudDialog.Close();
             return;
         }
@@ -95,6 +110,17 @@
         Category = new Category();
         Category = Categories.First();
 
+
+        Accounts = await AccountService.GetAllAsync();
+        if (Accounts.Count == 0)
+        {
+            await NotificationService.ShowError("No accounts found! Create some then try again!");
+            MudDialog.Close();
+            return;
+        }
+
+        Account = new Account();
+        Account = Accounts.First();
         
         _type = Category.Type;
         _date = Transaction.Date.Date;
@@ -137,8 +163,10 @@
         // we know that _date and _time have values
         Transaction.Date = (DateTime)(_date + _time);
         Transaction.CategoryId = Category.Id;
+        Transaction.Category = Category;
+        Transaction.AccountId = Account.Id;
         
-        await TransactionService.Save(Transaction);
+        await TransactionService.SaveAsync(Transaction);
         await NotificationService.ShowSuccess("Transaction succesfully saved! ");
         MudDialog.Close(DialogResult.Ok(result: true));
     }

@@ -1,35 +1,92 @@
+@page "/accounts"
 @using ExpenseTracker.Database.Models
 @using ExpenseTracker.Dtos
 @using ExpenseTracker.Services
+@using ExpenseTracker.Components.Pages.Dialogs
+@rendermode InteractiveServer
 @inject AccountService AccountService
+@inject IDialogService DialogService
+@inject NotificationService NotificationService
 
+<MudThemeProvider />
+<MudPopoverProvider />
+<MudDialogProvider /> 
+<MudSnackbarProvider />
 
-<h1>My Accounts</h1>
+<div class="main-container">
+    <MudText Typo="Typo.h1" Class="title">My Accounts</MudText>
+    <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="@(() => OpenAccountDialogAsync(null))">Add</MudButton>
 
-<MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="@(() => OpenAccountDialogAsync(null))">Add</MudButton>
-
-@if(MyAccounts == null || MyAccounts.Count == 0){
-    <p>No accounts created yet</p>
-}
-else{
-    foreach(var account in MyAccounts){
-        <div>
-            <p>Name: @account.Name</p>
-            <p>Balance: @account.CurrentBalance</p>
+    @if(MyAccounts == null || MyAccounts.Count == 0){
+        <MudText Typo="Typo.body1">No accounts created yet</MudText>
+    }
+    else{
+        <div class="accounts-container">
+            @foreach(var account in MyAccounts){
+                <MudCard Outlined="true">
+                <MudCardHeader>
+                    <MudText Typo="Typo.h2" Class="card-title">@account.Name</MudText>
+                </MudCardHeader>
+                    <MudCardContent>
+                        <MudText Typo="Typo.body1">Balance: @account.CurrentBalance</MudText>
+                    </MudCardContent>
+                    <MudCardActions>
+                    <div style="display: flex; gap: 1rem;">
+                        <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="@(() => OpenAccountDialogAsync(account.Id))">Edit</MudButton>
+                        <MudButton Variant="Variant.Filled" Color="Color.Error" OnClick="@(() => ConfirmDelete(account.Id))">Delete</MudButton>
+                    </div>
+                    </MudCardActions>
+                </MudCard>
+            }
         </div>
     }
-}
+</div>
 
 @code{
     private List<AccountWithBalance> MyAccounts;
 
     protected override async Task OnInitializedAsync()
     {
-        MyAccounts = await AccountService.GetAllAccountsWithBalanceAsync();
+        await UpdatePage();
 
     }
 
-    private void OpenAccountDialogAsync(int? accountId){
+    private async Task OpenAccountDialogAsync(int? accountId){
+        var options = new DialogOptions { CloseOnEscapeKey = true, };
+        var parameters = new DialogParameters<AccountDialog>
+        {
+            { x => x.AccountId, accountId }
+        };
 
+        var dialog = await DialogService.ShowAsync<AccountDialog>(title: "Simple Dialog", parameters, options);
+        var result = await dialog.Result;
+        if (!result.Canceled)
+        {
+            await UpdatePage();
+        }
+    }
+
+    
+    private async Task ConfirmDelete(int accountId)
+    {
+        var options = new DialogOptions { CloseOnEscapeKey = true };
+        var parameters = new DialogParameters<ConfirmDialog>
+        {
+            { x => x.Message,  "Are you sure you want to delete the account and the related transactions? " }
+        };
+
+        var dialog = await DialogService.ShowAsync<ConfirmDialog>(title: "Warning", parameters, options);
+        var result = await dialog.Result;
+        if (!result.Canceled)
+        {
+            await AccountService.DeleteAsync(accountId);
+            await NotificationService.ShowSuccess("Account succesfully deleted! ");
+            await UpdatePage();
+        }
+    }
+
+
+    private async Task UpdatePage(){
+        MyAccounts = await AccountService.GetAllWithBalanceAsync();
     }
 }

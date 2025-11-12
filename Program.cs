@@ -16,6 +16,7 @@ builder.Services.AddDbContextFactory<AppDbContext>(options =>
 builder.Services.AddScoped<TransactionService>();
 builder.Services.AddScoped<CategoryService>();
 builder.Services.AddScoped<NotificationService>();
+builder.Services.AddScoped<AccountService>();
 
 var app = builder.Build();
 

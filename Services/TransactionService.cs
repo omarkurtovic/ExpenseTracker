@@ -19,10 +19,17 @@ namespace ExpenseTracker.Services
             return await context.Transactions.Include(t => t.Category).OrderByDescending(t => t.Date).ToListAsync();
         }
 
-        public async Task Save(Transaction transaction)
+        public async Task SaveAsync(Transaction transaction)
         {
+            if (transaction.Category.Type == TransactionType.Expense)
+            {
+                transaction.Amount = -transaction.Amount;
+            }
+            
             // otherwise it will try to save the category as well
             transaction.Category = null;
+            transaction.Account = null;
+
 
             using var context = await _contextFactory.CreateDbContextAsync();
             if (transaction.Id == 0)
