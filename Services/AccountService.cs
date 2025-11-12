@@ -21,8 +21,8 @@ namespace ExpenseTracker.Services
             {
                 Id = a.Id,
                 Name = a.Name,
-                InitialBalance = a.InitialBalace,
-                CurrentBalance = a.InitialBalace + a.Transactions.Sum(t => t.Amount),
+                InitialBalance = a.InitialBalance,
+                CurrentBalance = a.InitialBalance + a.Transactions.Sum(t => t.Amount),
             }).ToListAsync();
         }
 
@@ -46,8 +46,8 @@ namespace ExpenseTracker.Services
             {
                 Id = a.Id,
                 Name = a.Name,
-                InitialBalance = a.InitialBalace,
-                CurrentBalance = a.InitialBalace + a.Transactions.Sum(t => t.Amount),
+                InitialBalance = a.InitialBalance,
+                CurrentBalance = a.InitialBalance + a.Transactions.Sum(t => t.Amount),
             }).SingleAsync(a => a.Id == accountId);
         }
 
@@ -69,16 +69,26 @@ namespace ExpenseTracker.Services
             await context.SaveChangesAsync();
 
         }
-        
+
         public async Task DeleteAsync(int accountId)
         {
             using var context = await _contextFactory.CreateDbContextAsync();
             await context.Transactions
                 .Where(t => t.AccountId == accountId)
                 .ExecuteDeleteAsync();
-            
+
             await context.Accounts
                 .Where(a => a.Id == accountId)
+                .ExecuteDeleteAsync();
+        }
+        
+        public async Task DeleteAllAsync()
+        {
+            using var context = await _contextFactory.CreateDbContextAsync();
+            await context.Transactions
+                .ExecuteDeleteAsync();
+                
+            await context.Accounts
                 .ExecuteDeleteAsync();
         }
     }

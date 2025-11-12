@@ -19,5 +19,11 @@ namespace ExpenseTracker.Services
             return await context.Categories.OrderBy(t => t.Id).ToListAsync();
         }
 
+        public async Task<Category?> GetAsync(int categoryId)
+        {
+            using var context = await _contextFactory.CreateDbContextAsync();
+            return await context.Categories.SingleAsync(c => c.Id == categoryId);
+        }
+
     }
 }

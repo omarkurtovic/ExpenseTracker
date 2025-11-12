@@ -21,6 +21,7 @@
         <MudText Typo="Typo.body1">No accounts created yet</MudText>
     }
     else{
+        <MudText Typo="Typo.body1">Balance: @MyAccounts.Sum(a => a.CurrentBalance)</MudText>
         <div class="accounts-container">
             @foreach(var account in MyAccounts){
                 <MudCard Outlined="true">

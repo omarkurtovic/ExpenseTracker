@@ -17,7 +17,7 @@ namespace Database
                 .HasPrecision(18, 2);
 
             modelBuilder.Entity<Account>()
-                .Property(t => t.InitialBalace)
+                .Property(t => t.InitialBalance)
                 .HasPrecision(18, 2);
 
             modelBuilder.Entity<Category>().HasData(

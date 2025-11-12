@@ -2,12 +2,15 @@
 @using ExpenseTracker.Components.Pages.Dialogs
 @using ExpenseTracker.Database.Models
 @using ExpenseTracker.Services
+@using MudBlazor.Extensions
+@using System.Globalization
 @rendermode InteractiveServer
 @inject TransactionService TransactionService
 @inject CategoryService CategoryService
 @inject AccountService AccountService 
 @inject IDialogService DialogService
 @inject NotificationService NotificationService
+@inject SeedDataService SeedDataService
 
 <MudThemeProvider />
 <MudPopoverProvider />
@@ -17,7 +20,10 @@
 <div style="display: flex; flex-direction: column; gap: 1rem;">
     <PageTitle>Trasactions</PageTitle>
     <h1>Transactions</h1>
-    <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="@(() => OpenTransactionDialogAsync(null))">Add</MudButton>
+    <div style="display: flex; flex-direction: row; gap: 1rem;">
+        <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="@(() => OpenTransactionDialogAsync(null))">Add</MudButton>
+        <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="@AddTestData">Add Test Data</MudButton>
+    </div>
     <div class="filter-container">
         <MudSelect T="int?" Label="Account" @bind-Value="accountId"
              @bind-Value:after="this.FilterChanged">
@@ -50,6 +56,18 @@
                 }
             }
         </MudSelect>
+
+        
+        <MudSelect T="DateFilterPreset?" Label="Date" @bind-Value="dateFilter"
+             @bind-Value:after="this.FilterChanged">
+            <MudSelectItem Value="@((DateFilterPreset?)null)">All</MudSelectItem>
+            @foreach (DateFilterPreset item in Enum.GetValues(typeof(DateFilterPreset)))
+            {
+                <MudSelectItem Value="@((DateFilterPreset?)item)">@item</MudSelectItem>
+            }
+        </MudSelect>
+
+
     </div>
     @if(MyTransactions is not null){
 
@@ -85,6 +103,7 @@
     private List<Account> Accounts;
     private TransactionType? transactionType;
     private int? categoryId;
+    private DateFilterPreset? dateFilter;
 
     private int? accountId;
     protected override async Task OnInitializedAsync()
@@ -96,6 +115,7 @@
         transactionType = null;
         categoryId = null;
         accountId = null;
+        dateFilter = null;
     }
 
     private async Task OpenTransactionDialogAsync(int? transaction_id)
@@ -179,7 +199,47 @@
         if(accountId is not null){
             MyTransactions = MyTransactions.Where(t => t.AccountId == accountId).ToList();
         }
+
+        if(dateFilter is not null){
+            switch(dateFilter){
+                case DateFilterPreset.ThisMonth:
+                    var startOfMonth = DateTime.Now.StartOfMonth(CultureInfo.CurrentCulture);
+                    MyTransactions = MyTransactions.Where(t => t.Date >= startOfMonth).ToList();
+                    break;
+                
+                case DateFilterPreset.LastMonth:
+                    DateTime oneMonthAgo = DateTime.Now.AddMonths(-1);
+                    DateTime startOfLastMonth = oneMonthAgo.StartOfMonth(CultureInfo.CurrentCulture);
+                    DateTime endOfLastMonth = oneMonthAgo.EndOfMonth(CultureInfo.CurrentCulture);
+                    MyTransactions = MyTransactions.Where(t => t.Date >= startOfLastMonth && t.Date < endOfLastMonth).ToList();
+                    break;
+
+                case DateFilterPreset.Last3Months:
+                    DateTime threeMonthsAgo = DateTime.Now.AddMonths(-3);
+                    DateTime startOf3MonthsAgoMonth = threeMonthsAgo.StartOfMonth(CultureInfo.CurrentCulture);
+                    MyTransactions = MyTransactions.Where(t => t.Date >= startOf3MonthsAgoMonth).ToList();
+                    break;
+
+
+                case DateFilterPreset.ThisYear:
+                    var startOfyear = new DateTime(DateTime.Now.Year, 1, 1);
+                    MyTransactions = MyTransactions.Where(t => t.Date >= startOfyear).ToList();
+                break;
+
+            }
+        }
+    }
+
+    public enum DateFilterPreset{
+        ThisMonth,
+        LastMonth,
+        Last3Months,
+        ThisYear
     }
 
 
+    private async void AddTestData(){
+        await SeedDataService.SeedDummyDataAsync();
+        await UpdatePage();
+    }
 }
