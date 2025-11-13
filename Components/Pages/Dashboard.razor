@@ -1,0 +1,150 @@
+﻿@page "/"
+@using ExpenseTracker.Components.Pages.Dialogs
+@using ExpenseTracker.Database.Models
+@using ExpenseTracker.Dtos
+@using ExpenseTracker.Services
+@using MudBlazor.Extensions
+@using System.Globalization
+
+@rendermode InteractiveServer
+@inject TransactionService TransactionService
+@inject CategoryService CategoryService
+@inject AccountService AccountService
+@inject IDialogService DialogService
+@inject NotificationService NotificationService
+@inject SeedDataService SeedDataService
+
+<MudThemeProvider />
+<MudPopoverProvider />
+<MudDialogProvider />
+<MudSnackbarProvider />
+
+
+<PageTitle>Dashboard</PageTitle>
+
+<div class="main-container">
+    <div class="header">
+
+        <MudCard Class="my-card">
+            <MudCardHeader>
+                <MudText Class="my-card-header">Balance</MudText>
+            </MudCardHeader>
+            <MudCardContent>
+                <MudText Class="my-card-text">@balance $</MudText>
+            </MudCardContent>
+        </MudCard>
+
+        <MudCard Class="my-card">
+            <MudCardHeader>
+                <MudText Class="my-card-header">Income this month</MudText>
+            </MudCardHeader>
+            <MudCardContent>
+                <MudText Class="my-card-text">@incomeThisMonth $</MudText>
+            </MudCardContent>
+        </MudCard>
+
+        <MudCard Class="my-card">
+            <MudCardHeader>
+                <MudText Class="my-card-header">Expenses this month</MudText>
+            </MudCardHeader>
+            <MudCardContent>
+                <MudText Class="my-card-text">@expensesThisMonth $</MudText>
+            </MudCardContent>
+        </MudCard>
+    </div>
+
+    <div class="reports">
+        <MudCard Class="my-card">
+            <MudCardHeader>
+                <MudText Class="my-card-header">Expenses and Income last 6 months</MudText>
+            </MudCardHeader>
+            <MudCardContent>
+                <MudChart ChartType="ChartType.Bar" ChartSeries="@ExpenseIncomeGraphSeries" XAxisLabels="@ExpenseIncomeGraphXAxisLabels" Width="100%" Height="350px">
+                </MudChart>
+            </MudCardContent>
+        </MudCard>
+
+        <MudCard Class="my-card">
+            <MudCardHeader>
+                <MudText Class="my-card-header">Top Expenses last 6 months</MudText>
+            </MudCardHeader>
+            <MudCardContent>
+                <MudChart ChartType="ChartType.Bar" ChartSeries="@ExpenseIncomeGraphSeries" XAxisLabels="@ExpenseIncomeGraphXAxisLabels" Width="100%" Height="350px">
+                </MudChart>
+            </MudCardContent>
+        </MudCard>
+    </div>
+</div>
+
+
+@code {
+
+    private decimal balance = 0;
+    private decimal incomeThisMonth = 0;
+    private decimal expensesThisMonth = 0; 
+    
+
+    protected override async Task OnInitializedAsync()
+    {
+        List<Transaction> transactions = await TransactionService.GetAllAsync();
+        List<AccountWithBalance> accounts = await AccountService.GetAllWithBalanceAsync();
+
+        
+        SetupHeader(transactions, accounts);
+        SetupExpenseIncomeGraph(transactions);
+    }
+
+    private void SetupHeader(List<Transaction> transactions, List<AccountWithBalance> accounts){
+        
+        balance = accounts.Sum(a => a.CurrentBalance);
+        var transactionsThisMonth = transactions
+        .Where(t => t.Date >= DateTime.Now.StartOfMonth(CultureInfo.CurrentCulture))
+        .ToList();
+
+        foreach(var transaction in transactionsThisMonth){
+            if(transaction.Category.Type == TransactionType.Expense){
+                expensesThisMonth += transaction.Amount;
+            }
+            else if(transaction.Category.Type == TransactionType.Income){
+                incomeThisMonth += transaction.Amount;
+            }
+        }
+        expensesThisMonth = -expensesThisMonth;
+    }
+
+
+    public List<ChartSeries> ExpenseIncomeGraphSeries = new List<ChartSeries>()
+    {
+        new ChartSeries() { Name = "Income", Data = new double[6]},
+        new ChartSeries() { Name = "Expenses", Data = new double[6]}
+    };
+    public string[] ExpenseIncomeGraphXAxisLabels = new string[6];
+
+    private void SetupExpenseIncomeGraph(List<Transaction> transactions)
+    {
+        int monthsToScan = 6;
+        for(int i = 0; i < monthsToScan; ++i){
+            var sixMonthsAgo = DateTime.Now.AddMonths(i - monthsToScan);
+            var startOfMonth = sixMonthsAgo.StartOfMonth(CultureInfo.CurrentCulture);
+            var endOfMonth = sixMonthsAgo.EndOfMonth(CultureInfo.CurrentCulture);
+
+            var monthName = startOfMonth.ToString("MMM");
+            ExpenseIncomeGraphXAxisLabels[i] = monthName;
+
+            var transactionsThisMonth = transactions.Where(t => t.Date >= startOfMonth && t.Date <= endOfMonth).ToList();
+            double income = 0;
+            double expense = 0;
+            foreach(var t in transactionsThisMonth){
+                if(t.Category.Type == TransactionType.Income){
+                    income += (double)t.Amount;
+                }
+                else if(t.Category.Type == TransactionType.Expense){
+                    expense += (double)t.Amount;
+                }
+            }
+
+            ExpenseIncomeGraphSeries[0].Data[i] = income;
+            ExpenseIncomeGraphSeries[1].Data[i] = -expense;
+        }
+    }
+}
