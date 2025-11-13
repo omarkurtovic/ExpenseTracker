@@ -37,6 +37,7 @@ namespace ExpenseTracker.Services
             var transactions = new List<Transaction>();
             var today = DateTime.Today;
             var categories = await _categoryService.GetAllAsync();
+            
 
             for (int i = 0; i < 200; i++)
             {

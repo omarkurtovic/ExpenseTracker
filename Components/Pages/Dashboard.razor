@@ -59,8 +59,12 @@
                 <MudText Class="my-card-header">Expenses and Income last 6 months</MudText>
             </MudCardHeader>
             <MudCardContent>
-                <MudChart ChartType="ChartType.Bar" ChartSeries="@ExpenseIncomeGraphSeries" XAxisLabels="@ExpenseIncomeGraphXAxisLabels" Width="100%" Height="350px">
-                </MudChart>
+                @if (ExpenseIncomeGraphSeries is not null && ExpenseIncomeGraphXAxisLabels is not null)
+                {
+                    <MudChart ChartType="ChartType.Bar" ChartSeries="@ExpenseIncomeGraphSeries"
+                        XAxisLabels="@ExpenseIncomeGraphXAxisLabels" Width="100%" Height="350px">
+                    </MudChart>
+                }
             </MudCardContent>
         </MudCard>
 
@@ -69,11 +73,40 @@
                 <MudText Class="my-card-header">Top Expenses last 6 months</MudText>
             </MudCardHeader>
             <MudCardContent>
-                <MudChart ChartType="ChartType.Bar" ChartSeries="@ExpenseIncomeGraphSeries" XAxisLabels="@ExpenseIncomeGraphXAxisLabels" Width="100%" Height="350px">
-                </MudChart>
+                @if (topCategoriesGraphData is not null && topCategoriesGraphLabels is not null)
+                {
+                    <MudChart ChartType="ChartType.Donut" Width="300px" Height="300px" InputData="@topCategoriesGraphData"
+                        InputLabels="@topCategoriesGraphLabels"></MudChart>
+                }
             </MudCardContent>
         </MudCard>
     </div>
+    <div class="latest-transactions-container">
+        <MudCard Class="my-card">
+            <MudCardHeader>
+                <MudText Class="my-card-header">Latest transactions</MudText>
+            </MudCardHeader>
+            <MudCardContent>
+                @if (latestTransactions is not null)
+                {
+                    <MudDataGrid T="Transaction" Items="@latestTransactions" Class="data-grid">
+                        <Columns>
+                            <TemplateColumn Title="Amount">
+                                <CellTemplate>
+                                    @(context.Item.Category.Type == TransactionType.Expense ? -context.Item.Amount :
+                                                                    context.Item.Amount)
+                                </CellTemplate>
+                            </TemplateColumn>
+                            <PropertyColumn Property="t => t.Date" Title="Date"></PropertyColumn>
+                            <PropertyColumn Property="t => t.Category.Name" Title="Category"></PropertyColumn>
+                            <PropertyColumn Property="t => t.Description" Title="Description"></PropertyColumn>
+                        </Columns>
+                    </MudDataGrid>
+                }
+            </MudCardContent>
+        </MudCard>
+    </div>
+
 </div>
 
 
@@ -81,31 +114,38 @@
 
     private decimal balance = 0;
     private decimal incomeThisMonth = 0;
-    private decimal expensesThisMonth = 0; 
-    
+    private decimal expensesThisMonth = 0;
 
+    private List<Transaction> latestTransactions = new List<Transaction>();
     protected override async Task OnInitializedAsync()
     {
         List<Transaction> transactions = await TransactionService.GetAllAsync();
+        latestTransactions = transactions.OrderByDescending(t => t.Date).Take(5).ToList();
+
         List<AccountWithBalance> accounts = await AccountService.GetAllWithBalanceAsync();
 
-        
+
         SetupHeader(transactions, accounts);
         SetupExpenseIncomeGraph(transactions);
+        SetupTopCategoriesGraph(transactions);
     }
 
-    private void SetupHeader(List<Transaction> transactions, List<AccountWithBalance> accounts){
-        
+    private void SetupHeader(List<Transaction> transactions, List<AccountWithBalance> accounts)
+    {
+
         balance = accounts.Sum(a => a.CurrentBalance);
         var transactionsThisMonth = transactions
         .Where(t => t.Date >= DateTime.Now.StartOfMonth(CultureInfo.CurrentCulture))
         .ToList();
 
-        foreach(var transaction in transactionsThisMonth){
-            if(transaction.Category.Type == TransactionType.Expense){
+        foreach (var transaction in transactionsThisMonth)
+        {
+            if (transaction.Category.Type == TransactionType.Expense)
+            {
                 expensesThisMonth += transaction.Amount;
             }
-            else if(transaction.Category.Type == TransactionType.Income){
+            else if (transaction.Category.Type == TransactionType.Income)
+            {
                 incomeThisMonth += transaction.Amount;
             }
         }
@@ -113,17 +153,18 @@
     }
 
 
-    public List<ChartSeries> ExpenseIncomeGraphSeries = new List<ChartSeries>()
-    {
-        new ChartSeries() { Name = "Income", Data = new double[6]},
-        new ChartSeries() { Name = "Expenses", Data = new double[6]}
-    };
-    public string[] ExpenseIncomeGraphXAxisLabels = new string[6];
+    private List<ChartSeries> ExpenseIncomeGraphSeries = new List<ChartSeries>()
+{
+new ChartSeries() { Name = "Income", Data = new double[6]},
+new ChartSeries() { Name = "Expenses", Data = new double[6]}
+};
+    private string[] ExpenseIncomeGraphXAxisLabels = new string[6];
 
     private void SetupExpenseIncomeGraph(List<Transaction> transactions)
     {
         int monthsToScan = 6;
-        for(int i = 0; i < monthsToScan; ++i){
+        for (int i = 0; i < monthsToScan; ++i)
+        {
             var sixMonthsAgo = DateTime.Now.AddMonths(i - monthsToScan);
             var startOfMonth = sixMonthsAgo.StartOfMonth(CultureInfo.CurrentCulture);
             var endOfMonth = sixMonthsAgo.EndOfMonth(CultureInfo.CurrentCulture);
@@ -134,11 +175,14 @@
             var transactionsThisMonth = transactions.Where(t => t.Date >= startOfMonth && t.Date <= endOfMonth).ToList();
             double income = 0;
             double expense = 0;
-            foreach(var t in transactionsThisMonth){
-                if(t.Category.Type == TransactionType.Income){
+            foreach (var t in transactionsThisMonth)
+            {
+                if (t.Category.Type == TransactionType.Income)
+                {
                     income += (double)t.Amount;
                 }
-                else if(t.Category.Type == TransactionType.Expense){
+                else if (t.Category.Type == TransactionType.Expense)
+                {
                     expense += (double)t.Amount;
                 }
             }
@@ -147,4 +191,37 @@
             ExpenseIncomeGraphSeries[1].Data[i] = -expense;
         }
     }
+
+    private double[] topCategoriesGraphData = new double[6];
+    private string[] topCategoriesGraphLabels = ["", "", "", "", "", ""];
+
+    private void SetupTopCategoriesGraph(List<Transaction> transactions, int numOfMonthsBehind = 6)
+    {
+
+        var dateStart = DateTime.Now.AddMonths(-numOfMonthsBehind).StartOfMonth(CultureInfo.CurrentCulture);
+        var topCategories = transactions
+        .Where(t => t.Category.Type == TransactionType.Expense)
+        .Where(t => t.Date >= dateStart)
+        .GroupBy(t => t.Category)
+        .Select(g => new
+        {
+            Category = g.Key,
+            TotalExpense = g.Sum(t => -t.Amount)
+        })
+        .OrderByDescending(g => g.TotalExpense).ToList();
+
+        double total = (double)topCategories.Sum(c => c.TotalExpense);
+
+        for (int i = 0; i < 5 && i < topCategories.Count; ++i)
+        {
+            topCategoriesGraphLabels[i] = topCategories[i].Category.Name;
+            topCategoriesGraphData[i] = Math.Floor(((double)topCategories[i].TotalExpense * 100) / total);
+        }
+        if (topCategories.Count > 5)
+        {
+            topCategoriesGraphLabels[5] = "Other";
+            topCategoriesGraphData[5] = 100 - topCategoriesGraphData.Sum(t => t);
+        }
+    }
+
 }
