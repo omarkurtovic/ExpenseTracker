@@ -16,33 +16,74 @@
 <MudDialogProvider /> 
 <MudSnackbarProvider />
 
-<MudForm @ref="form">
-    <MudTextField @bind-Value="LoginData.Email" Label="Email" Variant="Variant.Text"
-        Required="true" RequiredError="Email is required!">
-    </MudTextField>
 
-    <MudTextField @bind-Value="LoginData.Password" Label="Password" Variant="Variant.Text"
-        Required="true" RequiredError="Password is required!" InputType="InputType.Password">
-    </MudTextField>
-
-    <MudCheckBox @bind-Value="LoginData.RememberMe" Label="Remember me"></MudCheckBox>
-    <MudText Typo="Typo.body1">No account? <MudButton Variant="Variant.Text" Color="Color.Secondary" OnClick="BtnRegister_Click">Register</MudButton></MudText>
-    <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="@BtnLogin_Click">Login</MudButton>
-
-    @if(error){
-        <MudAlert Severity="Severity.Error">Login Failed</MudAlert>
-    }
+<MudContainer MaxWidth="MaxWidth.Small" Height="500px" >
+    <MudPaper Class="pa-6 mud-elevation-14" Elevation="1">
+        <MudForm @ref="form">
+            <MudGrid>
+                <MudItem xs="12" Class="d-flex justify-center">
+                    <MudText Typo="Typo.h4">Welcome back!</MudText>
+                </MudItem>
+                <MudItem xs="12">
+                        <MudTextField @bind-Value="email" Label="Email" Variant="Variant.Text"
+                            Required="true" RequiredError="Email is required!">
+                        </MudTextField>
+                </MudItem>
+                <MudItem xs="12">
+                    <MudTextField @bind-Value="password" Label="Password" Variant="Variant.Text"
+                        Required="true" RequiredError="Password is required!" InputType="InputType.Password">
+                    </MudTextField>
+                </MudItem>
+                <MudItem xs="12" Class="d-flex justify-center">
+                    <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="@BtnLogin_Click" Class="px-20 py-1">Login</MudButton>
+                </MudItem>
+                @if(error){
+                    <MudItem xs="12" Class="d-flex justify-center">
+                        <MudAlert Severity="Severity.Error">Login failed, please try again.</MudAlert>
+                    </MudItem>
+                }
+                <MudItem xs="12" Class="d-flex justify-center mt-20">
+                    <MudText Typo="Typo.body1">Dont't have an account? Register <MudButton Variant="Variant.Text" Color="Color.Secondary" OnClick="BtnRegister_Click">HERE</MudButton></MudText>
+                </MudItem>
+            </MudGrid>
+        </MudForm>
+    </MudPaper>
+</MudContainer>
     
-</MudForm>
+    
 
 @code{
 
     [SupplyParameterFromQuery]
     [Parameter]
     public bool error {get; set;} = false;
-    private MudForm form;
-    private LoginUserData LoginData = new LoginUserData();
 
+    [SupplyParameterFromQuery]
+    [Parameter]
+    public string email {get; set;} = "";
+
+    public string password {get; set;} = "";
+
+    private MudForm form;
+
+
+    private bool _errorTimerStarted = false;
+    protected override async Task OnParametersSetAsync()
+    {
+        await base.OnParametersSetAsync();
+        if (error && !_errorTimerStarted)
+        {
+            _errorTimerStarted = true;
+            await HideErrorAfterDelay(10000);
+        }
+    }
+    private async Task HideErrorAfterDelay(int millisecondsDelay)
+    {
+        await Task.Delay(millisecondsDelay);
+        error = false;
+        _errorTimerStarted = false;
+        await InvokeAsync(StateHasChanged);
+    }
 
 
     private async Task BtnLogin_Click(){
@@ -58,7 +99,7 @@
     
     private void HandleLogin()
     {
-        NavigationManager.NavigateTo($"/api/auth/login?email={LoginData.Email}&password={LoginData.Password}", forceLoad: true);
+        NavigationManager.NavigateTo($"/api/auth/login?email={email}&password={password}", forceLoad: true);
     }
 
     private void BtnRegister_Click(){

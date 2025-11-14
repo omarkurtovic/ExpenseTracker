@@ -27,7 +27,7 @@ namespace ExpenseTracker.Controllers
                 return Redirect("/");
             }
             
-            return Redirect("/login?error=true");
+            return Redirect($"/login?error=true&email={email}");
         }
 
         [HttpGet("logout")]
