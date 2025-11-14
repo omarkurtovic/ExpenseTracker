@@ -1,0 +1,122 @@
+@page "/categories"
+@using ExpenseTracker.Components.Pages.Dialogs
+@using ExpenseTracker.Database.Models
+@using ExpenseTracker.Services
+@using MudBlazor.Extensions
+@using System.Globalization
+@rendermode InteractiveServer
+@inject TransactionService TransactionService
+@inject CategoryService CategoryService
+@inject IDialogService DialogService
+@inject NotificationService NotificationService
+
+<MudThemeProvider />
+<MudPopoverProvider />
+<MudDialogProvider /> 
+<MudSnackbarProvider />
+
+<div style="display: flex; flex-direction: column; gap: 1rem;">
+    <PageTitle>Categories</PageTitle>
+    <h1>Categories</h1>
+    <div style="display: flex; flex-direction: row; gap: 1rem;">
+        <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="@(() => OpenCategoryDialogAsync(null))">Add</MudButton>
+    </div>
+    <div class="filter-container">
+
+
+        <MudSelect T="TransactionType?" Label="Type" @bind-Value="transactionType"
+             @bind-Value:after="this.FilterChanged">
+            <MudSelectItem Value="@((TransactionType?)null)">All</MudSelectItem>
+            @foreach (TransactionType item in Enum.GetValues(typeof(TransactionType)))
+            {
+                <MudSelectItem Value="@((TransactionType?)item)">@item</MudSelectItem>
+            }
+        </MudSelect>
+
+    </div>
+    @if(MyCategories is not null){
+
+        <MudDataGrid T="Category" Items="@MyCategories" Class="data-grid">
+            <Columns>
+                <PropertyColumn Property="t => t.Name" Title="Name"></PropertyColumn>
+                <PropertyColumn Property="t => t.Type" Title="Type"></PropertyColumn>
+                <TemplateColumn >
+                    <CellTemplate>
+                        <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="@(() => OpenCategoryDialogAsync(context.Item.Id))">Edit</MudButton>
+                    </CellTemplate>
+                </TemplateColumn>
+                <TemplateColumn>
+                    <CellTemplate>
+                        <MudButton Variant="Variant.Filled" Color="Color.Error" OnClick="@(() => ConfirmDelete(context.Item.Id))">Delete</MudButton>
+                    </CellTemplate>
+                </TemplateColumn>
+            </Columns>
+            <PagerContent>
+                <MudDataGridPager T="Category" />
+            </PagerContent>
+        </MudDataGrid>
+    }
+</div>
+
+
+@code {
+    private List<Category> MyCategories;
+    private TransactionType? transactionType;
+
+    protected override async Task OnInitializedAsync()
+    {
+        MyCategories = await CategoryService.GetAllAsync();
+        transactionType = null;
+    }
+
+    private async Task OpenCategoryDialogAsync(int? category_id)
+    {
+        var options = new DialogOptions { CloseOnEscapeKey = true, };
+        var parameters = new DialogParameters<CategoryDialog>
+        {
+            { x => x.CategoryId, category_id }
+        };
+
+        var dialog = await DialogService.ShowAsync<CategoryDialog>(title: "Simple Dialog", parameters, options);
+        var result = await dialog.Result;
+        if (!result.Canceled)
+        {
+            await RefreshPage();
+        }
+    }
+
+    private async Task ConfirmDelete(int category_id)
+    {
+        var options = new DialogOptions { CloseOnEscapeKey = true };
+        var parameters = new DialogParameters<ConfirmDialog>
+        {
+            { x => x.Message,  "Are you sure you want to delete the category? " }
+        };
+
+        var dialog = await DialogService.ShowAsync<ConfirmDialog>(title: "Warning", parameters, options);
+        var result = await dialog.Result;
+        if (!result.Canceled)
+        {
+            await CategoryService.DeleteAsync(category_id);
+            await NotificationService.ShowSuccess("Category succesfully deleted! ");
+            await RefreshPage();
+        }
+    }
+
+    
+    private async void FilterChanged()
+    {
+        await RefreshPage();
+        StateHasChanged();
+    }
+
+    async Task RefreshPage(){
+
+        MyCategories = await CategoryService.GetAllAsync();
+
+        if(transactionType is not null){
+            MyCategories = MyCategories.Where(c => c.Type == transactionType).ToList();
+            
+        }
+    }
+}
