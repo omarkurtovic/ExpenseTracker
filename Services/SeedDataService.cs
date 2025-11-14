@@ -8,24 +8,34 @@ namespace ExpenseTracker.Services
         private AccountService _accountService;
         private TransactionService _transactionService;
         private CategoryService _categoryService;
-        public SeedDataService(AccountService accountService, TransactionService transactionService, CategoryService categoryService)
+        private CurrentUserService _currentUserService;
+        public SeedDataService(AccountService accountService, TransactionService transactionService, CategoryService categoryService, CurrentUserService currentUserService)
         {
             _accountService = accountService;
             _transactionService = transactionService;
             _categoryService = categoryService;
+            _currentUserService = currentUserService;
         }
 
         public async Task SeedDummyDataAsync()
         {
+            var userId = _currentUserService.GetUserId();
+            if (string.IsNullOrWhiteSpace(userId))
+            {
+                return;
+            }
+
             var bankAccount = new Account
             {
                 Name = "Bank Account",
-                InitialBalance = 2500m
+                InitialBalance = 2500m,
+                IdentityUserId = userId
             };
             var cashAccount = new Account
             {
                 Name = "Cash",
-                InitialBalance = 300m
+                InitialBalance = 300m,
+                IdentityUserId = userId
             };
 
             await _accountService.DeleteAllAsync();
