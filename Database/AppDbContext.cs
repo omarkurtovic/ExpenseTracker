@@ -37,6 +37,32 @@ namespace Database
                 new Category() { Id = 10, Name = "Pets", Type=TransactionType.Expense},
                 new Category() { Id = 11, Name = "Salary", Type=TransactionType.Income}
             );
+
+            modelBuilder.Entity<IdentityRole>().HasData(new IdentityRole 
+            {
+                Id = "1b1c59f2-891f-4732-a974-3b755208d0d9", 
+                Name = "Administrator", 
+                NormalizedName = "ADMINISTRATOR",
+                ConcurrencyStamp = "a95a997e-84dd-4ef6-a759-1f36700a41f4"
+            });
+
+            modelBuilder.Entity<IdentityUser>().HasData(
+            new IdentityUser
+            {
+                Id = "4e08d54b-16f0-47a0-afaf-afc12dbdedc8",
+                UserName = "sa",
+                NormalizedUserName = "SA",
+                PasswordHash = "AQAAAAIAAYagAAAAEPaPOWihwWXqakYt44g4+tcyL/Re1e5Fx3AiCOMXavq7m9bkrUdn20iJc8ABi9u72A==", // Secret1!
+                ConcurrencyStamp = "a95a997e-84dd-4ef6-a759-1f36700a41f4",
+                SecurityStamp = "c3691bab-bed8-4bcc-91fa-62bb12e2b245"
+            });
+            
+            modelBuilder.Entity<IdentityUserRole<string>>().HasData(
+            new IdentityUserRole<string>
+            {
+                RoleId = "1b1c59f2-891f-4732-a974-3b755208d0d9", 
+                UserId = "4e08d54b-16f0-47a0-afaf-afc12dbdedc8"
+            });
         }
     }
 }

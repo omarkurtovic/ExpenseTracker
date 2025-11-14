@@ -1,7 +1,9 @@
 @page "/categories"
+@attribute [Authorize]
 @using ExpenseTracker.Components.Pages.Dialogs
 @using ExpenseTracker.Database.Models
 @using ExpenseTracker.Services
+@using Microsoft.AspNetCore.Authorization
 @using MudBlazor.Extensions
 @using System.Globalization
 @rendermode InteractiveServer
@@ -98,7 +100,7 @@
         if (!result.Canceled)
         {
             await CategoryService.DeleteAsync(category_id);
-            await NotificationService.ShowSuccess("Category succesfully deleted! ");
+            await NotificationService.ShowSuccessAsync("Category succesfully deleted! ");
             await RefreshPage();
         }
     }

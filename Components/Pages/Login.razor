@@ -1,4 +1,4 @@
-@page "/login"
+@page "/login/{error?}"
 @using ExpenseTracker.Components.Pages.Dialogs
 @using ExpenseTracker.Database.Models
 @using ExpenseTracker.Dtos
@@ -27,11 +27,18 @@
     <MudCheckBox @bind-Value="LoginData.RememberMe" Label="Remember me"></MudCheckBox>
     <MudText Typo="Typo.body1">No account? <MudButton Variant="Variant.Text" Color="Color.Secondary" OnClick="BtnRegister_Click">Register</MudButton></MudText>
     <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="@BtnLogin_Click">Login</MudButton>
+
+    @if(string.IsNullOrWhiteSpace(Error)){
+
+    }
+    <MudText Typo="Typo.body1">@Error</MudText>
     
 </MudForm>
 
 @code{
 
+    [Parameter]
+    public string Error{get; set;} = "";
     private MudForm form;
     private LoginUserData LoginData = new LoginUserData();
 
@@ -44,17 +51,15 @@
             return;
         }
 
-        var result = await IdentityService.LoginAsync(LoginData);
-        if(result.Succeeded){
-            NavigationManager.NavigateTo("Dashboard");
-        }
-        else{
-            await NotificationService.ShowErrorAsync(message: "Login failed");
-        }
+        HandleLogin();
+    }
+    
+    private void HandleLogin()
+    {
+        NavigationManager.NavigateTo($"/api/auth/login?email={LoginData.Email}&password={LoginData.Password}", forceLoad: true);
     }
 
     private void BtnRegister_Click(){
-            NavigationManager.NavigateTo("Register");
-
+        NavigationManager.NavigateTo("Register");
     }
 }

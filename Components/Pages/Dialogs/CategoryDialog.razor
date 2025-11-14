@@ -1,5 +1,7 @@
+@attribute [Authorize]
 @using ExpenseTracker.Database.Models
 @using ExpenseTracker.Services
+@using Microsoft.AspNetCore.Authorization
 @inject CategoryService CategoryService
 @inject NotificationService NotificationService
 
@@ -15,7 +17,7 @@
                         </MudTextField>
                     }
                     <MudSelect T="TransactionType" Label="Type" Required="true" @bind-Value="_type"
-                        RequiredError="Type of category is required!">
+                        RequiredError="Type is required!">
                         @foreach (TransactionType item in Enum.GetValues(typeof(TransactionType)))
                         {
                             <MudSelectItem Value="@item">@item</MudSelectItem>
@@ -84,7 +86,7 @@
         Category.Type = _type;
         
         await CategoryService.SaveAsync(Category);
-        await NotificationService.ShowSuccess("Transaction succesfully saved! ");
+        await NotificationService.ShowSuccessAsync("Category succesfully saved! ");
         MudDialog.Close(DialogResult.Ok(result: true));
     }
 

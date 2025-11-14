@@ -1,5 +1,7 @@
+@attribute [Authorize]
 @using ExpenseTracker.Database.Models
 @using ExpenseTracker.Services
+@using Microsoft.AspNetCore.Authorization
 @inject TransactionService TransactionService
 @inject CategoryService CategoryService
 @inject AccountService AccountService
