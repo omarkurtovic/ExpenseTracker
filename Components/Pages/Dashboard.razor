@@ -6,6 +6,7 @@
 @using ExpenseTracker.Dtos
 @using ExpenseTracker.Services
 @using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Components.Authorization
 @using MudBlazor.Extensions
 @using System.Globalization
 
@@ -16,6 +17,7 @@
 @inject IDialogService DialogService
 @inject NotificationService NotificationService
 @inject SeedDataService SeedDataService
+@inject AuthenticationStateProvider AuthenticationStateProvider
 
 <MudThemeProvider />
 <MudPopoverProvider />
@@ -26,6 +28,7 @@
 <PageTitle>Dashboard</PageTitle>
 
 <div class="main-container">
+    <MudText Typo="Typo.h3" Class="title">Welcome back @username</MudText>
     <div class="header">
 
         <MudCard Class="my-card">
@@ -115,6 +118,7 @@
 
 @code {
 
+    private string username = "";
     private decimal balance = 0;
     private decimal incomeThisMonth = 0;
     private decimal expensesThisMonth = 0;
@@ -122,6 +126,9 @@
     private List<Transaction> latestTransactions = new List<Transaction>();
     protected override async Task OnInitializedAsync()
     {
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        username = authState.User.Identity?.Name ?? "";
+
         List<Transaction> transactions = await TransactionService.GetAllAsync();
         latestTransactions = transactions.OrderByDescending(t => t.Date).Take(5).ToList();
 
@@ -135,7 +142,6 @@
 
     private void SetupHeader(List<Transaction> transactions, List<AccountWithBalance> accounts)
     {
-
         balance = accounts.Sum(a => a.CurrentBalance);
         var transactionsThisMonth = transactions
         .Where(t => t.Date >= DateTime.Now.StartOfMonth(CultureInfo.CurrentCulture))
