@@ -9,24 +9,25 @@
 @inject NotificationService NotificationService
 @inject ISnackbar Snackbar
 
-
 <MudThemeProvider />
 <MudPopoverProvider />
 <MudDialogProvider /> 
 <MudSnackbarProvider />
 
+<title>Accounts</title>
+
 <MudContainer MaxWidth="MaxWidth.Medium">
-    <MudPaper Elevation="1" Class="pa-6 mud-elevation-15">
+    <MudPaper Class="pa-6 mud-elevation-15">
         <MudGrid>
             <MudItem xs="12" Class="d-flex justify-center">
-                <MudText Typo="Typo.h4">My Accounts</MudText>
+                <MudText Typo="Typo.h4">Accounts</MudText>
             </MudItem>
             <MudItem xs="12" Class="mb-4 d-flex justify-center">
                 <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="@(() => OpenAccountDialogAsync(null))" StartIcon="@Icons.Material.Filled.Add">Add</MudButton>
             </MudItem>
             @if(MyAccounts == null || MyAccounts.Count == 0){
-                <MudItem xs="12">
-                    <MudText Typo="Typo.body1">No accounts created yet</MudText>
+                <MudItem xs="12" Class="d-flex justify-center">
+                    <MudText Typo="Typo.h5">No accounts created yet!</MudText>
                 </MudItem>
             }
             else{
@@ -64,7 +65,7 @@
     protected override async Task OnInitializedAsync()
     {
         await UpdatePage();
-
+        await base.OnInitializedAsync();
     }
 
     private async Task OpenAccountDialogAsync(int? accountId){
