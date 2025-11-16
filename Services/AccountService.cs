@@ -67,7 +67,6 @@ namespace ExpenseTracker.Services
                 return;
             }
 
-            using var context = await _contextFactory.CreateDbContextAsync();
             var account = new Account
             {
                 Id = accountDto.Id ?? 0,
@@ -75,6 +74,17 @@ namespace ExpenseTracker.Services
                 InitialBalance = (decimal)accountDto.InitialBalance,
                 IdentityUserId = accountDto.UserId
             };
+            await SaveInternal(account);
+        }
+
+        public async Task SaveAsync(Account account)
+        {
+            await SaveInternal(account);
+        }
+
+        private async Task SaveInternal(Account account)
+        {
+            using var context = await _contextFactory.CreateDbContextAsync();
 
             if (account.Id == 0)
             {
@@ -89,7 +99,7 @@ namespace ExpenseTracker.Services
                 }
             }
             await context.SaveChangesAsync();
-
+            
         }
 
         public async Task DeleteAsync(int accountId)

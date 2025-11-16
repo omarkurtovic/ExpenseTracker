@@ -1,5 +1,6 @@
 using Database;
 using ExpenseTracker.Database.Models;
+using ExpenseTracker.Dtos;
 using Microsoft.EntityFrameworkCore;
 
 namespace ExpenseTracker.Services
@@ -44,7 +45,30 @@ namespace ExpenseTracker.Services
         }
 
         
+        public async Task SaveAsync(CategoryDto categoryDto)
+        {
+            if(string.IsNullOrWhiteSpace(categoryDto.Name) ||
+                string.IsNullOrWhiteSpace(categoryDto.UserId) ||
+                categoryDto.Type == null)
+                {
+                    return;
+                }
+            var category = new Category
+            {
+                Id = categoryDto.Id ?? 0,
+                Name = categoryDto.Name,
+                Type = (TransactionType)categoryDto.Type,
+                IdentityUserId = categoryDto.UserId
+            };
+
+            await InternalSave(category);
+        }
         public async Task SaveAsync(Category category)
+        {
+            await InternalSave(category);
+        }
+
+        private async Task InternalSave(Category category)
         {
             using var context = await _contextFactory.CreateDbContextAsync();
             if (category.Id == 0)

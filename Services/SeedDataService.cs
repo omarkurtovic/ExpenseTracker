@@ -29,17 +29,17 @@ namespace ExpenseTracker.Services
             var accounts = await _accountService.GetAllAsync();
             if(accounts.Count == 0)
             {
-                var bankAccount = new AccountDto
+                var bankAccount = new Account
                 {
                     Name = "Bank Account",
                     InitialBalance = 2500m,
-                    UserId = userId
+                    IdentityUserId = userId
                 };
-                var cashAccount = new AccountDto
+                var cashAccount = new Account
                 {
                     Name = "Cash",
                     InitialBalance = 300m,
-                    UserId = userId
+                    IdentityUserId = userId
                 };
 
                 await _accountService.SaveAsync(bankAccount);

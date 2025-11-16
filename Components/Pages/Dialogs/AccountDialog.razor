@@ -5,18 +5,17 @@
 @using Microsoft.AspNetCore.Components.Authorization
 @inject AccountService AccountService
 @inject CurrentUserService CurrentUserService
-@inject NotificationService NotificationService
 @inject ISnackbar Snackbar
 
 <MudDialog>
+    <TitleContent>
+        <MudText Typo="Typo.h5">
+            @(AccountId == null ? "Add Account" : "Edit Account")
+        </MudText>
+    </TitleContent>
     <DialogContent>
         @if(AccountDto is not null){
             <MudGrid>
-                <MudItem xs="12" Class="d-flex justify-center my-4">
-                    <MudText Typo="Typo.h5">
-                        @(AccountId == null ? "Add Account" : "Edit Account")
-                    </MudText>
-                </MudItem>
                 <MudItem xs="12">
                     <MudForm @ref="form">
                         <MudTextField @bind-Value="AccountDto.Name" Label="Name" 
