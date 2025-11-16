@@ -14,13 +14,12 @@
 @inject ISnackbar Snackbar
 @inject ISnackbar Snackbar
 
-<MudThemeProvider />
 <MudPopoverProvider />
 <MudDialogProvider /> 
 <MudSnackbarProvider />
 
-<MudContainer MaxWidth="MaxWidth.Small" Height="700px" >
-    <MudPaper Class="pa-6 mud-elevation-15" Elevation="1">
+<MudContainer MaxWidth="MaxWidth.Small" >
+    <MudPaper Class="pa-6 mt-6" Elevation="15">
         <MudForm @ref="form">
             <MudGrid>
                 <MudItem xs="12" Class="d-flex justify-center">

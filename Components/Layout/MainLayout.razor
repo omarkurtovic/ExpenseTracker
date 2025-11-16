@@ -4,33 +4,52 @@
 @inject AuthenticationStateProvider AuthenticationStateProvider
 @inject IdentityService IdentityService
 @inject NavigationManager NavigationManager
+@inject UserPreferencesService UserPreferencesService
+<MudThemeProvider @bind-IsDarkMode="@_isDarkMode" Theme="_theme"/>
 
-<div class="page">
-    <div class="sidebar">
-        <NavMenu />
-    </div>
-
-    <main>
-        <div class="top-row px-4">
-            @if(IsLoggedIn){
-                <MudButton Variant="Variant.Text" Color="Color.Error" OnClick="Logout">Logout</MudButton>
-            }
-        </div>
-
-        <article class="content px-4">
-            @Body
-        </article>
-    </main>
-</div>
-
-<div id="blazor-error-ui" data-nosnippet>
-    An unhandled error has occurred.
-    <a href="." class="reload">Reload</a>
-    <span class="dismiss">🗙</span>
-</div>
-
-
+<MudLayout>
+    @if(IsLoggedIn){
+    <MudAppBar Elevation="1">
+        <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@((e) => DrawerToggle())" />
+        <MudSpacer />
+        <MudSwitch @bind-Value="_isDarkMode" Color="Color.Primary"
+            Class="ma-4" T="bool" Label="Dark Mode" @bind-Value:after="this.ThemeChanged"/>
+        <MudButton Variant="Variant.Text" Color="Color.Error" OnClick="Logout">Logout</MudButton>
+    </MudAppBar>
+        <MudDrawer @bind-Open="_drawerOpen" Elevation="2">
+            <MudDrawerHeader>
+                <MudText Typo="Typo.h5" Class="mt-1">Expense Tracker</MudText>
+            </MudDrawerHeader>
+            <MudNavMenu>
+                <MudNavLink Href="" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Dashboard">Dashboard</MudNavLink>
+                <MudNavLink Href="accounts" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.AccountBalance">Accounts</MudNavLink>
+                <MudNavLink Href="transactions" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.CompareArrows">Transactions</MudNavLink>
+                <MudNavLink Href="categories" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Category">Category</MudNavLink>
+            </MudNavMenu>
+        </MudDrawer>
+    }
+    else{
+        <MudAppBar Elevation="1">
+            <MudText Typo="Typo.h5" Class="mt-1">Expense Tracker</MudText>
+        </MudAppBar>
+    }
+    
+    <MudMainContent>
+        @Body
+    </MudMainContent>
+</MudLayout>
 @code{
+
+    bool _drawerOpen = true;
+
+    void DrawerToggle()
+    {
+        _drawerOpen = !_drawerOpen;
+    }
+
+
+    private MudTheme _theme = new();
+    private bool _isDarkMode;
     private bool IsLoggedIn = false;
 
     protected override async Task OnInitializedAsync()
@@ -40,8 +59,27 @@
         if(user.Identity?.IsAuthenticated ?? false){
             IsLoggedIn = true;
         }
+        
+        if(IsLoggedIn){
+            var userPreferences = await UserPreferencesService.GetAsync();
+            if(userPreferences == null){
+                await UserPreferencesService.SaveAsync(_isDarkMode);
+                userPreferences = await UserPreferencesService.GetAsync();
+            }
+            
+            _isDarkMode = userPreferences.DarkMode;
+        }
     }
+
     private void Logout(){
+        var theme = _isDarkMode ? "dark" : "light";
         NavigationManager.NavigateTo($"/api/auth/logout", forceLoad: true);
+    }
+
+    private async Task ThemeChanged(){    
+        if(IsLoggedIn){
+            await UserPreferencesService.SaveAsync(_isDarkMode);
+        }
+        StateHasChanged();
     }
 }

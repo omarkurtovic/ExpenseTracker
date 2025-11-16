@@ -10,7 +10,6 @@
 @inject IDialogService DialogService
 @inject ISnackbar Snackbar
 
-<MudThemeProvider />
 <MudPopoverProvider />
 <MudDialogProvider /> 
 <MudSnackbarProvider />
@@ -19,7 +18,7 @@
 
 @if(MyCategories != null){
     <MudContainer MaxWidth="MaxWidth.Medium">
-        <MudPaper Class="pa-6" Elevation="15">
+        <MudPaper Class="pa-6 mt-6" Elevation="15">
             <MudGrid>
                 <MudItem xs="12" Class="d-flex justify-center">
                     <MudText Typo="Typo.h4">Categories</MudText>

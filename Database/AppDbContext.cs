@@ -13,10 +13,20 @@ namespace Database
         public DbSet<Transaction> Transactions { get; set; }
         public DbSet<Category> Categories { get; set; }
         public DbSet<Account> Accounts { get; set; }
+        public DbSet<UserPreferences> UserPreferences{get; set;}
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
-        
+
+            modelBuilder.Entity<UserPreferences>()
+             .HasKey(up => up.UserId);
+
+             modelBuilder.Entity<UserPreferences>()
+                .HasOne(up => up.IdentityUser)
+                .WithOne() 
+                .HasForeignKey<UserPreferences>(up => up.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+
             modelBuilder.Entity<Account>()
                 .HasOne(a => a.IdentityUser)
                 .WithMany()
@@ -68,6 +78,13 @@ namespace Database
                 PasswordHash = "AQAAAAIAAYagAAAAEPaPOWihwWXqakYt44g4+tcyL/Re1e5Fx3AiCOMXavq7m9bkrUdn20iJc8ABi9u72A==", // Secret1!
                 ConcurrencyStamp = "a95a997e-84dd-4ef6-a759-1f36700a41f4",
                 SecurityStamp = "c3691bab-bed8-4bcc-91fa-62bb12e2b245"
+            });
+            
+            modelBuilder.Entity<UserPreferences>().HasData(
+            new UserPreferences
+            {
+                UserId = "4e08d54b-16f0-47a0-afaf-afc12dbdedc8", 
+                DarkMode = false
             });
             
             modelBuilder.Entity<IdentityUserRole<string>>().HasData(
