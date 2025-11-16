@@ -65,5 +65,3 @@ appsettings.*.json
 .idea/
 *.user
 *.suo
-
-todo.txt
