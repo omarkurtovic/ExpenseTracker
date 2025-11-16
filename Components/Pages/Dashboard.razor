@@ -22,94 +22,96 @@
 
 <PageTitle>Dashboard</PageTitle>
 
-<div class="main-container">
-    <MudText Typo="Typo.h3" Class="title">Welcome back @username</MudText>
-    <div class="header">
-
-        <MudCard Class="my-card">
-            <MudCardHeader>
-                <MudText Class="my-card-header">Balance</MudText>
-            </MudCardHeader>
-            <MudCardContent>
-                <MudText Class="my-card-text">@balance $</MudText>
-            </MudCardContent>
-        </MudCard>
-
-        <MudCard Class="my-card">
-            <MudCardHeader>
-                <MudText Class="my-card-header">Income this month</MudText>
-            </MudCardHeader>
-            <MudCardContent>
-                <MudText Class="my-card-text">@incomeThisMonth $</MudText>
-            </MudCardContent>
-        </MudCard>
-
-        <MudCard Class="my-card">
-            <MudCardHeader>
-                <MudText Class="my-card-header">Expenses this month</MudText>
-            </MudCardHeader>
-            <MudCardContent>
-                <MudText Class="my-card-text">@expensesThisMonth $</MudText>
-            </MudCardContent>
-        </MudCard>
-    </div>
-
-    <div class="reports">
-        <MudCard Class="my-card">
-            <MudCardHeader>
-                <MudText Class="my-card-header">Expenses and Income last 6 months</MudText>
-            </MudCardHeader>
-            <MudCardContent>
+<MudContainer>
+    <MudPaper Elevation="0">
+        <MudGrid>
+            <MudItem xs="12" Class="d-flex justify-center">
+                <MudText Typo="Typo.h3">
+                    Welcome back @username
+                </MudText>
+            </MudItem>
+            <MudItem xs="12" md="4">
+                <MudPaper Elevation="5" Class="pa-4">
+                    <MudText Typo="Typo.h6">
+                        Balance
+                    </MudText>
+                    <MudText Typo="Typo.h4" Class="mt-4">
+                        @balance.ToString("C2")
+                    </MudText>
+                </MudPaper>
+            </MudItem>
+            <MudItem xs="12" md="4">
+                <MudPaper Elevation="5" Class="pa-4">
+                    <MudText Typo="Typo.h6">
+                        Income this month
+                    </MudText>
+                    <MudText Typo="Typo.h4" Class="mt-4">
+                        @incomeThisMonth.ToString("C2")
+                    </MudText>
+                </MudPaper>
+            </MudItem>
+            <MudItem xs="12" md="4">
+                <MudPaper Elevation="5" Class="pa-4">
+                    <MudText Typo="Typo.h6">
+                        Expenses this month
+                    </MudText>
+                    <MudText Typo="Typo.h4" Class="mt-4">
+                        @expensesThisMonth.ToString("C2")
+                    </MudText>
+                </MudPaper>
+            </MudItem>
+            <MudItem xs="12" md="6" Class="d-flex">
                 @if (ExpenseIncomeGraphSeries is not null && ExpenseIncomeGraphXAxisLabels is not null)
                 {
-                    <MudChart ChartType="ChartType.Bar" ChartSeries="@ExpenseIncomeGraphSeries"
-                        XAxisLabels="@ExpenseIncomeGraphXAxisLabels" Width="100%" Height="350px">
-                    </MudChart>
+                    <MudPaper Elevation="5" Class="pa-4 flex-grow-1">
+                        <MudText Typo="Typo.h6">
+                            Expenses and Income last 6 months
+                        </MudText>
+                        <MudChart ChartType="ChartType.Bar" ChartSeries="@ExpenseIncomeGraphSeries"
+                            XAxisLabels="@ExpenseIncomeGraphXAxisLabels" Width="100%" Class="mt-4">
+                        </MudChart>
+                    </MudPaper>
                 }
-            </MudCardContent>
-        </MudCard>
-
-        <MudCard Class="my-card">
-            <MudCardHeader>
-                <MudText Class="my-card-header">Top Expenses last 6 months</MudText>
-            </MudCardHeader>
-            <MudCardContent>
+            </MudItem>
+            <MudItem xs="12" md="6"  Class="d-flex">
                 @if (topCategoriesGraphData is not null && topCategoriesGraphLabels is not null)
                 {
-                    <MudChart ChartType="ChartType.Donut" Width="300px" Height="300px" InputData="@topCategoriesGraphData"
-                        InputLabels="@topCategoriesGraphLabels"></MudChart>
+                    <MudPaper Elevation="5" Class="pa-4 flex-grow-1">
+                        <MudText Typo="Typo.h6">
+                            Top Expenses last 6 months
+                        </MudText>
+                        <MudChart ChartType="ChartType.Donut"
+                            InputData="@topCategoriesGraphData" InputLabels="@topCategoriesGraphLabels" Class="mt-4">
+                        </MudChart>
+                    </MudPaper>
                 }
-            </MudCardContent>
-        </MudCard>
-    </div>
-    <div class="latest-transactions-container">
-        <MudCard Class="my-card">
-            <MudCardHeader>
-                <MudText Class="my-card-header">Latest transactions</MudText>
-            </MudCardHeader>
-            <MudCardContent>
+            </MudItem>
+            <MudItem xs="12">
                 @if (latestTransactions is not null)
                 {
-                    <MudDataGrid T="Transaction" Items="@latestTransactions" Class="data-grid">
-                        <Columns>
-                            <TemplateColumn Title="Amount">
-                                <CellTemplate>
-                                    @(context.Item.Category.Type == TransactionType.Expense ? -context.Item.Amount :
-                                                                    context.Item.Amount)
-                                </CellTemplate>
-                            </TemplateColumn>
-                            <PropertyColumn Property="t => t.Date" Title="Date"></PropertyColumn>
-                            <PropertyColumn Property="t => t.Category.Name" Title="Category"></PropertyColumn>
-                            <PropertyColumn Property="t => t.Description" Title="Description"></PropertyColumn>
-                        </Columns>
-                    </MudDataGrid>
+                    <MudPaper Elevation="5" Class="pa-4">
+                        <MudText Typo="Typo.h6">
+                            Latest transactions
+                        </MudText>
+                        <MudDataGrid T="Transaction" Items="@latestTransactions" Class="mt-4">
+                            <Columns>
+                                <TemplateColumn Title="Amount">
+                                    <CellTemplate>
+                                        @(context.Item.Category.Type == TransactionType.Expense ? -context.Item.Amount :
+                                                                            context.Item.Amount)
+                                    </CellTemplate>
+                                </TemplateColumn>
+                                <PropertyColumn Property="t => t.Date" Title="Date"></PropertyColumn>
+                                <PropertyColumn Property="t => t.Category.Name" Title="Category"></PropertyColumn>
+                                <PropertyColumn Property="t => t.Description" Title="Description"></PropertyColumn>
+                            </Columns>
+                        </MudDataGrid>
+                    </MudPaper>
                 }
-            </MudCardContent>
-        </MudCard>
-    </div>
-
-</div>
-
+            </MudItem>
+        </MudGrid>
+    </MudPaper>
+</MudContainer>
 
 @code {
 
@@ -168,20 +170,21 @@
 
 
     private List<ChartSeries> ExpenseIncomeGraphSeries = new List<ChartSeries>()
-{
-new ChartSeries() { Name = "Income", Data = new double[6]},
-new ChartSeries() { Name = "Expenses", Data = new double[6]}
-};
+    {
+        new ChartSeries() { Name = "Income", Data = new double[6]},
+        new ChartSeries() { Name = "Expenses", Data = new double[6]}
+    };
     private string[] ExpenseIncomeGraphXAxisLabels = new string[6];
 
     private void SetupExpenseIncomeGraph(List<Transaction> transactions)
     {
-        int monthsToScan = 6;
-        for (int i = 0; i < monthsToScan; ++i)
+        // including the current month 5 + 1 = 6 months in total
+        int monthsToScan = 5;
+        for (int i = 0; i <= monthsToScan; ++i)
         {
-            var sixMonthsAgo = DateTime.Now.AddMonths(i - monthsToScan);
-            var startOfMonth = sixMonthsAgo.StartOfMonth(CultureInfo.CurrentCulture);
-            var endOfMonth = sixMonthsAgo.EndOfMonth(CultureInfo.CurrentCulture);
+            var iMonthsAgo = DateTime.Now.AddMonths(i - monthsToScan);
+            var startOfMonth = iMonthsAgo.StartOfMonth(CultureInfo.CurrentCulture);
+            var endOfMonth = iMonthsAgo.EndOfMonth(CultureInfo.CurrentCulture);
 
             var monthName = startOfMonth.ToString("MMM");
             ExpenseIncomeGraphXAxisLabels[i] = monthName;

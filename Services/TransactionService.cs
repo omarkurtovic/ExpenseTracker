@@ -62,6 +62,7 @@ namespace ExpenseTracker.Services
         
         private async Task SaveInternal(Transaction transaction, TransactionType type)
         {
+            transaction.Amount = Math.Abs(transaction.Amount);
             if (type == TransactionType.Expense)
             {
                 transaction.Amount = -transaction.Amount;
