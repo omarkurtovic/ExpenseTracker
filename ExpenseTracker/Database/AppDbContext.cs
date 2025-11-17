@@ -10,10 +10,10 @@ namespace ExpenseTracker.Database
     {
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
 
-        public DbSet<Transaction> Transactions { get; set; }
-        public DbSet<Category> Categories { get; set; }
-        public DbSet<Account> Accounts { get; set; }
-        public DbSet<UserPreferences> UserPreferences{get; set;}
+        public virtual DbSet<Transaction> Transactions { get; set; }
+        public virtual DbSet<Category> Categories { get; set; }
+        public virtual DbSet<Account> Accounts { get; set; }
+        public virtual DbSet<UserPreferences> UserPreferences{get; set;}
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
