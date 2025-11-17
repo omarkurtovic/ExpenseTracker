@@ -1,7 +1,5 @@
 - clear filters button on transactions
-- sum at the bottom of grid of transactions
 - check out a loading panel
-- need to fix titles of pages
 
 - gotta fix up the shit login loop
 - setup basic accounts when registering

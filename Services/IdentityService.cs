@@ -11,15 +11,17 @@ namespace ExpenseTracker.Services
         private readonly SignInManager<IdentityUser> _signInManager;
         private readonly CategoryService _categoryService;
         private readonly UserPreferencesService _userPreferencesService;
+        private readonly AccountService _accountService;
 
         public IdentityService(
         UserManager<IdentityUser> userManager, SignInManager<IdentityUser> signInManager,
-         CategoryService categoryService, UserPreferencesService userPreferencesService)
+         CategoryService categoryService, UserPreferencesService userPreferencesService, AccountService accountService)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _categoryService = categoryService;
             _userPreferencesService = userPreferencesService;
+            _accountService = accountService;
         }
 
         public async Task<SignInResult> LoginAsync(LoginUserData loginData)
@@ -49,6 +51,7 @@ namespace ExpenseTracker.Services
 
             await _categoryService.AssignUserDefaultCategories(user.Id);
             await _userPreferencesService.AssignUserDefaultPreferences(user.Id);
+            await _accountService.AssignUserDefaultCategories(user.Id);
             return result;
         }
 

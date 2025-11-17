@@ -18,7 +18,7 @@
 <MudDialogProvider />
 <MudSnackbarProvider />
 
-<title>Trasactions</title>
+<PageTitle>Transactions</PageTitle>
 
 <MudContainer MaxWidth="MaxWidth.Medium">
     <MudPaper Class="pa-6 mt-6" Elevation="15">
@@ -28,21 +28,24 @@
             </MudItem>
             <MudItem xs="12" Class="d-flex justify-space-between gap-5 mb-4 ">
                 <MudButton Variant="Variant.Filled" Color="Color.Primary"
-                    OnClick="@(() => OpenTransactionDialogAsync(null))" StartIcon="@Icons.Material.Filled.Add">Add</MudButton>
-                    <MudPaper Elevation="0" Class="d-flex gap-2">
-                        <MudButton Variant="Variant.Filled" Color="Color.Primary"
-                            OnClick="@OpenExportDialog" StartIcon="@Icons.Material.Filled.ImportExport">Export</MudButton>
-                            @if (!string.IsNullOrWhiteSpace(username) && username.ToLower() == "sa")
-                            {
-                                <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="@AddTestData" StartIcon="@Icons.Material.Filled.Add">Add Test Data
-                                </MudButton>
-                            }
-                    </MudPaper>
-                
+                    OnClick="@(() => OpenTransactionDialogAsync(null))" StartIcon="@Icons.Material.Filled.Add">Add
+                </MudButton>
+                <MudPaper Elevation="0" Class="d-flex gap-2">
+                    <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="@OpenExportDialog"
+                        StartIcon="@Icons.Material.Filled.ImportExport">Export</MudButton>
+                    @if (!string.IsNullOrWhiteSpace(username) && username.ToLower() == "sa")
+                    {
+                        <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="@AddTestData"
+                            StartIcon="@Icons.Material.Filled.Add">Add Test Data
+                        </MudButton>
+                    }
+                </MudPaper>
+
             </MudItem>
             <MudItem xs="12" md="6">
                 <MudPaper Elevation="0" Class="d-flex gap-5">
-                    <MudSelect T="int?" Label="Account" @bind-Value="accountIdFilter" @bind-Value:after="this.FilterChanged">
+                    <MudSelect T="int?" Label="Account" @bind-Value="accountIdFilter"
+                        @bind-Value:after="this.FilterChanged">
                         <MudSelectItem Value="@((int?)null)">All</MudSelectItem>
                         @if (Accounts is not null)
                         {
@@ -89,56 +92,90 @@
                     </MudSelect>
                 </MudPaper>
             </MudItem>
-                @if (MyTransactions == null || MyTransactions.Count == 0)
-                {
-                    <MudItem xs="12" Class="d-flex justify-center mt-4">
-                        @if(AreAnyFiltersActive()){
-                            <MudText Typo="Typo.h5">No transactions found!</MudText>
-                        }
-                        else{
-                            <MudText Typo="Typo.h5">No transactions created yet!</MudText>
-                        }
-                    </MudItem>
-                }
-                else
-                {
-                    <MudItem xs="12" Class="mt-4">
-                        <MudPaper Outlined="true" Elevation="1" Class="border-2">
-                            <MudDataGrid T="Transaction" Items="@MyTransactions">
-                                <Columns>
-                                    <TemplateColumn Title="Amount">
-                                        <CellTemplate>
-                                        @if(context.Item.Category.Type == TransactionType.Expense){
+            @if (MyTransactions == null || MyTransactions.Count == 0)
+            {
+                <MudItem xs="12" Class="d-flex justify-center mt-4">
+                    @if (AreAnyFiltersActive())
+                    {
+                        <MudText Typo="Typo.h5">No transactions found!</MudText>
+                    }
+                    else
+                    {
+                        <MudText Typo="Typo.h5">No transactions created yet!</MudText>
+                    }
+                </MudItem>
+            }
+            else
+            {
+                <MudItem xs="12" Class="mt-4">
+                    <MudPaper Outlined="true" Elevation="1" Class="border-2">
+                        <MudDataGrid T="Transaction" Items="@MyTransactions" Virtualize="true" Height="700px">
+                            <Columns>
+                                <TemplateColumn Title="Amount">
+                                    <CellTemplate>
+                                        @if (context.Item.Category.Type == TransactionType.Expense)
+                                        {
                                             <MudText Color="Color.Error">
                                                 -@context.Item.Amount.ToString(format: "C2")
                                             </MudText>
                                         }
-                                        else{
+                                        else
+                                        {
                                             <MudText Color="Color.Success">
                                                 @context.Item.Amount.ToString(format: "C2")
                                             </MudText>
                                         }
-                                        </CellTemplate>
-                                    </TemplateColumn>
-                                    <PropertyColumn Property="t => t.Date" Format="dd//MM/yyyy" Title="Date"></PropertyColumn>
-                                    <PropertyColumn Property="t => t.Category.Name" Title="Category"></PropertyColumn>
-                                    <PropertyColumn Property="t => t.Description" Title="Description" Style="overflow-wrap:break-word;max-width:100px;"></PropertyColumn>
-                                    <TemplateColumn>
-                                        <CellTemplate>
-                                            <MudPaper Elevation="0" Class="d-flex gap-4">
-                                                <MudIconButton Icon="@Icons.Material.Filled.Edit" Color="Color.Primary" OnClick="@(() => OpenTransactionDialogAsync(context.Item.Id))"></MudIconButton>
-                                                <MudIconButton Icon="@Icons.Material.Filled.Delete" Color="Color.Error" OnClick="@(() => ConfirmDelete(context.Item.Id))"></MudIconButton>
-                                            </MudPaper>
-                                        </CellTemplate>
-                                    </TemplateColumn>
-                                </Columns>
-                                <PagerContent>
-                                    <MudDataGridPager T="Transaction" />
-                                </PagerContent>
-                            </MudDataGrid>
-                        </MudPaper>
-                    </MudItem>
-                }
+                                    </CellTemplate>
+                                </TemplateColumn>
+                                <PropertyColumn Property="t => t.Date" Format="dd//MM/yyyy" Title="Date"></PropertyColumn>
+                                <PropertyColumn Property="t => t.Category.Name" Title="Category"></PropertyColumn>
+                                <PropertyColumn Property="t => t.Description" Title="Description"
+                                    Style="overflow-wrap:break-word;max-width:100px;"></PropertyColumn>
+                                <TemplateColumn>
+                                    <CellTemplate>
+                                        <MudPaper Elevation="0" Class="d-flex gap-4">
+                                            <MudIconButton Icon="@Icons.Material.Filled.Edit" Color="Color.Primary"
+                                                OnClick="@(() => OpenTransactionDialogAsync(context.Item.Id))">
+                                            </MudIconButton>
+                                            <MudIconButton Icon="@Icons.Material.Filled.Delete" Color="Color.Error"
+                                                OnClick="@(() => ConfirmDelete(context.Item.Id))"></MudIconButton>
+                                        </MudPaper>
+                                    </CellTemplate>
+                                </TemplateColumn>
+                            </Columns>
+                        </MudDataGrid>
+                        <MudItem xs="12" Class="pa-6 pl-0">
+                            @{
+                                var balance = MyTransactions.Sum(t => t.Amount);
+                            }
+                            <MudPaper Elevation="0" Class="d-flex gap-2">
+                                <MudText>
+                                    Balance:
+                                </MudText>
+                                @if (balance == 0)
+                                {
+                                    <MudText>
+                                        @balance.ToString(format: "C2")
+                                    </MudText>
+                                }
+                                else if (balance < 0)
+                                {
+                                    <MudText Color="Color.Error">
+                                        @balance.ToString(format: "C2")
+                                    </MudText>
+                                }
+                                else
+                                {
+                                    <MudText Color="Color.Success">
+                                        @balance.ToString(format: "C2")
+                                    </MudText>
+                                }
+                            </MudPaper>
+
+                        </MudItem>
+                    </MudPaper>
+                </MudItem>
+            }
         </MudGrid>
     </MudPaper>
 </MudContainer>
@@ -158,12 +195,15 @@
 
     private int? accountIdFilter;
 
-    private bool AreAnyFiltersActive(){
-        return transactionTypeFilter != null 
+    private bool AreAnyFiltersActive()
+    {
+        return transactionTypeFilter != null
         || categoryFilter != null
-        || dateFilter != null 
+        || dateFilter != null
         || accountIdFilter != null;
     }
+
+
     protected override async Task OnInitializedAsync()
     {
         await base.OnInitializedAsync();
@@ -208,16 +248,17 @@
             return;
         }
 
-        var options = new DialogOptions { 
-            CloseOnEscapeKey = true, 
-            NoHeader=false, 
-            CloseButton=true, 
-            MaxWidth=MaxWidth.Medium  
+        var options = new DialogOptions
+        {
+            CloseOnEscapeKey = true,
+            NoHeader = false,
+            CloseButton = true,
+            MaxWidth = MaxWidth.Medium
         };
         var parameters = new DialogParameters<TransactionDialog>
-        {
-            { x => x.TransactionId, transaction_id }
-        };
+{
+{ x => x.TransactionId, transaction_id }
+};
 
         var dialog = await DialogService.ShowAsync<TransactionDialog>(title: "Simple Dialog", parameters, options);
         var result = await dialog.Result;
@@ -331,19 +372,22 @@
         StateHasChanged();
     }
 
-    private async Task OpenExportDialog(){
-         
+    private async Task OpenExportDialog()
+    {
+
         var transactions = await TransactionService.GetAllAsync();
-        if(transactions.Count == 0){
+        if (transactions.Count == 0)
+        {
             Snackbar.Add("No transactions to export!", Severity.Error);
             return;
         }
 
-        var options = new DialogOptions { 
-            CloseOnEscapeKey = true, 
-            NoHeader=false, 
-            CloseButton=true, 
-            MaxWidth=MaxWidth.Medium  
+        var options = new DialogOptions
+        {
+            CloseOnEscapeKey = true,
+            NoHeader = false,
+            CloseButton = true,
+            MaxWidth = MaxWidth.Medium
         };
 
         var parameters = new DialogParameters<ExportDialog>

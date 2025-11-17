@@ -116,5 +116,28 @@ namespace ExpenseTracker.Services
             await GetAccountsQuery(context)
                 .ExecuteDeleteAsync();
         }
+        public async Task AssignUserDefaultCategories(string userId)
+        {
+            var defaultAcounts = new List<Account>()
+            {
+                new()
+                {
+                    Name = "Cash",
+                    InitialBalance = 0,
+                },
+                new()
+                {
+                    Name = "Bank",
+                    InitialBalance = 0
+                }
+            };
+
+            foreach(var account in defaultAcounts)
+            {
+                account.Id = 0;
+                account.IdentityUserId = userId;
+                await SaveAsync(account);
+            }
+        }
     }
 }
