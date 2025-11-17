@@ -23,7 +23,7 @@
     [Parameter]
     public string Title { get; set; }
 
-    private async void Ok()
+    private async Task Ok()
     {
         MudDialog.Close(DialogResult.Ok(result: true));
     }

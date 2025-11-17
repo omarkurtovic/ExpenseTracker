@@ -1,0 +1,178 @@
+@using CsvHelper
+@using ExpenseTracker.Database.Models
+@using ExpenseTracker.Dtos
+@using ExpenseTracker.Services
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Components.Authorization
+@using System.Text
+@using System.Globalization
+@using MudBlazor.Utilities
+@inject TransactionService TransactionService 
+@inject ISnackbar Snackbar
+@inject IJSRuntime JSRuntime
+
+    <MudDialog>
+        <TitleContent>
+            <MudText Typo="Typo.h5">
+                Export Data
+            </MudText>
+        </TitleContent>
+        <DialogContent>
+            <MudGrid>
+            <MudItem xd = "12">
+                <MudText Typo="Typo.body1">Export your transaction data to csv. Please pick the columns you would like to export and drag and drop them to rearrange.</MudText>
+            </MudItem>
+                <MudItem xs="12">
+                    <MudDropContainer T="DropItem" Items="_items" ItemsSelector="@((item,dropzone) => item.Selector == dropzone)" ItemDropped="ItemUpdated" Class="d-flex flex-wrap flex-grow-1">
+                        <ChildContent>
+                            @{
+                                var dropzone = "1";
+                                <MudPaper Class="ma-4 flex-grow-1">
+                                    <MudList T="string" Class="d-flex flex-column mud-height-full">
+                                        <MudDropZone T="DropItem" Identifier="@dropzone" Class="flex-grow-1" AllowReorder="true" />
+                                    </MudList>
+                                </MudPaper>
+                            }
+                        </ChildContent>
+                        <ItemRenderer>
+                        <MudPaper Elevation="0" Class="d-flex gap-2">
+                            <MudCheckBox @bind-Value="context.Selected"></MudCheckBox>
+                            <MudListItem T="string" Text="@context.Name" />
+                        </MudPaper>
+                        </ItemRenderer>
+                    </MudDropContainer>
+                </MudItem>
+                <MudItem xs="12" Class="d-flex justify-end gap-2 mt-6">
+                    <MudButton OnClick="Cancel" Variant="Variant.Outlined">Cancel</MudButton>
+                    <MudButton OnClick="Export" Color="Color.Primary" Variant="Variant.Filled">Export</MudButton>
+                </MudItem>
+            </MudGrid>
+        </DialogContent>
+    </MudDialog>
+
+@code {
+    MudForm form;
+
+    [CascadingParameter]
+    private IMudDialogInstance MudDialog { get; set; }
+
+    private void ItemUpdated(MudItemDropInfo<DropItem> dropItem)
+    {
+        _items.UpdateOrder(dropItem, item => item.Order, 0);
+    }
+
+    private List<DropItem> _items = new()
+    {
+        new DropItem(){ Name = "Account", Selector = "1", Selected=true, Order=0 },
+        new DropItem(){ Name = "Type", Selector = "1", Selected=true, Order=1 },
+        new DropItem(){ Name = "Category", Selector = "1", Selected=true, Order=2 },
+        new DropItem(){ Name = "Amount", Selector = "1", Selected=true, Order=3 },
+        new DropItem(){ Name = "DateTime", Selector = "1", Selected=true , Order=4 },
+        new DropItem(){ Name = "Description", Selector = "1", Selected=true, Order=5 },
+    };
+    
+    public class DropItem
+    {
+        public string Name { get; init; }
+        public string Selector { get; set; }
+        public bool Selected{get; set;}
+        public int Order{get; set;}
+    }
+
+    private void Cancel() => MudDialog.Cancel();
+
+    private async Task Export(){
+        if(_items.Count(i => i.Selected) == 0){
+            Snackbar.Add("Please pick at least one column for export!", Severity.Error);
+            return;
+        } 
+
+        var transactions = await TransactionService.GetAllAsync();
+        if(transactions.Count == 0){
+            Snackbar.Add("No transactions found for export!", Severity.Error);
+            return;
+        }
+        
+        var csvContent = GenerateCsvContent(transactions, _items.OrderBy(i => i.Order).ToList());
+        var fileName = "expensetracker.csv";        
+        await JSRuntime.InvokeVoidAsync("downloadFileFromText", fileName, csvContent);
+    }
+
+    public string GenerateCsvContent(List<Transaction> transactions, List<DropItem> dropItems)
+    {
+        using (var memoryStream = new MemoryStream())
+        using (var streamWriter = new StreamWriter(memoryStream, Encoding.UTF8))
+        using (var csvWriter = new CsvWriter(streamWriter, CultureInfo.InvariantCulture))
+        {
+            foreach(var item in dropItems){
+                if(!item.Selected){
+                    continue;
+                }
+                switch(item.Name){
+                        case "Account":
+                            csvWriter.WriteField("Account");
+                        break;
+                        
+                        case "Type":
+                            csvWriter.WriteField("Type");
+                        break;
+                        
+                        case "Category":
+                            csvWriter.WriteField("Category");
+                        break;
+                        
+                        case "Amount":
+                            csvWriter.WriteField("Amount");
+                        break;
+                        
+                        case "DateTime":
+                            csvWriter.WriteField("Date");
+                        break;
+                        
+                        case "Description":
+                            csvWriter.WriteField("Description");
+                        break;
+                }
+            }
+
+            csvWriter.NextRecord();
+
+            foreach(var transaction in transactions){
+                foreach(var item in dropItems){
+                    if(!item.Selected){
+                        continue;
+                    }
+                    switch(item.Name){
+                        case "Account":
+                            csvWriter.WriteField(transaction.Account.Name);
+                        break;
+                        
+                        case "Type":
+                            csvWriter.WriteField(transaction.Category.Type);
+                        break;
+                        
+                        case "Category":
+                            csvWriter.WriteField(transaction.Category.Name);
+                        break;
+                        
+                        case "Amount":
+                            csvWriter.WriteField(transaction.Amount);
+                        break;
+                        
+                        case "DateTime":
+                            csvWriter.WriteField(transaction.Date);
+                        break;
+                        
+                        case "Description":
+                            csvWriter.WriteField(transaction.Description);
+                        break;
+                    }
+                }
+                csvWriter.NextRecord();
+            }
+
+            streamWriter.Flush();
+            return Encoding.UTF8.GetString(memoryStream.ToArray());
+        }
+    }
+}

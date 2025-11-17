@@ -124,7 +124,7 @@
             TransactionDto = new TransactionDto()
             {
                 Id = transaction.Id,
-                Amount = transaction.Amount,
+                Amount = Math.Abs(transaction.Amount),
                 AccountId = transaction.AccountId,
                 CategoryId = transaction.CategoryId,
                 Date = transaction.Date.Date,

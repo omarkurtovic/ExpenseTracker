@@ -26,14 +26,19 @@
             <MudItem xs="12" Class="d-flex justify-center">
                 <MudText Typo="Typo.h4">Transactions</MudText>
             </MudItem>
-            <MudItem xs="12" Class="d-flex justify-center gap-5 mb-4 ">
+            <MudItem xs="12" Class="d-flex justify-space-between gap-5 mb-4 ">
                 <MudButton Variant="Variant.Filled" Color="Color.Primary"
                     OnClick="@(() => OpenTransactionDialogAsync(null))" StartIcon="@Icons.Material.Filled.Add">Add</MudButton>
-                @if (!string.IsNullOrWhiteSpace(username) && username.ToLower() == "sa")
-                {
-                    <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="@AddTestData" StartIcon="@Icons.Material.Filled.Add">Add Test Data
-                    </MudButton>
-                }
+                    <MudPaper Elevation="0" Class="d-flex gap-2">
+                        <MudButton Variant="Variant.Filled" Color="Color.Primary"
+                            OnClick="@OpenExportDialog" StartIcon="@Icons.Material.Filled.ImportExport">Export</MudButton>
+                            @if (!string.IsNullOrWhiteSpace(username) && username.ToLower() == "sa")
+                            {
+                                <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="@AddTestData" StartIcon="@Icons.Material.Filled.Add">Add Test Data
+                                </MudButton>
+                            }
+                    </MudPaper>
+                
             </MudItem>
             <MudItem xs="12" md="6">
                 <MudPaper Elevation="0" Class="d-flex gap-5">
@@ -191,8 +196,6 @@
 
     private async Task OpenTransactionDialogAsync(int? transaction_id)
     {
-        // no point making transaction if we don't have any categories or accounts
-
         if ((await CategoryService.GetAllAsync()).Count == 0)
         {
             Snackbar.Add("No categories found! Create some then try again!", Severity.Error);
@@ -243,7 +246,7 @@
     }
 
 
-    private async void FilterChanged()
+    private async Task FilterChanged()
     {
         await RefreshPage();
         StateHasChanged();
@@ -321,10 +324,32 @@
     }
 
 
-    private async void AddTestData()
+    private async Task AddTestData()
     {
         await SeedDataService.SeedDummyDataAsync();
         await RefreshPage();
         StateHasChanged();
+    }
+
+    private async Task OpenExportDialog(){
+         
+        var transactions = await TransactionService.GetAllAsync();
+        if(transactions.Count == 0){
+            Snackbar.Add("No transactions to export!", Severity.Error);
+            return;
+        }
+
+        var options = new DialogOptions { 
+            CloseOnEscapeKey = true, 
+            NoHeader=false, 
+            CloseButton=true, 
+            MaxWidth=MaxWidth.Medium  
+        };
+
+        var parameters = new DialogParameters<ExportDialog>
+        {
+        };
+
+        var dialog = await DialogService.ShowAsync<ExportDialog>(title: "", parameters, options);
     }
 }

@@ -21,7 +21,7 @@
     [Parameter]
     public string Message { get; set; }
 
-    private async void Confirm()
+    private async Task Confirm()
     {
         MudDialog.Close(DialogResult.Ok(result: true));
     }
