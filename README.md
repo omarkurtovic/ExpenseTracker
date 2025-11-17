@@ -1,15 +1,16 @@
+# Expense Tracker
+
 A simple expense tracking app with dashboard, transactions, accounts, categories, dark mode, and CSV export.
 
-Built with Blazor Server, SQLite, EF Core, MudBlazor, ASP.NET Identity
+**Live Demo:** [myexpensetracker-d8c9fvcfbpb7h7bj.canadacentral-01.azurewebsites.net](https://myexpensetracker-d8c9fvcfbpb7h7bj.canadacentral-01.azurewebsites.net)
 
-Live demo: myexpensetracker-d8c9fvcfbpb7h7bj.canadacentral-01.azurewebsites.net
+## Features
 
-Features:
+- Dashboard with quick stats and graphs
+- Transaction list with filtering, editing, and CSV export
+- Customizable accounts and categories
+- Dark mode
 
-Dashboard with quick stats and graphs
+## Tech Stack
 
-Transaction list with filtering, editing, and CSV export
-
-Customizable accounts and categories
-
-Dark mode
+Built with Blazor Server, SQLite, EF Core, MudBlazor, and ASP.NET Identity
