@@ -75,5 +75,5 @@ jobs:
         with:
           app-name: 'MyExpenseTracker'
           slot-name: 'Production'
-          package: .
+          package: ./publish
           
