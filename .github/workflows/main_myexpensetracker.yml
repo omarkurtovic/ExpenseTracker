@@ -73,7 +73,8 @@ jobs:
         id: deploy-to-webapp
         uses: azure/webapps-deploy@v3
         with:
-          app-name: ExpenseTracker
+          app-name: ExpenseTracker-PersonalFinance
           slot-name: production
           package: ./publish
+
           
