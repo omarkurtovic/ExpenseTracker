@@ -24,13 +24,10 @@ jobs:
           dotnet-version: '9.x'
 
       - name: Build with dotnet
-        run: dotnet build ExpenseTracker/ExpenseTracker.csproj --configuration Release
+        run: dotnet build --configuration Release
 
       - name: dotnet publish
-        run: dotnet publish ExpenseTracker/ExpenseTracker.csproj -c Release --o ${{env.DOTNET_ROOT}}/myapp
-      
-      - name: List published files (debug)
-        run: ls -la ./publish
+        run: dotnet publish -c Release -o ${{env.DOTNET_ROOT}}/myapp
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
@@ -54,9 +51,9 @@ jobs:
       - name: Login to Azure
         uses: azure/login@v2
         with:
-          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_1C526CD87E6E4DF89A9324AC79B24E60 }}
-          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_5F35A0C078024D6E82AB274FC6B76C12 }}
-          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_A79FFB05C5E844DB9A67E009079CAE8C }}
+          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_7945A7A46D6D42369A965A18288BBF7B }}
+          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_C830FB1101D540DBA25A4C4600A32D35 }}
+          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_46E3CC84A98E4BFA80E972310B1DE3C1 }}
 
       - name: Deploy to Azure Web App
         id: deploy-to-webapp
@@ -65,7 +62,4 @@ jobs:
           app-name: 'MyExpenseTracker'
           slot-name: 'Production'
           package: .
-
           
-
-
