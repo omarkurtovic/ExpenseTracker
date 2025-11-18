@@ -1,0 +1,173 @@
+@using ExpenseTrackerWebApp.Database.Models
+@using ExpenseTrackerWebApp.Dtos
+@using ExpenseTrackerWebApp.Services
+@using Microsoft.AspNetCore.Authorization
+@inject TransactionService TransactionService
+@inject CategoryService CategoryService
+@inject AccountService AccountService
+@inject ISnackbar Snackbar
+
+<title>Accounts</title>
+
+@if (TransactionDto is not null)
+{
+    <MudDialog>
+        <TitleContent>
+            <MudText Typo="Typo.h5">
+                @(TransactionId == null ? "Add Transaction" : "Edit Transaction")
+            </MudText>
+        </TitleContent>
+        <DialogContent>
+            <MudGrid>
+                <MudItem xs="12">
+                    <MudForm @ref="form">
+                        <MudSelect @bind-Value="TransactionDto.AccountId" Label="Account" Variant="Variant.Outlined"
+                            Required="true" RequiredError="Account is required!">
+                            @foreach (var account in Accounts)
+                            {
+                                <MudSelectItem Value="@((int?)account.Id)">@account.Name</MudSelectItem>
+                            }
+                        </MudSelect>
+                        <MudSelect @bind-Value="TransactionDto.TransactionType" Label="Type" Variant="Variant.Outlined"
+                            Required="true" RequiredError="Type of transaction is required!"
+                            @bind-Value:after="this.TransactionTypeChanged">
+                            @foreach (TransactionType? item in Enum.GetValues(typeof(TransactionType)))
+                            {
+                                <MudSelectItem Value="@((TransactionType?)item)">@item</MudSelectItem>
+                            }
+                        </MudSelect>
+                        <MudSelect @bind-Value="TransactionDto.CategoryId" Label="Category" Variant="Variant.Outlined"
+                            Required="true" RequiredError="Category is required!">
+                            @foreach (var category in Categories)
+                            {
+                                <MudSelectItem Value="@((int?)category.Id)">@category.Name</MudSelectItem>
+                            }
+                        </MudSelect>
+
+                        <MudNumericField @bind-Value="TransactionDto.Amount" Label="Amount" Variant="Variant.Outlined"
+                            Required="true" RequiredError="Amount is required!" Format="C2">
+                        </MudNumericField>
+                        <MudPaper Elevation="0" Class="d-flex gap-2">
+                            <MudDatePicker @bind-Date="TransactionDto.Date" Label="Date" Variant="Variant.Outlined"
+                                Required="true" RequiredError="Date is required!" />
+
+                            <MudTimePicker @bind-Time="TransactionDto.Time" Label="Time" Variant="Variant.Outlined"
+                                AmPm="true" Required="true" RequiredError="Time is required!" />
+                        </MudPaper>
+
+                        <MudTextField @bind-Value="TransactionDto.Description" Label="Description"
+                            Variant="Variant.Outlined">
+                        </MudTextField>
+
+                    </MudForm>
+                </MudItem>
+                <MudItem xs="12" Class="d-flex justify-end gap-2 mt-6">
+                    <MudButton OnClick="Cancel" Variant="Variant.Outlined">Cancel</MudButton>
+                    <MudButton OnClick="Submit" Color="Color.Primary" Variant="Variant.Filled">Save</MudButton>
+                </MudItem>
+            </MudGrid>
+
+        </DialogContent>
+    </MudDialog>
+}
+
+@code {
+    MudForm form;
+
+    [CascadingParameter]
+    private IMudDialogInstance MudDialog { get; set; }
+
+    [Parameter]
+    public int? TransactionId { get; set; }
+    private List<Category> Categories { get; set; }
+    private List<Account> Accounts { get; set; }
+    private TransactionDto TransactionDto { get; set; }
+
+    protected override async Task OnParametersSetAsync()
+    {
+
+        await base.OnParametersSetAsync();
+        Categories = await CategoryService.GetAllAsync();
+        if (Categories.Count == 0)
+        {
+            Snackbar.Add("No categories found! Create some then try again!", Severity.Error);
+            MudDialog.Close();
+            return;
+        }
+
+        Accounts = await AccountService.GetAllAsync();
+        if (Accounts.Count == 0)
+        {
+            Snackbar.Add("No accounts found! Create some then try again!", Severity.Error);
+            MudDialog.Close();
+            return;
+        }
+
+        TransactionDto = new TransactionDto();
+        TransactionDto.AccountId = Accounts.First().Id;
+        TransactionDto.CategoryId = Categories.First().Id;
+        TransactionDto.TransactionType = Categories.First().Type;
+        TransactionDto.Date = DateTime.Now;
+        TransactionDto.Time = DateTime.Now.TimeOfDay;
+        TransactionDto.Amount = 0;
+
+        if (TransactionId != null)
+        {
+            var transaction = await TransactionService.GetAsync((int)TransactionId);
+            if (transaction == null)
+            {
+                Snackbar.Add("Server error! Please try again.", Severity.Error);
+                MudDialog.Close();
+                return;
+            }
+
+            TransactionDto = new TransactionDto()
+            {
+                Id = transaction.Id,
+                Amount = Math.Abs(transaction.Amount),
+                AccountId = transaction.AccountId,
+                CategoryId = transaction.CategoryId,
+                Date = transaction.Date.Date,
+                Time = transaction.Date.TimeOfDay,
+                Description = transaction.Description,
+                TransactionType = transaction.Category.Type
+            };
+        }
+
+
+        Categories = Categories.Where(c => c.Type == TransactionDto.TransactionType).ToList();
+    }
+
+    private async Task Submit()
+    {
+        await form.Validate();
+        if (!form.IsValid)
+        {
+            StateHasChanged();
+            return;
+        }
+
+        await TransactionService.SaveAsync(TransactionDto);
+        var message = TransactionId == null ? "Transaction successfully added!" : "Transaction successfully updated!";
+        Snackbar.Add(message, Severity.Success);
+        MudDialog.Close(DialogResult.Ok(result: true));
+    }
+
+    private void Cancel() => MudDialog.Cancel();
+
+    private async Task TransactionTypeChanged()
+    {
+        Categories = await CategoryService.GetAllAsync();
+        Categories = Categories.Where(c => c.Type == TransactionDto.TransactionType).ToList();
+        
+        if (Categories.Count == 0)
+        {
+            TransactionDto.CategoryId = null;
+            Snackbar.Add("No categories for this transaction type!", Severity.Warning);
+            return;
+        }
+        
+        TransactionDto.CategoryId = Categories.First().Id;
+        StateHasChanged();
+    }
+}

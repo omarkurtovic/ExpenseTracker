@@ -1,0 +1,408 @@
+﻿@page "/transactions"
+@using ExpenseTrackerWebApp.Components.Pages.Dialogs
+@using ExpenseTrackerWebApp.Database.Models
+@using ExpenseTrackerWebApp.Services
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Components.Authorization
+@using Microsoft.Identity.Client
+@using MudBlazor.Extensions
+@using System.Globalization
+@inject TransactionService TransactionService
+@inject CategoryService CategoryService
+@inject AccountService AccountService
+@inject IDialogService DialogService
+@inject ISnackbar Snackbar
+@inject SeedDataService SeedDataService
+
+<MudPopoverProvider />
+<MudDialogProvider />
+<MudSnackbarProvider />
+
+<PageTitle>Transactions</PageTitle>
+
+
+@if (loading)
+{
+    <div class="d-flex justify-center align-center" style="height: 80vh;">
+        <MudProgressCircular Indeterminate="true" Size="Size.Large" />
+    </div>
+}
+else
+{
+    <MudContainer MaxWidth="MaxWidth.Medium">
+        <MudPaper Class="pa-6 mt-6" Elevation="15">
+                <MudGrid>
+                    <MudItem xs="12" Class="d-flex justify-center">
+                        <MudText Typo="Typo.h4">Transactions</MudText>
+                    </MudItem>
+                    <MudItem xs="12" Class="d-flex justify-space-between gap-5 mb-4 ">
+                        <MudButton Variant="Variant.Filled" Color="Color.Primary"
+                            OnClick="@(() => OpenTransactionDialogAsync(null))" StartIcon="@Icons.Material.Filled.Add">Add
+                        </MudButton>
+                        <MudPaper Elevation="0" Class="d-flex gap-2">
+                            <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="@OpenExportDialog"
+                                StartIcon="@Icons.Material.Filled.ImportExport">Export</MudButton>
+                            @if (!string.IsNullOrWhiteSpace(username) && username.ToLower() == "sa")
+                            {
+                                <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="@AddTestData"
+                                    StartIcon="@Icons.Material.Filled.Add">Add Test Data
+                                </MudButton>
+                            }
+                        </MudPaper>
+
+                    </MudItem>
+                    <MudItem xs="12" md="6">
+                        <MudPaper Elevation="0" Class="d-flex gap-5">
+                            <MudSelect T="int?" Label="Account" @bind-Value="accountIdFilter"
+                                @bind-Value:after="this.FilterChanged">
+                                <MudSelectItem Value="@((int?)null)">All</MudSelectItem>
+                                @if (Accounts is not null)
+                                {
+                                    @foreach (var account in Accounts)
+                                    {
+                                        <MudSelectItem Value="@((int?)account.Id)">@account.Name</MudSelectItem>
+                                    }
+                                }
+                            </MudSelect>
+                            <MudSelect T="TransactionType ?" Label="Type" @bind-Value="transactionTypeFilter"
+                                @bind-Value:after="this.FilterChanged">
+                                <MudSelectItem Value="@((TransactionType?)null)">All</MudSelectItem>
+                                @foreach (TransactionType item in Enum.GetValues(typeof(TransactionType)))
+                                {
+                                    <MudSelectItem Value="@((TransactionType?)item)">@item</MudSelectItem>
+                                }
+                            </MudSelect>
+                        </MudPaper>
+                    </MudItem>
+
+                    <MudItem xs="12" md="6">
+                        <MudPaper Elevation="0" Class="d-flex gap-5">
+                            <MudSelect T="int?" Label="Category" @bind-Value="categoryFilter"
+                                @bind-Value:after="this.FilterChanged">
+                                <MudSelectItem Value="@((int?)null)">All</MudSelectItem>
+                                @if (Categories is not null)
+                                {
+                                    @foreach (var category in Categories)
+                                    {
+                                        <MudSelectItem Value="@((int?)category.Id)">@category.Name</MudSelectItem>
+                                    }
+                                }
+                            </MudSelect>
+                            <MudSelect T="DateFilterPreset ?" Label="Date" @bind-Value="dateFilter"
+                                @bind-Value:after="this.FilterChanged">
+                                <MudSelectItem Value="@((DateFilterPreset?)null)">All</MudSelectItem>
+                                <MudSelectItem Value="@((DateFilterPreset?)DateFilterPreset.ThisMonth)">This Month
+                                </MudSelectItem>
+                                <MudSelectItem Value="@((DateFilterPreset?)DateFilterPreset.LastMonth)">Last Month
+                                </MudSelectItem>
+                                <MudSelectItem Value="@((DateFilterPreset?)DateFilterPreset.Last3Months)">Last Three Months
+                                </MudSelectItem>
+                                <MudSelectItem Value="@((DateFilterPreset?)DateFilterPreset.ThisYear)">This Year</MudSelectItem>
+                            </MudSelect>
+                        </MudPaper>
+                    </MudItem>
+                    @if (MyTransactions == null || MyTransactions.Count == 0)
+                    {
+                        <MudItem xs="12" Class="d-flex justify-center mt-4">
+                            @if (AreAnyFiltersActive())
+                            {
+                                <MudText Typo="Typo.h5">No transactions found!</MudText>
+                            }
+                            else
+                            {
+                                <MudText Typo="Typo.h5">No transactions created yet!</MudText>
+                            }
+                        </MudItem>
+                    }
+                    else
+                    {
+                        <MudItem xs="12" Class="mt-4">
+                            <MudPaper Outlined="true" Elevation="1" Class="border-2">
+                                <MudDataGrid T="Transaction" Items="@MyTransactions" Virtualize="true" Height="700px">
+                                    <Columns>
+                                        <TemplateColumn Title="Amount">
+                                            <CellTemplate>
+                                                @if (context.Item.Category.Type == TransactionType.Expense)
+                                                {
+                                                    <MudText Color="Color.Error">
+                                                        -@context.Item.Amount.ToString(format: "C2")
+                                                    </MudText>
+                                                }
+                                                else
+                                                {
+                                                    <MudText Color="Color.Success">
+                                                        @context.Item.Amount.ToString(format: "C2")
+                                                    </MudText>
+                                                }
+                                            </CellTemplate>
+                                        </TemplateColumn>
+                                        <PropertyColumn Property="t => t.Date" Format="dd//MM/yyyy" Title="Date"></PropertyColumn>
+                                        <PropertyColumn Property="t => t.Category.Name" Title="Category"></PropertyColumn>
+                                        <PropertyColumn Property="t => t.Description" Title="Description"
+                                            Style="overflow-wrap:break-word;max-width:100px;"></PropertyColumn>
+                                        <TemplateColumn>
+                                            <CellTemplate>
+                                                <MudPaper Elevation="0" Class="d-flex gap-4">
+                                                    <MudIconButton Icon="@Icons.Material.Filled.Edit" Color="Color.Primary"
+                                                        OnClick="@(() => OpenTransactionDialogAsync(context.Item.Id))">
+                                                    </MudIconButton>
+                                                    <MudIconButton Icon="@Icons.Material.Filled.Delete" Color="Color.Error"
+                                                        OnClick="@(() => ConfirmDelete(context.Item.Id))"></MudIconButton>
+                                                </MudPaper>
+                                            </CellTemplate>
+                                        </TemplateColumn>
+                                    </Columns>
+                                </MudDataGrid>
+                                <MudItem xs="12" Class="pa-6 pl-0">
+                                    @{
+                                        var balance = MyTransactions.Sum(t => t.Amount);
+                                    }
+                                    <MudPaper Elevation="0" Class="d-flex gap-2">
+                                        <MudText>
+                                            Balance:
+                                        </MudText>
+                                        @if (balance == 0)
+                                        {
+                                            <MudText>
+                                                @balance.ToString(format: "C2")
+                                            </MudText>
+                                        }
+                                        else if (balance < 0)
+                                        {
+                                            <MudText Color="Color.Error">
+                                                @balance.ToString(format: "C2")
+                                            </MudText>
+                                        }
+                                        else
+                                        {
+                                            <MudText Color="Color.Success">
+                                                @balance.ToString(format: "C2")
+                                            </MudText>
+                                        }
+                                    </MudPaper>
+
+                                </MudItem>
+                            </MudPaper>
+                        </MudItem>
+                    }
+                </MudGrid>
+
+            @* } *@
+        </MudPaper>
+    </MudContainer>
+}
+
+@code {
+    [CascadingParameter]
+    private Task<AuthenticationState>? authenticationState { get; set; }
+
+    private string username = "";
+    private List<Transaction> MyTransactions;
+    private List<Category> Categories;
+    private List<Account> Accounts;
+    private TransactionType? transactionTypeFilter;
+    private int? categoryFilter;
+    private DateFilterPreset? dateFilter;
+
+    private int? accountIdFilter;
+
+    private bool AreAnyFiltersActive()
+    {
+        return transactionTypeFilter != null
+        || categoryFilter != null
+        || dateFilter != null
+        || accountIdFilter != null;
+    }
+
+    bool loading = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+        MyTransactions = await TransactionService.GetAllAsync();
+        Categories = await CategoryService.GetAllAsync();
+        Accounts = await AccountService.GetAllAsync();
+
+        transactionTypeFilter = null;
+        categoryFilter = null;
+        accountIdFilter = null;
+        dateFilter = null;
+
+        if (authenticationState is not null)
+        {
+            var authState = await authenticationState;
+            var user = authState?.User;
+
+            if (user?.Identity is not null && user.Identity.IsAuthenticated)
+            {
+                username = user.Identity.Name ?? "";
+            }
+        }
+        
+        loading = false;
+    }
+
+    private async Task OpenTransactionDialogAsync(int? transaction_id)
+    {
+        if ((await CategoryService.GetAllAsync()).Count == 0)
+        {
+            Snackbar.Add("No categories found! Create some then try again!", Severity.Error);
+            return;
+        }
+
+        if ((await AccountService.GetAllAsync()).Count == 0)
+        {
+            Snackbar.Add("No accounts found! Create some then try again!", Severity.Error);
+            return;
+        }
+
+        var options = new DialogOptions
+        {
+            CloseOnEscapeKey = true,
+            NoHeader = false,
+            CloseButton = true,
+            MaxWidth = MaxWidth.Medium
+        };
+        var parameters = new DialogParameters<TransactionDialog>
+{
+{ x => x.TransactionId, transaction_id }
+};
+
+        var dialog = await DialogService.ShowAsync<TransactionDialog>(title: "Simple Dialog", parameters, options);
+        var result = await dialog.Result;
+        if (!result.Canceled)
+        {
+            await RefreshPage();
+        }
+    }
+
+    private async Task ConfirmDelete(int transaction_id)
+    {
+        var options = new DialogOptions { CloseOnEscapeKey = true };
+        var parameters = new DialogParameters<ConfirmDialog>
+        {
+            { x => x.Message, "Are you sure you want to delete the transaction? " }
+        };
+
+        var dialog = await DialogService.ShowAsync<ConfirmDialog>(title: "Warning", parameters, options);
+        var result = await dialog.Result;
+        if (!result.Canceled)
+        {
+            await TransactionService.DeleteAsync(transaction_id);
+            Snackbar.Add("Transaction succesfully deleted! ", Severity.Success);
+            await RefreshPage();
+        }
+    }
+
+
+    private async Task FilterChanged()
+    {
+        await RefreshPage();
+        StateHasChanged();
+    }
+
+    async Task RefreshPage()
+    {
+
+        MyTransactions = await TransactionService.GetAllAsync();
+        Categories = await CategoryService.GetAllAsync();
+        Accounts = await AccountService.GetAllAsync();
+
+        if (transactionTypeFilter is not null)
+        {
+            MyTransactions = MyTransactions.Where(t => t.Category.Type == transactionTypeFilter).ToList();
+            Categories = Categories.Where(c => c.Type == transactionTypeFilter).ToList();
+
+        }
+
+        if (categoryFilter is not null)
+        {
+            if (!Categories.Select(c => c.Id).ToList().Contains((int)categoryFilter))
+            {
+                categoryFilter = null;
+            }
+            else
+            {
+                MyTransactions = MyTransactions.Where(t => t.Category.Id == categoryFilter).ToList();
+            }
+        }
+
+        if (accountIdFilter is not null)
+        {
+            MyTransactions = MyTransactions.Where(t => t.AccountId == accountIdFilter).ToList();
+        }
+
+        if (dateFilter is not null)
+        {
+            switch (dateFilter)
+            {
+                case DateFilterPreset.ThisMonth:
+                    var startOfMonth = DateTime.Now.StartOfMonth(CultureInfo.CurrentCulture);
+                    MyTransactions = MyTransactions.Where(t => t.Date >= startOfMonth).ToList();
+                    break;
+
+                case DateFilterPreset.LastMonth:
+                    DateTime oneMonthAgo = DateTime.Now.AddMonths(-1);
+                    DateTime startOfLastMonth = oneMonthAgo.StartOfMonth(CultureInfo.CurrentCulture);
+                    DateTime endOfLastMonth = oneMonthAgo.EndOfMonth(CultureInfo.CurrentCulture);
+                    MyTransactions = MyTransactions.Where(t => t.Date >= startOfLastMonth && t.Date < endOfLastMonth).ToList();
+                    break;
+
+                case DateFilterPreset.Last3Months:
+                    DateTime threeMonthsAgo = DateTime.Now.AddMonths(-3);
+                    DateTime startOf3MonthsAgoMonth = threeMonthsAgo.StartOfMonth(CultureInfo.CurrentCulture);
+                    MyTransactions = MyTransactions.Where(t => t.Date >= startOf3MonthsAgoMonth).ToList();
+                    break;
+
+
+                case DateFilterPreset.ThisYear:
+                    var startOfyear = new DateTime(DateTime.Now.Year, 1, 1);
+                    MyTransactions = MyTransactions.Where(t => t.Date >= startOfyear).ToList();
+                    break;
+
+            }
+        }
+    }
+
+    public enum DateFilterPreset
+    {
+        ThisMonth,
+        LastMonth,
+        Last3Months,
+        ThisYear
+    }
+
+
+    private async Task AddTestData()
+    {
+        await SeedDataService.SeedDummyDataAsync();
+        await RefreshPage();
+        StateHasChanged();
+    }
+
+    private async Task OpenExportDialog()
+    {
+
+        var transactions = await TransactionService.GetAllAsync();
+        if (transactions.Count == 0)
+        {
+            Snackbar.Add("No transactions to export!", Severity.Error);
+            return;
+        }
+
+        var options = new DialogOptions
+        {
+            CloseOnEscapeKey = true,
+            NoHeader = false,
+            CloseButton = true,
+            MaxWidth = MaxWidth.Medium
+        };
+
+        var parameters = new DialogParameters<ExportDialog>
+        {
+        };
+
+        var dialog = await DialogService.ShowAsync<ExportDialog>(title: "", parameters, options);
+    }
+
+}

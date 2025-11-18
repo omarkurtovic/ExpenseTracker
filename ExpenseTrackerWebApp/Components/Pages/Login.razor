@@ -1,0 +1,98 @@
+@page "/login"
+@attribute [AllowAnonymous]
+@using ExpenseTrackerWebApp.Components.Pages.Dialogs
+@using ExpenseTrackerWebApp.Database.Models
+@using ExpenseTrackerWebApp.Dtos
+@using ExpenseTrackerWebApp.Services
+@using Microsoft.AspNetCore.Authorization
+@using MudBlazor.Extensions
+@using System.Globalization
+@inject NavigationManager NavigationManager
+@inject IdentityService IdentityService
+@inject ISnackbar Snackbar
+
+<MudPopoverProvider />
+<MudDialogProvider /> 
+<MudSnackbarProvider />
+
+<PageTitle>Login</PageTitle>
+
+<MudContainer MaxWidth="MaxWidth.Small" >
+    <MudPaper Class="pa-6 mt-6" Elevation="15">
+        <MudForm @ref="form">
+            <MudGrid>
+                <MudItem xs="12" Class="d-flex justify-center">
+                    <MudText Typo="Typo.h4">Welcome back!</MudText>
+                </MudItem>
+                <MudItem xs="12">
+                        <MudTextField @bind-Value="email" Label="Email" Variant="Variant.Text"
+                            Required="true" RequiredError="Email is required!">
+                        </MudTextField>
+                </MudItem>
+                <MudItem xs="12">
+                    <MudTextField @bind-Value="password" Label="Password" Variant="Variant.Text"
+                        Required="true" RequiredError="Password is required!" InputType="InputType.Password">
+                    </MudTextField>
+                </MudItem>
+                <MudItem xs="12" Class="d-flex justify-center">
+                    <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="@BtnLogin_Click" Class="px-20 py-1">Login</MudButton>
+                </MudItem>
+                @if(error){
+                    <MudItem xs="12" Class="d-flex justify-center">
+                        <MudAlert Severity="Severity.Error">Login failed, please try again.</MudAlert>
+                    </MudItem>
+                }
+                <MudItem xs="12" Class="d-flex justify-center mt-10">
+                    <MudText Typo="Typo.body1">Dont't have an account? Register <MudButton Variant="Variant.Text" Color="Color.Secondary" OnClick="BtnRegister_Click">HERE</MudButton></MudText>
+                </MudItem>
+            </MudGrid>
+        </MudForm>
+    </MudPaper>
+</MudContainer>
+    
+    
+
+@code{
+
+    [SupplyParameterFromQuery]
+    [Parameter]
+    public bool error {get; set;} = false;
+
+    [SupplyParameterFromQuery]
+    [Parameter]
+    public string email {get; set;} = "";
+
+    public string password {get; set;} = "";
+
+    private MudForm form;
+
+
+    protected override async Task OnParametersSetAsync()
+    {
+        await base.OnParametersSetAsync();
+        if (error)
+        {
+            Snackbar.Add("Login failed! Please try again.", Severity.Error);
+            error = false;
+        }
+    }
+    private async Task BtnLogin_Click(){
+        
+        await form.Validate();
+        if (!form.IsValid)
+        {
+            return;
+        }
+
+        HandleLogin();
+    }
+    
+    private void HandleLogin()
+    {
+        NavigationManager.NavigateTo($"/api/auth/login?email={email}&password={password}", forceLoad: true);
+    }
+
+    private void BtnRegister_Click(){
+        NavigationManager.NavigateTo("Register");
+    }
+}
