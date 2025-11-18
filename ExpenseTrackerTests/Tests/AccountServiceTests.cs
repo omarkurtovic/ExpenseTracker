@@ -20,8 +20,8 @@ public class AccountServiceTests : IDisposable
     private readonly DbConnection _connection;
     private readonly DbContextOptions<AppDbContext> _contextOptions;
 
-    private readonly string _aliceId;   // has no accounts
-    private readonly string _bobId;     // has 1 account
+    private readonly string _aliceId;   // has no accounts 
+    private readonly string _bobId;     // has 1 account 
     private readonly string _charlieId; // has 2 accounts
 
     private readonly int _bobCashAccountId;
