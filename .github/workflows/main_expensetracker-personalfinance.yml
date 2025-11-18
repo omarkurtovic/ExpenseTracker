@@ -24,10 +24,10 @@ jobs:
           dotnet-version: '9.x'
 
       - name: Build with dotnet
-        run: dotnet build ExpenseTrackerWebApp --configuration Release
+        run: dotnet build ExpenseTrackerWebApp/ExpenseTrackerWebApp.csproj --configuration Release
 
       - name: dotnet publish
-        run: dotnet publish ExpenseTrackerWebApp  -c Release -o ${{env.DOTNET_ROOT}}/myapp
+        run: dotnet publish ExpenseTrackerWebApp/ExpenseTrackerWebApp.csproj  -c Release -o ${{env.DOTNET_ROOT}}/myapp
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
@@ -62,4 +62,5 @@ jobs:
           app-name: 'ExpenseTracker-PersonalFinance'
           slot-name: 'Production'
           package: .
+
           
