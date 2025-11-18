@@ -43,7 +43,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: aspnet-app
-          path: ./publish/**
+          path: ./publish/**/*
 
   deploy:
     runs-on: ubuntu-latest
@@ -73,7 +73,7 @@ jobs:
         id: deploy-to-webapp
         uses: azure/webapps-deploy@v3
         with:
-          app-name: 'MyExpenseTracker'
-          slot-name: 'Production'
+          app-name: ExpenseTracker
+          slot-name: production
           package: ./publish
           
