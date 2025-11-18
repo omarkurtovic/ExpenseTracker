@@ -61,6 +61,7 @@ jobs:
         with:
           app-name: 'MyExpenseTracker'
           slot-name: 'Production'
-          package: .
+          package: ${{ github.workspace }}/.net-app
 
           
+
