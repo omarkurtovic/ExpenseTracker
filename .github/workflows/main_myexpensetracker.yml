@@ -32,6 +32,15 @@ jobs:
       - name: List published files
         run: ls -R ./publish
 
+      - name: Flatten publish folder
+        run: |
+          shopt -s dotglob
+          mv ./publish/ExpenseTrackerWebApp/* ./publish/ || echo "No nested folder"
+          rmdir ./publish/ExpenseTrackerWebApp || echo "Folder already removed"
+
+      - name: List published files
+        run: ls -R ./publish
+
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
         with:
