@@ -32,11 +32,8 @@ jobs:
       - name: Test
         run: dotnet test --no-build --configuration Release
 
-      - name: Publish directly into wwwroot (no subfolder, no artifact)
-        run: dotnet publish ./ExpenseTrackerWebApp/ExpenseTrackerWebApp.csproj \
-          --configuration Release \
-          --no-build \
-          --output /home/site/wwwroot
+      - name: Publish directly into wwwroot
+        run: dotnet publish ./ExpenseTrackerWebApp/ExpenseTrackerWebApp.csproj --configuration Release --no-build --output /home/site/wwwroot
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
