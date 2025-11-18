@@ -54,14 +54,10 @@ TestResult.xml
 nunit-*.xml
 
 
-## App settings (secrets) - ADD THIS SECTION
 appsettings.json
 appsettings.*.json
 !appsettings.Development.json.template
 
-## IDE files - ADD THIS TOO
-.vs/
-.vscode/
 .idea/
 *.user
 *.suo

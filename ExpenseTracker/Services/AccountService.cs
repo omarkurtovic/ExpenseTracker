@@ -8,9 +8,8 @@ namespace ExpenseTracker.Services
     public class AccountService
     {
         private readonly AppDbContext _context;
-        private readonly CurrentUserService _currentUserService;
-        
-        public AccountService(AppDbContext context, CurrentUserService currentUserService)
+        private readonly ICurrentUserService _currentUserService;
+        public AccountService(AppDbContext context, ICurrentUserService currentUserService)
         {
             _context = context;
             _currentUserService = currentUserService;
@@ -37,9 +36,9 @@ namespace ExpenseTracker.Services
             return await GetAccountsQuery(_context).ToListAsync();
         }
 
-        public async Task<Account> GetAsync(int accountId)
+        public async Task<Account?> GetAsync(int accountId)
         {
-            return await GetAccountsQuery(_context).SingleAsync(a => a.Id == accountId);
+            return await GetAccountsQuery(_context).SingleOrDefaultAsync(a => a.Id == accountId);
         }
         public async Task<AccountWithBalance> GetWithBalanceAsync(int accountId)
         {
@@ -59,9 +58,9 @@ namespace ExpenseTracker.Services
             if(string.IsNullOrWhiteSpace(accountDto.Name) ||
                 string.IsNullOrWhiteSpace(accountDto.UserId) ||
                 accountDto.InitialBalance == null)
-            {
-                return;
-            }
+                {
+                    return;
+                }
 
             var account = new Account
             {
@@ -80,7 +79,6 @@ namespace ExpenseTracker.Services
 
         private async Task SaveInternal(Account account)
         {
-
             if (account.Id == 0)
             {
                 await _context.Accounts.AddAsync(account);

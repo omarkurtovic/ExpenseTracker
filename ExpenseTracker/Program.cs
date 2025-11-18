@@ -67,7 +67,7 @@ builder.Services.AddScoped<CategoryService>();
 builder.Services.AddScoped<AccountService>();
 builder.Services.AddScoped<SeedDataService>();
 builder.Services.AddScoped<IdentityService>();
-builder.Services.AddScoped<CurrentUserService>();
+builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
 builder.Services.AddScoped<UserPreferencesService>();
 
 builder.Services.AddHttpContextAccessor();

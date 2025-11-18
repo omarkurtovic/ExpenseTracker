@@ -2,7 +2,12 @@ using System.Security.Claims;
 
 namespace ExpenseTracker.Services
 {
-    public class CurrentUserService
+    public interface ICurrentUserService
+    {
+        public string? GetUserId();
+    }
+
+    public class CurrentUserService : ICurrentUserService
     {
         private readonly IHttpContextAccessor _httpContextAccessor;
     
