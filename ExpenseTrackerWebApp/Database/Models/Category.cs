@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Identity;
 
 namespace ExpenseTrackerWebApp.Database.Models
 {
-    public class Category
+    public class Category : IEquatable<Category>
     {
         public int Id { get; set; }
         public string Name { get; set; }
@@ -16,5 +16,17 @@ namespace ExpenseTrackerWebApp.Database.Models
             Name = "";
             Type = TransactionType.Expense;
         }
+
+        
+        public bool Equals(Category? other)
+        {if (ReferenceEquals(null, other)) return false;
+        if (ReferenceEquals(this, other)) return true;
+            return Id == other.Id;
+        }
+
+        public override bool Equals(object? obj) => obj is Category category && Equals(category);
+
+        public override int GetHashCode() => Id.GetHashCode();
+        public override string ToString() => Name;
     }
 }

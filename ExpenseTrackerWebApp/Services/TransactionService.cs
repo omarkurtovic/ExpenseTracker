@@ -26,7 +26,7 @@ namespace ExpenseTrackerWebApp.Services
         }
         public async Task<List<Transaction>> GetAllAsync()
         {
-            return await GetTransactionsQuery(_context).Include(t => t.Category).OrderByDescending(t => t.Date).ToListAsync();
+            return await GetTransactionsQuery(_context).OrderByDescending(t => t.Date).ToListAsync();
         }
 
         public async Task SaveAsync(TransactionDto transactionDto)
@@ -98,7 +98,7 @@ namespace ExpenseTrackerWebApp.Services
         
         public async Task<Transaction?> GetAsync(int transactionId)
         {
-            return await GetTransactionsQuery(_context).Include(t => t.Category).SingleAsync(t => t.Id == transactionId);
+            return await GetTransactionsQuery(_context).SingleAsync(t => t.Id == transactionId);
         }
     }
 }
