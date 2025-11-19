@@ -1,7 +1,7 @@
 - look good on mobile
 - change order of income/expense for transaction dialog
-- fix top expenses graph to show amount on hover
-
+- need to fix the loading problem
+- gotta optimize the queries a bit especially on dashboard and transactions
 
 
 📈 Better error handling - Global error boundaries, graceful failures

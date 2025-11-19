@@ -37,7 +37,7 @@
         </MudAppBar>
     }
     
-    <MudMainContent>>
+    <MudMainContent>
         @Body
     </MudMainContent>
 </MudLayout>
@@ -60,15 +60,22 @@
         if(user.Identity?.IsAuthenticated ?? false){
             IsLoggedIn = true;
         }
-        
+
         if(IsLoggedIn){
             var userPreferences = await UserPreferencesService.GetAsync();
             if(userPreferences == null){
                 await UserPreferencesService.SaveAsync(_isDarkMode);
                 userPreferences = await UserPreferencesService.GetAsync();
             }
-            
+
             _isDarkMode = userPreferences.DarkMode;
+        }
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if(firstRender){
+            await RefreshGraphs();
         }
     }
 
@@ -86,6 +93,11 @@
             await UserPreferencesService.SaveAsync(_isDarkMode);
         }
 
+        await RefreshGraphs();
+        StateHasChanged();
+    }
+
+    private async Task RefreshGraphs(){
         await ApexChartService.SetGlobalOptionsAsync(new ApexChartBaseOptions
         {
             Debug = false,
@@ -99,6 +111,5 @@
                 Background = "transparent"
             }
         }, true);
-        StateHasChanged();
     }
 }

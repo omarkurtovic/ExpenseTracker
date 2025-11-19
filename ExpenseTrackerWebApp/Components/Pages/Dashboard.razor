@@ -68,26 +68,23 @@ else
                     </MudPaper>
                 </MudItem>
                 <MudItem xs="12" md="6" Class="d-flex">
-                    @if (ExpenseIncomeGraphSeries is not null && ExpenseIncomeGraphXAxisLabels is not null)
-                    {
-                        <MudPaper Elevation="5" Class="pa-4 flex-grow-1">
-                            <MudText Typo="Typo.h6">
-                                Expenses and Income last 6 months
-                            </MudText>
-                            <ApexChart TItem="Transaction" Options="incomeExpensesLastSixMonthsChartOptions">
+                    <MudPaper Elevation="5" Class="pa-4 flex-grow-1">
+                        <MudText Typo="Typo.h6">
+                            Expenses and Income last 6 months
+                        </MudText>
+                        <ApexChart TItem="Transaction" Options="incomeExpensesLastSixMonthsChartOptions">
 
-                                <ApexPointSeries TItem="Transaction" Items="transactionLastSixMonths" Name="Income"
-                                    XValue="@(e => new DateTime(e.Date.Year, e.Date.Month, 1, 0, 0, 0, DateTimeKind.Utc))"
-                                    YAggregate="@(e => e.Where(e => e.Amount > 0).Sum(e => e.Amount))"
-                                    SeriesType="SeriesType.Bar" OrderByDescending="e=>e.X" />
+                            <ApexPointSeries TItem="Transaction" Items="transactionLastSixMonths" Name="Income"
+                                XValue="@(e => new DateTime(e.Date.Year, e.Date.Month, 1, 0, 0, 0, DateTimeKind.Utc))"
+                                YAggregate="@(e => e.Where(e => e.Amount > 0).Sum(e => e.Amount))"
+                                SeriesType="SeriesType.Bar" OrderByDescending="e=>e.X" />
 
-                                <ApexPointSeries TItem="Transaction" Items="transactionLastSixMonths" Name="Expenses"
-                                    XValue="@(e => new DateTime(e.Date.Year, e.Date.Month, 1, 0, 0, 0, DateTimeKind.Utc))"
-                                    YAggregate="@(e => e.Where(e => e.Amount < 0).Sum(e => -e.Amount))"
-                                    SeriesType="SeriesType.Bar" OrderByDescending="e=>e.X" />
-                            </ApexChart>
-                        </MudPaper>
-                    }
+                            <ApexPointSeries TItem="Transaction" Items="transactionLastSixMonths" Name="Expenses"
+                                XValue="@(e => new DateTime(e.Date.Year, e.Date.Month, 1, 0, 0, 0, DateTimeKind.Utc))"
+                                YAggregate="@(e => e.Where(e => e.Amount < 0).Sum(e => -e.Amount))"
+                                SeriesType="SeriesType.Bar" OrderByDescending="e=>e.X" />
+                        </ApexChart>
+                    </MudPaper>
                 </MudItem>
                 <MudItem xs="12" md="6" Class="d-flex">
                     <MudPaper Elevation="5" Class="pa-4 flex-grow-1">
@@ -201,7 +198,6 @@ else
 
 
         SetupHeader(transactions, accounts);
-        SetupExpenseIncomeGraph(transactions);
         topCategoriesData = GetTopCategoriesData(transactions);
         loading = false;
     }
@@ -228,50 +224,6 @@ else
         }
         expensesThisMonth = -expensesThisMonth;
     }
-
-
-    private List<ChartSeries> ExpenseIncomeGraphSeries = new List<ChartSeries>()
-{
-new ChartSeries() { Name = "Income", Data = new double[6]},
-new ChartSeries() { Name = "Expenses", Data = new double[6]}
-};
-    private string[] ExpenseIncomeGraphXAxisLabels = new string[6];
-
-    private void SetupExpenseIncomeGraph(List<Transaction> transactions)
-    {
-        // including the current month 5 + 1 = 6 months in total
-        int monthsToScan = 5;
-        for (int i = 0; i <= monthsToScan; ++i)
-        {
-            var iMonthsAgo = DateTime.Now.AddMonths(i - monthsToScan);
-            var startOfMonth = iMonthsAgo.StartOfMonth(CultureInfo.CurrentCulture);
-            var endOfMonth = iMonthsAgo.EndOfMonth(CultureInfo.CurrentCulture);
-
-            var monthName = startOfMonth.ToString("MMM");
-            ExpenseIncomeGraphXAxisLabels[i] = monthName;
-
-            var transactionsThisMonth = transactions.Where(t => t.Date >= startOfMonth && t.Date <= endOfMonth).ToList();
-            double income = 0;
-            double expense = 0;
-            foreach (var t in transactionsThisMonth)
-            {
-                if (t.Category.Type == TransactionType.Income)
-                {
-                    income += (double)t.Amount;
-                }
-                else if (t.Category.Type == TransactionType.Expense)
-                {
-                    expense += (double)t.Amount;
-                }
-            }
-
-            ExpenseIncomeGraphSeries[0].Data[i] = income;
-            ExpenseIncomeGraphSeries[1].Data[i] = -expense;
-        }
-    }
-
-    private double[] topCategoriesGraphData = new double[6];
-    private string[] topCategoriesGraphLabels = ["", "", "", "", "", ""];
 
     private List<CategoryData> GetTopCategoriesData(List<Transaction> transactions, int numOfMonthsBehind = 6)
     {
