@@ -3,32 +3,40 @@
 A simple expense tracking app with dashboard, transactions, accounts, categories, dark mode, and CSV export.
 
 
-## Features
+**Features**
 
 - Dashboard with quick stats and graphs
 - Transaction list with filtering, editing, and CSV export
 - Customizable accounts and categories
 - Dark mode
 
+**Live Demo**
 
-## Live Demo 
-
-[expensetracker-personalfinance-hbgeczh8ayhaapeg.germanywestcentral-01.azurewebsites.net](https://expensetracker-personalfinance-hbgeczh8ayhaapeg.germanywestcentral-01.azurewebsites.net/login?ReturnUrl=%2F)
+Check out the live demo here: [expensetracker-personalfinance-hbgeczh8ayhaapeg.germanywestcentral-01.azurewebsites.net](https://expensetracker-personalfinance-hbgeczh8ayhaapeg.germanywestcentral-01.azurewebsites.net/login?ReturnUrl=%2F)
 
 
-## Running with Docker
+**Running with Docker**
 
 To run the app inside a Docker container:
 
-1. Clone the repository
-2. Navigate to the project folder
-3. Run:
+1. Clone the repository:
+```bash
+   git clone 
+   cd 
+```
+
+2. Start the application:
 ```bash
    docker-compose up
 ```
-4. The app will be available at: http://localhost:8080
 
+3. Open your browser and navigate to: **http://localhost:8080**
 
-## Tech Stack
+To stop the application:
+```bash
+docker-compose down
+```
+
+**Tech Stack**
 
 Built with Blazor Server, SQLite, EF Core, MudBlazor, ApexCharts and ASP.NET Identity
