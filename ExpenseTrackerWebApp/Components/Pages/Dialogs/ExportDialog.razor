@@ -96,6 +96,8 @@
         var csvContent = GenerateCsvContent(transactions, _items.OrderBy(i => i.Order).ToList());
         var fileName = "ExpenseTrackerWebApp.csv";        
         await JSRuntime.InvokeVoidAsync("downloadFileFromText", fileName, csvContent);
+        Snackbar.Add("Export successful!", Severity.Success);
+        MudDialog.Close();
     }
 
     public string GenerateCsvContent(List<Transaction> transactions, List<DropItem> dropItems)

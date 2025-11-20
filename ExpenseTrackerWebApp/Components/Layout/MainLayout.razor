@@ -8,6 +8,9 @@
 @inject UserPreferencesService UserPreferencesService
 @inject IApexChartService ApexChartService
 
+<MudPopoverProvider />
+<MudDialogProvider /> 
+<MudSnackbarProvider />
 <MudThemeProvider @bind-IsDarkMode="@_isDarkMode" Theme="_theme" />
 
 <MudLayout>
@@ -25,13 +28,13 @@
                         <MudIcon Icon="@Icons.Material.Filled.Person" />
                     </MudAvatar>
                 </ActivatorContent>
-            <ChildContent>
-                <div class="px-4 py-4">
-                    <MudText Typo="Typo.body2">@email</MudText>
-                </div>
-                <MudDivider />
-                <MudMenuItem Icon="@Icons.Material.Filled.Logout" OnClick="Logout" Color="MudBlazor.Color.Error">Logout</MudMenuItem>
-            </ChildContent>
+                <ChildContent>
+                    <div class="px-4 py-4">
+                        <MudText Typo="Typo.body2">@email</MudText>
+                    </div>
+                    <MudDivider />
+                    <MudMenuItem Icon="@Icons.Material.Filled.Logout" OnClick="Logout" Color="MudBlazor.Color.Error">Logout</MudMenuItem>
+                </ChildContent>
             </MudMenu>
         </MudAppBar>
         <MudDrawer @bind-Open="_drawerOpen" Elevation="2">
