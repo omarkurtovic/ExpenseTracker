@@ -11,8 +11,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ExpenseTrackerWebApp.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20251120195958_AddedColorsToCategories")]
-    partial class AddedColorsToCategories
+    [Migration("20251120213703_AddedIconsAndColorsToCategories")]
+    partial class AddedIconsAndColorsToCategories
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -52,11 +52,9 @@ namespace ExpenseTrackerWebApp.Migrations
                         .HasColumnType("INTEGER");
 
                     b.Property<string>("Color")
-                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Icon")
-                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.Property<string>("IdentityUserId")

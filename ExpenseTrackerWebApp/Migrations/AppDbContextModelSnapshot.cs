@@ -49,11 +49,9 @@ namespace ExpenseTrackerWebApp.Migrations
                         .HasColumnType("INTEGER");
 
                     b.Property<string>("Color")
-                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Icon")
-                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.Property<string>("IdentityUserId")

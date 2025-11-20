@@ -126,6 +126,20 @@ using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
     db.Database.Migrate();
+
+    var categoriesNeedingDefaults = db.Categories
+        .Where(c => string.IsNullOrEmpty(c.Color) || string.IsNullOrEmpty(c.Icon))
+        .ToList();
+    
+    if (categoriesNeedingDefaults.Any())
+    {
+        foreach (var category in categoriesNeedingDefaults)
+        {
+            category.Color ??= "#A9A9A9";
+            category.Icon ??= "Icons.Material.Filled.Category";
+        }
+        db.SaveChanges();
+    }
 }
 
 app.Run();
