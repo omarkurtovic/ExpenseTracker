@@ -1,7 +1,6 @@
 using ExpenseTrackerWebApp.Database;
 using ExpenseTrackerWebApp.Database.Models;
 using ExpenseTrackerWebApp.Dtos;
-using ExpenseTrackerWebApp.Migrations;
 using Microsoft.EntityFrameworkCore;
 using MudBlazor;
 

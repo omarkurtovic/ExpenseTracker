@@ -93,13 +93,6 @@ namespace ExpenseTrackerWebApp.Database
                 RoleId = "1b1c59f2-891f-4732-a974-3b755208d0d9", 
                 UserId = "4e08d54b-16f0-47a0-afaf-afc12dbdedc8"
             });
-
-            var defaultCategories = CategoryService.GetDefaultCategories();
-            foreach(var category in defaultCategories)
-            {
-                category.IdentityUserId = "4e08d54b-16f0-47a0-afaf-afc12dbdedc8";
-            }
-            modelBuilder.Entity<Category>().HasData(defaultCategories);
         }
     }
 }

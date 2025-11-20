@@ -3,8 +3,6 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
-#pragma warning disable CA1814 // Prefer jagged arrays over multidimensional
-
 namespace ExpenseTrackerWebApp.Migrations
 {
     /// <inheritdoc />
@@ -187,6 +185,8 @@ namespace ExpenseTrackerWebApp.Migrations
                         .Annotation("Sqlite:Autoincrement", true),
                     Name = table.Column<string>(type: "TEXT", nullable: false),
                     Type = table.Column<int>(type: "INTEGER", nullable: false),
+                    Icon = table.Column<string>(type: "TEXT", nullable: true),
+                    Color = table.Column<string>(type: "TEXT", nullable: true),
                     IdentityUserId = table.Column<string>(type: "TEXT", nullable: false)
                 },
                 constraints: table =>
@@ -261,24 +261,6 @@ namespace ExpenseTrackerWebApp.Migrations
                 table: "AspNetUserRoles",
                 columns: new[] { "RoleId", "UserId" },
                 values: new object[] { "1b1c59f2-891f-4732-a974-3b755208d0d9", "4e08d54b-16f0-47a0-afaf-afc12dbdedc8" });
-
-            migrationBuilder.InsertData(
-                table: "Categories",
-                columns: new[] { "Id", "IdentityUserId", "Name", "Type" },
-                values: new object[,]
-                {
-                    { 1, "4e08d54b-16f0-47a0-afaf-afc12dbdedc8", "Groceries", 1 },
-                    { 2, "4e08d54b-16f0-47a0-afaf-afc12dbdedc8", "Eating Out", 1 },
-                    { 3, "4e08d54b-16f0-47a0-afaf-afc12dbdedc8", "Shopping", 1 },
-                    { 4, "4e08d54b-16f0-47a0-afaf-afc12dbdedc8", "Transportation", 1 },
-                    { 5, "4e08d54b-16f0-47a0-afaf-afc12dbdedc8", "Vehicle", 1 },
-                    { 6, "4e08d54b-16f0-47a0-afaf-afc12dbdedc8", "Communication", 1 },
-                    { 7, "4e08d54b-16f0-47a0-afaf-afc12dbdedc8", "Health and Wellness", 1 },
-                    { 8, "4e08d54b-16f0-47a0-afaf-afc12dbdedc8", "Education", 1 },
-                    { 9, "4e08d54b-16f0-47a0-afaf-afc12dbdedc8", "Entertainment", 1 },
-                    { 10, "4e08d54b-16f0-47a0-afaf-afc12dbdedc8", "Pets", 1 },
-                    { 11, "4e08d54b-16f0-47a0-afaf-afc12dbdedc8", "Salary", 0 }
-                });
 
             migrationBuilder.InsertData(
                 table: "UserPreferences",

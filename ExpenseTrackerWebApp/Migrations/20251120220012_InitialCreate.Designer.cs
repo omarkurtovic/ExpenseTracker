@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ExpenseTrackerWebApp.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20251117121804_InitialCreate")]
+    [Migration("20251120220012_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -51,6 +51,12 @@ namespace ExpenseTrackerWebApp.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
+                    b.Property<string>("Color")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Icon")
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("IdentityUserId")
                         .IsRequired()
                         .HasColumnType("TEXT");
@@ -67,85 +73,6 @@ namespace ExpenseTrackerWebApp.Migrations
                     b.HasIndex("IdentityUserId");
 
                     b.ToTable("Categories");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            IdentityUserId = "4e08d54b-16f0-47a0-afaf-afc12dbdedc8",
-                            Name = "Groceries",
-                            Type = 1
-                        },
-                        new
-                        {
-                            Id = 2,
-                            IdentityUserId = "4e08d54b-16f0-47a0-afaf-afc12dbdedc8",
-                            Name = "Eating Out",
-                            Type = 1
-                        },
-                        new
-                        {
-                            Id = 3,
-                            IdentityUserId = "4e08d54b-16f0-47a0-afaf-afc12dbdedc8",
-                            Name = "Shopping",
-                            Type = 1
-                        },
-                        new
-                        {
-                            Id = 4,
-                            IdentityUserId = "4e08d54b-16f0-47a0-afaf-afc12dbdedc8",
-                            Name = "Transportation",
-                            Type = 1
-                        },
-                        new
-                        {
-                            Id = 5,
-                            IdentityUserId = "4e08d54b-16f0-47a0-afaf-afc12dbdedc8",
-                            Name = "Vehicle",
-                            Type = 1
-                        },
-                        new
-                        {
-                            Id = 6,
-                            IdentityUserId = "4e08d54b-16f0-47a0-afaf-afc12dbdedc8",
-                            Name = "Communication",
-                            Type = 1
-                        },
-                        new
-                        {
-                            Id = 7,
-                            IdentityUserId = "4e08d54b-16f0-47a0-afaf-afc12dbdedc8",
-                            Name = "Health and Wellness",
-                            Type = 1
-                        },
-                        new
-                        {
-                            Id = 8,
-                            IdentityUserId = "4e08d54b-16f0-47a0-afaf-afc12dbdedc8",
-                            Name = "Education",
-                            Type = 1
-                        },
-                        new
-                        {
-                            Id = 9,
-                            IdentityUserId = "4e08d54b-16f0-47a0-afaf-afc12dbdedc8",
-                            Name = "Entertainment",
-                            Type = 1
-                        },
-                        new
-                        {
-                            Id = 10,
-                            IdentityUserId = "4e08d54b-16f0-47a0-afaf-afc12dbdedc8",
-                            Name = "Pets",
-                            Type = 1
-                        },
-                        new
-                        {
-                            Id = 11,
-                            IdentityUserId = "4e08d54b-16f0-47a0-afaf-afc12dbdedc8",
-                            Name = "Salary",
-                            Type = 0
-                        });
                 });
 
             modelBuilder.Entity("ExpenseTrackerWebApp.Database.Models.Transaction", b =>
