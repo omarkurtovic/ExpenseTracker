@@ -7,6 +7,8 @@ namespace ExpenseTrackerWebApp.Database.Models
         public int Id { get; set; }
         public string Name { get; set; }
         public TransactionType Type { get; set; }
+        public string Icon{get; set;}
+        public string Color{get; set;}
         public ICollection<Transaction> Transactions{ get; set; }
         public string IdentityUserId {get; set;}
         public IdentityUser IdentityUser { get; set; }

@@ -120,7 +120,14 @@ else
                                 <MudDataGrid T="Transaction" Items="@MyTransactions" Virtualize="true" Height="700px">
                                     <Columns>
                                     <PropertyColumn Property="t => t.Account.Name" Title="Account"></PropertyColumn>
-                                        <PropertyColumn Property="t => t.Category.Name" Title="Category"></PropertyColumn>
+                                    <TemplateColumn Property="t => t.Category.Name" Title="Category" SortBy="t => t.Category.Name" Sortable="true">
+                                        <CellTemplate>
+                                            <MudPaper Elevation="0" Class="d-flex align-center gap-2">
+                                                <MudIcon Icon="@context.Item.Category.Icon" Size="Size.Large" Style="@($"color:{context.Item.Category.Color};")" />
+                                                <MudText Typo="Typo.body2">@context.Item.Category.Name</MudText>
+                                            </MudPaper>
+                                        </CellTemplate>
+                                    </TemplateColumn>
                                         <PropertyColumn Property="t => t.Date" Format="dd//MM/yyyy" Title="Date"></PropertyColumn>
                                         <TemplateColumn Title="Amount" SortBy="t => t.Amount" Sortable="true">
                                             <CellTemplate>
@@ -155,11 +162,8 @@ else
                         </MudItem>
                     }
                 </MudGrid>
-
-            @* } *@
         </MudPaper>
     </MudContainer>
-}
 
 @code {
     [CascadingParameter]

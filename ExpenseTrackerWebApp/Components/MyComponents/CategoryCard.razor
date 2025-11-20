@@ -1,0 +1,36 @@
+@using ExpenseTrackerWebApp.Database.Models
+<MudCard Outlined="true" Class="pa-2 border-2">
+<MudCardHeader>
+    <MudPaper Elevation="0" Class="d-flex gap-5 align-center w-100">
+        <MudIcon Icon="@category.Icon" Size="Size.Large" Style="@($"color:{category.Color};")" />
+        <MudText Typo="Typo.h6">@category.Name</MudText>
+    </MudPaper>
+</MudCardHeader>
+<MudCardContent>
+@if(category.Transactions != null){
+    <MudText Typo="Typo.body1">Total transactions: @category.Transactions.Count</MudText>
+    <MudPaper Elevation="0" Class="d-flex gap-2">
+        <MudText Typo="Typo.body1">@(category.Type == TransactionType.Income ? "Total income: " : "Total expenses: ")</MudText>
+        <AmountDisplay Balance="@category.Transactions.Sum(t => t.Amount)" FontSize="Typo.body1" />
+    </MudPaper>
+    
+}
+</MudCardContent>
+<MudCardActions>
+<MudPaper Class="pa-1 d-flex flex-grow-1 justify-space-between mt-3" Elevation="0">
+    <MudIconButton Icon="@Icons.Material.Filled.Edit" Color="Color.Primary" OnClick="@(() => OpenCategoryDialogAsync.InvokeAsync(category.Id))"></MudIconButton>
+    <MudIconButton Icon="@Icons.Material.Filled.Delete" Color="Color.Error" OnClick="@(() => ConfirmDelete.InvokeAsync(category.Id))"></MudIconButton>
+</MudPaper>
+</MudCardActions>
+</MudCard>
+
+@code{
+    [Parameter]
+    public Category category { get; set; }
+
+    [Parameter]
+    public EventCallback<int?> OpenCategoryDialogAsync { get; set; }
+
+    [Parameter]
+    public EventCallback<int> ConfirmDelete { get; set; }
+}

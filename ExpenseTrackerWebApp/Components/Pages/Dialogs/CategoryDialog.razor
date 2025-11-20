@@ -28,6 +28,20 @@
                                 <MudSelectItem Value="@item">@item</MudSelectItem>
                             }
                         </MudSelect>
+                        <MudPaper Elevation="0" Class="d-flex gap-4">
+                            <MudSelect @bind-Value="CategoryDto.Icon" Label="Icon" Variant="Variant.Outlined" Required="true"
+                                RequiredError="Icon is required!">
+                                @foreach (string? item in CategoryService.GetDefaultCategoryIcons())
+                                {
+                                    <MudSelectItem Value="@item" Style="display: inline-block; width: 40px; height: 40px; padding: 4px;">
+                                        <MudIcon Icon="@item" Style="@($"color:{CategoryDto.Color};")" Size="Size.Medium" />
+                                    </MudSelectItem>
+                                }
+                            </MudSelect>
+                            <MudColorPicker @bind-Text="CategoryDto.Color" Label="Color" Variant="Variant.Outlined" Required="true"
+                                RequiredError="Color is required!">
+                            </MudColorPicker>
+                        </MudPaper>
                     </MudForm>
                 </MudItem>
                 <MudItem xs="12" Class="d-flex justify-end gap-2 mt-12">
@@ -88,7 +102,9 @@
             Id = category.Id,
             Name = category.Name,
             Type = category.Type,
-            UserId = category.IdentityUserId
+            UserId = category.IdentityUserId,
+            Icon = category.Icon,
+            Color = category.Color
         };
     }
 

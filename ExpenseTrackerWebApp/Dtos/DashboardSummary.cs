@@ -20,10 +20,7 @@ namespace ExpenseTrackerWebApp.Dtos
         {
             get
             {
-                return Transactions
-                    .OrderByDescending(t => t.Date)
-                    .Take(5)
-                    .ToList();
+                return [.. Transactions.Take(5)];
             }
         }
 
