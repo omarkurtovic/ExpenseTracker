@@ -34,11 +34,6 @@ else
     <MudContainer>
         <MudPaper Class="pa-6 mt-6" Elevation="0">
             <MudGrid>
-                <MudItem xs="12" Class="d-flex justify-center">
-                    <MudText Typo="Typo.h3">
-                        Welcome back @username
-                    </MudText>
-                </MudItem>
                 <MudItem xs="12" md="4">
                     <MudPaper Elevation="5" Class="pa-4 d-flex flex-column gap-4">
                         <MudText Typo="Typo.h6">
@@ -156,17 +151,6 @@ else
     {
         await base.OnInitializedAsync();
         dashboardSummary = await DashboardService.GetDashboardSummaryAsync();
-
-        if (authenticationState is not null)
-        {
-            var authState = await authenticationState;
-            var user = authState?.User;
-
-            if (user?.Identity is not null && user.Identity.IsAuthenticated)
-            {
-                username = user.Identity.Name ?? "";
-            }
-        }
         loading = false;
     }
 

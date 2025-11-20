@@ -8,40 +8,59 @@
 @inject UserPreferencesService UserPreferencesService
 @inject IApexChartService ApexChartService
 
-<MudThemeProvider @bind-IsDarkMode="@_isDarkMode" Theme="_theme"/>
+<MudThemeProvider @bind-IsDarkMode="@_isDarkMode" Theme="_theme" />
 
 <MudLayout>
-    @if(IsLoggedIn){
-    <MudAppBar Elevation="1">
-        <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="MudBlazor.Color.Inherit" Edge="Edge.Start" OnClick="@((e) => DrawerToggle())" />
-        <MudSpacer />
-        <MudSwitch @bind-Value="_isDarkMode" Color="MudBlazor.Color.Primary"
-            Class="ma-4" T="bool" Label="Dark Mode" @bind-Value:after="this.ThemeChanged"/>
-        <MudButton Variant="Variant.Text" Color="MudBlazor.Color.Error" OnClick="Logout">Logout</MudButton>
-    </MudAppBar>
+    @if (IsLoggedIn)
+    {
+        <MudAppBar Elevation="1">
+            <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="MudBlazor.Color.Inherit" Edge="Edge.Start"
+                OnClick="@((e) => DrawerToggle())" />
+            <MudSpacer />
+            <MudSwitch @bind-Value="_isDarkMode" Color="MudBlazor.Color.Primary" Class="ma-4" T="bool" Label="Dark Mode"
+                @bind-Value:after="this.ThemeChanged" />
+            <MudMenu AnchorOrigin="Origin.BottomLeft" Icon="@Icons.Material.Filled.AccountCircle">
+                <ActivatorContent>
+                    <MudAvatar Color="MudBlazor.Color.Primary">
+                        <MudIcon Icon="@Icons.Material.Filled.Person" />
+                    </MudAvatar>
+                </ActivatorContent>
+            <ChildContent>
+                <div class="px-4 py-4">
+                    <MudText Typo="Typo.body2">@email</MudText>
+                </div>
+                <MudDivider />
+                <MudMenuItem Icon="@Icons.Material.Filled.Logout" OnClick="Logout" Color="MudBlazor.Color.Error">Logout</MudMenuItem>
+            </ChildContent>
+            </MudMenu>
+        </MudAppBar>
         <MudDrawer @bind-Open="_drawerOpen" Elevation="2">
             <MudDrawerHeader>
                 <MudText Typo="Typo.h5" Class="mt-1">Expense Tracker</MudText>
             </MudDrawerHeader>
             <MudNavMenu>
                 <MudNavLink Href="" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Dashboard">Dashboard</MudNavLink>
-                <MudNavLink Href="accounts" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.AccountBalance">Accounts</MudNavLink>
-                <MudNavLink Href="transactions" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.CompareArrows">Transactions</MudNavLink>
-                <MudNavLink Href="categories" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Category">Categories</MudNavLink>
+                <MudNavLink Href="accounts" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.AccountBalance">Accounts
+                </MudNavLink>
+                <MudNavLink Href="transactions" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.CompareArrows">
+                    Transactions</MudNavLink>
+                <MudNavLink Href="categories" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Category">Categories
+                </MudNavLink>
             </MudNavMenu>
         </MudDrawer>
     }
-    else{
+    else
+    {
         <MudAppBar Elevation="1">
             <MudText Typo="Typo.h5" Class="mt-1">Expense Tracker</MudText>
         </MudAppBar>
     }
-    
+
     <MudMainContent>
         @Body
     </MudMainContent>
 </MudLayout>
-@code{
+@code {
 
     bool _drawerOpen = true;
 
@@ -52,18 +71,24 @@
 
 
     private bool IsLoggedIn = false;
+    private string email = "";
 
     protected override async Task OnInitializedAsync()
     {
         var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
         var user = authState.User;
-        if(user.Identity?.IsAuthenticated ?? false){
+        if (user.Identity?.IsAuthenticated ?? false)
+        {
             IsLoggedIn = true;
+            email = user.Identity.Name ?? "";
         }
 
-        if(IsLoggedIn){
+
+        if (IsLoggedIn)
+        {
             var userPreferences = await UserPreferencesService.GetAsync();
-            if(userPreferences == null){
+            if (userPreferences == null)
+            {
                 await UserPreferencesService.SaveAsync(_isDarkMode);
                 userPreferences = await UserPreferencesService.GetAsync();
             }
@@ -74,12 +99,14 @@
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if(firstRender){
+        if (firstRender)
+        {
             await RefreshGraphs();
         }
     }
 
-    private void Logout(){
+    private void Logout()
+    {
         var theme = _isDarkMode ? "dark" : "light";
         NavigationManager.NavigateTo($"/api/auth/logout", forceLoad: true);
     }
@@ -87,9 +114,11 @@
 
     private bool _isDarkMode;
     private MudTheme _theme = new();
-    
-    private async Task ThemeChanged(){    
-        if(IsLoggedIn){
+
+    private async Task ThemeChanged()
+    {
+        if (IsLoggedIn)
+        {
             await UserPreferencesService.SaveAsync(_isDarkMode);
         }
 
@@ -97,14 +126,15 @@
         StateHasChanged();
     }
 
-    private async Task RefreshGraphs(){
+    private async Task RefreshGraphs()
+    {
         await ApexChartService.SetGlobalOptionsAsync(new ApexChartBaseOptions
         {
             Debug = false,
-            Theme = new Theme 
-            { 
+            Theme = new Theme
+            {
                 Mode = _isDarkMode ? Mode.Dark : Mode.Light,
-                Palette = PaletteType.Palette6 
+                Palette = PaletteType.Palette6
             },
             Chart = new Chart
             {
