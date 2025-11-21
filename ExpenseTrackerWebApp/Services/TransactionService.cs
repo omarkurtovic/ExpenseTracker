@@ -10,11 +10,16 @@ namespace ExpenseTrackerWebApp.Services
     {
         private readonly AppDbContext _context;
         private readonly ICurrentUserService _currentUserService;
+        private readonly AccountService _accountService;
+        private readonly CategoryService _categoryService;
         
-        public TransactionService(AppDbContext context, ICurrentUserService currentUserService)
+        public TransactionService(AppDbContext context, ICurrentUserService currentUserService,
+        AccountService accountService, CategoryService categoryService)
         {
             _context = context;
             _currentUserService = currentUserService;
+            _accountService = accountService;
+            _categoryService = categoryService;
         }
         // has 2 accounts
         // has two transactions this month, one income one expense
@@ -56,6 +61,7 @@ namespace ExpenseTrackerWebApp.Services
             };
 
             await SaveInternal(transaction, (TransactionType)transactionDto.TransactionType);
+            transactionDto.Id = transaction.Id;
         }
 
         public async Task SaveAsync(Transaction transaction)
@@ -104,6 +110,16 @@ namespace ExpenseTrackerWebApp.Services
         {
             return await GetTransactionsQuery(_context).SingleAsync(t => t.Id == transactionId);
         }
-    
+
+        public async Task<TransactionsDto> GetTransactionsDto()
+        {
+            var result = new TransactionsDto();
+            result.Transactions = await GetAllAsync();
+            result.FilteredTransactions = result.Transactions.ToList();
+            result.Accounts = await _accountService.GetAllAsync();
+            result.Categories = await _categoryService.GetAllAsync();
+            result.FilteredCategories = result.Categories.ToList();
+            return result;
+        }
     }
 }
