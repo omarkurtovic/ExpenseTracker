@@ -1,0 +1,100 @@
+@using ExpenseTrackerWebApp.Dtos;
+@using ExpenseTrackerWebApp.Database.Models;
+
+<MudGrid>
+    <MudItem xs="12" md="6">
+        <MudPaper Elevation="0" Class="d-flex gap-5">
+            <MudSelect T="Account" Label="Account" @bind-SelectedValues="TransactionsDto.AccountsFilter" @bind-SelectedValues:after="NotifyFilterChange"
+                MultiSelectionTextFunc="@(new Func<List<string>, string>(GetAccountsMultiSelectionText))"
+                MultiSelection="true" Clearable="true" FullWidth="true">
+                @foreach (var account in TransactionsDto.Accounts)
+                {
+                    <MudSelectItem Value="@(account)">
+                        <AccountName account="@account"></AccountName>
+                    </MudSelectItem>
+                }
+            </MudSelect>
+            <MudSelect T="DateFilterPreset ?" Label="Date" @bind-Value="TransactionsDto.DateFilter" @bind-Value:after="NotifyFilterChange"
+                FullWidth="true" Clearable="true">
+                <MudSelectItem Value="@((DateFilterPreset?)DateFilterPreset.ThisMonth)">This Month
+                </MudSelectItem>
+                <MudSelectItem Value="@((DateFilterPreset?)DateFilterPreset.LastMonth)">Last Month
+                </MudSelectItem>
+                <MudSelectItem Value="@((DateFilterPreset?)DateFilterPreset.Last3Months)">Last Three Months
+                </MudSelectItem>
+                <MudSelectItem Value="@((DateFilterPreset?)DateFilterPreset.ThisYear)">This Year
+                </MudSelectItem>
+            </MudSelect>
+        </MudPaper>
+    </MudItem>
+    <MudItem xs="12" md="6">
+        <MudPaper Elevation="0" Class="d-flex gap-5">
+            <MudSelect T="TransactionType ?" Label="Type" @bind-Value="TransactionsDto.TypeFilter" @bind-Value:after="NotifyFilterChange"
+                Clearable="true" FullWidth="true">
+                @foreach (TransactionType item in Enum.GetValues(typeof(TransactionType)))
+                {
+                    <MudSelectItem Value="@((TransactionType?)item)">@item</MudSelectItem>
+                }
+            </MudSelect>
+            <MudSelect T="Category" Label="Category" @bind-SelectedValues="TransactionsDto.CategoriesFilter" @bind-SelectedValues:after="NotifyFilterChange"
+                MultiSelectionTextFunc="@(new Func<List<string>, string>(GetCategoriesMultiSelectionText))"
+                MultiSelection="true" Clearable="true" FullWidth="true">
+                @foreach (var category in TransactionsDto.FilteredCategories)
+                {
+                    <MudSelectItem Value="@(category)">
+                        <CategoryName category="@category"></CategoryName>
+                    </MudSelectItem>
+                }
+            </MudSelect>
+        </MudPaper>
+    </MudItem>
+    <MudItem xs="12" md="6">
+        <MudSelect T="Tag" Label="Tags" @bind-SelectedValues="TransactionsDto.TagsFilter" @bind-SelectedValues:after="NotifyFilterChange"
+            MultiSelectionTextFunc="@(new Func<List<string>, string>(GetTagsMultiSelectionText))"
+            MultiSelection="true" Clearable="true" FullWidth="true">
+            @foreach (var tag in TransactionsDto.Tags)
+            {
+                <MudSelectItem Value="@(tag)">
+                    <MudChip T="Tag" Style="@($"background-color:{tag.Color}; color:white;")" Size="Size.Small"
+                        Variant="Variant.Filled">
+                        @tag.Name
+                    </MudChip>
+                </MudSelectItem>
+            }
+        </MudSelect>
+    </MudItem>
+    <MudItem xs="12" md="2" Class="d-flex justify-center align-end">
+        <MudButton Variant="Variant.Outlined" OnClick="@TransactionsDto.ClearFilters"
+            Disabled="@(!TransactionsDto.AreAnyFiltersActive)"
+            StartIcon="@Icons.Material.Filled.FilterListOff">Clear
+        </MudButton>
+    </MudItem>
+</MudGrid>
+
+
+@code{
+    [Parameter]
+    public TransactionsDto TransactionsDto { get; set; } = new TransactionsDto();
+
+    [Parameter]
+    public EventCallback OnFiltersChanged { get; set; }
+
+    private async Task NotifyFilterChange()
+    {
+        await OnFiltersChanged.InvokeAsync();
+    }
+    private string GetAccountsMultiSelectionText(List<string> selectedAccounts)
+    {
+        return string.Join(", ", selectedAccounts);
+    }
+
+    private string GetCategoriesMultiSelectionText(List<string> selectedCategories)
+    {
+        return string.Join(separator: ", ", selectedCategories);
+    }
+
+    private string GetTagsMultiSelectionText(List<string> selectedTags)
+    {
+        return string.Join(separator: ", ", selectedTags);
+    }
+}
