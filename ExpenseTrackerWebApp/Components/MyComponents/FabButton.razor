@@ -1,0 +1,23 @@
+
+<MudFab Color="Color.Primary" StartIcon="@IconClass" OnClick="@OnClick" Class="add-fab" />
+    
+<style>
+    .add-fab{
+        position:fixed;
+        right: 25px;
+        bottom: 25px;
+        z-index: 1000;
+    }
+</style>
+
+@code{
+    [Parameter]
+    public string Text {get; set;}
+
+    [Parameter]
+    public string IconClass{get; set;} = "";
+
+    [Parameter]
+    public EventCallback OnClick { get; set; }
+
+}

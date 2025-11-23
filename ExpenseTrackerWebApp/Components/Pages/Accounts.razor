@@ -26,11 +26,19 @@ else
                 <MudItem xs="12" Class="d-flex justify-center">
                     <MudText Typo="Typo.h4">Accounts</MudText>
                 </MudItem>
-                <MudItem xs="12" Class="mb-4 d-flex justify-center">
-                    <MudButton Variant="Variant.Filled" Color="Color.Primary"
-                        OnClick="@(() => OpenAccountDialogAsync(null))" StartIcon="@Icons.Material.Filled.Add">Add
-                    </MudButton>
-                </MudItem>
+                <DynamicContent>
+                    <DesktopContent>
+                    <MudItem xs="12" Class="mb-4 d-flex justify-center">
+                        <MudButton Variant="Variant.Filled" Color="Color.Primary"
+                            OnClick="@(() => OpenAccountDialogAsync(null))" StartIcon="@Icons.Material.Filled.Add">Add
+                        </MudButton>
+                    </MudItem>
+                    </DesktopContent>
+                    <MobileContent>
+                        <FabButton Text="Add" IconClass="@Icons.Material.Filled.Add" OnClick="@(() => OpenAccountDialogAsync(null))" />
+                    </MobileContent>
+                </DynamicContent>
+                
                 @if (MyAccounts == null || MyAccounts.Count == 0)
                 {
                     <MudItem xs="12" Class="d-flex justify-center">
@@ -74,9 +82,9 @@ else
         };
 
         var parameters = new DialogParameters<AccountDialog>
-{
-{ x => x.AccountId, accountId }
-};
+        {
+            { x => x.AccountId, accountId }
+        };
 
         var dialog = await DialogService.ShowAsync<AccountDialog>(title: "", parameters, options);
         var result = await dialog.Result;

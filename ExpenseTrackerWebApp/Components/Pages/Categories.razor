@@ -28,29 +28,47 @@ else
                     <MudItem xs="12" Class="d-flex justify-center">
                         <MudText Typo="Typo.h4">Categories</MudText>
                     </MudItem>
-                    <MudItem xs="12" Class="d-flex justify-center gap-5 mb-4">
-                        <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="@(() => OpenCategoryDialogAsync(null))" StartIcon="@Icons.Material.Filled.Add">Add</MudButton>
-                    </MudItem>
-                    <MudHidden xs="12" Breakpoint="Breakpoint.SmAndDown">
-                        @RenderCategoryContent(false)
-                    </MudHidden>
-                    <MudHidden Breakpoint="Breakpoint.SmAndDown" Invert="true">
-                        @RenderCategoryContent(true)
-                    </MudHidden>
+                    <DynamicContent>
+                        <DesktopContent>
+                            <MudItem xs="12" Class="d-flex justify-center gap-5 mb-4">
+                                <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="@(() => OpenCategoryDialogAsync(null))" StartIcon="@Icons.Material.Filled.Add">Add</MudButton>
+                            </MudItem>
+                            <MudItem xs="12">
+                                <MudTabs @ref="tabs" Elevation="0" ApplyEffectsToContainer="true" PanelClass="pa-6" Centered="true">
+                                    <MudTabPanel Text= "Expense" Icon="@Icons.Material.Filled.TrendingDown">
+                                        @RenderCategoryContent(TransactionType.Expense)
+                                    </MudTabPanel>
+                                    <MudTabPanel Text="Income" Icon="@Icons.Material.Filled.TrendingUp">
+                                        @RenderCategoryContent(TransactionType.Income)
+                                    </MudTabPanel>
+                                </MudTabs>
+                            </MudItem>
+                        </DesktopContent>
+                        <MobileContent>
+                            <MudItem xs="12">
+                                <MudTabs @ref="tabs" Elevation="0" ApplyEffectsToContainer="true" PanelClass="pa-6" Centered="true">
+                                    <MudTabPanel Text="" Icon="@Icons.Material.Filled.TrendingDown">
+                                        @RenderCategoryContent(TransactionType.Expense)
+                                    </MudTabPanel>
+                                    <MudTabPanel Text="" Icon="@Icons.Material.Filled.TrendingUp">
+                                        @RenderCategoryContent(TransactionType.Income)
+                                    </MudTabPanel>
+                                </MudTabs>
+                            </MudItem>
+                            <FabButton Text="Add" IconClass="@Icons.Material.Filled.Add" OnClick="@(() => OpenCategoryDialogAsync(null))" />
+                            <style>
+                                .mud-tab {
+                                    display: flex;
+                                    min-width: 100px !important;
+                                    flex-direction: column-reverse;
+                                }
+                            </style>
+                        </MobileContent>
+                    </DynamicContent>
                 </MudGrid>
             </MudPaper>
         </MudContainer>
     }
-
-    <MudHidden Breakpoint="Breakpoint.SmAndDown" Invert="true">
-        <style>
-            .mud-tab {
-                display: flex;
-                min-width: 100px !important;
-                flex-direction: column-reverse;
-            }
-        </style>
-    </MudHidden>
 
 }
 
@@ -118,18 +136,6 @@ else
             MyCategories = MyCategories.Where(c => c.Type == transactionType).ToList();
         }
     }
-
-    private RenderFragment RenderCategoryContent(bool mobile) =>
-        @<MudItem xs="12">
-            <MudTabs @ref="tabs" Elevation="0" ApplyEffectsToContainer="true" PanelClass="pa-6" Centered="true">
-                <MudTabPanel Text=@(mobile ? "" : "Expense") Icon="@Icons.Material.Filled.TrendingDown">
-                    @RenderCategoryContent(TransactionType.Expense)
-                </MudTabPanel>
-                <MudTabPanel Text=@(mobile ? "" : "Income") Icon="@Icons.Material.Filled.TrendingUp">
-                    @RenderCategoryContent(TransactionType.Income)
-                </MudTabPanel>
-            </MudTabs>
-        </MudItem>;
 
     private RenderFragment RenderCategoryContent(TransactionType type) => @<text>
         @if(MyCategories == null || MyCategories.Count(c => c.Type == type) == 0)

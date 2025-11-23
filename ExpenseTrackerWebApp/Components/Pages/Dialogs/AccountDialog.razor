@@ -27,18 +27,18 @@
                             Variant="Variant.Outlined" Required="true" RequiredError="Initial balace is required!"
                             Format="C2" Class="mt-4">
                         </MudNumericField>
-                        <MudPaper Elevation="0" Class="d-flex gap-4 mt-4">
+                        <MudPaper Elevation="0" Style="display: grid; grid-template-columns: 1fr 2fr; gap: 1rem;">
                             <MudSelect @bind-Value="AccountDto.Icon" Label="Icon" Variant="Variant.Outlined" Required="true"
-                                RequiredError="Icon is required!">
+                                RequiredError="Icon is required!" Class="flex-grow-1" Style="width: 100%;" FullWidth="true">
                                 @foreach (string? item in AccountService.GetDefaultAccountIcons())
                                 {
-                                    <MudSelectItem Value="@item" Style="display: inline-block; width: 40px; height: 40px; padding: 4px;">
+                                    <MudSelectItem Value="@item" Style="display: inline-block; width: 40px; height: 40px; padding: 8px;">
                                         <MudIcon Icon="@item" Style="@($"color:{AccountDto.Color};")" Size="Size.Medium" />
                                     </MudSelectItem>
                                 }
                             </MudSelect>
                             <MudColorPicker @bind-Text="AccountDto.Color" Label="Color" Variant="Variant.Outlined" Required="true"
-                                RequiredError="Color is required!">
+                                RequiredError="Color is required!" Style="flex-shrink: 0;">
                             </MudColorPicker>
                         </MudPaper>
                     </MudForm>
@@ -51,6 +51,13 @@
         </DialogContent>
     </MudDialog>
 }
+
+<style>
+    .mud-dialog {
+        max-width: 600px !important;  
+        margin-inline: 15px;
+    }
+</style>
 
 @code {
     MudForm form;
