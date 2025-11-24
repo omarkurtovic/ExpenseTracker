@@ -1,0 +1,51 @@
+@using ExpenseTrackerWebApp.Services
+@using ExpenseTrackerWebApp.Components.Pages.Dialogs
+@inject CategoryService CategoryService
+@inject AccountService AccountService
+@inject ISnackbar Snackbar
+@inject IDialogService DialogService
+
+<FabButton Text="Add" IconClass="@Icons.Material.Filled.Add" OnClick="() => OpenTransactionDialogAsync()" />
+    
+@code{
+    
+    [CascadingParameter]
+    public bool Reoccuring{get; set;} = false;
+    
+    [Parameter]
+    public EventCallback<bool> OnClose { get; set; }
+    
+    private async Task OpenTransactionDialogAsync()
+    {
+        var categories = await CategoryService.GetAllAsync();
+        var accounts = await AccountService.GetAllAsync();
+        if (categories.Count == 0)
+        {
+            Snackbar.Add("No categories found! Create some then try again!", Severity.Error);
+            return;
+        }
+
+        if (accounts.Count == 0)
+        {
+            Snackbar.Add("No accounts found! Create some then try again!", Severity.Error);
+            return;
+        }
+
+        var options = new DialogOptions
+        {
+            CloseOnEscapeKey = true,
+            NoHeader = false,
+            CloseButton = true,
+            MaxWidth = MaxWidth.Medium
+        };
+        var parameters = new DialogParameters<TransactionDialog>
+            {
+                { x => x.TransactionId, null },
+                { x => x.Reoccuring, false }
+            };
+
+        var dialog = await DialogService.ShowAsync<TransactionDialog>(title: "Simple Dialog", parameters, options);
+        var result = await dialog.Result;
+        await OnClose.InvokeAsync(false);
+    } 
+}

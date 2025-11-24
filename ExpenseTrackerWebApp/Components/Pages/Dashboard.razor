@@ -119,38 +119,17 @@ else
             </MudGrid>
         </MudPaper>
     </MudContainer>
+
+    <DynamicContent>
+    <MobileContent>
+        <AddTransactionFab OnClose="@(() => RefreshPage(false))" />
+    </MobileContent></DynamicContent>
 }
 @code {
 
     [CascadingParameter]
     private Task<AuthenticationState>? authenticationState { get; set; }
     private string username = "";
-    private ApexChartOptions<CumulativeData> incomeExpensesLastSixMonthsChartOptions = new()
-    {
-        Xaxis = new XAxis
-        {
-            Type = XAxisType.Datetime,
-            Labels = new XAxisLabels
-            {
-                Format = "MMM"
-            }
-        },
-        Chart = new Chart()
-        {
-            Toolbar = new Toolbar
-            {
-                Show = false
-            }, Zoom = new Zoom
-            {
-                Enabled = false
-            }
-        }, 
-        Tooltip = new Tooltip(){
-            X = new TooltipX(){
-                Format = "MMM yyyy"
-            }
-        }
-    };
     bool loading = true;
     private DashboardSummary dashboardSummary = new DashboardSummary();
     protected override async Task OnInitializedAsync()
@@ -160,4 +139,10 @@ else
         loading = false;
     }
 
+    private async Task RefreshPage(bool showMessage = false){
+        loading = true;
+        StateHasChanged();
+        dashboardSummary = await DashboardService.GetDashboardSummaryAsync();
+        loading = false;
+    }
 }

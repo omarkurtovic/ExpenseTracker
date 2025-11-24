@@ -41,7 +41,7 @@ else
                                 <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="@(() => OpenTransactionDialogAsync(null))"
                                         StartIcon="@Icons.Material.Filled.Add">Add
                                     </MudButton>
-                                    <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="RefreshTransctions"
+                                    <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="() => RefreshTransctions(true)"
                                         StartIcon="@Icons.Material.Filled.Refresh">Refresh
                                     </MudButton>
                                 </MudPaper>
@@ -72,7 +72,7 @@ else
                                 StartIcon="@Icons.Material.Filled.ImportExport">Export</MudButton>
                             <MudButton OnClick="OnClickShowFilterDialog" Variant="Variant.Outlined">Filters</MudButton>
                         </MudItem>
-                        <FabButton Text="Add" IconClass="@Icons.Material.Filled.Add" OnClick="@(() => OpenTransactionDialogAsync(null))" />
+                        <AddTransactionFab OnClose="@(() => RefreshTransctions(false))" />
 
                         <MudDialog @ref="_filterDialog">
                             <TitleContent>Filters</TitleContent>
@@ -279,11 +279,14 @@ else
         var dialog = await DialogService.ShowAsync<ExportDialog>(title: "", parameters, options);
     }
 
-    private async Task RefreshTransctions()
+    private async Task RefreshTransctions(bool showMessage = false)
     {
         var transactions = await TransactionService.GetAllAsync(Reoccuring);
         TransactionsDto.RefreshTransactions(transactions);
-        Snackbar.Add("Transactions were refreshed!", Severity.Success);
+        if(showMessage)
+        {
+            Snackbar.Add("Transactions were refreshed!", Severity.Success);
+        }
     }
 
     private MudDialog _filterDialog;
