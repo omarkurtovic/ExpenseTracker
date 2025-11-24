@@ -1,158 +1,285 @@
-# 🎯 Quick Reference: Next Steps Cheat Sheet
+# Quick Start Guide
 
-## This Week Focus
+## Current Status
+- ✅ Live on Azure at [link]
+- ✅ GitHub Actions CI/CD working
+- ✅ Mobile-responsive design complete
+- ✅ Multi-tenant user isolation verified
+- ✅ Core features working (accounts, transactions, categories, tags)
+
+## What's Next: 4-Week ML Roadmap
+
+You're pivoting from polish/UI improvements to a **high-ROI learning goal**: building ML-powered smart categorization.
+
+**Why?**
+- Junior devs rarely have ML experience = huge differentiator
+- Real user problem solved (saves 10+ min/week)
+- 15-30% higher salary potential with ML skills
+- Interview story: "I identified a problem and shipped ML to solve it"
+- You have the foundation (Andrew Ng course + Python)
+
+Read **`ML_ROADMAP.md`** for the full 4-week breakdown.
+
+---
+
+## Weekly Breakdown
+
+### WEEK 1: Data & Foundation
+**Effort**: 🟢 Medium | **Impact**: 🟢 High
+
 ```
-PHASE 1: Polish & Fix (HIGH ROI)
+Day 1-2:  Create ML.NET project, define data models
+Day 3-4:  Extract transaction data, create data loading service
+Day 5:    Validate data, prepare training dataset
 
-├─────────────────────────────────────────────────────────────┤
-│ DAY 3: Bug Fixes from Todo                                  │
-│  └─ Tab highlighting (Transactions/Recurring)               │
-│  └─ Icon picker size in AccountDialog                       │
-│  └─ Enter key to submit forms                               │
-│  └─ Time: 2-3 hours                                         │
-├─────────────────────────────────────────────────────────────┤
-│ DAY 4-5: Dashboard Enhancements                             │
-│  └─ Date range picker (replace hardcoded 6-month)           │
-│  └─ PDF export (+ existing CSV)                             │
-│  └─ Sparklines for quick trends                             │
-│  └─ Time: 4-5 hours                                         │
-└─────────────────────────────────────────────────────────────┘
+Deliverable: CSV with 100+ transactions, ready to train
+```
+
+**Files to create:**
+- `ExpenseTracker.ML/` (new C# class library project)
+- `DataPreparationService.cs`
+- `TransactionData.cs` (model for training)
+
+**Git**: `feat: add ML.NET project and data preparation`
+
+---
+
+### WEEK 2: Model Building
+**Effort**: 🟠 Medium-Hard | **Impact**: 🟠 Very High
+
+```
+Day 1-2:  Build ML pipeline, feature engineering
+Day 3-4:  Train & evaluate model, measure accuracy
+Day 5:    Handle edge cases (empty descriptions, new merchants)
+
+Goal: Achieve 80%+ accuracy
+Deliverable: Trained model.zip file with metrics
+```
+
+**Key code pattern:**
+```csharp
+var pipeline = mlContext.Transforms
+    .Text.FeaturizeText("DescriptionFeaturized", "Description")
+    .Append(mlContext.Transforms.Concatenate("Features", ...))
+    .Append(mlContext.MulticlassClassification.Trainers
+        .SdcaMaximumEntropy(...));
+
+var model = pipeline.Fit(trainingData);
+```
+
+**Git**: 
+- `feat: build and train category prediction model`
+- `docs: model evaluation metrics and accuracy`
+
+---
+
+### WEEK 3: Integration
+**Effort**: 🟢 Medium | **Impact**: 🟠 Very High
+
+```
+Day 1-2:  Create CategorizationService, register in DI
+Day 3-4:  Update TransactionDialog to show suggestions
+Day 5:    Build feedback tracking system
+
+Deliverable: Suggestions showing in UI with confidence scores
+```
+
+**Key UI change:**
+```razor
+@if (suggestedCategoryId.HasValue)
+{
+    <MudSelectItem Value="suggestedCategoryId.Value">
+        ✨ @categoryName (confidence: @confidence.ToString("P"))
+    </MudSelectItem>
+}
+```
+
+**Git**:
+- `feat: add categorization service and suggestions`
+- `feat: implement feedback tracking`
+
+---
+
+### WEEK 4: Deployment & Documentation
+**Effort**: 🟢 Easy-Medium | **Impact**: 🟠 High
+
+```
+Day 1-2:  Performance optimization, caching
+Day 3:    Add anomaly detection (optional bonus)
+Day 4:    Write tests, ensure model inference < 100ms
+Day 5:    Deploy to Azure, publish blog post
+
+Deliverable: Live on Azure + published blog
+```
+
+**Blog outline:**
+1. Problem statement (manual categorization tedious)
+2. Solution design (train on historical data)
+3. Implementation walkthrough (code samples)
+4. Results (85% accuracy, user feedback)
+5. Lessons learned (class imbalance, performance tuning)
+
+**Git**: `feat: optimize and deploy ML features` + `blog: ML roadmap blog post`
+
+---
+
+## Success Criteria
+
+### By End of Week 2
+- [ ] Model trained and evaluated
+- [ ] 80%+ accuracy achieved
+- [ ] Metrics documented
+- [ ] Edge cases handled
+
+### By End of Week 3
+- [ ] Suggestions showing in UI
+- [ ] Feedback being logged
+- [ ] No regressions in existing features
+- [ ] Performance acceptable
+
+### By End of Week 4
+- [ ] Live on Azure
+- [ ] Tests passing
+- [ ] Blog post published
+- [ ] Interview story solid
+
+---
+
+## Common Pitfalls
+
+| Issue | Fix |
+|-------|-----|
+| Model too slow | Cache prediction engine, batch operations, profile inference time |
+| Low accuracy | Add more features (time, amount patterns), use ensemble methods |
+| Data imbalanced | Use stratified sampling, weighted loss functions |
+| Inference in UI feels sluggish | Async/await, debounce description changes |
+| Forgot to handle nulls | Check for empty descriptions, use fallback logic |
+
+---
+
+## Commands You'll Need
+
+```powershell
+# Create ML project
+dotnet new classlib -n ExpenseTracker.ML
+cd ExpenseTracker.ML
+dotnet add package Microsoft.ML
+dotnet add package Microsoft.ML.Transforms
+
+# Add project to solution
+cd ..
+dotnet sln add ExpenseTracker.ML
+
+# Test specific class
+dotnet test --filter "CategoryPredictionTests"
+
+# Publish to Azure
+git add .
+git commit -m "feat: add ML categorization"
+git push azure main
 ```
 
 ---
 
-## Next 2-3 Weeks: Choose ONE Big Feature
-
-### ⭐ OPTION A: Better Recurring Transactions (12 hours)
-**Why**: Scheduling + background jobs = interview gold
-```
-- View/pause/skip/edit recurring txns
-- Auto-run on schedule (not just login)
-- Audit log for auto-generated txns
-```
-
-### ⭐⭐ OPTION B: Budget System (11 hours)  
-**Why**: Real feature, domain knowledge, UX impressive
-```
-- Set budget per category
-- Progress bars (green/yellow/red)
-- Alerts when over budget
-- Dashboard integration
-```
-
-### ⭐ OPTION C: Transfer Between Accounts (3.5 hours)
-**Why**: Quick win, makes app feel complete
-```
-- Transfers create two transactions (opposing amounts)
-- Auto-create "Transfer In/Out" categories
-- Easy to test
-```
-
----
-
-## 30-Day Vision (What Portfolio Looks Like)
+## Mental Model: How ML.NET Works
 
 ```
-BEFORE                          AFTER (Phase 1+2)
-✗ Broken on mobile              ✓ Responsive & polished
-✗ No search/filter              ✓ Advanced filtering
-✗ Basic dashboard               ✓ Date range + export
-✗ No recurring control           ✓ Full recurring dashboard + auto-run
-✗ No budgets                    ✓ Budget system with alerts
-```
-
-**Result**: App looks like a REAL product, not a weekend project.
-
----
-
-## Timeline to Impress Recruiters
-
-| When | What | Impression |
-|------|------|-----------|
-| Week 1 | Fix mobile + bugs | "This dev ships quality" |
-| Week 2 | Dashboard polish | "Attention to detail" |
-| Week 3-4 | Budgets OR Recurring Txns | "Real domain knowledge" |
-| Week 5+ | Your choice | "Goes the extra mile" |
-
----
-
-## Don't Do This
-
-❌ Build custom currencies before fixing mobile  
-❌ Add bill splitting before budgets  
-❌ Optimize performance before shipping features  
-❌ Write tests before the feature works  
-❌ Blog about it before it's done  
-
----
-
-## Do This Instead
-
-✅ Ship Phase 1 (2 weeks max)  
-✅ Pick ONE Phase 2 feature  
-✅ Write tests as you go  
-✅ Commit with clear messages  
-✅ Take screenshots  
-✅ Update README when done  
-✅ Only then: Blog/showcase  
-
----
-
-## Effort vs. Impact Matrix
-
-```
-        HIGH IMPACT
-            ↑
-      ┌─────────────────┐
-      │  BUDGETS ⭐⭐    │
-      │  (11h, HIGH)    │
-      ├─────────────────┤
-      │ RECURRING ⭐    │  LOW EFFORT
-      │  (12h, MED)     │     (good ROI)
-      ├─────────────────┤
-      │ TRANSFER ⭐     │
-      │  (3.5h, LOW)    │
-      └─────────────────┘
-           ↓ EFFORT
-
-Mobile/Bugs = MUST DO (1 week)
-Then: Pick Budgets or Recurring
-Then: Add Transfer for completeness
+1. Prepare Data
+   ↓
+   Transaction CSV → Normalize, featurize text, add numeric features
+   
+2. Build Pipeline
+   ↓
+   Data transformers (FeaturizeText, Concatenate) 
+   + Trainer (SdcaMaximumEntropy for multiclass)
+   
+3. Train Model
+   ↓
+   Feed training data through pipeline
+   Model learns patterns between features and categories
+   
+4. Evaluate
+   ↓
+   Test on held-out data
+   Check accuracy, confusion matrix, per-class metrics
+   
+5. Deploy
+   ↓
+   Save model.zip
+   Load in production, use PredictionEngine for inference
+   
+6. Feedback Loop
+   ↓
+   User corrects prediction
+   Log as feedback
+   Retrain monthly with updated data
 ```
 
 ---
 
-## Your Next Git Commits
+## Interview Talking Points
 
-```
-1. fix: mobile responsiveness across all pages
-2. fix: transaction tab highlighting
-3. fix: account icon picker sizing
-4. feat: dashboard date range picker
-5. feat: transaction search and filtering
-6. feat: recurring transaction management page
-7. feat: budget system with alerts
-8. feat: transfer between accounts
-```
+**Problem**: Users spending 10+ minutes/week manually categorizing transactions
 
-8 solid commits = solid portfolio improvement.
+**Solution**: Train ML model on historical data to suggest categories
+
+**Results**: 
+- 85% accuracy
+- < 50ms inference time
+- Users love it, saves time
+
+**Technical Challenges Solved**:
+1. **Imbalanced data** → Used stratified sampling
+2. **Performance** → Cached prediction engine
+3. **Confidence handling** → Only suggest if > 0.7 confidence
+4. **Continuous improvement** → Feedback loop for retraining
+
+**Follow-up Answers Ready**:
+- "How would you handle new categories?" → Retrain, use zero-shot classification
+- "What if accuracy drops?" → Monitor feedback ratio, retrain weekly
+- "Scale to 10k users?" → Batch prediction, async UI, model compression
+
+---
+
+## Resources
+
+- **ML.NET Docs**: https://learn.microsoft.com/dotnet/machine-learning/
+- **Multi-class Classification**: https://learn.microsoft.com/dotnet/machine-learning/tutorials/sentiment-analysis
+- **Full Roadmap**: See `ML_ROADMAP.md` for day-by-day breakdown
 
 ---
 
 ## When You Get Stuck
 
-1. **Mobile not responsive?** → Check MudBlazor breakpoints
-2. **Don't know how to do X?** → Search MudBlazor docs first, then Stack Overflow
-3. **Query too slow?** → Use `.Include()` to prevent N+1
-4. **UI looks bad?** → Copy the pattern from `AccountDialog.razor`
-5. **Test failing?** → Check `TestCurrentUserService` setup
+**Problem**: Model accuracy is 65%
+**Next step**: 
+1. Check data quality (nulls, duplicates)
+2. Add more features (time of day, amount, day of week)
+3. Try different trainer (LightGbm vs SdcaMaximumEntropy)
+
+**Problem**: Inference takes 500ms
+**Next step**:
+1. Profile: Is it loading model or predicting?
+2. Cache the prediction engine
+3. Batch predictions instead of one-at-a-time
+
+**Problem**: UI doesn't show suggestions
+**Next step**:
+1. Check CategorizationService is registered in DI
+2. Verify PredictCategory returns correct type
+3. Add debug logging: `Console.WriteLine($"Prediction: {prediction.PredictedCategoryId}")`
 
 ---
 
-## Remember
+## You're Ready
 
-- 🎯 **Portfolio > Completeness**: One impressive feature beats 10 half-done ones
-- 📱 **Mobile matters**: A broken mobile experience is worse than a feature-light desktop
-- 🧪 **Ship with tests**: One good test = 10 manual clicks you don't have to explain
-- 💬 **Clear commits**: Recruiters read git history. Tell a story.
-- 🚀 **Done > Perfect**: 80% done and shipped beats 95% and sitting in a branch
+You've shipped a responsive, full-stack Blazor app. Now you're adding ML to make it smarter.
+
+This 4-week sprint will give you:
+- ✅ Production ML experience
+- ✅ C# + ML.NET skills
+- ✅ Interview story
+- ✅ Blog post for portfolio
+- ✅ Salary bump when hired 💰
+
+**Start Week 1 Day 1 today.**
