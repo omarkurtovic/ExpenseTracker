@@ -16,7 +16,7 @@ namespace ExpenseTrackerWebApp.Features.Budgets.Queries
         public GetBudgetsQueryValidator()
         {
             RuleFor(x => x.UserId)
-                .NotEmpty().WithMessage("User is required!");
+                .NotEmpty().WithMessage("User ID is required!");
         }
     }
 }

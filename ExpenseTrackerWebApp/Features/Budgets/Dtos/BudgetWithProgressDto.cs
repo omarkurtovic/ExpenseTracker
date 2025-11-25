@@ -21,11 +21,11 @@ namespace ExpenseTrackerWebApp.Features.Budgets.Dtos
         {
             get
             {
-                if (Progress < 75)
+                if (Progress < 50)
                 {
                     return Color.Success;
                 }
-                else if (Progress >= 75 && Progress < 100)
+                else if (Progress >= 50 && Progress < 75)
                 {
                     return Color.Warning;
                 }
@@ -44,6 +44,8 @@ namespace ExpenseTrackerWebApp.Features.Budgets.Dtos
                     return 0;
 
                 var progress = Math.Floor(Spent / (decimal)Amount * 100);
+                if(progress > 100)
+                    progress = 100;
                 return (int)progress;
             }
         }

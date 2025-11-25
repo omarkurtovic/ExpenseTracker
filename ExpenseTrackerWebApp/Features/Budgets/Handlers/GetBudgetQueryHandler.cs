@@ -14,13 +14,25 @@ namespace ExpenseTrackerWebApp.Features.Budgets.Handlers
         {
             _context = context;
         }
-        public async Task<Budget?> Handle(GetBudgetQuery request, CancellationToken cancellationToken)
+        public async Task<Budget> Handle(GetBudgetQuery request, CancellationToken cancellationToken)
         {
-            return await _context.Budgets.Where(b => b.Id == request.Id)
-            .Where(b => b.IdentityUserId == request.UserId)
+            Budget? budget = await _context.Budgets
+            .Where(b => b.Id == request.Id)
             .Include(b => b.BudgetCategories).ThenInclude(bc => bc.Category)
             .Include(b => b.BudgetAccounts).ThenInclude(ba => ba.Account)
             .FirstOrDefaultAsync();
+
+            if(budget == null)
+            {
+                throw new ArgumentException("Budget not found!");
+            }
+
+            if(budget.IdentityUserId != request.UserId)
+            {
+                throw new UnauthorizedAccessException("Budget does not belong to user!");
+            }
+
+            return budget;
         }
     }
 }

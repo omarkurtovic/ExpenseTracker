@@ -17,7 +17,7 @@ namespace ExpenseTrackerWebApp.Features.Budgets.Commands
                 .NotNull().WithMessage("Id is required!");
 
             RuleFor(x => x.UserId)
-                .NotEmpty().WithMessage("User is required!");
+                .NotEmpty().WithMessage("User ID is required!");
         }
     }
 }

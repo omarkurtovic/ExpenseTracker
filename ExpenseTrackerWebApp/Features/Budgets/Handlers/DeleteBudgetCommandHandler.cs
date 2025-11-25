@@ -17,10 +17,22 @@ namespace ExpenseTrackerWebApp.Features.Budgets.Handlers
 
         public async Task Handle(DeleteBudgetCommand request, CancellationToken cancellationToken)
         {
-            await _context.Budgets
+            var budget = _context.Budgets
             .Where(b => b.Id == request.Id)
-            .Where(b => b.IdentityUserId == request.UserId)
-            .ExecuteDeleteAsync();
+            .SingleOrDefault(); 
+
+            if(budget == null)
+            {
+                throw new ArgumentException("Budget not found!");
+            }
+
+            if(budget.IdentityUserId != request.UserId)
+            {
+                throw new UnauthorizedAccessException("Budget does not belong to user!");
+            }
+
+            _context.Budgets.Remove(budget);
+            await _context.SaveChangesAsync();
         }
     }
 

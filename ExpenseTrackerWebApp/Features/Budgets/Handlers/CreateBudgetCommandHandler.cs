@@ -3,6 +3,7 @@ using ExpenseTrackerWebApp.Features.Budgets.Commands;
 using ExpenseTrackerWebApp.Features.Budgets.Dtos;
 using ExpenseTrackerWebApp.Features.Budgets.Models;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 
 namespace ExpenseTrackerWebApp.Features.Budgets.Handlers
 {
@@ -17,6 +18,22 @@ namespace ExpenseTrackerWebApp.Features.Budgets.Handlers
 
         public async Task<int> Handle(CreateBudgetCommand request, CancellationToken cancellationToken)
         {
+            var userCategoryIds = await _context.Categories
+            .Where(c => c.IdentityUserId == request.BudgetDto.IdentityUserId)
+            .Select(c => c.Id)
+            .ToListAsync(cancellationToken);
+
+        var userAccountIds = await _context.Accounts
+            .Where(a => a.IdentityUserId == request.BudgetDto.IdentityUserId)
+            .Select(a => a.Id)
+            .ToListAsync(cancellationToken);
+
+        if (!request.BudgetDto.Categories!.Select(c => c.Id).All(id => userCategoryIds.Contains(id)))
+            throw new UnauthorizedAccessException("Category does not belong to user");
+
+        if (!request.BudgetDto.Accounts!.Select(c => c.Id).All(id => userAccountIds.Contains(id)))
+            throw new UnauthorizedAccessException("Account does not belong to user");
+
             var budget = new Budget()
             {
                 Name = request.BudgetDto.Name!,

@@ -8,7 +8,7 @@ namespace ExpenseTrackerWebApp.Features.Budgets.Queries
 {
     public class GetBudgetsWithProgressQuery : IRequest<List<BudgetWithProgressDto>>
     {
-        public required string UserId { get; set; }
+        public string UserId { get; set; }
     }
 
     public class GetBudgetsWithProgressQueryValidator : AbstractValidator<GetBudgetsWithProgressQuery>
@@ -16,7 +16,7 @@ namespace ExpenseTrackerWebApp.Features.Budgets.Queries
         public GetBudgetsWithProgressQueryValidator()
         {
             RuleFor(x => x.UserId)
-                .NotEmpty().WithMessage("User is required!");
+                .NotEmpty().WithMessage("User ID is required!");
         }
     }
 }

@@ -61,22 +61,25 @@ namespace ExpenseTrackerWebApp.Features.Budgets.Handlers
             var categories = budget.BudgetCategories.Select(bc => bc.Category).ToList().ToHashSet();
             var accounts = budget.BudgetAccounts.Select(ba => ba.Account).ToList().ToHashSet();
 
-            filteredTransctions = [.. transactions.Where(t => t.IsReoccuring != null && !(bool)t.IsReoccuring)
-            .Where(t => categories.Contains(t.Category))
-            .Where(t => accounts.Contains(t.Account))];
+            filteredTransctions = [.. transactions.Where(t => t.IsReoccuring == null || !(bool)t.IsReoccuring)
+            .Where(t => categories.ToHashSet().Contains(t.Category))
+            .Where(t => accounts.ToHashSet().Contains(t.Account))];
 
             switch(budget.BudgetType){
                 case BudgetType.Weekly:
                     var weekStart = DateTime.Now.StartOfWeek(DayOfWeek.Monday);
-                    filteredTransctions = [.. filteredTransctions.Where(t => t.Date >= weekStart)];
+                    var weekEnd = weekStart.AddDays(7).AddSeconds(-1);
+                    filteredTransctions = [.. filteredTransctions.Where(t => t.Date >= weekStart && t.Date <= weekEnd)];
                     break;
                 case BudgetType.Monthly:
                     var monthStart = DateTime.Now.StartOfMonth(CultureInfo.CurrentCulture);
-                    filteredTransctions = [.. filteredTransctions.Where(t => t.Date >= monthStart)];
+                    var monthEnd = DateTime.Now.EndOfMonth(CultureInfo.CurrentCulture);
+                    filteredTransctions = [.. filteredTransctions.Where(t => t.Date >= monthStart && t.Date <= monthEnd)];
                     break;
                 case BudgetType.Yearly:
                     var yearStart = new DateTime(DateTime.Now.Year, 1, 1);
-                    filteredTransctions = [.. filteredTransctions.Where(t => t.Date >= yearStart)];
+                    var yearEnd = new DateTime(DateTime.Now.Year, 12, 31, 23, 59, 59);
+                    filteredTransctions = [.. filteredTransctions.Where(t => t.Date >= yearStart && t.Date <= yearEnd)];
                     break;
                 default:
                     break;

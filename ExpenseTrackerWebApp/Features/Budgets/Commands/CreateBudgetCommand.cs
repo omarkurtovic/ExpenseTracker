@@ -21,7 +21,7 @@ namespace ExpenseTrackerWebApp.Features.Budgets.Commands
         public CreateBudgetCommandValidator()
         {
             RuleFor(x => x.BudgetDto.IdentityUserId)
-                .NotEmpty().WithMessage("User is required!");
+                .NotEmpty().WithMessage("User ID is required!");
 
             RuleFor(x => x.BudgetDto.Name)
                 .NotEmpty().WithMessage("Name is required!");
@@ -34,12 +34,10 @@ namespace ExpenseTrackerWebApp.Features.Budgets.Commands
                 .GreaterThan(0).WithMessage("Amount must be greater than zero!");
 
             RuleFor(x => x.BudgetDto.Categories)
-                .NotNull().WithMessage("At least one category must be selected!")
-                .Must(c => c.Any()).WithMessage("At least one category must be selected!");
+                .NotEmpty().WithMessage("At least one category must be selected!");
 
             RuleFor(x => x.BudgetDto.Accounts)
-                .NotNull().WithMessage("At least one account must be selected!")
-                .Must(a => a.Any()).WithMessage("At least one account must be selected!");
+                .NotEmpty().WithMessage("At least one account must be selected!");
         }
     }
 }
