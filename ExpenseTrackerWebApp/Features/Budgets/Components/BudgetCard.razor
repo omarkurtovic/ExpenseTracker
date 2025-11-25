@@ -1,0 +1,25 @@
+@using ExpenseTrackerWebApp.Database.Models
+@using ExpenseTrackerWebApp.Features.Budgets.Models
+@using MudBlazor
+@using ExpenseTrackerWebApp.Components.MyComponents
+
+<EntityCard OnEdit="@(() => OpenBudgetDialogAsync.InvokeAsync(budget?.Id))" OnDelete="@(() => ConfirmDelete.InvokeAsync(budget?.Id ?? 0))">
+    <HeaderContent>
+    <MudText Typo="Typo.h6">@budget.Name</MudText>
+    </HeaderContent>
+    <Content>
+    </Content>
+</EntityCard>
+
+
+@code{
+    [Parameter]
+    public Budget? budget { get; set; }
+
+    [Parameter]
+    public EventCallback<int?> OpenBudgetDialogAsync { get; set; }
+
+    [Parameter]
+    public EventCallback<int> ConfirmDelete { get; set; }
+
+}

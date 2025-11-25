@@ -1,3 +1,4 @@
+using ExpenseTrackerWebApp.Features.Budgets.Models;
 using Microsoft.AspNetCore.Identity;
 
 namespace ExpenseTrackerWebApp.Database.Models
@@ -12,6 +13,7 @@ namespace ExpenseTrackerWebApp.Database.Models
         public ICollection<Transaction> Transactions{ get; set; }
         public string IdentityUserId {get; set;}
         public IdentityUser IdentityUser { get; set; }
+        public ICollection<BudgetCategory> BudgetCategories { get; set; }
 
         public Category()
         {

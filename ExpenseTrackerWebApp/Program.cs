@@ -46,6 +46,11 @@ builder.Services.ConfigureApplicationCookie(options =>
     options.LogoutPath = "/logout";
 });
 
+builder.Services.AddMediatR(options =>
+{
+    options.RegisterServicesFromAssembly(typeof(Program).Assembly);
+});
+
 builder.Services.AddMudServices(config =>
 {
     config.SnackbarConfiguration.PositionClass = Defaults.Classes.Position.BottomLeft;

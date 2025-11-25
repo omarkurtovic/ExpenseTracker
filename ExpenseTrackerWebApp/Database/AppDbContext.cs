@@ -1,4 +1,5 @@
 using ExpenseTrackerWebApp.Database.Models;
+using ExpenseTrackerWebApp.Features.Budgets.Models;
 using ExpenseTrackerWebApp.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
@@ -16,6 +17,9 @@ namespace ExpenseTrackerWebApp.Database
         public virtual DbSet<Tag> Tags { get; set; }
         public virtual DbSet<TransactionTag> TransactionTags { get; set; }
         public virtual DbSet<UserPreferences> UserPreferences{get; set;}
+        public virtual DbSet<Budget> Budgets { get; set; }
+        public virtual DbSet<BudgetAccount> BudgetAccounts { get; set; }
+        public virtual DbSet<BudgetCategory> BudgetCategories {get; set;}
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -74,6 +78,32 @@ namespace ExpenseTrackerWebApp.Database
                 .HasForeignKey(tt => tt.TagId)
                 .OnDelete(DeleteBehavior.Cascade);
 
+
+            // budget
+            modelBuilder.Entity<Budget>()
+                .HasOne(b => b.IdentityUser)
+                .WithMany()
+                .HasForeignKey(b => b.IdentityUserId)
+                .IsRequired();
+
+            
+            modelBuilder.Entity<BudgetCategory>()
+                .HasKey(bc => new { bc.BudgetId, bc.CategoryId });
+
+            modelBuilder.Entity<BudgetAccount>()
+                .HasKey(ba => new { ba.BudgetId, ba.AccountId });
+            
+            modelBuilder.Entity<BudgetCategory>()
+                .HasOne(bc => bc.Budget)
+                .WithMany(bc => bc.BudgetCategories)
+                .HasForeignKey(bc => bc.BudgetId)
+                .OnDelete(DeleteBehavior.Cascade);
+            
+            modelBuilder.Entity<BudgetAccount>()
+                .HasOne(ac => ac.Budget)
+                .WithMany(ac => ac.BudgetAccounts)
+                .HasForeignKey(ac => ac.BudgetId)
+                .OnDelete(DeleteBehavior.Cascade);
                 
             modelBuilder.Entity<Transaction>()
                 .Property(t => t.Amount)

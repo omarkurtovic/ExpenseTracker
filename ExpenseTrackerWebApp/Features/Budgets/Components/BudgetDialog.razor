@@ -1,0 +1,171 @@
+@using ExpenseTrackerWebApp.Components.Pages
+@using ExpenseTrackerWebApp.Database.Models
+@using ExpenseTrackerWebApp.Dtos
+@using ExpenseTrackerWebApp.Features.Budgets.Commands
+@using ExpenseTrackerWebApp.Features.Budgets.Dtos
+@using ExpenseTrackerWebApp.Features.Budgets.Models
+@using ExpenseTrackerWebApp.Features.Budgets.Queries
+@using ExpenseTrackerWebApp.Services
+@using MediatR
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Components.Authorization
+@using MudBlazor
+@using ExpenseTrackerWebApp.Components.MyComponents
+@inject ICurrentUserService CurrentUserService
+@inject ISnackbar Snackbar
+@inject ISender Mediator
+@inject CategoryService CategoryService
+@inject AccountService AccountService
+
+@if (BudgetDto is not null)
+{
+    <MudDialog>
+        <TitleContent>
+            <MudText Typo="Typo.h5">
+                @(BudgetDto == null ? "Add Budget" : "Edit Budget")
+            </MudText>
+        </TitleContent>
+        <DialogContent>
+            <MudGrid>
+                <MudItem xs="12">
+                    <MudForm @ref="form">
+                        <MudTextField @bind-Value="BudgetDto.Name" Label="Name" Variant="Variant.Outlined" Required="true"
+                            RequiredError="Name is required!">
+                        </MudTextField>
+                        <MudSelect @bind-Value="BudgetDto.BudgetType" Label="Type" Variant="Variant.Outlined"
+                            Required="true" RequiredError="Budget type is required!">
+                            @foreach (BudgetType? item in Enum.GetValues(typeof(BudgetType)))
+                            {
+                                <MudSelectItem Value="@((BudgetType?)item)">@item</MudSelectItem>
+                            }
+                        </MudSelect>
+                        <MudNumericField @bind-Value="BudgetDto.Amount" Label="Amount"
+                            Variant="Variant.Outlined" Required="true" RequiredError="Amount is required!"
+                            Format="C2" Class="mt-4">
+                        </MudNumericField>
+                        <MudTextField @bind-Value="BudgetDto.Description" Label="Description" Variant="Variant.Outlined">
+                        </MudTextField>
+                        <MudSelect T="Category" Label="Categories" @bind-SelectedValues="BudgetDto.Categories"
+                            MultiSelectionTextFunc="@(new Func<List<string>, string>(GetMultiSelectionText))"
+                            MultiSelection="true" Clearable="true" FullWidth="true">
+                            @foreach (var category in Categories)
+                            {
+                                <MudSelectItem Value="@(category)">
+                                    <CategoryName category="@category"></CategoryName>
+                                </MudSelectItem>
+                            }
+                        </MudSelect>
+                        <MudSelect T="Account" Label="Accounts" @bind-SelectedValues="BudgetDto.Accounts"
+                            MultiSelectionTextFunc="@(new Func<List<string>, string>(GetMultiSelectionText))"
+                            MultiSelection="true" Clearable="true" FullWidth="true">
+                            @foreach (var account in Accounts)
+                            {
+                                <MudSelectItem Value="@(account)">
+                                    <AccountName Account="@(account)"></AccountName>
+                                </MudSelectItem>
+                            }
+                        </MudSelect>
+                    </MudForm>
+                </MudItem>
+                <MudItem xs="12" Class="d-flex justify-end gap-2 mt-12">
+                    <MudButton OnClick="Cancel" Variant="Variant.Outlined">Cancel</MudButton>
+                    <MudButton OnClick="Submit" Color="Color.Primary" Variant="Variant.Filled">Save</MudButton>
+                </MudItem>
+            </MudGrid>
+        </DialogContent>
+    </MudDialog>
+}
+
+<style>
+    .mud-dialog {
+        max-width: 600px !important;  
+        margin-inline: 15px;
+    }
+</style>
+
+@code {
+    MudForm form;
+
+    [CascadingParameter]
+    private IMudDialogInstance MudDialog { get; set; }
+
+    [Parameter]
+    public int? BudgetId { get; set; }
+
+    [Parameter]
+    public BudgetDto BudgetDto {get; set;} = new();
+    public List<Category> Categories{get; set;} = new();
+    public List<Account> Accounts{get; set;} = new();
+
+    protected override async Task OnParametersSetAsync()
+    {
+        await base.OnParametersSetAsync();
+        BudgetDto = new BudgetDto();
+        Categories = await CategoryService.GetAllAsync();
+        Accounts = await AccountService.GetAllAsync();
+
+        var userId = CurrentUserService.GetUserId();
+        if (string.IsNullOrWhiteSpace(userId))
+        {
+            Snackbar.Add("Server error! Please try again.", Severity.Error);
+            MudDialog.Close();
+            return;
+        }
+
+        BudgetDto.IdentityUserId = userId;
+        if (BudgetId == null)
+        {
+            return;
+        }
+
+        var budget = await Mediator.Send(new GetBudgetQuery(){Id = BudgetId.Value});
+        if (budget == null)
+        {
+            Snackbar.Add("Server error! Please try again.", Severity.Error);
+            MudDialog.Close();
+            return;
+        }
+
+        BudgetDto = new BudgetDto()
+        {
+            Name = budget.Name,
+            Amount = budget.Amount,
+            BudgetType = budget.BudgetType,
+            Description = budget.Description,
+            IdentityUserId = budget.IdentityUserId,
+            Categories = budget.BudgetCategories.Select(bc => bc.Category).ToList(),
+            Accounts = budget.BudgetAccounts.Select(ba => ba.Account).ToList()
+        };
+    }
+
+    private async Task Submit()
+    {
+        await form.Validate();
+        if (!form.IsValid)
+        {
+            StateHasChanged();
+            return;
+        }
+
+        if(BudgetId == null){
+            var command = new CreateBudgetCommand(BudgetDto);
+            await Mediator.Send(command);
+        }
+        else{
+            var command = new EditBudgetCommand((int)BudgetId, BudgetDto);
+            await Mediator.Send(command);
+        }
+
+        var message = BudgetId == null ? "Budget successfully added!" : "Budget successfully updated!";
+        Snackbar.Add(message, Severity.Success);
+        MudDialog.Close(DialogResult.Ok(result: true));
+    }
+
+    private void Cancel() => MudDialog.Cancel();
+
+    
+    private string GetMultiSelectionText(List<string> selectedValues)
+    {
+        return string.Join(separator: ", ", selectedValues);
+    }
+}

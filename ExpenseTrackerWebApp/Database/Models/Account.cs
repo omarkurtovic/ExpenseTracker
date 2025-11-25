@@ -1,3 +1,4 @@
+using ExpenseTrackerWebApp.Features.Budgets.Models;
 using Microsoft.AspNetCore.Identity;
 
 namespace ExpenseTrackerWebApp.Database.Models
@@ -12,6 +13,7 @@ namespace ExpenseTrackerWebApp.Database.Models
         public string IdentityUserId {get; set;}
         public IdentityUser IdentityUser { get; set; }
         public ICollection<Transaction> Transactions { get; set; }
+        public ICollection<BudgetAccount> BudgetAccounts { get; set; }
 
         public bool Equals(Account? other)
         {if (ReferenceEquals(null, other)) return false;
