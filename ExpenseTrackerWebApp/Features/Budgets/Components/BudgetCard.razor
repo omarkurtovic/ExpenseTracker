@@ -1,25 +1,33 @@
 @using ExpenseTrackerWebApp.Database.Models
+@using ExpenseTrackerWebApp.Features.Budgets.Dtos
 @using ExpenseTrackerWebApp.Features.Budgets.Models
 @using MudBlazor
 @using ExpenseTrackerWebApp.Components.MyComponents
+@using MudBlazor.Extensions
+@using System.Globalization
 
-<EntityCard OnEdit="@(() => OpenBudgetDialogAsync.InvokeAsync(budget?.Id))" OnDelete="@(() => ConfirmDelete.InvokeAsync(budget?.Id ?? 0))">
+<EntityCard OnEdit="@(() => OnEdit.InvokeAsync(Budget?.Id))" OnDelete="@(() => OnDelete.InvokeAsync(Budget?.Id ?? 0))">
     <HeaderContent>
-    <MudText Typo="Typo.h6">@budget.Name</MudText>
+        <MudText Typo="Typo.h6">@Budget.Name</MudText>
     </HeaderContent>
     <Content>
+        @Content
     </Content>
 </EntityCard>
 
 
 @code{
-    [Parameter]
-    public Budget? budget { get; set; }
 
     [Parameter]
-    public EventCallback<int?> OpenBudgetDialogAsync { get; set; }
+    public required BudgetWithProgressDto Budget { get; set; }
 
     [Parameter]
-    public EventCallback<int> ConfirmDelete { get; set; }
+    public EventCallback<int?> OnEdit { get; set; }
+
+    [Parameter]
+    public EventCallback<int> OnDelete { get; set; }
+
+    [Parameter]
+    public RenderFragment? Content { get; set; }
 
 }

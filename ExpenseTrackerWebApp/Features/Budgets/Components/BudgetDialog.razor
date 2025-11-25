@@ -5,6 +5,7 @@
 @using ExpenseTrackerWebApp.Features.Budgets.Dtos
 @using ExpenseTrackerWebApp.Features.Budgets.Models
 @using ExpenseTrackerWebApp.Features.Budgets.Queries
+@using ExpenseTrackerWebApp.Features.SharedKernel.Queries
 @using ExpenseTrackerWebApp.Services
 @using MediatR
 @using Microsoft.AspNetCore.Authorization
@@ -14,8 +15,6 @@
 @inject ICurrentUserService CurrentUserService
 @inject ISnackbar Snackbar
 @inject ISender Mediator
-@inject CategoryService CategoryService
-@inject AccountService AccountService
 
 @if (BudgetDto is not null)
 {
@@ -47,7 +46,8 @@
                         </MudTextField>
                         <MudSelect T="Category" Label="Categories" @bind-SelectedValues="BudgetDto.Categories"
                             MultiSelectionTextFunc="@(new Func<List<string>, string>(GetMultiSelectionText))"
-                            MultiSelection="true" Clearable="true" FullWidth="true">
+                            MultiSelection="true" Clearable="true" FullWidth="true" 
+                            Required="true" RequiredError="At least one category is required!">
                             @foreach (var category in Categories)
                             {
                                 <MudSelectItem Value="@(category)">
@@ -57,7 +57,8 @@
                         </MudSelect>
                         <MudSelect T="Account" Label="Accounts" @bind-SelectedValues="BudgetDto.Accounts"
                             MultiSelectionTextFunc="@(new Func<List<string>, string>(GetMultiSelectionText))"
-                            MultiSelection="true" Clearable="true" FullWidth="true">
+                            MultiSelection="true" Clearable="true" FullWidth="true" 
+                            Required="true" RequiredError="At least one account is required!">
                             @foreach (var account in Accounts)
                             {
                                 <MudSelectItem Value="@(account)">
@@ -101,8 +102,8 @@
     {
         await base.OnParametersSetAsync();
         BudgetDto = new BudgetDto();
-        Categories = await CategoryService.GetAllAsync();
-        Accounts = await AccountService.GetAllAsync();
+        Categories = await Mediator.Send(new GetCategoriesQuery(){UserId = CurrentUserService.GetUserId()});
+        Accounts = await Mediator.Send(new GetAccountsQuery(){UserId = CurrentUserService.GetUserId()});
 
         var userId = CurrentUserService.GetUserId();
         if (string.IsNullOrWhiteSpace(userId))
@@ -118,7 +119,7 @@
             return;
         }
 
-        var budget = await Mediator.Send(new GetBudgetQuery(){Id = BudgetId.Value});
+        var budget = await Mediator.Send(new GetBudgetQuery(){Id = BudgetId.Value, UserId=userId});
         if (budget == null)
         {
             Snackbar.Add("Server error! Please try again.", Severity.Error);
@@ -147,13 +148,19 @@
             return;
         }
 
-        if(BudgetId == null){
-            var command = new CreateBudgetCommand(BudgetDto);
-            await Mediator.Send(command);
+        try{
+            if(BudgetId == null){
+                var command = new CreateBudgetCommand(BudgetDto);
+                await Mediator.Send(command);
+            }
+            else{
+                var command = new EditBudgetCommand((int)BudgetId, BudgetDto);
+                await Mediator.Send(command);
+            }
         }
-        else{
-            var command = new EditBudgetCommand((int)BudgetId, BudgetDto);
-            await Mediator.Send(command);
+        catch(Exception ex){
+            Snackbar.Add($"Error: {ex.Message}", Severity.Error);
+            return;
         }
 
         var message = BudgetId == null ? "Budget successfully added!" : "Budget successfully updated!";

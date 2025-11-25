@@ -8,7 +8,6 @@ namespace ExpenseTrackerWebApp.Features.Budgets.Handlers
 {
     public class CreateBudgetCommandHandler : IRequestHandler<CreateBudgetCommand, int>
     {
-        
         private readonly AppDbContext _context;
 
         public CreateBudgetCommandHandler(AppDbContext context)

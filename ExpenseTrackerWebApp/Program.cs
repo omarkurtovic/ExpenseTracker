@@ -3,11 +3,18 @@ using ApexCharts;
 using ExpenseTrackerWebApp.Components;
 using ExpenseTrackerWebApp.Database;
 using ExpenseTrackerWebApp.Services;
+using ExpenseTrackerWebApp.Features.SharedKernel.Behaviors;
+using ExpenseTrackerWebApp.Features.SharedKernel.Behaviours;
+using MediatR;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using MudBlazor;
 using MudBlazor.Services;
+using FluentValidation;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using ExpenseTrackerWebApp;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -49,7 +56,11 @@ builder.Services.ConfigureApplicationCookie(options =>
 builder.Services.AddMediatR(options =>
 {
     options.RegisterServicesFromAssembly(typeof(Program).Assembly);
+    options.AddOpenBehavior(typeof(PerformanceBehaviour<,>));
+    options.AddOpenBehavior(typeof(ValidationBehavior<,>));
 });
+
+builder.Services.AddValidatorsFromAssembly(typeof(Program).Assembly, includeInternalTypes: true);
 
 builder.Services.AddMudServices(config =>
 {
@@ -95,6 +106,8 @@ builder.Services.AddApexCharts(e =>
     };
 });
 builder.Services.AddHttpContextAccessor();
+
+builder.Services.AddLogging();
 
 var app = builder.Build();
 

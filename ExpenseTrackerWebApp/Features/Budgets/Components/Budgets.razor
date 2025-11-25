@@ -1,12 +1,17 @@
 @page "/budgets"
 @using ExpenseTrackerWebApp.Components.MyComponents
 @using ExpenseTrackerWebApp.Components.Pages.Dialogs
+@using ExpenseTrackerWebApp.Database.Models
 @using ExpenseTrackerWebApp.Features.Budgets.Commands
+@using ExpenseTrackerWebApp.Features.Budgets.Dtos
 @using ExpenseTrackerWebApp.Features.Budgets.Models
 @using ExpenseTrackerWebApp.Features.Budgets.Queries
+@using ExpenseTrackerWebApp.Features.SharedKernel.Queries
+@using ExpenseTrackerWebApp.Services
 @using MediatR
 @using Microsoft.AspNetCore.Authorization
 @using Microsoft.AspNetCore.Components.Authorization
+@using Microsoft.VisualBasic
 @using MudBlazor
 @using MudBlazor.Extensions
 @using System.Globalization
@@ -15,7 +20,7 @@
 @inject IDialogService DialogService
 @inject ISnackbar Snackbar
 @inject ISender Mediator   
-@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject ICurrentUserService CurrentUserService
 
 <PageTitle>Budgets</PageTitle>
 
@@ -55,7 +60,15 @@ else
                         @foreach(var budget in MyBudgets)
                         {
                             <MudItem xs="12" md="6">
-                                <BudgetCard budget="@budget" OpenBudgetDialogAsync="OpenBudgetDialogAsync" ConfirmDelete="ConfirmDelete"></BudgetCard>
+                                <BudgetCard 
+                                    Budget="@budget"
+                                    OnEdit="OpenBudgetDialogAsync"
+                                    OnDelete="ConfirmDelete">
+                                    <Content>
+                                        <MudProgressLinear Value="@(budget.Progress)" Color="@budget.ProgressColor"></MudProgressLinear>
+                                        <MudText Typo="Typo.body2">Spent: $@budget.Spent.ToString("F2") / $@budget.Amount?.ToString("F2")</MudText>
+                                    </Content>
+                                </BudgetCard>
                             </MudItem>
                         }
                     }
@@ -68,19 +81,11 @@ else
 
 @code {
    
-    private List<Budget>? MyBudgets { get; set; }
+    private List<BudgetWithProgressDto>? MyBudgets { get; set; }
     private bool loading = true;
-    private string UserId{get; set;}
     protected override async Task OnInitializedAsync()
     {
         await base.OnInitializedAsync();
-
-        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
-        var currentUser = authState.User;
-        if (currentUser.Identity?.IsAuthenticated == true)
-        {
-            UserId = currentUser.FindFirst("sub")?.Value;
-        }
         await RefreshPage();
         loading = false;
     }
@@ -130,6 +135,7 @@ else
     }
 
     async Task RefreshPage(){
-        MyBudgets = await Mediator.Send(new GetBudgetsQuery(){UserId = UserId});
+        MyBudgets = await Mediator.Send(new GetBudgetsWithProgressQuery(){UserId = CurrentUserService.GetUserId()});
     }
+
 }

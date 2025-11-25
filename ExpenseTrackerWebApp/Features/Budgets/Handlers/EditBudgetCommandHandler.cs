@@ -28,7 +28,16 @@ namespace ExpenseTrackerWebApp.Features.Budgets.Handlers
                 Description = request.BudgetDto.Description
             };
 
-            var oldBudget = await _context.Budgets.SingleAsync(b => b.Id == request.Id);
+            var oldBudget = await _context.Budgets
+            .Where(b => b.Id == request.Id)
+            .Where(b => b.IdentityUserId == request.BudgetDto.IdentityUserId)
+            .SingleOrDefaultAsync();
+
+            if(oldBudget == null)
+            {
+                throw new Exception("Budget not found!");
+            }
+
             if (oldBudget != null)
             {
                 oldBudget.Name = budget.Name;
