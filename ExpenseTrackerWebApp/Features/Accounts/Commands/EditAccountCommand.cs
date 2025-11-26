@@ -24,16 +24,20 @@ namespace ExpenseTrackerWebApp.Features.Accounts.Commands{
                 .NotEmpty().WithMessage("Account is required!");
 
             RuleFor(x => x.AccountDto.Name)
-                .NotEmpty().WithMessage("Name is required!");
+                .NotEmpty().WithMessage("Name is required!")
+                .When(x => x.AccountDto != null);
 
             RuleFor(x => x.AccountDto.InitialBalance)
-                .NotNull().WithMessage("Initial balance is required!");
+                .NotNull().WithMessage("Initial balance is required!")
+                .When(x => x.AccountDto != null);
 
             RuleFor(x => x.AccountDto.Icon)
-                .NotEmpty().WithMessage("Icon is required!");
+                .NotEmpty().WithMessage("Icon is required!")
+                .When(x => x.AccountDto != null);
 
             RuleFor(x => x.AccountDto.Color)
-                .NotEmpty().WithMessage("Icon color is required!");
+                .NotEmpty().WithMessage("Icon color is required!")
+                .When(x => x.AccountDto != null);
         }
     }
 }

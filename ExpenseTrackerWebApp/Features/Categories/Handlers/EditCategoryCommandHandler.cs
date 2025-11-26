@@ -32,18 +32,23 @@ namespace ExpenseTrackerWebApp.Features.Categories.Handlers
 
             if(oldCategory.Type != (TransactionType)request.CategoryDto.Type)
             {
-                if(request.CategoryDto.Type == TransactionType.Income)
-                {
-                    await _context.Transactions
+                var transactions = await _context.Transactions
                     .Where(t => t.CategoryId == request.Id)
-                    .ExecuteUpdateAsync(setters => setters.SetProperty(t => t.Amount, t => t.Amount < 0 ? -t.Amount : t.Amount));
-                }
-                else if(request.CategoryDto.Type == TransactionType.Expense)
+                    .ToListAsync(cancellationToken);
+
+                foreach (var tx in transactions)
                 {
-                    await _context.Transactions
-                    .Where(t => t.CategoryId == request.Id)
-                    .ExecuteUpdateAsync(setters => setters.SetProperty(t => t.Amount, t => t.Amount > 0 ? -t.Amount : t.Amount));
+                    if(request.CategoryDto.Type == TransactionType.Income)
+                    {
+                        tx.Amount = Math.Abs(tx.Amount);
+                    }
+                    else if(request.CategoryDto.Type == TransactionType.Expense)
+                    {
+                        tx.Amount = -Math.Abs(tx.Amount);
+                    }
                 }
+                
+                await _context.SaveChangesAsync(cancellationToken);
             }
             oldCategory.Name = request.CategoryDto.Name!;
             oldCategory.Type = (TransactionType)request.CategoryDto.Type!;

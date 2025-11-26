@@ -43,6 +43,9 @@ namespace ExpenseTrackerWebApp.Features.Budgets.Handlers
             };
 
 
+            _context.Budgets.Add(budget);
+            await _context.SaveChangesAsync(cancellationToken);
+
             var budgetCategories = new List<BudgetCategory>();
             foreach(var categoryId in request.BudgetDto.Categories)
             {
@@ -64,11 +67,9 @@ namespace ExpenseTrackerWebApp.Features.Budgets.Handlers
                 budgetAccounts.Add(ba);
             }
 
-            _context.Budgets.Add(budget);
             _context.BudgetCategories.AddRange(budgetCategories);
             _context.BudgetAccounts.AddRange(budgetAccounts);
-            await _context.SaveChangesAsync();
-            _context.ChangeTracker.Clear();
+            await _context.SaveChangesAsync(cancellationToken);
             return budget.Id;
         }
     }

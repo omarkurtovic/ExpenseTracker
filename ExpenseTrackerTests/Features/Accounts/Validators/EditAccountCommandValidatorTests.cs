@@ -120,5 +120,20 @@ namespace ExpenseTrackerTests.Features.Accounts.Validators
             Assert.NotEmpty(result.Errors);
             Assert.Equal("Icon color is required!", result.Errors.First(e => e.PropertyName == "AccountDto.Color").ErrorMessage);
         }
+
+        [Fact]
+        public void Validate_NullAccountDto_ReturnsError()
+        {
+            var command = CreateValidEditAccountCommand();
+            command.AccountDto = null!;
+            var validator = new EditAccountCommandValidator();
+
+            var result = validator.Validate(command);
+
+            Assert.False(result.IsValid);
+            Assert.NotEmpty(result.Errors);
+            Assert.Equal("Account is required!", result.Errors.First(e => e.PropertyName == "AccountDto").ErrorMessage);
+        }
     }
 }
+

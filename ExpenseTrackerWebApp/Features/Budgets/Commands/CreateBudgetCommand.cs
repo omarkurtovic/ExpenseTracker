@@ -18,21 +18,29 @@ namespace ExpenseTrackerWebApp.Features.Budgets.Commands
             RuleFor(x => x.UserId)
                 .NotEmpty().WithMessage("User ID is required!");
 
+            RuleFor(x => x.BudgetDto)
+                .NotEmpty().WithMessage("Budget is required!");
+
             RuleFor(x => x.BudgetDto.Name)
-                .NotEmpty().WithMessage("Name is required!");
+                .NotEmpty().WithMessage("Name is required!")
+                .When(x => x.BudgetDto != null);
 
             RuleFor(x => x.BudgetDto.BudgetType)
-                .NotNull().WithMessage("Budget type is required!");
+                .NotNull().WithMessage("Budget type is required!")
+                .When(x => x.BudgetDto != null);
 
             RuleFor(x => x.BudgetDto.Amount)
                 .NotNull().WithMessage("Amount is required!")
-                .GreaterThan(0).WithMessage("Amount must be greater than zero!");
+                .GreaterThan(0).WithMessage("Amount must be greater than zero!")
+                .When(x => x.BudgetDto != null);
 
             RuleFor(x => x.BudgetDto.Categories)
-                .NotEmpty().WithMessage("At least one category must be selected!");
+                .NotEmpty().WithMessage("At least one category must be selected!")
+                .When(x => x.BudgetDto != null);
 
             RuleFor(x => x.BudgetDto.Accounts)
-                .NotEmpty().WithMessage("At least one account must be selected!");
+                .NotEmpty().WithMessage("At least one account must be selected!")
+                .When(x => x.BudgetDto != null);
         }
     }
 }

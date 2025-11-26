@@ -57,6 +57,7 @@ nunit-*.xml
 appsettings.json
 appsettings.*.json
 !appsettings.Development.json.template
+!appsettings.Development.json
 
 .idea/
 *.user
@@ -68,4 +69,3 @@ appsettings.*.json
 *.db-wal
 
 publish
-.github/copilot-instructions.md

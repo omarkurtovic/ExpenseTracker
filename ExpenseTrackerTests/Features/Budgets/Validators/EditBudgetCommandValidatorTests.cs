@@ -163,5 +163,19 @@ namespace ExpenseTrackerTests.Features.Budgets.Validators
             Assert.False(result.IsValid);
             Assert.NotEmpty(result.Errors);
         }
+
+        [Fact]
+        public void Validate_NullBudgetDto_ReturnsError()
+        {
+            var command = CreateValidEditBudgetCommand();
+            command.BudgetDto = null!;
+            var validator = new EditBudgetCommandValidator();
+
+            var result = validator.Validate(command);
+
+            Assert.False(result.IsValid);
+            Assert.NotEmpty(result.Errors);
+            Assert.Equal("Budget is required!", result.Errors.First(e => e.PropertyName == "BudgetDto").ErrorMessage);
+        }
     }
 }

@@ -10,9 +10,9 @@ namespace ExpenseTrackerWebApp.Features.Categories.Commands
     }
     
 
-    public class DeleteCategoryCommandHandler : AbstractValidator<DeleteCategoryCommand>
+    public class DeleteCategoryCommandValidator : AbstractValidator<DeleteCategoryCommand>
     {
-        public DeleteCategoryCommandHandler()
+        public DeleteCategoryCommandValidator()
         {
             RuleFor(x => x.Id)
                 .GreaterThan(0).WithMessage("Id must be greater than zero!");

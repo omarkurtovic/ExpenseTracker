@@ -21,16 +21,20 @@ namespace ExpenseTrackerWebApp.Features.Categories.Commands
                 .NotEmpty().WithMessage("Category is required!");
 
             RuleFor(x => x.CategoryDto.Name)
-                .NotEmpty().WithMessage("Name is required!");
+                .NotEmpty().WithMessage("Name is required!")
+                .When(x => x.CategoryDto != null);
 
             RuleFor(x => x.CategoryDto.Type)
-                .NotNull().WithMessage("Type is required!");
+                .NotNull().WithMessage("Type is required!")
+                .When(x => x.CategoryDto != null);
 
             RuleFor(x => x.CategoryDto.Icon)
-                .NotEmpty().WithMessage("Icon is required!");
+                .NotEmpty().WithMessage("Icon is required!")
+                .When(x => x.CategoryDto != null);
 
             RuleFor(x => x.CategoryDto.Color)
-                .NotEmpty().WithMessage("Icon color is required!");
+                .NotEmpty().WithMessage("Icon color is required!")
+                .When(x => x.CategoryDto != null);
         }
     }
 }
