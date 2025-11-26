@@ -11,8 +11,10 @@ namespace ExpenseTrackerTests.Features.Budgets.Validators
         
         private GetBudgetsQuery CreateValidGetBudgetsQuery()
         {
-            var result = new GetBudgetsQuery();
-            result.UserId = "test-user-id";
+            var result = new GetBudgetsQuery()
+            {
+                UserId = "test-user-id"
+            };
             return result;
         }
 

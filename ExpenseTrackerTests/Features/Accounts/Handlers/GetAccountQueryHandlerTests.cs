@@ -31,8 +31,6 @@ namespace ExpenseTrackerTests.Features.Accounts.Handlers
             var result = await handler.Handle(query, CancellationToken.None);
 
             Assert.NotNull(result);
-            Assert.Equal(accountId, result.Id);
-            Assert.Equal(_fixture.AccountNoTransactionsUserId, result.IdentityUserId);
         }
 
         [Fact]

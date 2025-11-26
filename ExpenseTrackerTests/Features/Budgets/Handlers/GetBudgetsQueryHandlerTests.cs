@@ -26,8 +26,10 @@ namespace ExpenseTrackerTests.Features.Budgets.Handlers
         {
             using var context = _fixture.CreateContext();
             
-            var query = new GetBudgetsQuery();
-            query.UserId = _fixture.NoBudgetsUserId;
+            var query = new GetBudgetsQuery()
+            {
+                UserId = _fixture.NoBudgetsUserId
+            };
 
             var handler = new GetBudgetsQueryHandler(context);
 
@@ -40,8 +42,10 @@ namespace ExpenseTrackerTests.Features.Budgets.Handlers
         {
             using var context = _fixture.CreateContext();
             
-            var query = new GetBudgetsQuery();
-            query.UserId = _fixture.BudgetsNoTransactionsUserId;
+            var query = new GetBudgetsQuery()
+            {
+                UserId = _fixture.BudgetsNoTransactionsUserId
+            };
 
             var handler = new GetBudgetsQueryHandler(context);
 
@@ -55,8 +59,10 @@ namespace ExpenseTrackerTests.Features.Budgets.Handlers
         {
             using var context = _fixture.CreateContext();
             
-            var query = new GetBudgetsQuery();
-            query.UserId = _fixture.MultipleBudgetsUserId;
+            var query = new GetBudgetsQuery()
+            {
+                UserId = _fixture.MultipleBudgetsUserId
+            };
 
             var handler = new GetBudgetsQueryHandler(context);
 

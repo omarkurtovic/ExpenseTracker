@@ -11,8 +11,10 @@ namespace ExpenseTrackerTests.Features.Budgets.Validators
         
         private GetBudgetsWithProgressQuery CreateValidGetBudgetsWithProgressQuery()
         {
-            var result = new GetBudgetsWithProgressQuery();
-            result.UserId = "test-user-id";
+            var result = new GetBudgetsWithProgressQuery()
+            {
+                UserId = "test-user-id"
+            };
             return result;
         }
 

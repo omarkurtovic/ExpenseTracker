@@ -25,9 +25,11 @@ namespace ExpenseTrackerTests.Features.Budgets.Handlers
         {
             using var context = _fixture.CreateContext();
             
-            var query = new GetBudgetQuery();
-            query.Id = _fixture.BudgetsNoTransactions.BudgetIds.First();
-            query.UserId = _fixture.NoBudgetsUserId;
+            var query = new GetBudgetQuery()
+            {
+                Id = _fixture.BudgetsNoTransactions.BudgetIds.First(),
+                UserId = _fixture.NoBudgetsUserId
+            };
 
             var handler = new GetBudgetQueryHandler(context);
 
@@ -42,9 +44,10 @@ namespace ExpenseTrackerTests.Features.Budgets.Handlers
         {
             using var context = _fixture.CreateContext();
             
-            var query = new GetBudgetQuery();
-            query.Id = 999;
-            query.UserId = _fixture.NoBudgetsUserId;
+            var query = new GetBudgetQuery(){
+                Id = 999,
+                UserId = _fixture.NoBudgetsUserId
+            };
 
             var handler = new GetBudgetQueryHandler(context);
 
@@ -58,21 +61,21 @@ namespace ExpenseTrackerTests.Features.Budgets.Handlers
         {
             using var context = _fixture.CreateContext();
             
-            var query = new GetBudgetQuery();
-            query.Id = _fixture.BudgetsNoTransactions.BudgetIds.First();
-            query.UserId = _fixture.BudgetsNoTransactionsUserId;
+            var query = new GetBudgetQuery()
+            {
+                Id = _fixture.BudgetsNoTransactions.BudgetIds.First(),
+                UserId = _fixture.BudgetsNoTransactionsUserId
+            };
             var handler = new GetBudgetQueryHandler(context);
 
             var result =  await handler.Handle(query, CancellationToken.None);
 
             Assert.NotNull(result);
-            Assert.Equal(_fixture.BudgetsNoTransactions.BudgetIds.First(), result.Id);
             Assert.Equal("Test Budget", result.Name);
             Assert.Equal(500, result.Amount);
             Assert.Equal(BudgetType.Monthly, result.BudgetType);
-            Assert.Equal(_fixture.BudgetsNoTransactionsUserId, result.IdentityUserId);
-            Assert.Single(result.BudgetAccounts);
-            Assert.Single(result.BudgetCategories);
+            Assert.Single(result.Accounts);
+            Assert.Single(result.Categories);
         }
 
     }

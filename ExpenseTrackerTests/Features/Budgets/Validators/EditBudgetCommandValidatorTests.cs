@@ -17,8 +17,8 @@ namespace ExpenseTrackerTests.Features.Budgets.Validators
             var categories = new List<Category>(){new Category { Id = 1, Name = "Food" }};
             var accounts = new List<Account>(){new Account { Id = 1, Name = "Checking Account" }};
 
-            budgetDto.Categories = categories;
-            budgetDto.Accounts = accounts;
+            budgetDto.Categories = categories.Select(c => c.Id).ToList();
+            budgetDto.Accounts = accounts.Select(a => a.Id).ToList();
 
             var result = new EditBudgetCommand(){Id = 1, UserId = "test-user-id", BudgetDto=budgetDto};
             return result;
@@ -113,7 +113,7 @@ namespace ExpenseTrackerTests.Features.Budgets.Validators
         public void Validate_NoCategories_ReturnsError()
         {
             var command = CreateValidEditBudgetCommand();
-            command.BudgetDto.Categories = new List<Category>();
+            command.BudgetDto.Categories = new List<int>();
             var validator = new EditBudgetCommandValidator();
 
             var result = validator.Validate(command);
@@ -127,7 +127,7 @@ namespace ExpenseTrackerTests.Features.Budgets.Validators
         public void Validate_NoAccounts_ReturnsError()
         {
             var command = CreateValidEditBudgetCommand();
-            command.BudgetDto.Accounts = new List<Account>();
+            command.BudgetDto.Accounts = new List<int>();
             var validator = new EditBudgetCommandValidator();
 
             var result = validator.Validate(command);

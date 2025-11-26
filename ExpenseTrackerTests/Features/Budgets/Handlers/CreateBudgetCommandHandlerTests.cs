@@ -35,8 +35,8 @@ namespace ExpenseTrackerTests.Features.Budgets.Handlers
         {
             using var context = _fixture.CreateContext();
             var budgetDto = CreateValidBudgetDto();
-            budgetDto.Accounts = [new Account(){Id = _fixture.NoBudgets.AccountId}];
-            budgetDto.Categories = [new Category(){Id = _fixture.BudgetsNoTransactions.CategoryId}];
+            budgetDto.Accounts = [ _fixture.NoBudgets.AccountId ];
+            budgetDto.Categories = [ _fixture.BudgetsNoTransactions.CategoryId ];
 
             var command = new CreateBudgetCommand(){BudgetDto = budgetDto, UserId = _fixture.NoBudgetsUserId};
             var handler = new CreateBudgetCommandHandler(context);
@@ -51,8 +51,8 @@ namespace ExpenseTrackerTests.Features.Budgets.Handlers
         {
             using var context = _fixture.CreateContext();
             var budgetDto = CreateValidBudgetDto();
-            budgetDto.Accounts = [new Account(){Id = _fixture.NoBudgets.AccountId}];
-            budgetDto.Categories = [new Category(){Id = 999}];
+            budgetDto.Accounts = [ _fixture.NoBudgets.AccountId ];
+            budgetDto.Categories = [ 999 ];
             
             var command = new CreateBudgetCommand(){BudgetDto = budgetDto, UserId = _fixture.NoBudgetsUserId};
             var handler = new CreateBudgetCommandHandler(context);
@@ -67,8 +67,8 @@ namespace ExpenseTrackerTests.Features.Budgets.Handlers
         {
             using var context = _fixture.CreateContext();
             var budgetDto = CreateValidBudgetDto();
-            budgetDto.Accounts = [new Account(){Id = _fixture.BudgetsNoTransactions.AccountId}];
-            budgetDto.Categories = [new Category(){Id = _fixture.NoBudgets.CategoryId}];
+            budgetDto.Accounts = [ _fixture.BudgetsNoTransactions.AccountId ];
+            budgetDto.Categories = [ _fixture.NoBudgets.CategoryId ];
             
             var command = new CreateBudgetCommand(){BudgetDto = budgetDto, UserId = _fixture.NoBudgetsUserId};
             var handler = new CreateBudgetCommandHandler(context);
@@ -83,8 +83,8 @@ namespace ExpenseTrackerTests.Features.Budgets.Handlers
         {
             using var context = _fixture.CreateContext();
             var budgetDto = CreateValidBudgetDto();
-            budgetDto.Accounts = [new Account(){Id = 999 }];
-            budgetDto.Categories = [new Category(){Id = _fixture.NoBudgets.CategoryId}];
+            budgetDto.Accounts = [999];
+            budgetDto.Categories = [_fixture.NoBudgets.CategoryId];
             
             var command = new CreateBudgetCommand(){BudgetDto = budgetDto, UserId = _fixture.NoBudgetsUserId};
             var handler = new CreateBudgetCommandHandler(context);
@@ -101,8 +101,8 @@ namespace ExpenseTrackerTests.Features.Budgets.Handlers
         {
             using var context = _fixture.CreateContext();
             var budgetDto = CreateValidBudgetDto();
-            budgetDto.Accounts = [new Account(){Id = _fixture.NoBudgets.AccountId }];
-            budgetDto.Categories = [new Category(){Id = _fixture.NoBudgets.CategoryId}];
+            budgetDto.Accounts = [ _fixture.NoBudgets.AccountId ];
+            budgetDto.Categories = [_fixture.NoBudgets.CategoryId];
             
             var command = new CreateBudgetCommand(){BudgetDto = budgetDto, UserId = _fixture.NoBudgetsUserId};
             var handler = new CreateBudgetCommandHandler(context);
@@ -122,10 +122,10 @@ namespace ExpenseTrackerTests.Features.Budgets.Handlers
             Assert.Equal(command.BudgetDto.Categories.Count(), createdBudget.BudgetCategories.Count);
             Assert.Equal(command.BudgetDto.Accounts.Count(), createdBudget.BudgetAccounts.Count);
 
-            Assert.Equal(command.BudgetDto.Categories.First().Id, createdBudget.BudgetCategories.First().CategoryId);
+            Assert.Equal(command.BudgetDto.Categories.First(), createdBudget.BudgetCategories.First().CategoryId);
             Assert.Equal(_fixture.NoBudgets.CategoryId, createdBudget.BudgetCategories.First().CategoryId);
 
-            Assert.Equal(command.BudgetDto.Accounts.First().Id, createdBudget.BudgetAccounts.First().AccountId);
+            Assert.Equal(command.BudgetDto.Accounts.First(), createdBudget.BudgetAccounts.First().AccountId);
             Assert.Equal(_fixture.NoBudgets.AccountId, createdBudget.BudgetAccounts.First().AccountId);
         }
 

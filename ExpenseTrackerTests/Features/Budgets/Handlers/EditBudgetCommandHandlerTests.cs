@@ -36,8 +36,8 @@ namespace ExpenseTrackerTests.Features.Budgets.Handlers
         {
             using var context = _fixture.CreateContext();
             var budgetDto = CreateValidBudgetDto();
-            budgetDto.Accounts = [new(){Id = _fixture.BudgetsNoTransactions.AccountId}];
-            budgetDto.Categories = [new Category(){Id = _fixture.NoBudgets.CategoryId}];
+            budgetDto.Accounts = [_fixture.BudgetsNoTransactions.AccountId];
+            budgetDto.Categories = [_fixture.NoBudgets.CategoryId];
             
             var command = new EditBudgetCommand(){BudgetDto = budgetDto, 
                 UserId = _fixture.BudgetsNoTransactionsUserId, Id = _fixture.BudgetsNoTransactions.BudgetIds.First()};
@@ -53,8 +53,8 @@ namespace ExpenseTrackerTests.Features.Budgets.Handlers
         {
             using var context = _fixture.CreateContext();
             var budgetDto = CreateValidBudgetDto();
-            budgetDto.Accounts = [new(){Id = _fixture.BudgetsNoTransactions.AccountId}];
-            budgetDto.Categories = [new Category(){Id = 999}];
+            budgetDto.Accounts = [_fixture.BudgetsNoTransactions.AccountId];
+            budgetDto.Categories = [999];
             
             var command = new EditBudgetCommand(){BudgetDto = budgetDto, 
                 UserId = _fixture.BudgetsNoTransactionsUserId, Id = _fixture.BudgetsNoTransactions.BudgetIds.First()};
@@ -70,8 +70,8 @@ namespace ExpenseTrackerTests.Features.Budgets.Handlers
         {
             using var context = _fixture.CreateContext();
             var budgetDto = CreateValidBudgetDto();
-            budgetDto.Accounts = [new(){Id = _fixture.NoBudgets.AccountId}];
-            budgetDto.Categories = [new Category(){Id = _fixture.BudgetsNoTransactions.CategoryId}];
+            budgetDto.Accounts = [_fixture.NoBudgets.AccountId];
+            budgetDto.Categories = [_fixture.BudgetsNoTransactions.CategoryId];
             
             var command = new EditBudgetCommand(){BudgetDto = budgetDto, 
                 UserId = _fixture.BudgetsNoTransactionsUserId, Id = _fixture.BudgetsNoTransactions.BudgetIds.First()};
@@ -87,8 +87,8 @@ namespace ExpenseTrackerTests.Features.Budgets.Handlers
         {
             using var context = _fixture.CreateContext();
             var budgetDto = CreateValidBudgetDto();
-            budgetDto.Accounts = [new(){Id = 999}];
-            budgetDto.Categories = [new Category(){Id = _fixture.BudgetsNoTransactions.CategoryId}];
+            budgetDto.Accounts = [999];
+            budgetDto.Categories = [_fixture.BudgetsNoTransactions.CategoryId];
             
             var command = new EditBudgetCommand(){BudgetDto = budgetDto, 
                 UserId = _fixture.BudgetsNoTransactionsUserId, Id = _fixture.BudgetsNoTransactions.BudgetIds.First()};
@@ -104,8 +104,8 @@ namespace ExpenseTrackerTests.Features.Budgets.Handlers
         {
             using var context = _fixture.CreateContext();
             var budgetDto = CreateValidBudgetDto();
-            budgetDto.Accounts = [new(){Id = _fixture.BudgetsNoTransactions.AccountId}];
-            budgetDto.Categories = [new Category(){Id = _fixture.BudgetsNoTransactions.CategoryId}];
+            budgetDto.Accounts = [_fixture.BudgetsNoTransactions.AccountId];
+            budgetDto.Categories = [_fixture.BudgetsNoTransactions.CategoryId];
             
             var command = new EditBudgetCommand(){BudgetDto = budgetDto, 
                 UserId = _fixture.BudgetsNoTransactionsUserId, Id = 999};
@@ -121,8 +121,8 @@ namespace ExpenseTrackerTests.Features.Budgets.Handlers
         {
             using var context = _fixture.CreateContext();
             var budgetDto = CreateValidBudgetDto();
-            budgetDto.Accounts = [new(){Id = _fixture.BudgetsNoTransactions.AccountId}];
-            budgetDto.Categories = [new Category(){Id = _fixture.BudgetsNoTransactions.CategoryId}];
+            budgetDto.Accounts = [_fixture.BudgetsNoTransactions.AccountId];
+            budgetDto.Categories = [_fixture.BudgetsNoTransactions.CategoryId];
             
             var command = new EditBudgetCommand(){BudgetDto = budgetDto, 
                 UserId = _fixture.BudgetsNoTransactionsUserId, Id = _fixture.BudgetsWithTransactions.BudgetIds.First()};
@@ -138,8 +138,8 @@ namespace ExpenseTrackerTests.Features.Budgets.Handlers
         {
             using var context = _fixture.CreateContext();
             var budgetDto = CreateValidBudgetDto();
-            budgetDto.Accounts = [new(){Id = _fixture.MultipleBudgets.AccountIds.First()}];
-            budgetDto.Categories = [new Category(){Id = _fixture.MultipleBudgets.CategoryIds.First()}];
+            budgetDto.Accounts = [_fixture.MultipleBudgets.AccountIds.First()];
+            budgetDto.Categories = [_fixture.MultipleBudgets.CategoryIds.First()];
             
             var command = new EditBudgetCommand(){BudgetDto = budgetDto, 
                 UserId = _fixture.MultipleBudgetsUserId, Id = _fixture.MultipleBudgets.BudgetIds.First()};
@@ -160,10 +160,10 @@ namespace ExpenseTrackerTests.Features.Budgets.Handlers
             Assert.Equal(command.BudgetDto.Categories.Count(), editedBudget.BudgetCategories.Count);
             Assert.Equal(command.BudgetDto.Accounts.Count(), editedBudget.BudgetAccounts.Count);
 
-            Assert.Equal(command.BudgetDto.Categories.First().Id, editedBudget.BudgetCategories.First().CategoryId);
+            Assert.Equal(command.BudgetDto.Categories.First(), editedBudget.BudgetCategories.First().CategoryId);
             Assert.Equal(_fixture.MultipleBudgets.CategoryIds.First(), editedBudget.BudgetCategories.First().CategoryId);
 
-            Assert.Equal(command.BudgetDto.Accounts.First().Id, editedBudget.BudgetAccounts.First().AccountId);
+            Assert.Equal(command.BudgetDto.Accounts.First(), editedBudget.BudgetAccounts.First().AccountId);
             Assert.Equal(_fixture.MultipleBudgets.AccountIds.First(), editedBudget.BudgetAccounts.First().AccountId);
         }
 
