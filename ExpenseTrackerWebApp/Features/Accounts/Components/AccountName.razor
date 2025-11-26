@@ -1,8 +1,10 @@
-@using ExpenseTrackerWebApp.Database.Models
+@using ExpenseTrackerWebApp.Features.Accounts.Dtos
+@using MudBlazor
+
 <MudPaper Elevation="0" Class="d-flex gap-3 align-end" Style="background: transparent;">
-@if (!string.IsNullOrEmpty(Account.Icon))
+    @if (!string.IsNullOrEmpty(Account.Icon))
     {
-        <MudIcon Icon="@Account.Icon" Style="@($"color: {Account.Color};")" Size="IconSize" />
+        <MudIcon Icon="@(Account.Icon)" Style="@($"color: {Account.Color};")" Size="IconSize" />
     }
     <MudText Typo="TextSize">@Account.Name</MudText>
 </MudPaper>
@@ -10,7 +12,7 @@
 
 @code{
     [Parameter]
-    public Account Account{get; set;}
+    public AccountWithBalanceDto Account{get; set;}
 
     [Parameter]
     public Typo TextSize{get; set;} = Typo.body2;

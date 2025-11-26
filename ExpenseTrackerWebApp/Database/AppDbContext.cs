@@ -1,5 +1,4 @@
 using ExpenseTrackerWebApp.Database.Models;
-using ExpenseTrackerWebApp.Features.Budgets.Models;
 using ExpenseTrackerWebApp.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;

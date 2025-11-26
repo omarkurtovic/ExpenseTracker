@@ -1,6 +1,6 @@
 using ExpenseTrackerWebApp.Database;
+using ExpenseTrackerWebApp.Database.Models;
 using ExpenseTrackerWebApp.Features.Budgets.Commands;
-using ExpenseTrackerWebApp.Features.Budgets.Models;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using MudBlazor;
@@ -19,9 +19,9 @@ namespace ExpenseTrackerWebApp.Features.Budgets.Handlers
 
         public async Task<int> Handle(EditBudgetCommand request, CancellationToken cancellationToken)
         {
-            var oldBudget = _context.Budgets
+            var oldBudget = await _context.Budgets
                 .Where(b => b.Id == request.Id)
-                .SingleOrDefault(); 
+                .FirstOrDefaultAsync(cancellationToken); 
 
             if(oldBudget == null)
             {
@@ -64,9 +64,9 @@ namespace ExpenseTrackerWebApp.Features.Budgets.Handlers
             oldBudget.BudgetType = budget.BudgetType;
             oldBudget.Description = budget.Description;
             
-            await _context.BudgetCategories.Where(bc => bc.BudgetId == request.Id).ExecuteDeleteAsync();
-            await _context.BudgetAccounts.Where(ba => ba.BudgetId == request.Id).ExecuteDeleteAsync();
-            await _context.SaveChangesAsync();
+            await _context.BudgetCategories.Where(bc => bc.BudgetId == request.Id).ExecuteDeleteAsync(cancellationToken);
+            await _context.BudgetAccounts.Where(ba => ba.BudgetId == request.Id).ExecuteDeleteAsync(cancellationToken);
+            await _context.SaveChangesAsync(cancellationToken);
             _context.ChangeTracker.Clear();
 
             var budgetCategories = new List<BudgetCategory>();
@@ -92,7 +92,7 @@ namespace ExpenseTrackerWebApp.Features.Budgets.Handlers
 
             _context.BudgetCategories.AddRange(budgetCategories);
             _context.BudgetAccounts.AddRange(budgetAccounts);
-            await _context.SaveChangesAsync();
+            await _context.SaveChangesAsync(cancellationToken);
             return budget.Id;
         }
     }

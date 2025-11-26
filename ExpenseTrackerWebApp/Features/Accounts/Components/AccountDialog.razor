@@ -1,12 +1,17 @@
 @using ExpenseTrackerWebApp.Database.Models
 @using ExpenseTrackerWebApp.Dtos
+@using ExpenseTrackerWebApp.Features.Accounts.Queries
 @using ExpenseTrackerWebApp.Services
+@using MediatR
 @using Microsoft.AspNetCore.Authorization
 @using Microsoft.AspNetCore.Components.Authorization
 @using MudBlazor
+@using ExpenseTrackerWebApp.Features.Accounts.Commands
+
 @inject AccountService AccountService
 @inject ICurrentUserService CurrentUserService
 @inject ISnackbar Snackbar
+@inject ISender Mediator   
 
 @if (AccountDto is not null)
 {
@@ -72,24 +77,26 @@
 
     protected override async Task OnParametersSetAsync()
     {
-        await base.OnParametersSetAsync();
         AccountDto = new AccountDto();
-
-        var userId = CurrentUserService.GetUserId();
-        if (string.IsNullOrWhiteSpace(userId))
+        AccountDto.Color = "#1976d2";
+        
+        if (string.IsNullOrWhiteSpace(CurrentUserService.GetUserId()))
         {
             Snackbar.Add("Server error! Please try again.", Severity.Error);
             MudDialog.Close();
             return;
         }
-        AccountDto.UserId = userId;
+
         if (AccountId == null)
         {
             return;
         }
 
-        var account = await AccountService.GetAsync((int)AccountId);
-        if (account == null)
+        Account account;
+        try{
+            account = await Mediator.Send(new GetAccountQuery() { UserId = CurrentUserService.GetUserId(), Id = (int)AccountId });
+        }
+        catch (Exception)
         {
             Snackbar.Add("Server error! Please try again.", Severity.Error);
             MudDialog.Close();
@@ -98,10 +105,8 @@
 
         AccountDto = new AccountDto()
         {
-            Id = account.Id,
             Name = account.Name,
             InitialBalance = account.InitialBalance,
-            UserId = account.IdentityUserId,
             Icon = account.Icon,
             Color = account.Color
         };
@@ -116,7 +121,19 @@
             return;
         }
 
-        await AccountService.SaveAsync(AccountDto);
+        try{
+            if(AccountId == null){
+                await Mediator.Send(new CreateAccountCommand() { AccountDto = AccountDto, UserId = CurrentUserService.GetUserId() });
+            }
+            else{
+                await Mediator.Send(new EditAccountCommand() { Id = (int)AccountId, AccountDto = AccountDto, UserId = CurrentUserService.GetUserId() });
+            }
+        }
+        catch(Exception ex){
+            Snackbar.Add("Server error! Please try again.", Severity.Error);
+            return;
+        }
+
         var message = AccountId == null ? "Account successfully added!" : "Account successfully updated!";
         Snackbar.Add(message, Severity.Success);
         MudDialog.Close(DialogResult.Ok(result: true));

@@ -1,24 +1,23 @@
 @using ExpenseTrackerWebApp.Database.Models
 @using ExpenseTrackerWebApp.Dtos
+@using ExpenseTrackerWebApp.Features.Accounts.Dtos
 @using MudBlazor
+@using ExpenseTrackerWebApp.Components.MyComponents
 
 <EntityCard OnEdit="@(() => OnEdit.InvokeAsync())" OnDelete="@(() => OnDelete.InvokeAsync())">
     <HeaderContent>
-        <AccountName Account="@account" TextSize="Typo.h6" IconSize="Size.Large"></AccountName>
+        <AccountName Account="@Account" TextSize="Typo.h6" IconSize="Size.Large"></AccountName>
     </HeaderContent>
     <Content>
         <MudPaper Elevation="0" Class="d-flex flex-row gap-3 align-center">
-            <AmountDisplay Balance="@balance" FontSize="Typo.h4" />
+            <AmountDisplay Balance="@Account.CurrentBalance" FontSize="Typo.h4" />
         </MudPaper>
     </Content>
 </EntityCard>
 
 @code {
     [Parameter]
-    public Account? account { get; set; }
-
-    [Parameter]
-    public decimal balance { get; set; }
+    public required AccountWithBalanceDto Account { get; set; }
 
     [Parameter]
     public EventCallback OnEdit { get; set; }

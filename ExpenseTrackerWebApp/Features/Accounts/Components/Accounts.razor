@@ -1,14 +1,18 @@
 @page "/accounts"
-@using ExpenseTrackerWebApp.Database.Models
-@using ExpenseTrackerWebApp.Dtos
+@using ExpenseTrackerWebApp.Features.Accounts.Commands
+@using ExpenseTrackerWebApp.Features.Accounts.Dtos
+@using ExpenseTrackerWebApp.Features.Accounts.Queries
 @using ExpenseTrackerWebApp.Services
-@using ExpenseTrackerWebApp.Components.Pages.Dialogs
+@using MediatR
 @using Microsoft.AspNetCore.Authorization
 @using ExpenseTrackerWebApp.Components.MyComponents
 @using MudBlazor
-@inject AccountService AccountService
+@using Microsoft.AspNetCore.Components.Web
+@using ExpenseTrackerWebApp.Components.Pages.Dialogs
 @inject IDialogService DialogService
 @inject ISnackbar Snackbar
+@inject ISender Mediator   
+@inject ICurrentUserService CurrentUserService
 
 <PageTitle>Accounts</PageTitle>
 
@@ -50,7 +54,7 @@ else
                     @foreach (var account in MyAccounts)
                     {
                         <MudItem xs="12" md="6">
-                            <AccountCard account="@account.ToAccount()" balance="@account.CurrentBalance" OnEdit="@(() => OpenAccountDialogAsync(account.Id))" OnDelete="@(() => ConfirmDelete(account.Id))"></AccountCard>
+                            <AccountCard Account="@account" OnEdit="@(() => OpenAccountDialogAsync(account.Id))" OnDelete="@(() => ConfirmDelete(account.Id))"></AccountCard>
                         </MudItem>
                     }
                 }
@@ -60,7 +64,7 @@ else
 }
 
 @code {
-    private List<AccountWithBalance> MyAccounts;
+    private List<AccountWithBalanceDto> MyAccounts;
 
     bool loading = true;
 
@@ -107,7 +111,7 @@ else
         var result = await dialog.Result;
         if (!result.Canceled)
         {
-            await AccountService.DeleteAsync(accountId);
+            await Mediator.Send(new DeleteAccountCommand() { Id = accountId, UserId = CurrentUserService.GetUserId() });
             Snackbar.Add("Account succesfully deleted! ", Severity.Success);
             await UpdatePage();
         }
@@ -116,6 +120,6 @@ else
 
     private async Task UpdatePage()
     {
-        MyAccounts = await AccountService.GetAllWithBalanceAsync();
+        MyAccounts = await Mediator.Send(new GetAccountsWithBalanceQuery() { UserId = CurrentUserService.GetUserId() });
     }
 }

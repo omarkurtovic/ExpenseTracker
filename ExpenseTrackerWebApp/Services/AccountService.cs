@@ -1,6 +1,7 @@
 using ExpenseTrackerWebApp.Database;
 using ExpenseTrackerWebApp.Database.Models;
 using ExpenseTrackerWebApp.Dtos;
+using ExpenseTrackerWebApp.Features.Accounts.Dtos;
 using Microsoft.EntityFrameworkCore;
 using MudBlazor;
 
@@ -30,10 +31,10 @@ namespace ExpenseTrackerWebApp.Services
             return await GetAccountsQuery(_context).ToListAsync();
         }
 
-        public async Task<List<AccountWithBalance>> GetAllWithBalanceAsync()
+        public async Task<List<AccountWithBalanceDto>> GetAllWithBalanceAsync()
         {
             return await GetAccountsQuery(_context).Include(a => a.Transactions)
-            .Select(a => new AccountWithBalance()
+            .Select(a => new AccountWithBalanceDto()
             {
                 Id = a.Id,
                 Name = a.Name,
@@ -44,28 +45,6 @@ namespace ExpenseTrackerWebApp.Services
             }).ToListAsync();
         }
 
-        public async Task SaveAsync(AccountDto accountDto)
-        {
-            if(string.IsNullOrWhiteSpace(accountDto.Name) ||
-                string.IsNullOrWhiteSpace(accountDto.UserId) ||
-                accountDto.InitialBalance == null ||
-                string.IsNullOrWhiteSpace(accountDto.Icon) ||
-                string.IsNullOrWhiteSpace(accountDto.Color))
-                {
-                    return;
-                }
-
-            var account = new Account
-            {
-                Id = accountDto.Id ?? 0,
-                Name = accountDto.Name,
-                InitialBalance = (decimal)accountDto.InitialBalance,
-                IdentityUserId = accountDto.UserId,
-                Icon = accountDto.Icon,
-                Color = accountDto.Color
-            };
-            await SaveInternal(account);
-        }
 
         public async Task SaveAsync(Account account)
         {

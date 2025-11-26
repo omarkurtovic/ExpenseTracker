@@ -2,21 +2,22 @@ using ExpenseTrackerWebApp.Database.Models;
 using FluentValidation;
 using MediatR;
 
-namespace ExpenseTrackerWebApp.Features.Budgets.Queries
+namespace ExpenseTrackerWebApp.Features.Accounts.Queries
 {
-    public class GetBudgetQuery : IRequest<Budget?>
+    public class GetAccountQuery : IRequest<Account>
     {
         public int Id{get; set;}
         public string UserId{get; set;}
     }
+
     
-    public class GetBudgetQueryValidator : AbstractValidator<GetBudgetQuery>
+    public class GetAccountQueryValidator : AbstractValidator<GetAccountQuery>
     {
-        public GetBudgetQueryValidator()
+        public GetAccountQueryValidator()
         {
             RuleFor(x => x.Id)
-                .NotNull().WithMessage("ID is required!");
-
+                .NotEmpty().WithMessage("Id is required");
+            
             RuleFor(x => x.UserId)
                 .NotEmpty().WithMessage("User ID is required!");
         }

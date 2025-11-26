@@ -2,7 +2,7 @@ using ExpenseTrackerWebApp.Database.Models;
 using ExpenseTrackerWebApp.Features.Budgets.Dtos;
 using Microsoft.AspNetCore.Identity;
 
-namespace ExpenseTrackerWebApp.Features.Budgets.Models
+namespace ExpenseTrackerWebApp.Database.Models
 {
     public class Budget{
         public int Id{get; set;}

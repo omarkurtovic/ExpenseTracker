@@ -1,4 +1,4 @@
-using ExpenseTrackerWebApp.Features.Budgets.Models;
+using ExpenseTrackerWebApp.Database.Models;
 using FluentValidation;
 using MediatR;
 using Microsoft.Identity.Client;

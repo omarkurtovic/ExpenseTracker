@@ -1,5 +1,5 @@
 using ExpenseTrackerWebApp.Database;
-using ExpenseTrackerWebApp.Features.Budgets.Models;
+using ExpenseTrackerWebApp.Database.Models;
 using ExpenseTrackerWebApp.Features.Budgets.Queries;
 using ExpenseTrackerWebApp.Services;
 using MediatR;
