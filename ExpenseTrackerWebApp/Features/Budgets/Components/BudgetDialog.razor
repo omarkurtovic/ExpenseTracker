@@ -99,11 +99,6 @@
 
     protected override async Task OnParametersSetAsync()
     {
-        await base.OnParametersSetAsync();
-        BudgetDto = new BudgetDto();
-        Categories = await Mediator.Send(new GetCategoriesQuery(){UserId = CurrentUserService.GetUserId()});
-        Accounts = await Mediator.Send(new GetAccountsQuery(){UserId = CurrentUserService.GetUserId()});
-
         var userId = CurrentUserService.GetUserId();
         if (string.IsNullOrWhiteSpace(userId))
         {
@@ -112,30 +107,34 @@
             return;
         }
 
-        BudgetDto.IdentityUserId = userId;
+        BudgetDto = new BudgetDto();
+        Categories = await Mediator.Send(new GetCategoriesQuery(){UserId = userId});
+        Accounts = await Mediator.Send(new GetAccountsQuery(){UserId = userId});
+
         if (BudgetId == null)
         {
             return;
         }
 
-        var budget = await Mediator.Send(new GetBudgetQuery(){Id = BudgetId.Value, UserId=userId});
-        if (budget == null)
-        {
+        try{
+            var budget = await Mediator.Send(new GetBudgetQuery(){Id = BudgetId.Value, UserId=userId});
+            BudgetDto = new BudgetDto()
+            {
+                Name = budget.Name,
+                Amount = budget.Amount,
+                BudgetType = budget.BudgetType,
+                Description = budget.Description,
+                Categories = budget.BudgetCategories.Select(bc => bc.Category).ToList(),
+                Accounts = budget.BudgetAccounts.Select(ba => ba.Account).ToList()
+            };
+        }
+        catch(Exception ex){
             Snackbar.Add("Server error! Please try again.", Severity.Error);
             MudDialog.Close();
             return;
         }
 
-        BudgetDto = new BudgetDto()
-        {
-            Name = budget.Name,
-            Amount = budget.Amount,
-            BudgetType = budget.BudgetType,
-            Description = budget.Description,
-            IdentityUserId = budget.IdentityUserId,
-            Categories = budget.BudgetCategories.Select(bc => bc.Category).ToList(),
-            Accounts = budget.BudgetAccounts.Select(ba => ba.Account).ToList()
-        };
+        
     }
 
     private async Task Submit()
@@ -149,11 +148,11 @@
 
         try{
             if(BudgetId == null){
-                var command = new CreateBudgetCommand(BudgetDto);
+                var command = new CreateBudgetCommand(){ UserId = CurrentUserService.GetUserId(), BudgetDto = BudgetDto };
                 await Mediator.Send(command);
             }
             else{
-                var command = new EditBudgetCommand((int)BudgetId, BudgetDto);
+                var command = new EditBudgetCommand(){ Id = (int)BudgetId, UserId = CurrentUserService.GetUserId(), BudgetDto = BudgetDto };
                 await Mediator.Send(command);
             }
         }

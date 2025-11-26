@@ -3,7 +3,6 @@ using ExpenseTrackerWebApp.Database;
 using ExpenseTrackerWebApp.Database.Models;
 using ExpenseTrackerWebApp.Features.Budgets.Commands;
 using ExpenseTrackerWebApp.Features.Budgets.Dtos;
-using ExpenseTrackerWebApp.Features.Budgets.Models;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using ExpenseTrackerWebApp.Features.Budgets.Handlers;
@@ -22,30 +21,26 @@ namespace ExpenseTrackerTests.Features.Budgets.Handlers
             _fixture = fixture;
         }
 
-        private EditBudgetCommand CreateValidEditBudgetCommand()
+        private BudgetDto CreateValidBudgetDto()
         {
             var budgetDto = new BudgetDto();
             budgetDto.Name = "Bob's budget - change";
             budgetDto.BudgetType = BudgetType.Yearly;
             budgetDto.Amount = 1000m;
             budgetDto.Description = "This is a test budget.";
-
-            var result = new EditBudgetCommand();
-            result.BudgetDto = budgetDto;
-            return result;
+            return budgetDto;
         }
 
         [Fact]
         public async Task Handle_CategoryDoesNotBelongToUser_ThrowsException()
         {
             using var context = _fixture.CreateContext();
-
-            var command = CreateValidEditBudgetCommand();
-            command.Id = _fixture.BudgetsNoTransactions.BudgetIds.First();
-            command.BudgetDto.IdentityUserId = _fixture.BudgetsNoTransactionsUserId;
-            command.BudgetDto.Accounts = new List<Account>(){new Account(){Id = _fixture.BudgetsNoTransactions.AccountId}};
-            command.BudgetDto.Categories = new List<Category>(){new Category(){Id = _fixture.NoBudgets.CategoryId}};
-
+            var budgetDto = CreateValidBudgetDto();
+            budgetDto.Accounts = [new(){Id = _fixture.BudgetsNoTransactions.AccountId}];
+            budgetDto.Categories = [new Category(){Id = _fixture.NoBudgets.CategoryId}];
+            
+            var command = new EditBudgetCommand(){BudgetDto = budgetDto, 
+                UserId = _fixture.BudgetsNoTransactionsUserId, Id = _fixture.BudgetsNoTransactions.BudgetIds.First()};
             var handler = new EditBudgetCommandHandler(context);
 
             await Assert.ThrowsAsync<UnauthorizedAccessException>(
@@ -57,13 +52,12 @@ namespace ExpenseTrackerTests.Features.Budgets.Handlers
         public async Task Handle_CategoryDoesNotExist_ThrowsException()
         {
             using var context = _fixture.CreateContext();
-
-            var command = CreateValidEditBudgetCommand();
-            command.Id = _fixture.BudgetsNoTransactions.BudgetIds.First();
-            command.BudgetDto.IdentityUserId = _fixture.BudgetsNoTransactionsUserId;
-            command.BudgetDto.Accounts = new List<Account>(){new Account(){Id = _fixture.BudgetsNoTransactions.AccountId}};
-            command.BudgetDto.Categories = new List<Category>(){new Category(){Id = 999}};
-
+            var budgetDto = CreateValidBudgetDto();
+            budgetDto.Accounts = [new(){Id = _fixture.BudgetsNoTransactions.AccountId}];
+            budgetDto.Categories = [new Category(){Id = 999}];
+            
+            var command = new EditBudgetCommand(){BudgetDto = budgetDto, 
+                UserId = _fixture.BudgetsNoTransactionsUserId, Id = _fixture.BudgetsNoTransactions.BudgetIds.First()};
             var handler = new EditBudgetCommandHandler(context);
 
             await Assert.ThrowsAsync<UnauthorizedAccessException>(
@@ -75,13 +69,12 @@ namespace ExpenseTrackerTests.Features.Budgets.Handlers
         public async Task Handle_AccountDoesNotBelongToUser_ThrowsException()
         {
             using var context = _fixture.CreateContext();
-
-            var command = CreateValidEditBudgetCommand();
-            command.Id = _fixture.BudgetsNoTransactions.BudgetIds.First();
-            command.BudgetDto.IdentityUserId = _fixture.BudgetsNoTransactionsUserId;
-            command.BudgetDto.Accounts = new List<Account>(){new Account(){Id = _fixture.NoBudgets.AccountId}};
-            command.BudgetDto.Categories = new List<Category>(){new Category(){Id = _fixture.BudgetsNoTransactions.CategoryId}};
-
+            var budgetDto = CreateValidBudgetDto();
+            budgetDto.Accounts = [new(){Id = _fixture.NoBudgets.AccountId}];
+            budgetDto.Categories = [new Category(){Id = _fixture.BudgetsNoTransactions.CategoryId}];
+            
+            var command = new EditBudgetCommand(){BudgetDto = budgetDto, 
+                UserId = _fixture.BudgetsNoTransactionsUserId, Id = _fixture.BudgetsNoTransactions.BudgetIds.First()};
             var handler = new EditBudgetCommandHandler(context);
 
             await Assert.ThrowsAsync<UnauthorizedAccessException>(
@@ -93,12 +86,12 @@ namespace ExpenseTrackerTests.Features.Budgets.Handlers
         public async Task Handle_AccountDoesNotExist_ThrowsException()
         {
             using var context = _fixture.CreateContext();
-            var command = CreateValidEditBudgetCommand();
-            command.Id = _fixture.BudgetsNoTransactions.BudgetIds.First();
-            command.BudgetDto.IdentityUserId = _fixture.BudgetsNoTransactionsUserId;
-            command.BudgetDto.Accounts = new List<Account>(){new Account(){Id = 999}};
-            command.BudgetDto.Categories = new List<Category>(){new Category(){Id = _fixture.BudgetsNoTransactions.CategoryId}};
-
+            var budgetDto = CreateValidBudgetDto();
+            budgetDto.Accounts = [new(){Id = 999}];
+            budgetDto.Categories = [new Category(){Id = _fixture.BudgetsNoTransactions.CategoryId}];
+            
+            var command = new EditBudgetCommand(){BudgetDto = budgetDto, 
+                UserId = _fixture.BudgetsNoTransactionsUserId, Id = _fixture.BudgetsNoTransactions.BudgetIds.First()};
             var handler = new EditBudgetCommandHandler(context);
 
             await Assert.ThrowsAsync<UnauthorizedAccessException>(
@@ -110,12 +103,12 @@ namespace ExpenseTrackerTests.Features.Budgets.Handlers
         public async Task Handle_BudgetDoesNotExist_ThrowsException()
         {
             using var context = _fixture.CreateContext();
-            var command = CreateValidEditBudgetCommand();
-            command.Id = 999;
-            command.BudgetDto.IdentityUserId = _fixture.BudgetsNoTransactionsUserId;
-            command.BudgetDto.Accounts = new List<Account>(){new Account(){Id = _fixture.BudgetsNoTransactions.AccountId}};
-            command.BudgetDto.Categories = new List<Category>(){new Category(){Id = _fixture.BudgetsNoTransactions.CategoryId}};
-
+            var budgetDto = CreateValidBudgetDto();
+            budgetDto.Accounts = [new(){Id = _fixture.BudgetsNoTransactions.AccountId}];
+            budgetDto.Categories = [new Category(){Id = _fixture.BudgetsNoTransactions.CategoryId}];
+            
+            var command = new EditBudgetCommand(){BudgetDto = budgetDto, 
+                UserId = _fixture.BudgetsNoTransactionsUserId, Id = 999};
             var handler = new EditBudgetCommandHandler(context);
 
             await Assert.ThrowsAsync<ArgumentException>(
@@ -127,12 +120,12 @@ namespace ExpenseTrackerTests.Features.Budgets.Handlers
         public async Task Handle_BudgetDoesNotBelongToUser_ThrowsException()
         {
             using var context = _fixture.CreateContext();
-            var command = CreateValidEditBudgetCommand();
-            command.Id = _fixture.BudgetsWithTransactions.BudgetIds.First();
-            command.BudgetDto.IdentityUserId = _fixture.BudgetsNoTransactionsUserId;
-            command.BudgetDto.Accounts = new List<Account>(){new Account(){Id = _fixture.BudgetsNoTransactions.AccountId}};
-            command.BudgetDto.Categories = new List<Category>(){new Category(){Id = _fixture.BudgetsNoTransactions.CategoryId}};
-
+            var budgetDto = CreateValidBudgetDto();
+            budgetDto.Accounts = [new(){Id = _fixture.BudgetsNoTransactions.AccountId}];
+            budgetDto.Categories = [new Category(){Id = _fixture.BudgetsNoTransactions.CategoryId}];
+            
+            var command = new EditBudgetCommand(){BudgetDto = budgetDto, 
+                UserId = _fixture.BudgetsNoTransactionsUserId, Id = _fixture.BudgetsWithTransactions.BudgetIds.First()};
             var handler = new EditBudgetCommandHandler(context);
 
             await Assert.ThrowsAsync<UnauthorizedAccessException>(
@@ -144,12 +137,12 @@ namespace ExpenseTrackerTests.Features.Budgets.Handlers
         public async Task Handle_ValidCommand_EditsBudget()
         {
             using var context = _fixture.CreateContext();
-            var command = CreateValidEditBudgetCommand();
-            command.Id = _fixture.MultipleBudgets.BudgetIds.First();
-            command.BudgetDto.IdentityUserId = _fixture.MultipleBudgetsUserId;
-            command.BudgetDto.Accounts = new List<Account>() { new Account() { Id = _fixture.MultipleBudgets.AccountIds.First() } };
-            command.BudgetDto.Categories = new List<Category>() { new Category() { Id = _fixture.MultipleBudgets.CategoryIds.First() } };
-
+            var budgetDto = CreateValidBudgetDto();
+            budgetDto.Accounts = [new(){Id = _fixture.MultipleBudgets.AccountIds.First()}];
+            budgetDto.Categories = [new Category(){Id = _fixture.MultipleBudgets.CategoryIds.First()}];
+            
+            var command = new EditBudgetCommand(){BudgetDto = budgetDto, 
+                UserId = _fixture.MultipleBudgetsUserId, Id = _fixture.MultipleBudgets.BudgetIds.First()};
             var handler = new EditBudgetCommandHandler(context);
 
             await handler.Handle(command, CancellationToken.None);
@@ -163,7 +156,6 @@ namespace ExpenseTrackerTests.Features.Budgets.Handlers
             Assert.Equal(command.BudgetDto.Name, editedBudget!.Name);
             Assert.Equal(command.BudgetDto.BudgetType, editedBudget.BudgetType);
             Assert.Equal(command.BudgetDto.Amount, editedBudget.Amount);
-            Assert.Equal(command.BudgetDto.IdentityUserId, editedBudget.IdentityUserId);
             Assert.Equal(command.BudgetDto.Description, editedBudget.Description);
             Assert.Equal(command.BudgetDto.Categories.Count(), editedBudget.BudgetCategories.Count);
             Assert.Equal(command.BudgetDto.Accounts.Count(), editedBudget.BudgetAccounts.Count);

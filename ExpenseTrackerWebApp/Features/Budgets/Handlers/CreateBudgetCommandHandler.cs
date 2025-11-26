@@ -18,12 +18,12 @@ namespace ExpenseTrackerWebApp.Features.Budgets.Handlers
         public async Task<int> Handle(CreateBudgetCommand request, CancellationToken cancellationToken)
         {
             var userCategoryIds = await _context.Categories
-                .Where(c => c.IdentityUserId == request.BudgetDto.IdentityUserId)
+                .Where(c => c.IdentityUserId == request.UserId)
                 .Select(c => c.Id)
                 .ToListAsync(cancellationToken);
 
             var userAccountIds = await _context.Accounts
-                .Where(a => a.IdentityUserId == request.BudgetDto.IdentityUserId)
+                .Where(a => a.IdentityUserId == request.UserId)
                 .Select(a => a.Id)
                 .ToListAsync(cancellationToken);
 
@@ -38,7 +38,7 @@ namespace ExpenseTrackerWebApp.Features.Budgets.Handlers
                 Name = request.BudgetDto.Name!,
                 BudgetType = (BudgetType)request.BudgetDto.BudgetType!,
                 Amount = (decimal)request.BudgetDto.Amount!,
-                IdentityUserId = request.BudgetDto.IdentityUserId!,
+                IdentityUserId = request.UserId,
                 Description = request.BudgetDto.Description
             };
 

@@ -6,8 +6,8 @@ namespace ExpenseTrackerWebApp.Features.Accounts.Queries
 {
     public class GetAccountQuery : IRequest<Account>
     {
-        public int Id{get; set;}
-        public string UserId{get; set;}
+        public required int Id{get; set;}
+        public required string UserId{get; set;}
     }
 
     
@@ -16,7 +16,7 @@ namespace ExpenseTrackerWebApp.Features.Accounts.Queries
         public GetAccountQueryValidator()
         {
             RuleFor(x => x.Id)
-                .NotEmpty().WithMessage("Id is required");
+                .GreaterThan(0).WithMessage("Id must be greater than zero!");
             
             RuleFor(x => x.UserId)
                 .NotEmpty().WithMessage("User ID is required!");

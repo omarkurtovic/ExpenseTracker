@@ -125,7 +125,7 @@ else
         var result = await dialog.Result;
         if (result != null && !result.Canceled)
         {
-            var command = new DeleteBudgetCommand(){Id = budget_id};
+            var command = new DeleteBudgetCommand(){UserId = CurrentUserService.GetUserId(), Id = budget_id};
             await Mediator.Send(command);
             Snackbar.Add("Budget succesfully deleted! ", Severity.Success);
             await RefreshPage();

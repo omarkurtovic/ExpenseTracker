@@ -6,24 +6,16 @@ namespace ExpenseTrackerWebApp.Features.Budgets.Commands
 {
     public class EditBudgetCommand : IRequest<int>
     {
-        public int Id{get; set;}
-        public BudgetDto BudgetDto{get; set;}
-        public EditBudgetCommand()
-        {
-            
-        }
-        public EditBudgetCommand(int id, BudgetDto budgetDto)
-        {
-            Id = id;
-            BudgetDto = budgetDto;
-        }
+        public required int Id{get; set;}
+        public required string UserId{get; set;}
+        public required BudgetDto BudgetDto{get; set;}
     }
     
     public class EditBudgetCommandValidator : AbstractValidator<EditBudgetCommand>
     {
         public EditBudgetCommandValidator()
         {
-            RuleFor(x => x.BudgetDto.IdentityUserId)
+            RuleFor(x => x.UserId)
                 .NotEmpty().WithMessage("User ID is required!");
 
             RuleFor(x => x.BudgetDto.Name)

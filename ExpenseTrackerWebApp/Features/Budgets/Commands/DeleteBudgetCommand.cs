@@ -5,8 +5,8 @@ namespace ExpenseTrackerWebApp.Features.Budgets.Commands
 {
     public class DeleteBudgetCommand : IRequest
     {
-        public int Id {get; set;}
-        public string UserId {get; set;}
+        public required int Id {get; set;}
+        public required string UserId {get; set;}
     }
     public class DeleteBudgetCommandValidator : AbstractValidator<DeleteBudgetCommand>
     {

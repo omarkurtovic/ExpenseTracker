@@ -1,26 +1,23 @@
-using System.ComponentModel.Design;
-using ExpenseTrackerWebApp.Database.Models;
-using ExpenseTrackerWebApp.Features.Budgets.Commands;
-using ExpenseTrackerWebApp.Features.Budgets.Dtos;
-using ExpenseTrackerWebApp.Features.Budgets.Queries;
+using ExpenseTrackerWebApp.Features.Accounts.Queries;
 
-namespace ExpenseTrackerTests.Features.Budgets.Validators
+namespace ExpenseTrackerTests.Features.Accounts.Validators
 {
-    public class GetBudgetsWithProgressQueryValidatorTests
+    public class GetAccountsWithBalanceQueryValidatorTests
     {
-        
-        private GetBudgetsWithProgressQuery CreateValidGetBudgetsWithProgressQuery()
+        private GetAccountsWithBalanceQuery CreateValidGetAccountsWithBalanceQuery()
         {
-            var result = new GetBudgetsWithProgressQuery();
-            result.UserId = "test-user-id";
+            var result = new GetAccountsWithBalanceQuery
+            {
+                UserId = "test-user-id"
+            };
             return result;
         }
 
         [Fact]
         public void Validate_ValidQuery_ReturnsNoErrors()
         {
-            var command = CreateValidGetBudgetsWithProgressQuery();
-            var validator = new GetBudgetsWithProgressQueryValidator();
+            var command = CreateValidGetAccountsWithBalanceQuery();
+            var validator = new GetAccountsWithBalanceQueryValidator();
 
             var result = validator.Validate(command);
 
@@ -31,9 +28,10 @@ namespace ExpenseTrackerTests.Features.Budgets.Validators
         [Fact]
         public void Validate_UserIdEmpty_ReturnsError()
         {
-            var command = CreateValidGetBudgetsWithProgressQuery();
+            var command = CreateValidGetAccountsWithBalanceQuery();
             command.UserId = "";
-            var validator = new GetBudgetsWithProgressQueryValidator();
+            var validator = new GetAccountsWithBalanceQueryValidator();
+
             var result = validator.Validate(command);
 
             Assert.False(result.IsValid);
@@ -44,9 +42,9 @@ namespace ExpenseTrackerTests.Features.Budgets.Validators
         [Fact]
         public void Validate_UserIdNull_ReturnsError()
         {
-            var command = CreateValidGetBudgetsWithProgressQuery();
+            var command = CreateValidGetAccountsWithBalanceQuery();
             command.UserId = null!;
-            var validator = new GetBudgetsWithProgressQueryValidator();
+            var validator = new GetAccountsWithBalanceQueryValidator();
 
             var result = validator.Validate(command);
 

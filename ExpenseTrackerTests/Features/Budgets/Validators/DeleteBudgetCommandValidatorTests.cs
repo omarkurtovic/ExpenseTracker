@@ -2,7 +2,6 @@ using System.ComponentModel.Design;
 using ExpenseTrackerWebApp.Database.Models;
 using ExpenseTrackerWebApp.Features.Budgets.Commands;
 using ExpenseTrackerWebApp.Features.Budgets.Dtos;
-using ExpenseTrackerWebApp.Features.Budgets.Models;
 
 namespace ExpenseTrackerTests.Features.Budgets.Validators
 {
@@ -11,9 +10,10 @@ namespace ExpenseTrackerTests.Features.Budgets.Validators
         
         private DeleteBudgetCommand CreateValidDeleteBudgetCommand()
         {
-            var result = new DeleteBudgetCommand();
-            result.Id = 1;
-            result.UserId = "test-user-id";
+            var result = new DeleteBudgetCommand(){
+                Id = 1,
+                UserId = "test-user-id"
+            };
             return result;
         }
 

@@ -3,7 +3,6 @@ using ExpenseTrackerWebApp.Database;
 using ExpenseTrackerWebApp.Database.Models;
 using ExpenseTrackerWebApp.Features.Budgets.Commands;
 using ExpenseTrackerWebApp.Features.Budgets.Dtos;
-using ExpenseTrackerWebApp.Features.Budgets.Models;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using ExpenseTrackerWebApp.Features.Budgets.Handlers;
@@ -26,9 +25,7 @@ namespace ExpenseTrackerTests.Features.Budgets.Handlers
         {
             using var context = _fixture.CreateContext();
 
-            var command = new DeleteBudgetCommand();
-            command.UserId = _fixture.NoBudgetsUserId;
-            command.Id = 999;
+            var command = new DeleteBudgetCommand(){UserId = _fixture.NoBudgetsUserId, Id = 999};
 
             var handler = new DeleteBudgetCommandHandler(context);
 
@@ -43,9 +40,7 @@ namespace ExpenseTrackerTests.Features.Budgets.Handlers
         {
             using var context = _fixture.CreateContext();
 
-            var command = new DeleteBudgetCommand();
-            command.UserId = _fixture.NoBudgetsUserId;
-            command.Id = _fixture.BudgetsNoTransactions.BudgetIds.First();
+            var command = new DeleteBudgetCommand(){UserId = _fixture.NoBudgetsUserId, Id = _fixture.BudgetsNoTransactions.BudgetIds.First()};
 
             var handler = new DeleteBudgetCommandHandler(context);
 
@@ -59,9 +54,7 @@ namespace ExpenseTrackerTests.Features.Budgets.Handlers
         {
             using var context = _fixture.CreateContext();
 
-            var command = new DeleteBudgetCommand();
-            command.UserId = _fixture.BudgetsNoTransactionsUserId;
-            command.Id = _fixture.BudgetsNoTransactions.BudgetIds.First();
+            var command = new DeleteBudgetCommand(){UserId = _fixture.BudgetsNoTransactionsUserId, Id = _fixture.BudgetsNoTransactions.BudgetIds.First()};
 
             var handler = new DeleteBudgetCommandHandler(context);
             await handler.Handle(command, CancellationToken.None);

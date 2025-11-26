@@ -15,7 +15,7 @@ namespace ExpenseTrackerWebApp.Features.Accounts.Commands{
         public EditAccountCommandValidator()
         {
             RuleFor(x => x.Id)
-                .NotEmpty().WithMessage("ID is required!");
+                .GreaterThan(0).WithMessage("ID must be greater than zero!");
 
             RuleFor(x => x.UserId)
                 .NotEmpty().WithMessage("User ID is required!");

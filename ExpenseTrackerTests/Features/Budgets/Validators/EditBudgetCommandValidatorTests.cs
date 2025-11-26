@@ -1,7 +1,6 @@
 using ExpenseTrackerWebApp.Database.Models;
 using ExpenseTrackerWebApp.Features.Budgets.Commands;
 using ExpenseTrackerWebApp.Features.Budgets.Dtos;
-using ExpenseTrackerWebApp.Features.Budgets.Models;
 
 namespace ExpenseTrackerTests.Features.Budgets.Validators
 {
@@ -15,15 +14,13 @@ namespace ExpenseTrackerTests.Features.Budgets.Validators
             budgetDto.BudgetType = BudgetType.Monthly;
             budgetDto.Amount = 1000m;
             budgetDto.Description = "This is a test budget.";
-            budgetDto.IdentityUserId = "test-user-id";
             var categories = new List<Category>(){new Category { Id = 1, Name = "Food" }};
             var accounts = new List<Account>(){new Account { Id = 1, Name = "Checking Account" }};
 
             budgetDto.Categories = categories;
             budgetDto.Accounts = accounts;
 
-            var result = new EditBudgetCommand();
-            result.BudgetDto = budgetDto;
+            var result = new EditBudgetCommand(){Id = 1, UserId = "test-user-id", BudgetDto=budgetDto};
             return result;
         }
 
@@ -43,14 +40,14 @@ namespace ExpenseTrackerTests.Features.Budgets.Validators
         public void Validate_MissingUserId_ReturnsError()
         {
             var command = CreateValidEditBudgetCommand();
-            command.BudgetDto.IdentityUserId = string.Empty;
+            command.UserId = string.Empty;
             var validator = new EditBudgetCommandValidator();
 
             var result = validator.Validate(command);
 
             Assert.False(result.IsValid);
             Assert.NotEmpty(result.Errors);
-            Assert.Equal("User ID is required!", result.Errors.First(e => e.PropertyName == "BudgetDto.IdentityUserId").ErrorMessage);
+            Assert.Equal("User ID is required!", result.Errors.First(e => e.PropertyName == "UserId").ErrorMessage);
             
         }
 
