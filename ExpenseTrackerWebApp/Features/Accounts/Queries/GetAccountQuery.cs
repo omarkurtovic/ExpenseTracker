@@ -1,10 +1,11 @@
 using ExpenseTrackerWebApp.Database.Models;
+using ExpenseTrackerWebApp.Dtos;
 using FluentValidation;
 using MediatR;
 
 namespace ExpenseTrackerWebApp.Features.Accounts.Queries
 {
-    public class GetAccountQuery : IRequest<Account>
+    public class GetAccountQuery : IRequest<AccountDto>
     {
         public required int Id{get; set;}
         public required string UserId{get; set;}

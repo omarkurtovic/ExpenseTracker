@@ -43,25 +43,34 @@
                         </MudNumericField>
                         <MudTextField @bind-Value="BudgetDto.Description" Label="Description" Variant="Variant.Outlined">
                         </MudTextField>
-                        <MudSelect T="Category" Label="Categories" @bind-SelectedValues="BudgetDto.Categories"
-                            MultiSelectionTextFunc="@(new Func<List<string>, string>(GetMultiSelectionText))"
+                        <MudSelect T="int" Label="Categories" @bind-SelectedValues="BudgetDto.Categories"
+                            MultiSelectionTextFunc="@(new Func<List<string>, string>(GetCategoryMultiSelectionText))"
                             MultiSelection="true" Clearable="true" FullWidth="true" 
                             Required="true" RequiredError="At least one category is required!">
                             @foreach (var category in Categories)
                             {
-                                <MudSelectItem Value="@(category)">
-                                    <CategoryName category="@category"></CategoryName>
+                                <MudSelectItem Value="@(category.Id)">
+                                    <MudPaper Elevation="0" Class="d-flex gap-3 align-end" Style="background: transparent;">
+                                        <MudIcon Icon="@category.Icon" Style="@($"color: {category.Color};")" Size="Size.Small" />
+                                        <MudText Typo="Typo.body2">@category.Name</MudText>
+                                    </MudPaper>
                                 </MudSelectItem>
                             }
                         </MudSelect>
-                        <MudSelect T="Account" Label="Accounts" @bind-SelectedValues="BudgetDto.Accounts"
-                            MultiSelectionTextFunc="@(new Func<List<string>, string>(GetMultiSelectionText))"
+                        <MudSelect T="int" Label="Accounts" @bind-SelectedValues="BudgetDto.Accounts"
+                            MultiSelectionTextFunc="@(new Func<List<string>, string>(GetAccountMultiSelectionText))"
                             MultiSelection="true" Clearable="true" FullWidth="true" 
                             Required="true" RequiredError="At least one account is required!">
                             @foreach (var account in Accounts)
                             {
-                                <MudSelectItem Value="@(account)">
-                                    <AccountName Account="@(account)"></AccountName>
+                                <MudSelectItem Value="@(account.Id)">
+                                    <MudPaper Elevation="0" Class="d-flex gap-3 align-end" Style="background: transparent;">
+                                        @if (!string.IsNullOrEmpty(account.Icon))
+                                        {
+                                            <MudIcon Icon="@(account.Icon)" Style="@($"color: {account.Color};")" Size="Size.Small" />
+                                        }
+                                        <MudText Typo="Typo.body2">@account.Name</MudText>
+                                    </MudPaper>
                                 </MudSelectItem>
                             }
                         </MudSelect>
@@ -116,25 +125,17 @@
             return;
         }
 
+        
         try{
-            var budget = await Mediator.Send(new GetBudgetQuery(){Id = BudgetId.Value, UserId=userId});
-            BudgetDto = new BudgetDto()
-            {
-                Name = budget.Name,
-                Amount = budget.Amount,
-                BudgetType = budget.BudgetType,
-                Description = budget.Description,
-                Categories = budget.BudgetCategories.Select(bc => bc.Category).ToList(),
-                Accounts = budget.BudgetAccounts.Select(ba => ba.Account).ToList()
-            };
+            BudgetDto = await Mediator.Send(new GetBudgetQuery() { UserId = CurrentUserService.GetUserId(), Id = (int)BudgetId });
         }
-        catch(Exception ex){
-            Snackbar.Add("Server error! Please try again.", Severity.Error);
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error getting budget: {ex.Message}");
+            Snackbar.Add($"Error getting budget!", MudBlazor.Severity.Error);
             MudDialog.Close();
             return;
         }
-
-        
     }
 
     private async Task Submit()
@@ -148,29 +149,34 @@
 
         try{
             if(BudgetId == null){
-                var command = new CreateBudgetCommand(){ UserId = CurrentUserService.GetUserId(), BudgetDto = BudgetDto };
-                await Mediator.Send(command);
+                await Mediator.Send(new CreateBudgetCommand() { BudgetDto = BudgetDto, UserId = CurrentUserService.GetUserId() });
             }
             else{
-                var command = new EditBudgetCommand(){ Id = (int)BudgetId, UserId = CurrentUserService.GetUserId(), BudgetDto = BudgetDto };
-                await Mediator.Send(command);
+                await Mediator.Send(new EditBudgetCommand() { Id = (int)BudgetId, BudgetDto = BudgetDto, UserId = CurrentUserService.GetUserId() });
             }
+            
+            var message = BudgetId == null ? "Budget successfully added!" : "Budget successfully updated!";
+            Snackbar.Add(message, MudBlazor.Severity.Success);
+            MudDialog.Close(DialogResult.Ok(result: true));
+        }
+        catch(FluentValidation.ValidationException vex){
+            var errors = string.Join(", ", vex.Errors.Select(e => e.ErrorMessage));
+            Snackbar.Add($"Validation error: {errors}!", MudBlazor.Severity.Error);
         }
         catch(Exception ex){
-            Snackbar.Add($"Error: {ex.Message}", Severity.Error);
-            return;
+            Console.WriteLine($"Error saving category: {ex.Message}");
+            Snackbar.Add($"Server error!", MudBlazor.Severity.Error);
         }
-
-        var message = BudgetId == null ? "Budget successfully added!" : "Budget successfully updated!";
-        Snackbar.Add(message, Severity.Success);
-        MudDialog.Close(DialogResult.Ok(result: true));
     }
 
     private void Cancel() => MudDialog.Cancel();
 
-    
-    private string GetMultiSelectionText(List<string> selectedValues)
+    private string GetAccountMultiSelectionText(List<string> selectedValues)
     {
-        return string.Join(separator: ", ", selectedValues);
+        return string.Join(separator: ", ", Accounts.Where(a => selectedValues.Contains(a.Id.ToString())).Select(a => a.Name));
+    }
+    private string GetCategoryMultiSelectionText(List<string> selectedValues)
+    {
+        return string.Join(separator: ", ", Categories.Where(c => selectedValues.Contains(c.Id.ToString())).Select(c => c.Name));
     }
 }

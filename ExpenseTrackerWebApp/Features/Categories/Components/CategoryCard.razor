@@ -1,0 +1,42 @@
+@using ExpenseTrackerWebApp.Database.Models
+@using ExpenseTrackerWebApp.Features.Categories.Dtos
+@using MudBlazor
+@using ExpenseTrackerWebApp.Components.MyComponents
+
+<EntityCard OnEdit="@(() => OpenCategoryDialogAsync.InvokeAsync(CategoryDto?.Id))" OnDelete="@(() => ConfirmDelete.InvokeAsync(CategoryDto?.Id ?? 0))">
+    <HeaderContent>
+        <CategoryName CategoryDto="@CategoryDto" TextSize="Typo.h6" IconSize="Size.Large"></CategoryName>
+    </HeaderContent>
+    <Content>
+        <MudText Typo="Typo.body1">Total transactions: @CategoryDto.TransactionsCount</MudText>
+        <MudPaper Elevation="0" Class="d-flex gap-2 mb-3">
+            <MudText Typo="Typo.body1">@(CategoryDto.Type == TransactionType.Income ? "Total income: " : "Total expenses: ")</MudText>
+            <AmountDisplay Balance="@CategoryDto.TotalAmount" FontSize="Typo.body1" />
+        </MudPaper>
+        <MudPaper Elevation="0" Class="d-flex gap-2 align-center">
+            <MudText Typo="Typo.body1" Class="flex-grow-1">vs Last Month:</MudText>
+            <MudText Typo="Typo.body1" Color="@CategoryDto.ComparisonColor" Class="month-comparison">
+                @CategoryDto.ComparisonDisplay
+            </MudText>
+        </MudPaper>
+    </Content>
+</EntityCard>
+
+<style>
+.month-comparison {
+    font-weight: 700;
+    font-size: 1.1em;
+}
+</style>
+
+@code{
+    [Parameter]
+    public CategoryWithStatsDto? CategoryDto { get; set; }
+
+    [Parameter]
+    public EventCallback<int?> OpenCategoryDialogAsync { get; set; }
+
+    [Parameter]
+    public EventCallback<int> ConfirmDelete { get; set; }
+
+}

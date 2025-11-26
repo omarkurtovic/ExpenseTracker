@@ -7,8 +7,8 @@
 @using Microsoft.AspNetCore.Components.Authorization
 @using MudBlazor
 @using ExpenseTrackerWebApp.Features.Accounts.Commands
+@using FluentValidation
 
-@inject AccountService AccountService
 @inject ICurrentUserService CurrentUserService
 @inject ISnackbar Snackbar
 @inject ISender Mediator   
@@ -79,10 +79,10 @@
     {
         AccountDto = new AccountDto();
         AccountDto.Color = "#1976d2";
-        
+
         if (string.IsNullOrWhiteSpace(CurrentUserService.GetUserId()))
         {
-            Snackbar.Add("Server error! Please try again.", Severity.Error);
+            Snackbar.Add("Server error! Please try again.", MudBlazor.Severity.Error);
             MudDialog.Close();
             return;
         }
@@ -92,24 +92,16 @@
             return;
         }
 
-        Account account;
         try{
-            account = await Mediator.Send(new GetAccountQuery() { UserId = CurrentUserService.GetUserId(), Id = (int)AccountId });
+            AccountDto = await Mediator.Send(new GetAccountQuery() { UserId = CurrentUserService.GetUserId(), Id = (int)AccountId });
         }
-        catch (Exception)
+        catch (Exception ex)
         {
-            Snackbar.Add("Server error! Please try again.", Severity.Error);
+            Console.WriteLine($"Error getting account: {ex.Message}");
+            Snackbar.Add($"Error getting account!", MudBlazor.Severity.Error);
             MudDialog.Close();
             return;
         }
-
-        AccountDto = new AccountDto()
-        {
-            Name = account.Name,
-            InitialBalance = account.InitialBalance,
-            Icon = account.Icon,
-            Color = account.Color
-        };
     }
 
     private async Task Submit()
@@ -128,15 +120,19 @@
             else{
                 await Mediator.Send(new EditAccountCommand() { Id = (int)AccountId, AccountDto = AccountDto, UserId = CurrentUserService.GetUserId() });
             }
+            
+            var message = AccountId == null ? "Account successfully added!" : "Account successfully updated!";
+            Snackbar.Add(message, MudBlazor.Severity.Success);
+            MudDialog.Close(DialogResult.Ok(result: true));
+        }
+        catch(FluentValidation.ValidationException vex){
+            var errors = string.Join(", ", vex.Errors.Select(e => e.ErrorMessage));
+            Snackbar.Add($"Validation error: {errors}!", MudBlazor.Severity.Error);
         }
         catch(Exception ex){
-            Snackbar.Add("Server error! Please try again.", Severity.Error);
-            return;
+            Console.WriteLine($"Error saving account: {ex.Message}");
+            Snackbar.Add($"Server error!", MudBlazor.Severity.Error);
         }
-
-        var message = AccountId == null ? "Account successfully added!" : "Account successfully updated!";
-        Snackbar.Add(message, Severity.Success);
-        MudDialog.Close(DialogResult.Ok(result: true));
     }
 
     private void Cancel() => MudDialog.Cancel();

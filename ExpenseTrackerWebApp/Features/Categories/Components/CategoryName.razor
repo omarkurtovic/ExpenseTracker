@@ -1,13 +1,16 @@
 @using ExpenseTrackerWebApp.Database.Models
+@using ExpenseTrackerWebApp.Features.Categories.Dtos
+@using MudBlazor
+
 <MudPaper Elevation="0" Class="d-flex gap-3 align-end" Style="background: transparent;">
-    <MudIcon Icon="@category.Icon" Style="@($"color: {category.Color};")" Size="IconSize" />
-    <MudText Typo="TextSize">@category.Name</MudText>
+    <MudIcon Icon="@CategoryDto.Icon" Style="@($"color: {CategoryDto.Color};")" Size="IconSize" />
+    <MudText Typo="TextSize">@CategoryDto.Name</MudText>
 </MudPaper>
 
 
 @code{
     [Parameter]
-    public Category category{get; set;}
+    public CategoryWithStatsDto CategoryDto{get; set;}
 
     [Parameter]
     public Typo TextSize{get; set;} = Typo.body2;

@@ -1,10 +1,14 @@
-@using ExpenseTrackerWebApp.Database.Models
-@using ExpenseTrackerWebApp.Dtos
+@using ExpenseTrackerWebApp.Features.Categories.Commands
+@using ExpenseTrackerWebApp.Features.Categories.Queries
 @using ExpenseTrackerWebApp.Services
-@using Microsoft.AspNetCore.Authorization
-@inject CategoryService CategoryService
+@using MediatR
+@using MudBlazor
+@using ExpenseTrackerWebApp.Features.Categories.Dtos
+@using ExpenseTrackerWebApp.Database.Models
+
 @inject ICurrentUserService CurrentUserService
 @inject ISnackbar Snackbar
+@inject ISender Mediator
 
 @if (CategoryDto is not null)
 {
@@ -79,6 +83,8 @@
     {
         await base.OnParametersSetAsync();
         CategoryDto = new CategoryDto();
+        CategoryDto.Color = "#1976d2";
+
         if (Type != null)
         {
             CategoryDto.Type = Type;
@@ -91,29 +97,21 @@
             MudDialog.Close();
             return;
         }
-        CategoryDto.UserId = userId;
         if (CategoryId == null)
         {
             return;
         }
-
-        var category = await CategoryService.GetAsync((int)CategoryId);
-        if (category == null)
+        
+        try{
+            CategoryDto = await Mediator.Send(new GetCategoryQuery() { UserId = CurrentUserService.GetUserId(), Id = (int)CategoryId });
+        }
+        catch (Exception ex)
         {
-            Snackbar.Add("Server error! Please try again.", Severity.Error);
+            Console.WriteLine($"Error getting category: {ex.Message}");
+            Snackbar.Add($"Error getting category!", MudBlazor.Severity.Error);
             MudDialog.Close();
             return;
         }
-
-        CategoryDto = new CategoryDto()
-        {
-            Id = category.Id,
-            Name = category.Name,
-            Type = category.Type,
-            UserId = category.IdentityUserId,
-            Icon = category.Icon,
-            Color = category.Color
-        };
     }
 
     private async Task Submit()
@@ -125,10 +123,26 @@
             return;
         }
 
-        await CategoryService.SaveAsync(CategoryDto);
-        var message = CategoryId == null ? "Category successfully added!" : "Category successfully updated!";
-        Snackbar.Add(message, Severity.Success);
-        MudDialog.Close(DialogResult.Ok(result: true));
+        try{
+            if(CategoryId == null){
+                await Mediator.Send(new CreateCategoryCommand() { CategoryDto = CategoryDto, UserId = CurrentUserService.GetUserId() });
+            }
+            else{
+                await Mediator.Send(new EditCategoryCommand() { Id = (int)CategoryId, CategoryDto = CategoryDto, UserId = CurrentUserService.GetUserId() });
+            }
+            
+            var message = CategoryId == null ? "Category successfully added!" : "Category successfully updated!";
+            Snackbar.Add(message, MudBlazor.Severity.Success);
+            MudDialog.Close(DialogResult.Ok(result: true));
+        }
+        catch(FluentValidation.ValidationException vex){
+            var errors = string.Join(", ", vex.Errors.Select(e => e.ErrorMessage));
+            Snackbar.Add($"Validation error: {errors}!", MudBlazor.Severity.Error);
+        }
+        catch(Exception ex){
+            Console.WriteLine($"Error saving category: {ex.Message}");
+            Snackbar.Add($"Server error!", MudBlazor.Severity.Error);
+        }
     }
 
     private void Cancel() => MudDialog.Cancel();

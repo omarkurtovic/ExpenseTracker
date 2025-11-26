@@ -1,13 +1,14 @@
 using ExpenseTrackerWebApp.Database.Models;
+using ExpenseTrackerWebApp.Features.Budgets.Dtos;
 using FluentValidation;
 using MediatR;
 
 namespace ExpenseTrackerWebApp.Features.Budgets.Queries
 {
-    public class GetBudgetQuery : IRequest<Budget?>
+    public class GetBudgetQuery : IRequest<BudgetDto>
     {
-        public int Id{get; set;}
-        public string UserId{get; set;}
+        public required int Id{get; set;}
+        public required string UserId{get; set;}
     }
     
     public class GetBudgetQueryValidator : AbstractValidator<GetBudgetQuery>
@@ -15,7 +16,7 @@ namespace ExpenseTrackerWebApp.Features.Budgets.Queries
         public GetBudgetQueryValidator()
         {
             RuleFor(x => x.Id)
-                .NotNull().WithMessage("ID is required!");
+                .GreaterThan(0).WithMessage("ID must be greater than zero!");
 
             RuleFor(x => x.UserId)
                 .NotEmpty().WithMessage("User ID is required!");

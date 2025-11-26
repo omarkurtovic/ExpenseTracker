@@ -8,7 +8,7 @@ namespace ExpenseTrackerWebApp.Features.Budgets.Queries
 {
     public class GetBudgetsWithProgressQuery : IRequest<List<BudgetWithProgressDto>>
     {
-        public string UserId { get; set; }
+        public required string UserId { get; set; }
     }
 
     public class GetBudgetsWithProgressQueryValidator : AbstractValidator<GetBudgetsWithProgressQuery>

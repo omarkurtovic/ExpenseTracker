@@ -8,7 +8,7 @@ namespace ExpenseTrackerWebApp.Features.Budgets.Dtos
         public BudgetType? BudgetType{get; set;}
         public decimal? Amount{get; set;}
         public string? Description{get; set;}
-        public IEnumerable<Category>? Categories { get; set; } = new List<Category>();
-        public IEnumerable<Account>? Accounts { get; set; } = new List<Account>();
+        public IEnumerable<int>? Categories { get; set; } = new List<int>();
+        public IEnumerable<int>? Accounts { get; set; } = new List<int>();
     }
 }

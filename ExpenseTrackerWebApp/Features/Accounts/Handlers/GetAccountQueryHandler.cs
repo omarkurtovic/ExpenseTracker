@@ -2,13 +2,14 @@
 
 using ExpenseTrackerWebApp.Database;
 using ExpenseTrackerWebApp.Database.Models;
+using ExpenseTrackerWebApp.Dtos;
 using ExpenseTrackerWebApp.Features.Accounts.Queries;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
 namespace ExpenseTrackerWebApp.Features.Accounts.Handlers
 {
-    public class GetAccountQueryHandler : IRequestHandler<GetAccountQuery, Account>
+    public class GetAccountQueryHandler : IRequestHandler<GetAccountQuery, AccountDto>
     {
         private readonly AppDbContext _context;
 
@@ -17,10 +18,10 @@ namespace ExpenseTrackerWebApp.Features.Accounts.Handlers
             _context = context;
         }
 
-       public async Task<Account> Handle(GetAccountQuery request, CancellationToken cancellationToken)
+       public async Task<AccountDto> Handle(GetAccountQuery request, CancellationToken cancellationToken)
         {
             Account? account = await _context.Accounts
-            .Where(b => b.Id == request.Id).FirstOrDefaultAsync();
+            .Where(b => b.Id == request.Id).FirstOrDefaultAsync(cancellationToken);
             
 
             if(account == null)
@@ -33,7 +34,13 @@ namespace ExpenseTrackerWebApp.Features.Accounts.Handlers
                 throw new UnauthorizedAccessException("Account does not belong to user!");
             }
 
-            return account;
+            return new AccountDto()
+            {
+                Name = account.Name,
+                InitialBalance = account.InitialBalance,
+                Color = account.Color,
+                Icon = account.Icon
+            };
         }
     }
 }

@@ -1,5 +1,6 @@
 using ExpenseTrackerWebApp.Database;
 using ExpenseTrackerWebApp.Database.Models;
+using ExpenseTrackerWebApp.Features.Budgets.Dtos;
 using ExpenseTrackerWebApp.Features.Budgets.Queries;
 using ExpenseTrackerWebApp.Services;
 using MediatR;
@@ -7,20 +8,20 @@ using Microsoft.EntityFrameworkCore;
 
 namespace ExpenseTrackerWebApp.Features.Budgets.Handlers
 {
-    public class GetBudgetQueryHandler : IRequestHandler<GetBudgetQuery, Budget?>
+    public class GetBudgetQueryHandler : IRequestHandler<GetBudgetQuery, BudgetDto>
     {
         private readonly AppDbContext _context;
         public GetBudgetQueryHandler(AppDbContext context)
         {
             _context = context;
         }
-        public async Task<Budget> Handle(GetBudgetQuery request, CancellationToken cancellationToken)
+        public async Task<BudgetDto> Handle(GetBudgetQuery request, CancellationToken cancellationToken)
         {
-            Budget? budget = await _context.Budgets
+            var budget = await _context.Budgets
             .Where(b => b.Id == request.Id)
             .Include(b => b.BudgetCategories).ThenInclude(bc => bc.Category)
             .Include(b => b.BudgetAccounts).ThenInclude(ba => ba.Account)
-            .FirstOrDefaultAsync();
+            .FirstOrDefaultAsync(cancellationToken);
 
             if(budget == null)
             {
@@ -32,7 +33,15 @@ namespace ExpenseTrackerWebApp.Features.Budgets.Handlers
                 throw new UnauthorizedAccessException("Budget does not belong to user!");
             }
 
-            return budget;
+            return new BudgetDto()
+            {
+                Name = budget.Name,
+                BudgetType = budget.BudgetType,
+                Amount = budget.Amount,
+                Description = budget.Description,
+                Categories = budget.BudgetCategories.Select(bc => bc.CategoryId).ToList(),
+                Accounts = budget.BudgetAccounts.Select(ba => ba.AccountId).ToList()
+            };
         }
     }
 }

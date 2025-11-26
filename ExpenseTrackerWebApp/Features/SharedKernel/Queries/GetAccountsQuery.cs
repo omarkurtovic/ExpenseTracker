@@ -5,6 +5,6 @@ namespace ExpenseTrackerWebApp.Features.SharedKernel.Queries
 {
     public class GetAccountsQuery : IRequest<List<Account>>
     {
-        public string UserId{get; set; }
+        public required string UserId{get; set; }
     }
 }

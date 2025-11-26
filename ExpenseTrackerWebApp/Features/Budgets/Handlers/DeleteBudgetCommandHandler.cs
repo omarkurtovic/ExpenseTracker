@@ -1,6 +1,7 @@
 using ExpenseTrackerWebApp.Database;
 using ExpenseTrackerWebApp.Features.Budgets.Commands;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 
 namespace ExpenseTrackerWebApp.Features.Budgets.Handlers
 {
@@ -15,9 +16,9 @@ namespace ExpenseTrackerWebApp.Features.Budgets.Handlers
 
         public async Task Handle(DeleteBudgetCommand request, CancellationToken cancellationToken)
         {
-            var budget = _context.Budgets
+            var budget = await _context.Budgets
             .Where(b => b.Id == request.Id)
-            .SingleOrDefault(); 
+            .SingleOrDefaultAsync(cancellationToken); 
 
             if(budget == null)
             {
@@ -30,7 +31,7 @@ namespace ExpenseTrackerWebApp.Features.Budgets.Handlers
             }
 
             _context.Budgets.Remove(budget);
-            await _context.SaveChangesAsync();
+            await _context.SaveChangesAsync(cancellationToken);
         }
     }
 

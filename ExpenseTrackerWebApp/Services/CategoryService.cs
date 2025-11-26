@@ -52,28 +52,6 @@ namespace ExpenseTrackerWebApp.Services
         }
 
         
-        public async Task SaveAsync(CategoryDto categoryDto)
-        {
-            if(string.IsNullOrWhiteSpace(categoryDto.Name) ||
-                string.IsNullOrWhiteSpace(categoryDto.UserId) ||
-                string.IsNullOrWhiteSpace(categoryDto.Icon) ||
-                string.IsNullOrWhiteSpace(categoryDto.Color) ||
-                categoryDto.Type == null)
-                {
-                    return;
-                }
-            var category = new Category
-            {
-                Id = categoryDto.Id ?? 0,
-                Name = categoryDto.Name,
-                Type = (TransactionType)categoryDto.Type,
-                IdentityUserId = categoryDto.UserId,
-                Icon = categoryDto.Icon,
-                Color = categoryDto.Color
-            };
-
-            await InternalSave(category);
-        }
         public async Task SaveAsync(Category category)
         {
             await InternalSave(category);

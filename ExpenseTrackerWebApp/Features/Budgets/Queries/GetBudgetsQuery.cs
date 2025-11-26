@@ -7,7 +7,7 @@ namespace ExpenseTrackerWebApp.Features.Budgets.Queries
 {
     public class GetBudgetsQuery : IRequest<List<Budget>>
     {
-        public string UserId{get; set;}
+        public required string UserId{get; set;}
     }
 
     

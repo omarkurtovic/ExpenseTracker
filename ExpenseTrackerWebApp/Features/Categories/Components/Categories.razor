@@ -1,14 +1,19 @@
+
 @page "/categories"
-@using ExpenseTrackerWebApp.Components.Pages.Dialogs
-@using ExpenseTrackerWebApp.Database.Models
+@using ExpenseTrackerWebApp.Features.Categories.Commands
+@using ExpenseTrackerWebApp.Features.Categories.Dtos
+@using ExpenseTrackerWebApp.Features.Categories.Queries
 @using ExpenseTrackerWebApp.Services
-@using Microsoft.AspNetCore.Authorization
-@using MudBlazor.Extensions
-@using System.Globalization
+@using Microsoft.AspNetCore.Components.Web
+@using MudBlazor
 @using ExpenseTrackerWebApp.Components.MyComponents
-@inject TransactionService TransactionService
-@inject CategoryService CategoryService
+@using ExpenseTrackerWebApp.Database.Models
+@using MediatR
+@using ExpenseTrackerWebApp.Components.Pages.Dialogs
+
 @inject IDialogService DialogService
+@inject ISender Mediator   
+@inject ICurrentUserService CurrentUserService
 @inject ISnackbar Snackbar
 
 <PageTitle>Categories</PageTitle>
@@ -34,12 +39,12 @@ else
                                 <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="@(() => OpenCategoryDialogAsync(null))" StartIcon="@Icons.Material.Filled.Add">Add</MudButton>
                             </MudItem>
                             <MudItem xs="12">
-                                <MudTabs @ref="tabs" Elevation="0" ApplyEffectsToContainer="true" PanelClass="pa-6" Centered="true">
+                                <MudTabs @ref="tabs" Elevation="0" ApplyEffectsToContainer="true" PanelClass="pa-6" Centered="true" ActivePanelIndexChanged="PanelChanged" >
                                     <MudTabPanel Text= "Expense" Icon="@Icons.Material.Filled.TrendingDown">
-                                        @RenderCategoryContent(TransactionType.Expense)
+                                        @RenderCategoryContent()
                                     </MudTabPanel>
                                     <MudTabPanel Text="Income" Icon="@Icons.Material.Filled.TrendingUp">
-                                        @RenderCategoryContent(TransactionType.Income)
+                                        @RenderCategoryContent()
                                     </MudTabPanel>
                                 </MudTabs>
                             </MudItem>
@@ -48,10 +53,10 @@ else
                             <MudItem xs="12">
                                 <MudTabs @ref="tabs" Elevation="0" ApplyEffectsToContainer="true" PanelClass="pa-6" Centered="true">
                                     <MudTabPanel Text="" Icon="@Icons.Material.Filled.TrendingDown">
-                                        @RenderCategoryContent(TransactionType.Expense)
+                                        @RenderCategoryContent()
                                     </MudTabPanel>
                                     <MudTabPanel Text="" Icon="@Icons.Material.Filled.TrendingUp">
-                                        @RenderCategoryContent(TransactionType.Income)
+                                        @RenderCategoryContent()
                                     </MudTabPanel>
                                 </MudTabs>
                             </MudItem>
@@ -69,14 +74,13 @@ else
             </MudPaper>
         </MudContainer>
     }
-
 }
 
 
 @code {
     private MudTabs? tabs;
-    private List<Category>? MyCategories { get; set; }
-    private TransactionType? transactionType;
+    private List<CategoryWithStatsDto> MyCategories { get; set; } = new();
+    private TransactionType transactionType = TransactionType.Expense;
 
     bool loading = true;
     protected override async Task OnInitializedAsync()
@@ -121,37 +125,58 @@ else
 
         var dialog = await DialogService.ShowAsync<ConfirmDialog>(title: "", parameters, options);
         var result = await dialog.Result;
-        if (result != null && !result.Canceled)
+
+        if (!result.Canceled)
         {
-            await CategoryService.DeleteAsync(category_id);
-            Snackbar.Add("Category succesfully deleted! ", Severity.Success);
-            await RefreshPage();
-            StateHasChanged();
+            try
+            {
+                await Mediator.Send(new DeleteCategoryCommand() { Id = category_id, UserId = CurrentUserService.GetUserId() });
+                Snackbar.Add("Category succesfully deleted! ", Severity.Success);
+                await RefreshPage();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error deleting category: {ex.Message}");
+                Snackbar.Add($"Error deleting category!", Severity.Error);
+            }
         }
     }
 
-    async Task RefreshPage(){
-        MyCategories = await CategoryService.GetAllWithTransactionsAsync();
-        if(transactionType is not null){
-            MyCategories = MyCategories.Where(c => c.Type == transactionType).ToList();
-        }
+    private async Task PanelChanged(){
+        transactionType = tabs?.ActivePanelIndex == 0 ? TransactionType.Expense : TransactionType.Income;
+        await RefreshPage();
     }
 
-    private RenderFragment RenderCategoryContent(TransactionType type) => @<text>
-        @if(MyCategories == null || MyCategories.Count(c => c.Type == type) == 0)
+    private async Task RefreshPage(){
+        
+        try
+        {
+            var query = new GetCategoriesWithStatsQuery() { UserId = CurrentUserService.GetUserId(), Type = transactionType };
+            MyCategories = await Mediator.Send(query);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error updating categories page: {ex.Message}");
+            Snackbar.Add($"Error loading categories!", Severity.Error);
+        }
+        
+    }
+
+    private RenderFragment RenderCategoryContent() => @<text>
+        @if(MyCategories == null || MyCategories.Count == 0)
         {
             <MudItem xs="12" Class="d-flex justify-center mt-4">
-                <MudText Typo="Typo.h5">No @(type == TransactionType.Expense ? "expense" : "income") categories found!</MudText>
+                <MudText Typo="Typo.h5">No @(transactionType == TransactionType.Expense ? "expense" : "income") categories found!</MudText>
             </MudItem>
         }
         else
         {
             <MudPaper Elevation="0">
                 <MudGrid>
-                    @foreach(var category in MyCategories.Where(c => c.Type == type))
+                    @foreach(var category in MyCategories)
                     {
                         <MudItem xs="12" md="6">
-                            <CategoryCard category="@category" OpenCategoryDialogAsync="OpenCategoryDialogAsync" ConfirmDelete="ConfirmDelete"></CategoryCard>
+                            <CategoryCard CategoryDto="@category" OpenCategoryDialogAsync="OpenCategoryDialogAsync" ConfirmDelete="ConfirmDelete"></CategoryCard>
                         </MudItem>
                     }
                 </MudGrid>

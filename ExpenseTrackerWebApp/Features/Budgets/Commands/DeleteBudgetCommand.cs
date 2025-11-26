@@ -13,7 +13,7 @@ namespace ExpenseTrackerWebApp.Features.Budgets.Commands
         public DeleteBudgetCommandValidator()
         {
             RuleFor(x => x.Id)
-                .NotNull().WithMessage("Id is required!");
+                .GreaterThan(0).WithMessage("Id is required!");
 
             RuleFor(x => x.UserId)
                 .NotEmpty().WithMessage("User ID is required!");

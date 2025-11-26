@@ -106,13 +106,22 @@ else
                                     <TemplateColumn Title="Account">
                                         <CellTemplate>
                                             <MudPaper Elevation="0" Class="d-flex gap-2 align-center">
-                                                <AccountName Account="@context.Item.Account"></AccountName>
+                                                <MudPaper Elevation="0" Class="d-flex gap-3 align-end" Style="background: transparent;">
+                                                    @if (!string.IsNullOrEmpty(context.Item.Account.Icon))
+                                                    {
+                                                        <MudIcon Icon="@(context.Item.Account.Icon)" Style="@($"color: {context.Item.Account.Color};")" Size="Size.Small" />
+                                                    }
+                                                    <MudText Typo="Typo.body2">@context.Item.Account.Name</MudText>
+                                                </MudPaper>
                                             </MudPaper>
                                         </CellTemplate>
                                     </TemplateColumn>
                                     <TemplateColumn Title="Category" SortBy="t => t.Category.Name" Sortable="true">
                                         <CellTemplate>
-                                            <CategoryName category="@context.Item.Category"></CategoryName>
+                                            <MudPaper Elevation="0" Class="d-flex gap-3 align-end" Style="background: transparent;">
+                                                <MudIcon Icon="@context.Item.Category.Icon" Style="@($"color: {context.Item.Category.Color};")" Size="Size.Small" />
+                                                <MudText Typo="Typo.body2">@context.Item.Category.Name</MudText>
+                                            </MudPaper>
                                         </CellTemplate>
                                     </TemplateColumn>
                                     <PropertyColumn Property="t => t.Date" Format="dd/MM/yyyy" Title="Date"></PropertyColumn>
