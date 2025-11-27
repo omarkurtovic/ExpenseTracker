@@ -29,7 +29,7 @@ namespace ExpenseTrackerWebApp.Services
 
             if(string.IsNullOrWhiteSpace(userId))
             {
-                throw new Exception("User is not authenticated");
+                return "";
             }
 
             return userId;

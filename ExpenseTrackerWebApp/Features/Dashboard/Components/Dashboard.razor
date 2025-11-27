@@ -1,9 +1,11 @@
-@page "/dashboard"
+@page "/"
+@attribute [Authorize]
 @using ExpenseTrackerWebApp.Database.Models
 @using ExpenseTrackerWebApp.Features.Dashboard.Dtos
 @using ExpenseTrackerWebApp.Features.Dashboard.Queries
 @using ExpenseTrackerWebApp.Features.SharedKernel.Transactions.Components
 @using ExpenseTrackerWebApp.Services
+@using Microsoft.AspNetCore.Authorization
 @using Microsoft.AspNetCore.Components.Web
 @using MudBlazor
 @using ExpenseTrackerWebApp.Features.SharedKernel.Components

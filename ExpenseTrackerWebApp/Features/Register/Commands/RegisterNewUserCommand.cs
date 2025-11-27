@@ -4,7 +4,7 @@ using FluentValidation;
 using MediatR;
 
 namespace ExpenseTrackerWebApp.Features.Register.Commands{
-    public class RegisterNewUserCommand : IRequest
+    public class RegisterNewUserCommand : IRequest<Unit>
     {
         public required RegisterDataDto RegisterDataDto {get; set;} 
     }
@@ -44,6 +44,10 @@ namespace ExpenseTrackerWebApp.Features.Register.Commands{
             RuleFor(x => x.RegisterDataDto.Password)
                 .Must(HasDigit).WithMessage("Password must contain at least one digit!")
                 .When(x => x.RegisterDataDto != null);
+
+            RuleFor(x => x.RegisterDataDto.Password)
+                .Must(HasNonLetterDigit).WithMessage("Password must contain at least one special character!")
+                .When(x => x.RegisterDataDto != null);
         }
 
         private bool HasMinimumLength(string password)
@@ -64,6 +68,11 @@ namespace ExpenseTrackerWebApp.Features.Register.Commands{
         private bool HasDigit(string password)
         {
             return !string.IsNullOrEmpty(password) && password.Any(char.IsDigit);
+        }
+
+        private bool HasNonLetterDigit(string password)
+        {
+            return !string.IsNullOrEmpty(password) && password.Any(c => !char.IsLetterOrDigit(c));
         }
     }
 }

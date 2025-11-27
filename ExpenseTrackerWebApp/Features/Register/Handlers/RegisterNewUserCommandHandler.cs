@@ -1,25 +1,23 @@
 using ExpenseTrackerWebApp.Database;
 using ExpenseTrackerWebApp.Features.Register.Commands;
+using ExpenseTrackerWebApp.Features.SharedKernel.Commands;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
-using ExpenseTrackerWebApp.Features.SharedKernel.Commands;
 
 namespace ExpenseTrackerWebApp.Features.Register.Handlers
 {
-    public class RegisterNewUserCommandHandler : IRequestHandler<RegisterNewUserCommand>
+    public class RegisterNewUserCommandHandler : IRequestHandler<RegisterNewUserCommand, Unit>
     {
-        private readonly AppDbContext _context;
-        private readonly ISender _mediator;
         private readonly UserManager<IdentityUser> _userManager;
+        private readonly ISender _mediator;
 
-        public RegisterNewUserCommandHandler(AppDbContext context, ISender mediator, UserManager<IdentityUser> userManager)
+        public RegisterNewUserCommandHandler(UserManager<IdentityUser> userManager, ISender mediator)
         {
-            _context = context;
-            _mediator = mediator;
             _userManager = userManager;
+            _mediator = mediator;
         }
 
-        public async Task Handle(RegisterNewUserCommand request, CancellationToken cancellationToken)
+        public async Task<Unit> Handle(RegisterNewUserCommand request, CancellationToken cancellationToken)
         {
             var user = new IdentityUser 
             { 
@@ -36,6 +34,7 @@ namespace ExpenseTrackerWebApp.Features.Register.Handlers
             await _mediator.Send(new ResetToDefaultCategoriesCommand { UserId = user.Id });
             await _mediator.Send(new AddDefaultUserPreferencesCommand { UserId = user.Id });
             await _mediator.Send(new ResetToDefaultAccountsCommand { UserId = user.Id });
+            return Unit.Value;
         }
     }
 }

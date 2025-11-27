@@ -1,9 +1,11 @@
 
 @page "/categories"
+@attribute [Authorize]
 @using ExpenseTrackerWebApp.Features.Categories.Commands
 @using ExpenseTrackerWebApp.Features.Categories.Dtos
 @using ExpenseTrackerWebApp.Features.Categories.Queries
 @using ExpenseTrackerWebApp.Services
+@using Microsoft.AspNetCore.Authorization
 @using Microsoft.AspNetCore.Components.Web
 @using MudBlazor
 @using ExpenseTrackerWebApp.Database.Models

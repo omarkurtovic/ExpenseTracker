@@ -1,9 +1,11 @@
 @page "/transactions"
+@attribute [Authorize]
 @using ExpenseTrackerWebApp.Database.Models
 @using ExpenseTrackerWebApp.Features.SharedKernel.Transactions.Commands
 @using ExpenseTrackerWebApp.Features.SharedKernel.Transactions.Queries
 @using ExpenseTrackerWebApp.Services
 @using MediatR
+@using Microsoft.AspNetCore.Authorization
 @using Microsoft.AspNetCore.Components.Authorization
 @using Microsoft.AspNetCore.Components.Web
 @using MudBlazor

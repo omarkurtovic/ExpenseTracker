@@ -42,6 +42,7 @@ namespace ExpenseTrackerWebApp.Features.SharedKernel.Handlers
             for(int i = 1; i <= categories.Count; i++)
             {
                 categories[i - 1].Id = i;
+                categories[i - 1].IdentityUserId = request.UserId;
             }
             _context.Categories.AddRange(categories);
             await _context.SaveChangesAsync();

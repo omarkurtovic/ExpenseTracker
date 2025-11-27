@@ -11,6 +11,7 @@
 @inject IApexChartService ApexChartService
 @inject ICurrentUserService CurrentUserService
 @inject ISender Mediator
+@inject AuthenticationStateProvider AuthenticationStateProvider
 
 <MudPopoverProvider />
 <MudDialogProvider /> 
@@ -88,6 +89,13 @@
 
     protected override async Task OnInitializedAsync()
     {
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+        if (user.Identity?.IsAuthenticated ?? false)
+        {
+            IsLoggedIn = true;
+            email = user.Identity.Name ?? "";
+        }
         if (IsLoggedIn)
         {
             var userPreferences = await Mediator.Send(new GetUserPreferencesQuery());
