@@ -35,7 +35,7 @@
                         <MudPaper Elevation="0" Style="display: grid; grid-template-columns: 1fr 2fr; gap: 1rem;">
                             <MudSelect @bind-Value="AccountDto.Icon" Label="Icon" Variant="Variant.Outlined" Required="true"
                                 RequiredError="Icon is required!" Class="flex-grow-1" Style="width: 100%;" FullWidth="true">
-                                @foreach (string? item in AccountService.GetDefaultAccountIcons())
+                                @foreach (string? item in AccountsHelper.GetDefaultAccountIcons())
                                 {
                                     <MudSelectItem Value="@item" Style="display: inline-block; width: 40px; height: 40px; padding: 8px;">
                                         <MudIcon Icon="@item" Style="@($"color:{AccountDto.Color};")" Size="Size.Medium" />

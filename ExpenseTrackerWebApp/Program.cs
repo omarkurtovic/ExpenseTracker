@@ -80,14 +80,7 @@ builder.Services.AddAuthorization();
 builder.Services.AddCascadingAuthenticationState();
 
 builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
-builder.Services.AddScoped<TransactionService>();
-builder.Services.AddScoped<CategoryService>();
-builder.Services.AddScoped<AccountService>();
 builder.Services.AddScoped<TagService>();
-builder.Services.AddScoped<SeedDataService>();
-builder.Services.AddScoped<IdentityService>();
-builder.Services.AddScoped<UserPreferencesService>();
-builder.Services.AddScoped<DashboardService>();
 
 builder.Services.AddApexCharts(e =>
 {

@@ -17,11 +17,11 @@ namespace ExpenseTrackerWebApp.Services
         }
 
 
-        private IQueryable<UserPreferences> GetPreferencesQuery(AppDbContext context)
+        private IQueryable<UserPreference> GetPreferencesQuery(AppDbContext context)
         {
             return context.UserPreferences.Where(a => a.UserId == _currentUserService.GetUserId());
         }
-        public async Task<UserPreferences?> GetAsync()
+        public async Task<UserPreference?> GetAsync()
         {
             return await GetPreferencesQuery(_context).SingleOrDefaultAsync();
         }
@@ -32,26 +32,10 @@ namespace ExpenseTrackerWebApp.Services
             preferences.DarkMode = darkMode;
             await _context.SaveChangesAsync();
         }
-        public async Task AssignUserDefaultPreferences(string? userId = "")
-        {
-            if (string.IsNullOrWhiteSpace(userId))
-            {
-                userId = _currentUserService.GetUserId();
-            }
-            if (string.IsNullOrWhiteSpace(userId))
-            {
-                return;
-            }
-
-            var preference = new UserPreferences
-            {
-                UserId = userId,
-                DarkMode = false
-            };
-
-            _context.UserPreferences.Add(preference);
-            await _context.SaveChangesAsync();
-        }
 
     }
+
+
+
+    
 }

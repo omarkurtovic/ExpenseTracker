@@ -11,10 +11,10 @@
 @using ExpenseTrackerWebApp.Features.SharedKernel.Queries
 @using ExpenseTrackerWebApp.Features.Transactions.Dtos
 @using ExpenseTrackerWebApp.Features.SharedKernel.Transactions.Components
+@using ExpenseTrackerWebApp.Features.Transactions.Commands
 
 @inject ISender Mediator   
 @inject ICurrentUserService CurrentUserService
-@inject SeedDataService SeedDataService
 @inject IDialogService DialogService
 @inject ISnackbar Snackbar
 
@@ -256,7 +256,8 @@ else
 
     private async Task AddTestData()
     {
-        await SeedDataService.SeedDummyDataAsync();
+        await Mediator.Send(new SeedUserCommand() { UserId = CurrentUserService.GetUserId() });
+        Snackbar.Add("Test data added successfully!", Severity.Success);
         var transactions = await Mediator.Send(new GetTransactionsQuery() { UserId = CurrentUserService.GetUserId(), IsReoccuring = IsReoccuring });
         TransactionsPageStateDto.RefreshTransactions(transactions);
     }

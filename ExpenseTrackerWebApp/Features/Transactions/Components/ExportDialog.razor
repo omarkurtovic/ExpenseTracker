@@ -1,7 +1,9 @@
 @using CsvHelper
 @using ExpenseTrackerWebApp.Database.Models
 @using ExpenseTrackerWebApp.Dtos
+@using ExpenseTrackerWebApp.Features.SharedKernel.Queries
 @using ExpenseTrackerWebApp.Services
+@using MediatR
 @using Microsoft.AspNetCore.Authorization
 @using Microsoft.AspNetCore.Components.Authorization
 @using System.Text
@@ -9,9 +11,10 @@
 @using Microsoft.JSInterop
 @using MudBlazor
 @using MudBlazor.Utilities
-@inject TransactionService TransactionService 
 @inject ISnackbar Snackbar
+@inject ISender Mediator
 @inject IJSRuntime JSRuntime
+@inject ICurrentUserService CurrentUserService
 
     <MudDialog>
         <TitleContent>
@@ -89,7 +92,7 @@
             return;
         } 
 
-        var transactions = await TransactionService.GetAllAsync();
+        var transactions = await Mediator.Send(new GetTransactionsQuery(){UserId = CurrentUserService.GetUserId(), IsReoccuring=false});
         if(transactions.Count == 0){
             Snackbar.Add("No transactions found for export!", Severity.Error);
             return;

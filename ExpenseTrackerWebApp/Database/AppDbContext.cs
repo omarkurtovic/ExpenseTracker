@@ -15,7 +15,7 @@ namespace ExpenseTrackerWebApp.Database
         public virtual DbSet<Account> Accounts { get; set; }
         public virtual DbSet<Tag> Tags { get; set; }
         public virtual DbSet<TransactionTag> TransactionTags { get; set; }
-        public virtual DbSet<UserPreferences> UserPreferences{get; set;}
+        public virtual DbSet<UserPreference> UserPreferences{get; set;}
         public virtual DbSet<Budget> Budgets { get; set; }
         public virtual DbSet<BudgetAccount> BudgetAccounts { get; set; }
         public virtual DbSet<BudgetCategory> BudgetCategories {get; set;}
@@ -23,13 +23,13 @@ namespace ExpenseTrackerWebApp.Database
         {
             base.OnModelCreating(modelBuilder);
 
-            modelBuilder.Entity<UserPreferences>()
+            modelBuilder.Entity<UserPreference>()
              .HasKey(up => up.UserId);
 
-             modelBuilder.Entity<UserPreferences>()
+             modelBuilder.Entity<UserPreference>()
                 .HasOne(up => up.IdentityUser)
                 .WithOne() 
-                .HasForeignKey<UserPreferences>(up => up.UserId)
+                .HasForeignKey<UserPreference>(up => up.UserId)
                 .OnDelete(DeleteBehavior.Cascade);
 
             modelBuilder.Entity<Account>()
@@ -132,8 +132,8 @@ namespace ExpenseTrackerWebApp.Database
                 SecurityStamp = "c3691bab-bed8-4bcc-91fa-62bb12e2b245"
             });
             
-            modelBuilder.Entity<UserPreferences>().HasData(
-            new UserPreferences
+            modelBuilder.Entity<UserPreference>().HasData(
+            new UserPreference
             {
                 UserId = "4e08d54b-16f0-47a0-afaf-afc12dbdedc8", 
                 DarkMode = false
