@@ -4,13 +4,13 @@
 @using ExpenseTrackerWebApp.Features.Budgets.Commands
 @using ExpenseTrackerWebApp.Features.Budgets.Dtos
 @using ExpenseTrackerWebApp.Features.Budgets.Queries
+@using ExpenseTrackerWebApp.Features.SharedKernel.Components
 @using ExpenseTrackerWebApp.Features.SharedKernel.Queries
 @using ExpenseTrackerWebApp.Services
 @using MediatR
 @using Microsoft.AspNetCore.Authorization
 @using Microsoft.AspNetCore.Components.Authorization
 @using MudBlazor
-@using ExpenseTrackerWebApp.Components.MyComponents
 @inject ICurrentUserService CurrentUserService
 @inject ISnackbar Snackbar
 @inject ISender Mediator
@@ -50,10 +50,7 @@
                             @foreach (var category in Categories)
                             {
                                 <MudSelectItem Value="@(category.Id)">
-                                    <MudPaper Elevation="0" Class="d-flex gap-3 align-end" Style="background: transparent;">
-                                        <MudIcon Icon="@category.Icon" Style="@($"color: {category.Color};")" Size="Size.Small" />
-                                        <MudText Typo="Typo.body2">@category.Name</MudText>
-                                    </MudPaper>
+                                    <TextWithIcon Text="@category.Name" Icon="@category.Icon" IconColor="@category.Color" IconSize="Size.Small" TextTypo="Typo.body1"></TextWithIcon>
                                 </MudSelectItem>
                             }
                         </MudSelect>
@@ -64,13 +61,7 @@
                             @foreach (var account in Accounts)
                             {
                                 <MudSelectItem Value="@(account.Id)">
-                                    <MudPaper Elevation="0" Class="d-flex gap-3 align-end" Style="background: transparent;">
-                                        @if (!string.IsNullOrEmpty(account.Icon))
-                                        {
-                                            <MudIcon Icon="@(account.Icon)" Style="@($"color: {account.Color};")" Size="Size.Small" />
-                                        }
-                                        <MudText Typo="Typo.body2">@account.Name</MudText>
-                                    </MudPaper>
+                                    <TextWithIcon Text="@account.Name" Icon="@account.Icon" IconColor="@account.Color" IconSize="Size.Small" TextTypo="Typo.body1"></TextWithIcon>
                                 </MudSelectItem>
                             }
                         </MudSelect>

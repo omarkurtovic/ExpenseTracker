@@ -2,11 +2,11 @@
 @using ExpenseTrackerWebApp.Dtos
 @using ExpenseTrackerWebApp.Features.Accounts.Dtos
 @using MudBlazor
-@using ExpenseTrackerWebApp.Components.MyComponents
+@using ExpenseTrackerWebApp.Features.SharedKernel.Components
 
 <EntityCard OnEdit="@(() => OnEdit.InvokeAsync())" OnDelete="@(() => OnDelete.InvokeAsync())">
     <HeaderContent>
-        <AccountName Account="@Account" TextSize="Typo.h6" IconSize="Size.Large"></AccountName>
+    <TextWithIcon Text="@Account.Name" Icon="@Account.Icon" IconColor="@Account.Color" IconSize="Size.Large" TextTypo="Typo.h6"></TextWithIcon>
     </HeaderContent>
     <Content>
         <MudPaper Elevation="0" Class="d-flex flex-row gap-3 align-center">

@@ -3,7 +3,7 @@ using ExpenseTrackerWebApp.Database.Models;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
-namespace ExpenseTrackerWebApp.Features.SharedKernel.Queries
+namespace ExpenseTrackerWebApp.Features.SharedKernel.Transactions.Queries
 {
     public class GetTransactionsQueryHandler : IRequestHandler<GetTransactionsQuery, List<Transaction>>
     {
@@ -15,14 +15,26 @@ namespace ExpenseTrackerWebApp.Features.SharedKernel.Queries
         }
         public async Task<List<Transaction>> Handle(GetTransactionsQuery request, CancellationToken cancellationToken)
         {
-            return await _context.Transactions
+            var result = await _context.Transactions
             .Include(t => t.Account)
             .Include(t => t.Category)
             .Include(t => t.TransactionTags)
                 .ThenInclude(tt => tt.Tag)
             .Where(t => t.Account.IdentityUserId == request.UserId)
-            .Where(t => t.IsReoccuring == request.IsReoccuring)
+            .OrderByDescending(t => t.Date)
             .ToListAsync();
+
+            if (request.IsReoccuring)
+            {
+                result = result.Where(t => t.IsReoccuring!= null && t.IsReoccuring == true).ToList();
+            }
+            else
+            {
+                result = result.Where(t => t.IsReoccuring == null || t.IsReoccuring == false).ToList();
+            }
+
+            return result;
         }
+
     }
 }

@@ -1,5 +1,5 @@
 
-namespace ExpenseTrackerWebApp.Dtos
+namespace ExpenseTrackerWebApp.Features.Accounts.Dtos
 {
     public class AccountDto
     {

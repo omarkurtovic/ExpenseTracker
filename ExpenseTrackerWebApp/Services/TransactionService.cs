@@ -23,10 +23,6 @@ namespace ExpenseTrackerWebApp.Services
             _categoryService = categoryService;
             _tagService = tagService;
         }
-        // has 2 accounts
-        // has two transactions this month, one income one expense
-        // has five transctions last month, all expenses
-        // has seven transctions two months ago, six expenses one income
 
         public IQueryable<Transaction> GetTransactionsQuery(AppDbContext context)
         {
@@ -67,7 +63,7 @@ namespace ExpenseTrackerWebApp.Services
                 Date = (DateTime)(transactionDto.Date + transactionDto.Time),
                 AccountId = (int)transactionDto.AccountId,
                 CategoryId = (int)transactionDto.CategoryId,
-                IsReoccuring = transactionDto.Reoccuring,
+                IsReoccuring = transactionDto.IsReoccuring,
                 ReoccuranceFrequency = transactionDto.ReoccuranceFrequency
             };
 
@@ -86,7 +82,6 @@ namespace ExpenseTrackerWebApp.Services
                         transaction.NextReoccuranceDate = transaction.Date.AddYears(1);
                         break;
                 }
-
             }
 
             await SaveInternal(transaction, (TransactionType)transactionDto.TransactionType);

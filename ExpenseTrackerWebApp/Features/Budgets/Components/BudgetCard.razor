@@ -1,9 +1,9 @@
 @using ExpenseTrackerWebApp.Database.Models
 @using ExpenseTrackerWebApp.Features.Budgets.Dtos
 @using MudBlazor
-@using ExpenseTrackerWebApp.Components.MyComponents
 @using MudBlazor.Extensions
 @using System.Globalization
+@using ExpenseTrackerWebApp.Features.SharedKernel.Components
 
 <EntityCard OnEdit="@(() => OnEdit.InvokeAsync(Budget?.Id))" OnDelete="@(() => OnDelete.InvokeAsync(Budget?.Id ?? 0))">
     <HeaderContent>

@@ -1,14 +1,16 @@
+@using MudBlazor
 
 <MudDialog>
     <TitleContent>
-        @Title
+        Warning
     </TitleContent>
     <DialogContent>
         @Message
     </DialogContent>
     <DialogActions>
         <div style="display: flex; flex-direction: row; gap: 1rem;">
-            <MudButton Color="Color.Primary" OnClick="Ok">Ok</MudButton>
+            <MudButton Color="Color.Primary" OnClick="Confirm">Confirm</MudButton>
+            <MudButton OnClick="Cancel">Cancel</MudButton>
         </div>
     </DialogActions>
 </MudDialog>
@@ -20,11 +22,11 @@
     [Parameter]
     public string Message { get; set; }
 
-    [Parameter]
-    public string Title { get; set; }
-
-    private async Task Ok()
+    private async Task Confirm()
     {
         MudDialog.Close(DialogResult.Ok(result: true));
     }
+
+    private void Cancel() => MudDialog.Cancel();
+
 }

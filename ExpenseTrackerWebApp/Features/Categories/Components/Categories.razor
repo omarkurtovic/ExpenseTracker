@@ -6,15 +6,14 @@
 @using ExpenseTrackerWebApp.Services
 @using Microsoft.AspNetCore.Components.Web
 @using MudBlazor
-@using ExpenseTrackerWebApp.Components.MyComponents
 @using ExpenseTrackerWebApp.Database.Models
 @using MediatR
-@using ExpenseTrackerWebApp.Components.Pages.Dialogs
+@using ExpenseTrackerWebApp.Features.SharedKernel.Components
 
 @inject IDialogService DialogService
+@inject ISnackbar Snackbar
 @inject ISender Mediator   
 @inject ICurrentUserService CurrentUserService
-@inject ISnackbar Snackbar
 
 <PageTitle>Categories</PageTitle>
 

@@ -1,5 +1,6 @@
 using ExpenseTrackerWebApp.Dtos;
 using ExpenseTrackerWebApp.Features.Accounts.Commands;
+using ExpenseTrackerWebApp.Features.Accounts.Dtos;
 
 namespace ExpenseTrackerTests.Features.Accounts.Validators
 {

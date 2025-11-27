@@ -1,20 +1,22 @@
-@using ExpenseTrackerWebApp.Dtos;
+@using ExpenseTrackerWebApp.Features.SharedKernel.Components
+@using MudBlazor
 @using ExpenseTrackerWebApp.Database.Models;
+@using ExpenseTrackerWebApp.Features.Transactions.Dtos;
 
 <MudGrid>
     <MudItem xs="12" md="6">
         <MudPaper Elevation="0" Class="d-flex gap-5">
-            <MudSelect T="Account" Label="Account" @bind-SelectedValues="TransactionsDto.AccountsFilter" @bind-SelectedValues:after="NotifyFilterChange"
+            <MudSelect T="Account" Label="Account" @bind-SelectedValues="TransactionsPageStateDto.AccountsFilter" @bind-SelectedValues:after="NotifyFilterChange"
                 MultiSelectionTextFunc="@(new Func<List<string>, string>(GetAccountsMultiSelectionText))"
                 MultiSelection="true" Clearable="true" FullWidth="true">
-                @foreach (var account in TransactionsDto.Accounts)
+                @foreach (var account in TransactionsPageStateDto.Accounts)
                 {
                     <MudSelectItem Value="@(account)">
-                        <AccountName Account="@account"></AccountName>
+                        <TextWithIcon Text="@account.Name" Icon="@account.Icon" IconColor="@account.Color" IconSize="Size.Small" TextTypo="Typo.body2"></TextWithIcon>
                     </MudSelectItem>
                 }
             </MudSelect>
-            <MudSelect T="DateFilterPreset ?" Label="Date" @bind-Value="TransactionsDto.DateFilter" @bind-Value:after="NotifyFilterChange"
+            <MudSelect T="DateFilterPreset ?" Label="Date" @bind-Value="TransactionsPageStateDto.DateFilter" @bind-Value:after="NotifyFilterChange"
                 FullWidth="true" Clearable="true">
                 <MudSelectItem Value="@((DateFilterPreset?)DateFilterPreset.ThisMonth)">This Month
                 </MudSelectItem>
@@ -29,30 +31,30 @@
     </MudItem>
     <MudItem xs="12" md="6">
         <MudPaper Elevation="0" Class="d-flex gap-5">
-            <MudSelect T="TransactionType ?" Label="Type" @bind-Value="TransactionsDto.TypeFilter" @bind-Value:after="NotifyFilterChange"
+            <MudSelect T="TransactionType ?" Label="Type" @bind-Value="TransactionsPageStateDto.TypeFilter" @bind-Value:after="NotifyFilterChange"
                 Clearable="true" FullWidth="true">
                 @foreach (TransactionType item in Enum.GetValues(typeof(TransactionType)))
                 {
                     <MudSelectItem Value="@((TransactionType?)item)">@item</MudSelectItem>
                 }
             </MudSelect>
-            <MudSelect T="Category" Label="Category" @bind-SelectedValues="TransactionsDto.CategoriesFilter" @bind-SelectedValues:after="NotifyFilterChange"
+            <MudSelect T="Category" Label="Category" @bind-SelectedValues="TransactionsPageStateDto.CategoriesFilter" @bind-SelectedValues:after="NotifyFilterChange"
                 MultiSelectionTextFunc="@(new Func<List<string>, string>(GetCategoriesMultiSelectionText))"
                 MultiSelection="true" Clearable="true" FullWidth="true">
-                @foreach (var category in TransactionsDto.FilteredCategories)
+                @foreach (var category in TransactionsPageStateDto.FilteredCategories)
                 {
                     <MudSelectItem Value="@(category)">
-                        <CategoryName category="@category"></CategoryName>
+                        <TextWithIcon Text="@category.Name" Icon="@category.Icon" IconColor="@category.Color" IconSize="Size.Small" TextTypo="Typo.body2"></TextWithIcon>
                     </MudSelectItem>
                 }
             </MudSelect>
         </MudPaper>
     </MudItem>
     <MudItem xs="12" md="6">
-        <MudSelect T="Tag" Label="Tags" @bind-SelectedValues="TransactionsDto.TagsFilter" @bind-SelectedValues:after="NotifyFilterChange"
+        <MudSelect T="Tag" Label="Tags" @bind-SelectedValues="TransactionsPageStateDto.TagsFilter" @bind-SelectedValues:after="NotifyFilterChange"
             MultiSelectionTextFunc="@(new Func<List<string>, string>(GetTagsMultiSelectionText))"
             MultiSelection="true" Clearable="true" FullWidth="true">
-            @foreach (var tag in TransactionsDto.Tags)
+            @foreach (var tag in TransactionsPageStateDto.Tags)
             {
                 <MudSelectItem Value="@(tag)">
                     <MudChip T="Tag" Style="@($"background-color:{tag.Color}; color:white;")" Size="Size.Small"
@@ -64,8 +66,8 @@
         </MudSelect>
     </MudItem>
     <MudItem xs="12" md="2" Class="d-flex justify-center align-end">
-        <MudButton Variant="Variant.Outlined" OnClick="@TransactionsDto.ClearFilters"
-            Disabled="@(!TransactionsDto.AreAnyFiltersActive)"
+        <MudButton Variant="Variant.Outlined" OnClick="@TransactionsPageStateDto.ClearFilters"
+            Disabled="@(!TransactionsPageStateDto.AreAnyFiltersActive)"
             StartIcon="@Icons.Material.Filled.FilterListOff">Clear
         </MudButton>
     </MudItem>
@@ -74,7 +76,7 @@
 
 @code{
     [Parameter]
-    public TransactionsDto TransactionsDto { get; set; } = new TransactionsDto();
+    public TransactionsPageStateDto TransactionsPageStateDto { get; set; } = new TransactionsPageStateDto();
 
     [Parameter]
     public EventCallback OnFiltersChanged { get; set; }

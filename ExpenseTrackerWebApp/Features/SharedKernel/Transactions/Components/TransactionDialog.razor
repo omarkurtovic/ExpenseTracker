@@ -1,16 +1,17 @@
 @using ExpenseTrackerWebApp.Database.Models
-@using ExpenseTrackerWebApp.Dtos
-@using ExpenseTrackerWebApp.Services
-@using Microsoft.AspNetCore.Authorization
-@using ExpenseTrackerWebApp.Components.MyComponents;
+@using ExpenseTrackerWebApp.Features.SharedKernel.Components
+@using ExpenseTrackerWebApp.Features.SharedKernel.Transactions.Commands
+@using ExpenseTrackerWebApp.Features.SharedKernel.Transactions.Queries
+@using ExpenseTrackerWebApp.Features.SharedKernel.Queries
+@using MediatR
 @using MudBlazor
-@inject TransactionService TransactionService
-@inject CategoryService CategoryService
-@inject AccountService AccountService
-@inject TagService TagService
-@inject ISnackbar Snackbar
+@using ExpenseTrackerWebApp.Features.SharedKernel.Transactions.Dtos
+@using ExpenseTrackerWebApp.Services
 
-<title>Accounts</title>
+@inject ISnackbar Snackbar
+@inject ISender Mediator   
+@inject ICurrentUserService CurrentUserService
+@inject TagService TagService 
 
 @if (TransactionDto is not null)
 {
@@ -45,7 +46,9 @@
                             Required="true" RequiredError="Account is required!">
                             @foreach (var account in Accounts)
                             {
-                                <MudSelectItem Value="@((int?)account.Id)">@account.Name</MudSelectItem>
+                                <MudSelectItem Value="@((int?)account.Id)">
+                                    <TextWithIcon Text="@account.Name" Icon="@account.Icon" IconColor="@account.Color" IconSize="Size.Small" TextTypo="Typo.body2"></TextWithIcon>
+                                </MudSelectItem>
                             }
                         </MudSelect>
                         <MudSelect @bind-Value="TransactionDto.TransactionType" Label="Type" Variant="Variant.Outlined"
@@ -61,11 +64,7 @@
                             @foreach (var category in Categories)
                             {
                                 <MudSelectItem Value="@((int?)category.Id)">
-                                    <MudPaper Elevation="0" Class="d-flex gap-3 align-end" Style="background: transparent;">
-                                        <MudIcon Icon="@category.Icon" Style="@($"color: {category.Color};")"
-                                            Size="Size.Small" />
-                                        <MudText Typo="Typo.body2">@category.Name</MudText>
-                                    </MudPaper>
+                                    <TextWithIcon Text="@category.Name" Icon="@category.Icon" IconColor="@category.Color" IconSize="Size.Small" TextTypo="Typo.body2"></TextWithIcon>
                                 </MudSelectItem>
                             }
                         </MudSelect>
@@ -183,7 +182,7 @@
     {
 
         await base.OnParametersSetAsync();
-        Categories = await CategoryService.GetAllAsync();
+        Categories = await Mediator.Send(new GetCategoriesQuery() { UserId = CurrentUserService.GetUserId() });
         if (Categories.Count == 0)
         {
             Snackbar.Add("No categories found! Create some then try again!", Severity.Error);
@@ -191,7 +190,7 @@
             return;
         }
 
-        Accounts = await AccountService.GetAllAsync();
+        Accounts = await Mediator.Send(new GetAccountsQuery() { UserId = CurrentUserService.GetUserId() });
         if (Accounts.Count == 0)
         {
             Snackbar.Add("No accounts found! Create some then try again!", Severity.Error);
@@ -199,7 +198,7 @@
             return;
         }
 
-        AllTags = await TagService.GetAllAsync();
+        AllTags = await Mediator.Send(new GetTagsQuery() { UserId = CurrentUserService.GetUserId() });
 
         TransactionDto = new TransactionDto();
         TransactionDto.AccountId = Accounts.First().Id;
@@ -209,33 +208,22 @@
         TransactionDto.Time = DateTime.Now.TimeOfDay;
         TransactionDto.Amount = 0;
         SelectedTags = new();
-        TransactionDto.Reoccuring = Reoccuring;
+        TransactionDto.IsReoccuring = Reoccuring;
         if (TransactionId != null)
         {
-            var transaction = await TransactionService.GetAsync((int)TransactionId);
-            if (transaction == null)
+            try{
+                TransactionDto = await Mediator.Send(new GetTransactionQuery() { UserId = CurrentUserService.GetUserId(), Id = (int)TransactionId });
+                SelectedTags = AllTags.Where(t => TransactionDto.TagIds.Contains(t.Id)).ToList();
+            }
+            catch (Exception ex)
             {
-                Snackbar.Add("Server error! Please try again.", Severity.Error);
+                Console.WriteLine($"Error getting transaction: {ex.Message}");
+                Snackbar.Add($"Error getting transaction!", Severity.Error);
                 MudDialog.Close();
                 return;
             }
-
-            TransactionDto = new TransactionDto()
-            {
-                Id = transaction.Id,
-                Amount = Math.Abs(transaction.Amount),
-                AccountId = transaction.AccountId,
-                CategoryId = transaction.CategoryId,
-                Date = transaction.Date.Date,
-                Time = transaction.Date.TimeOfDay,
-                Description = transaction.Description,
-                TransactionType = transaction.Category.Type,
-                TagIds = transaction.TransactionTags.Select(tt => tt.TagId).ToList(),
-                Reoccuring = transaction.IsReoccuring,
-                ReoccuranceFrequency = transaction.ReoccuranceFrequency,
-            };
-            SelectedTags = transaction.TransactionTags.Select(tt => tt.Tag).ToList();
         }
+
         Categories = Categories.Where(c => c.Type == TransactionDto.TransactionType).ToList();
     }
 
@@ -320,18 +308,36 @@
             StateHasChanged();
             return;
         }
-        TransactionDto.Reoccuring = Reoccuring;
-        await TransactionService.SaveAsync(TransactionDto);
-        var message = TransactionId == null ? "Transaction successfully added!" : "Transaction successfully updated!";
-        Snackbar.Add(message, Severity.Success);
-        MudDialog.Close(DialogResult.Ok(result: true));
+        TransactionDto.IsReoccuring = Reoccuring;
+        TransactionDto.TagIds = SelectedTags.Select(t => t.Id).ToList();
+
+        try{
+            if(TransactionId == null){
+                await Mediator.Send(new CreateTransactionCommand() { TransactionDto = TransactionDto, UserId = CurrentUserService.GetUserId() });
+            }
+            else{
+                await Mediator.Send(new EditTransactionCommand() { Id = (int)TransactionId, TransactionDto = TransactionDto, UserId = CurrentUserService.GetUserId() });
+            }
+            
+            var message = TransactionId == null ? "Transaction successfully added!" : "Transaction successfully updated!";
+            Snackbar.Add(message, MudBlazor.Severity.Success);
+            MudDialog.Close(DialogResult.Ok(result: true));
+        }
+        catch(FluentValidation.ValidationException vex){
+            var errors = string.Join(", ", vex.Errors.Select(e => e.ErrorMessage));
+            Snackbar.Add($"Validation error: {errors}!", MudBlazor.Severity.Error);
+        }
+        catch(Exception ex){
+            Console.WriteLine($"Error saving transaction: {ex.Message}");
+            Snackbar.Add($"Server error!", MudBlazor.Severity.Error);
+        }
     }
 
     private void Cancel() => MudDialog.Cancel();
 
     private async Task TransactionTypeChanged()
     {
-        Categories = await CategoryService.GetAllAsync();
+        Categories = await Mediator.Send(new GetCategoriesQuery() { UserId = CurrentUserService.GetUserId()  });
         Categories = Categories.Where(c => c.Type == TransactionDto.TransactionType).ToList();
 
         if (Categories.Count == 0)

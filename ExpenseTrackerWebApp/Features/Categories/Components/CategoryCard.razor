@@ -1,11 +1,11 @@
 @using ExpenseTrackerWebApp.Database.Models
 @using ExpenseTrackerWebApp.Features.Categories.Dtos
 @using MudBlazor
-@using ExpenseTrackerWebApp.Components.MyComponents
+@using ExpenseTrackerWebApp.Features.SharedKernel.Components
 
 <EntityCard OnEdit="@(() => OpenCategoryDialogAsync.InvokeAsync(CategoryDto?.Id))" OnDelete="@(() => ConfirmDelete.InvokeAsync(CategoryDto?.Id ?? 0))">
     <HeaderContent>
-        <CategoryName CategoryDto="@CategoryDto" TextSize="Typo.h6" IconSize="Size.Large"></CategoryName>
+    <TextWithIcon Text="@CategoryDto.Name" Icon="@CategoryDto.Icon" IconColor="@CategoryDto.Color" IconSize="Size.Large" TextTypo="Typo.h6"></TextWithIcon>
     </HeaderContent>
     <Content>
         <MudText Typo="Typo.body1">Total transactions: @CategoryDto.TransactionsCount</MudText>
@@ -31,7 +31,7 @@
 
 @code{
     [Parameter]
-    public CategoryWithStatsDto? CategoryDto { get; set; }
+    public required CategoryWithStatsDto CategoryDto { get; set; }
 
     [Parameter]
     public EventCallback<int?> OpenCategoryDialogAsync { get; set; }

@@ -4,14 +4,15 @@ using FluentValidation;
 
 namespace ExpenseTrackerWebApp.Features.SharedKernel.Queries
 {
-    public class GetAccountsQuery : IRequest<List<Account>>
+    public class GetTagsQuery : IRequest<List<Tag>>
     {
         public required string UserId{get; set; }
     }
 
-    public class GetAccountsQueryValidator : AbstractValidator<GetAccountsQuery>
+    
+    public class GetTagsQueryValidator : AbstractValidator<GetTagsQuery>
     {
-        public GetAccountsQueryValidator()
+        public GetTagsQueryValidator()
         {
             RuleFor(x => x.UserId)
                 .NotEmpty().WithMessage("User ID is required!");

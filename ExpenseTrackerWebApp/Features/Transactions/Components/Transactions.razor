@@ -1,22 +1,25 @@
-﻿@page "/transactions"
-@using ExpenseTrackerWebApp.Components.MyComponents
-@using ExpenseTrackerWebApp.Components.Pages.Dialogs
+@page "/transactions"
 @using ExpenseTrackerWebApp.Database.Models
-@using ExpenseTrackerWebApp.Dtos
+@using ExpenseTrackerWebApp.Features.SharedKernel.Transactions.Commands
+@using ExpenseTrackerWebApp.Features.SharedKernel.Transactions.Queries
 @using ExpenseTrackerWebApp.Services
-@using Microsoft.AspNetCore.Authorization
+@using MediatR
 @using Microsoft.AspNetCore.Components.Authorization
-@using Microsoft.Identity.Client
-@using MudBlazor.Extensions
-@using System.Globalization
-@inject TransactionService TransactionService
-@inject CategoryService CategoryService
-@inject AccountService AccountService
+@using Microsoft.AspNetCore.Components.Web
+@using MudBlazor
+@using ExpenseTrackerWebApp.Features.SharedKernel.Components
+@using ExpenseTrackerWebApp.Features.SharedKernel.Queries
+@using ExpenseTrackerWebApp.Features.Transactions.Dtos
+@using ExpenseTrackerWebApp.Features.SharedKernel.Transactions.Components
+
+@inject ISender Mediator   
+@inject ICurrentUserService CurrentUserService
+@inject SeedDataService SeedDataService
 @inject IDialogService DialogService
 @inject ISnackbar Snackbar
-@inject SeedDataService SeedDataService
 
-<PageTitle>@(Reoccuring ? "Reoccuring Transactions" : "Transactions")</PageTitle>
+
+<PageTitle>@(IsReoccuring ? "Reoccuring Transactions" : "Transactions")</PageTitle>
 
 
 @if (loading)
@@ -31,7 +34,7 @@ else
         <MudPaper Class="pa-6 mt-6" Elevation="15">
             <MudGrid>
                 <MudItem xs="12" Class="d-flex justify-center">
-                    <MudText Typo="Typo.h4">@(Reoccuring ? "Reoccuring Transactions" : "Transactions")</MudText>
+                    <MudText Typo="Typo.h4">@(IsReoccuring ? "Reoccuring Transactions" : "Transactions")</MudText>
                 </MudItem>
                 <DynamicContent>
                     <DesktopContent>
@@ -48,12 +51,16 @@ else
                                 <MudPaper Elevation="0" Class="d-flex gap-2">
                                     <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="@OpenExportDialog"
                                         StartIcon="@Icons.Material.Filled.ImportExport">Export</MudButton>
-                                    @if (!string.IsNullOrWhiteSpace(username) && username.ToLower() == "sa")
-                                    {
-                                        <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="@AddTestData"
-                                            StartIcon="@Icons.Material.Filled.Add">Add Test Data
-                                        </MudButton>
-                                    }
+                                        @{
+                                            var email = CurrentUserService.GetUsername();
+                                            if (!string.IsNullOrWhiteSpace(email) && email.ToLower() == "sa")
+                                            {
+                                                <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="@AddTestData"
+                                                    StartIcon="@Icons.Material.Filled.Add">Add Test Data
+                                                </MudButton>
+                                            }
+                                        }
+                                    
                                 </MudPaper>
                             </MudPaper>
                         </MudItem>
@@ -62,7 +69,7 @@ else
                         </MudItem>
                         <MudItem xs="12">
                             <MudCollapse Expanded="_expanded" Class="">
-                                <TransactionsFilter TransactionsDto="TransactionsDto" OnFiltersChanged="@(() => StateHasChanged())" />
+                                <TransactionsFilter TransactionsPageStateDto="TransactionsPageStateDto" OnFiltersChanged="@(() => StateHasChanged())" />
                             </MudCollapse>
                         </MudItem>
                     </DesktopContent>
@@ -77,16 +84,16 @@ else
                         <MudDialog @ref="_filterDialog">
                             <TitleContent>Filters</TitleContent>
                                 <DialogContent>
-                                    <TransactionsFilter TransactionsDto="TransactionsDto" OnFiltersChanged="@(() => StateHasChanged())" />
+                                    <TransactionsFilter TransactionsPageStateDto="TransactionsPageStateDto" OnFiltersChanged="@(() => StateHasChanged())" />
                                 </DialogContent>
                         </MudDialog>
                     </MobileContent>
                 </DynamicContent>
 
-                @if (TransactionsDto.FilteredTransactions.Count == 0)
+                @if (TransactionsPageStateDto.FilteredTransactions.Count == 0)
                 {
                     <MudItem xs="12" Class="d-flex justify-center mt-4">
-                        @if (TransactionsDto.AreAnyFiltersActive)
+                        @if (TransactionsPageStateDto.AreAnyFiltersActive)
                         {
                             <MudText Typo="Typo.h5">No transactions found!</MudText>
                         }
@@ -100,28 +107,17 @@ else
                 {
                     <MudItem xs="12" Class="mt-4">
                         <MudPaper Outlined="true" Elevation="1" Class="border-2">
-                            <MudDataGrid T="Transaction" Items="@TransactionsDto.FilteredTransactions" Virtualize="true"
+                            <MudDataGrid T="Transaction" Items="@TransactionsPageStateDto.FilteredTransactions" Virtualize="true"
                                 Height="700px">
                                 <Columns>
                                     <TemplateColumn Title="Account">
                                         <CellTemplate>
-                                            <MudPaper Elevation="0" Class="d-flex gap-2 align-center">
-                                                <MudPaper Elevation="0" Class="d-flex gap-3 align-end" Style="background: transparent;">
-                                                    @if (!string.IsNullOrEmpty(context.Item.Account.Icon))
-                                                    {
-                                                        <MudIcon Icon="@(context.Item.Account.Icon)" Style="@($"color: {context.Item.Account.Color};")" Size="Size.Small" />
-                                                    }
-                                                    <MudText Typo="Typo.body2">@context.Item.Account.Name</MudText>
-                                                </MudPaper>
-                                            </MudPaper>
+                                            <TextWithIcon Text="@context.Item.Account.Name" Icon="@context.Item.Account.Icon" IconColor="@context.Item.Account.Color" IconSize="Size.Small" TextTypo="Typo.body2"></TextWithIcon>
                                         </CellTemplate>
                                     </TemplateColumn>
                                     <TemplateColumn Title="Category" SortBy="t => t.Category.Name" Sortable="true">
                                         <CellTemplate>
-                                            <MudPaper Elevation="0" Class="d-flex gap-3 align-end" Style="background: transparent;">
-                                                <MudIcon Icon="@context.Item.Category.Icon" Style="@($"color: {context.Item.Category.Color};")" Size="Size.Small" />
-                                                <MudText Typo="Typo.body2">@context.Item.Category.Name</MudText>
-                                            </MudPaper>
+                                            <TextWithIcon Text="@context.Item.Category.Name" Icon="@context.Item.Category.Icon" IconColor="@context.Item.Category.Color" IconSize="Size.Small" TextTypo="Typo.body2"></TextWithIcon>
                                         </CellTemplate>
                                     </TemplateColumn>
                                     <PropertyColumn Property="t => t.Date" Format="dd/MM/yyyy" Title="Date"></PropertyColumn>
@@ -158,7 +154,7 @@ else
                             </MudDataGrid>
                             <MudItem xs="12" Class="pa-6 pl-0">
                                 @{
-                                    var balance = TransactionsDto.FilteredTransactions.Sum(t => t.Amount);
+                                    var balance = TransactionsPageStateDto.FilteredTransactions.Sum(t => t.Amount);
                                 }
                                 <MudPaper Elevation="0" Class="d-flex gap-2">
                                     <MudText>
@@ -182,40 +178,40 @@ else
 
     [Parameter]
     [SupplyParameterFromQuery]
-    public bool Reoccuring { get; set; } = false;
+    public bool IsReoccuring { get; set; } = false;
 
     [CascadingParameter]
     private Task<AuthenticationState>? authenticationState { get; set; }
-
-    private string username = "";
     bool loading = true;
-    private TransactionsDto? TransactionsDto { get; set; }
+    private TransactionsPageStateDto? TransactionsPageStateDto { get; set; }
 
     protected override async Task OnParametersSetAsync()
     {
-        TransactionsDto = await TransactionService.GetTransactionsDto(Reoccuring);
-
-        if (authenticationState is not null)
-        {
-            var authState = await authenticationState;
-            var user = authState?.User;
-
-            if (user?.Identity is not null && user.Identity.IsAuthenticated)
-            {
-                username = user.Identity.Name ?? "";
-            }
-        }
+        TransactionsPageStateDto = await GetTransactionsPageState();
         loading = false;
     }
+
+    private async Task<TransactionsPageStateDto> GetTransactionsPageState()
+    {
+        var result = new TransactionsPageStateDto();
+        result.Transactions = await Mediator.Send(new GetTransactionsQuery() { UserId = CurrentUserService.GetUserId(), IsReoccuring = IsReoccuring });
+        result.FilteredTransactions = result.Transactions.ToList();
+        result.Accounts = await Mediator.Send(new GetAccountsQuery() { UserId = CurrentUserService.GetUserId() });
+        result.Categories = await Mediator.Send(new GetCategoriesQuery() { UserId = CurrentUserService.GetUserId() });
+        result.FilteredCategories = result.Categories.ToList();
+        result.Tags = await Mediator.Send(new GetTagsQuery() { UserId = CurrentUserService.GetUserId() });
+        return result;
+    }
+
     private async Task OpenTransactionDialogAsync(int? transaction_id)
     {
-        if (TransactionsDto.Categories.Count == 0)
+        if (TransactionsPageStateDto.Categories.Count == 0)
         {
             Snackbar.Add("No categories found! Create some then try again!", Severity.Error);
             return;
         }
 
-        if (TransactionsDto.Accounts.Count == 0)
+        if (TransactionsPageStateDto.Accounts.Count == 0)
         {
             Snackbar.Add("No accounts found! Create some then try again!", Severity.Error);
             return;
@@ -231,13 +227,13 @@ else
         var parameters = new DialogParameters<TransactionDialog>
             {
                 { x => x.TransactionId, transaction_id },
-                { x => x.Reoccuring, Reoccuring }
+                { x => x.Reoccuring, IsReoccuring }
             };
 
         var dialog = await DialogService.ShowAsync<TransactionDialog>(title: "Simple Dialog", parameters, options);
         var result = await dialog.Result;
-        var transactions = await TransactionService.GetAllAsync(Reoccuring);
-        TransactionsDto.RefreshTransactions(transactions);
+        var transactions = await Mediator.Send(new GetTransactionsQuery() { UserId = CurrentUserService.GetUserId(), IsReoccuring = IsReoccuring });
+        TransactionsPageStateDto.RefreshTransactions(transactions);
     }
 
     private async Task ConfirmDelete(int transaction_id)
@@ -252,22 +248,22 @@ else
         var result = await dialog.Result;
         if (!result.Canceled)
         {
-            await TransactionService.DeleteAsync(transaction_id);
+            await Mediator.Send(new DeleteTransactionCommand() { Id = transaction_id, UserId = CurrentUserService.GetUserId() });
             Snackbar.Add("Transaction succesfully deleted! ", Severity.Success);
-            TransactionsDto.RemoveTransactions(transaction_id);
+            TransactionsPageStateDto.RemoveTransactions(transaction_id);
         }
     }
 
     private async Task AddTestData()
     {
         await SeedDataService.SeedDummyDataAsync();
-        var transactions = await TransactionService.GetAllAsync(Reoccuring);
-        TransactionsDto.RefreshTransactions(transactions);
+        var transactions = await Mediator.Send(new GetTransactionsQuery() { UserId = CurrentUserService.GetUserId(), IsReoccuring = IsReoccuring });
+        TransactionsPageStateDto.RefreshTransactions(transactions);
     }
 
     private async Task OpenExportDialog()
     {
-        if (TransactionsDto.Transactions.Count == 0)
+        if (TransactionsPageStateDto.Transactions.Count == 0)
         {
             Snackbar.Add("No transactions to export!", Severity.Error);
             return;
@@ -290,8 +286,8 @@ else
 
     private async Task RefreshTransctions(bool showMessage = false)
     {
-        var transactions = await TransactionService.GetAllAsync(Reoccuring);
-        TransactionsDto.RefreshTransactions(transactions);
+        var transactions = await Mediator.Send(new GetTransactionsQuery() { UserId = CurrentUserService.GetUserId(), IsReoccuring = IsReoccuring });
+        TransactionsPageStateDto.RefreshTransactions(transactions);
         if(showMessage)
         {
             Snackbar.Add("Transactions were refreshed!", Severity.Success);

@@ -1,3 +1,4 @@
+@using MudBlazor
 
 <MudHidden Breakpoint="Breakpoint.SmAndDown">
     @DesktopContent
@@ -8,8 +9,8 @@
 @code
 {
     [Parameter]
-    public RenderFragment DesktopContent{get; set;}
+    public RenderFragment? DesktopContent{get; set;}
 
     [Parameter]
-    public RenderFragment MobileContent{get; set;}
+    public RenderFragment? MobileContent{get; set;}
 }

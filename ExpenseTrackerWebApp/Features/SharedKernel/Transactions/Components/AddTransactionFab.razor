@@ -1,9 +1,12 @@
 @using ExpenseTrackerWebApp.Services
-@using ExpenseTrackerWebApp.Components.Pages.Dialogs
-@inject CategoryService CategoryService
-@inject AccountService AccountService
+@using MudBlazor
+@using MediatR
+@using ExpenseTrackerWebApp.Features.SharedKernel.Queries
+
 @inject ISnackbar Snackbar
 @inject IDialogService DialogService
+@inject ISender Mediator
+@inject ICurrentUserService CurrentUserService
 
 <FabButton Text="Add" IconClass="@Icons.Material.Filled.Add" OnClick="() => OpenTransactionDialogAsync()" />
     
@@ -17,8 +20,8 @@
     
     private async Task OpenTransactionDialogAsync()
     {
-        var categories = await CategoryService.GetAllAsync();
-        var accounts = await AccountService.GetAllAsync();
+        var categories = await Mediator.Send(new GetCategoriesQuery(){UserId = CurrentUserService.GetUserId()});
+        var accounts = await Mediator.Send(new GetAccountsQuery(){UserId = CurrentUserService.GetUserId()});
         if (categories.Count == 0)
         {
             Snackbar.Add("No categories found! Create some then try again!", Severity.Error);

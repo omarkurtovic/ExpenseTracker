@@ -107,7 +107,7 @@ public class RecurringTransactionsTests : IDisposable
             CategoryId = _categoryId,
             TransactionType = TransactionType.Expense,
             Description = "Monthly subscription",
-            Reoccuring = true,
+            IsReoccuring = true,
             ReoccuranceFrequency = ReoccuranceFrequency.Monthly
         };
 
@@ -133,7 +133,7 @@ public class RecurringTransactionsTests : IDisposable
             CategoryId = _categoryId,
             TransactionType = TransactionType.Expense,
             Description = "Weekly gym",
-            Reoccuring = true,
+            IsReoccuring = true,
             ReoccuranceFrequency = ReoccuranceFrequency.Weekly
         };
 
@@ -159,7 +159,7 @@ public class RecurringTransactionsTests : IDisposable
             CategoryId = _categoryId,
             TransactionType = TransactionType.Expense,
             Description = "Daily coffee",
-            Reoccuring = true,
+            IsReoccuring = true,
             ReoccuranceFrequency = ReoccuranceFrequency.Daily
         };
 
@@ -185,7 +185,7 @@ public class RecurringTransactionsTests : IDisposable
             CategoryId = _categoryId,
             TransactionType = TransactionType.Expense,
             Description = "Annual insurance",
-            Reoccuring = true,
+            IsReoccuring = true,
             ReoccuranceFrequency = ReoccuranceFrequency.Yearly
         };
 

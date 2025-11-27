@@ -2,7 +2,7 @@
 
 using ExpenseTrackerWebApp.Database;
 using ExpenseTrackerWebApp.Database.Models;
-using ExpenseTrackerWebApp.Dtos;
+using ExpenseTrackerWebApp.Features.Accounts.Dtos;
 using ExpenseTrackerWebApp.Features.Accounts.Queries;
 using MediatR;
 using Microsoft.EntityFrameworkCore;

@@ -3,6 +3,7 @@ using ExpenseTrackerWebApp.Features.Accounts.Commands;
 using ExpenseTrackerWebApp.Features.Accounts.Handlers;
 using ExpenseTrackerTests.Features.Accounts.Fixtures;
 using Microsoft.EntityFrameworkCore;
+using ExpenseTrackerWebApp.Features.Accounts.Dtos;
 
 namespace ExpenseTrackerTests.Features.Accounts.Handlers
 {

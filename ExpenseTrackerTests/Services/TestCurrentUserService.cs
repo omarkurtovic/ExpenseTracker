@@ -5,13 +5,19 @@ namespace ExpenseTrackerTests.Services
     public class TestCurrentUserService : ICurrentUserService
     {
         public string CurrentUserId{get; set;}
-        public TestCurrentUserService(string userId)
+        public string CurrentUserEmail{get; set;}
+        public TestCurrentUserService(string userId, string userEmail = "")
         {
             CurrentUserId = userId;
+            CurrentUserEmail = userEmail;
         }
-        public string? GetUserId()
+        public string GetUserId()
         {
             return CurrentUserId;
+        }
+        public string GetUsername()
+        {
+            return CurrentUserEmail;
         }
     }
 }

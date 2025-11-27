@@ -6,11 +6,11 @@ namespace ExpenseTrackerWebApp.Features.Categories.Commands
 {
     public class CreateCategoryCommand : IRequest<int>
     {
-        public required string UserId{get; set;}
-        public required CategoryDto CategoryDto{get; set;}
+        public required string UserId { get; set; }
+        public required CategoryDto CategoryDto { get; set; }
     }
 
-     public class CreateCategoryCommandValidator : AbstractValidator<CreateCategoryCommand>
+    public class CreateCategoryCommandValidator : AbstractValidator<CreateCategoryCommand>
     {
         public CreateCategoryCommandValidator()
         {
