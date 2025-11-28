@@ -48,16 +48,16 @@
             </MudDrawerHeader>
             <MudNavMenu>
                 <MudNavLink Href="" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Dashboard">Dashboard</MudNavLink>
-                <MudNavLink Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.CompareArrows" OnClick="@(() => RedirectToTransctions(false))">
+                <MudNavLink Href="transactions?isReoccuring=false"  Icon="@Icons.Material.Filled.CompareArrows">
                     Transactions</MudNavLink>
-                <MudNavLink Href="accounts" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.AccountBalance">Accounts
+                <MudNavLink Href="accounts" Icon="@Icons.Material.Filled.AccountBalance">Accounts
                 </MudNavLink>
-                <MudNavLink Href="categories" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Category">Categories
+                <MudNavLink Href="categories" Icon="@Icons.Material.Filled.Category">Categories
                 </MudNavLink>
-                <MudNavLink Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Category" OnClick="@(() => RedirectToTransctions(true))">
+                <MudNavLink Href="transactions?isReoccuring=true" Icon="@Icons.Material.Filled.Category">
                     Reoccuring transactions
                 </MudNavLink>
-                <MudNavLink Href="budgets" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Money">Budgets
+                <MudNavLink Href="budgets" Icon="@Icons.Material.Filled.Money">Budgets
                 </MudNavLink>
             </MudNavMenu>
         </MudDrawer>
@@ -157,7 +157,7 @@
 
     private void RedirectToTransctions(bool reoccuring)
     {
-        NavigationManager.NavigateTo($"/transactions?reoccuring={reoccuring}", forceLoad: true);
+        NavigationManager.NavigateTo($"/transactions?isreoccuring={reoccuring}", forceLoad: true);
     }
 
 }

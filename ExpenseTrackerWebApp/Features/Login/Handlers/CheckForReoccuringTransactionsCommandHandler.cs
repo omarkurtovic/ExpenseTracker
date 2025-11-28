@@ -43,8 +43,7 @@ namespace ExpenseTrackerWebApp.Features.Login.Handlers
                             Date = (DateTime)transaction.NextReoccuranceDate,
                             IsReoccuring = false,
                             ReoccuranceFrequency = null,
-                            NextReoccuranceDate = null,
-                            TransactionTags = transaction.TransactionTags
+                            NextReoccuranceDate = null
                         };
 
                         switch(transaction.ReoccuranceFrequency){
@@ -63,6 +62,17 @@ namespace ExpenseTrackerWebApp.Features.Login.Handlers
                         }
 
                         _context.Transactions.Add(newTransaction);
+                        await _context.SaveChangesAsync();
+                        var newTags = new List<TransactionTag>();
+                        foreach(var tag in transaction.TransactionTags){
+                            var newTag = new TransactionTag(){
+                                TransactionId = newTransaction.Id,
+                                TagId = tag.TagId
+                            };
+                            newTags.Add(newTag);
+                        }
+                        _context.TransactionTags.AddRange(newTags);
+                        await _context.SaveChangesAsync();
                     }
                 }
             }

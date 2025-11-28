@@ -122,7 +122,14 @@ else
                                             <TextWithIcon Text="@context.Item.Category.Name" Icon="@context.Item.Category.Icon" IconColor="@context.Item.Category.Color" IconSize="Size.Small" TextTypo="Typo.body2"></TextWithIcon>
                                         </CellTemplate>
                                     </TemplateColumn>
-                                    <PropertyColumn Property="t => t.Date" Format="dd/MM/yyyy" Title="Date"></PropertyColumn>
+                                    @if(IsReoccuring)
+                                    {
+                                        <PropertyColumn Property="t => t.NextReoccuranceDate" Title="Next reoccurance" Format="dd/MM/yyyy"></PropertyColumn>
+                                    }
+                                    else
+                                    {
+                                        <PropertyColumn Property="t => t.Date" Format="dd/MM/yyyy" Title="Date"></PropertyColumn>
+                                    }
                                     <TemplateColumn Title="Amount" SortBy="t => t.Amount" Sortable="true">
                                         <CellTemplate>
                                             <AmountDisplay Balance="context.Item.Amount" />
@@ -179,7 +186,7 @@ else
 @code {
 
     [Parameter]
-    [SupplyParameterFromQuery]
+    [SupplyParameterFromQuery(Name = "isreoccuring")]
     public bool IsReoccuring { get; set; } = false;
 
     [CascadingParameter]

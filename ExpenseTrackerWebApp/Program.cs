@@ -65,7 +65,6 @@ builder.Services.AddValidatorsFromAssembly(typeof(Program).Assembly, includeInte
 builder.Services.AddMudServices(config =>
 {
     config.SnackbarConfiguration.PositionClass = Defaults.Classes.Position.BottomLeft;
-
     config.SnackbarConfiguration.PreventDuplicates = false;
     config.SnackbarConfiguration.NewestOnTop = false;
     config.SnackbarConfiguration.ShowCloseIcon = true;
@@ -99,7 +98,6 @@ builder.Services.AddApexCharts(e =>
     };
 });
 builder.Services.AddHttpContextAccessor();
-
 builder.Services.AddLogging();
 
 var app = builder.Build();
