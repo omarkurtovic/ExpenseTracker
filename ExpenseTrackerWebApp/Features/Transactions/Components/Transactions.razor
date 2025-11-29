@@ -132,7 +132,7 @@ else
                                     }
                                     <TemplateColumn Title="Amount" SortBy="t => t.Amount" Sortable="true">
                                         <CellTemplate>
-                                            <AmountDisplay Balance="context.Item.Amount" />
+                                            <AmountDisplay Amount="context.Item.Amount" />
                                         </CellTemplate>
                                     </TemplateColumn>
                                     <TemplateColumn Title="Tags">
@@ -168,7 +168,7 @@ else
                                 <MudPaper Elevation="0" Class="d-flex gap-2">
                                     <MudText>
                                         Balance:
-                                        <AmountDisplay Balance="balance" />
+                                        <AmountDisplay Amount="balance" />
                                     </MudText>
                                 </MudPaper>
 

@@ -38,6 +38,10 @@ namespace ExpenseTrackerWebApp.Features.Transactions.Handlers{
                 var category = categories[random.Next(categories.Count)];
                 var account = accounts[random.Next(accounts.Count)];
                 var amount = random.Next(10, 500);
+                if(category.Type == TransactionType.Expense)
+                {
+                    amount = -amount;
+                }
 
                 var tagCount = random.Next(0, 4);
                 var assignedTags = new List<int>();

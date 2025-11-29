@@ -42,10 +42,6 @@ namespace ExpenseTrackerWebApp.Features.SharedKernel.Handlers
                     IdentityUserId = request.UserId
                 }
             };
-            for(int i = 1; i <= accounts.Count; i++)
-            {
-                accounts[i - 1].Id = i;
-            }
 
             _context.Accounts.AddRange(accounts);
             await _context.SaveChangesAsync();

@@ -30,7 +30,7 @@
                         </MudTextField>
                         <MudNumericField @bind-Value="AccountDto.InitialBalance" Label="Initial Balance"
                             Variant="Variant.Outlined" Required="true" RequiredError="Initial balace is required!"
-                            Format="C2" Class="mt-4">
+                            Format="F2" Class="mt-4">
                         </MudNumericField>
                         <MudPaper Elevation="0" Style="display: grid; grid-template-columns: 1fr 2fr; gap: 1rem;">
                             <MudSelect @bind-Value="AccountDto.Icon" Label="Icon" Variant="Variant.Outlined" Required="true"

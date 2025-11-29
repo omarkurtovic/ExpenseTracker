@@ -35,7 +35,7 @@ namespace ExpenseTrackerWebApp.Features.Dashboard.Handlers{
                 {
                     if (transaction.Category.Type == TransactionType.Expense)
                     {
-                        result.ExpensesThisMonth += Math.Abs(transaction.Amount);
+                        result.ExpensesThisMonth += transaction.Amount;
                     }
                     else if (transaction.Category.Type == TransactionType.Income)
                     {

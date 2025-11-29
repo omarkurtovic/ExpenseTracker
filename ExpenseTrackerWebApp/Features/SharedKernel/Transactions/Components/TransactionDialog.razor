@@ -70,7 +70,7 @@
                         </MudSelect>
 
                         <MudNumericField @bind-Value="TransactionDto.Amount" Label="Amount" Variant="Variant.Outlined"
-                            Required="true" RequiredError="Amount is required!" Format="C2">
+                            Required="true" RequiredError="Amount is required!" Format="F2">
                         </MudNumericField>
                         <MudPaper Elevation="0" Class="d-flex gap-2">
                             <MudDatePicker @bind-Date="TransactionDto.Date" Label="Date" Variant="Variant.Outlined"
