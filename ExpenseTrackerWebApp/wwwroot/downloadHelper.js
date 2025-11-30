@@ -12,11 +12,11 @@
     }
 
     // Dev-only: Remove empty Blazor error overlay on hot reload (every 200ms)
-    if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
-        setInterval(() => {
-            const overlay = document.getElementById('dotnet-compile-error');
-            if (overlay && (!overlay.innerHTML || overlay.innerHTML.trim() === '')) {
-                overlay.remove();
-            }
-        }, 200);
-    }
+    // if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+    //     setInterval(() => {
+    //         const overlay = document.getElementById('dotnet-compile-error');
+    //         if (overlay && (!overlay.innerHTML || overlay.innerHTML.trim() === '')) {
+    //             overlay.remove();
+    //         }
+    //     }, 200);
+    // }

@@ -44,7 +44,7 @@
                         }
                         <MudSelect @bind-Value="TransactionDto.AccountId" Label="Account" Variant="Variant.Outlined"
                             Required="true" RequiredError="Account is required!">
-                            @foreach (var account in Accounts)
+                            @foreach (var account in AllAccounts)
                             {
                                 <MudSelectItem Value="@((int?)account.Id)">
                                     <TextWithIcon Text="@account.Name" Icon="@account.Icon" IconColor="@account.Color" IconSize="Size.Small" TextTypo="Typo.body2"></TextWithIcon>
@@ -61,7 +61,7 @@
                         </MudSelect>
                         <MudSelect @bind-Value="TransactionDto.CategoryId" Label="Category" Variant="Variant.Outlined"
                             Required="true" RequiredError="Category is required!">
-                            @foreach (var category in Categories)
+                            @foreach (var category in AllCategories)
                             {
                                 <MudSelectItem Value="@((int?)category.Id)">
                                     <TextWithIcon Text="@category.Name" Icon="@category.Icon" IconColor="@category.Color" IconSize="Size.Small" TextTypo="Typo.body2"></TextWithIcon>
@@ -160,38 +160,38 @@
 </style>
 
 @code {
-
-    [CascadingParameter]
-    private IMudDialogInstance? MudDialog { get; set; }
-
     [Parameter]
     public int? TransactionId { get; set; }
-
     [Parameter]
     public bool Reoccuring { get; set; }
-    MudForm? form;
-    MudAutocomplete<Tag>? tagAutocomplete;
-    Tag? selectedTag;
-    private List<Tag> AllTags = new();
+
+    [CascadingParameter]
+    public required IMudDialogInstance MudDialog { get; set; }
+
+
+    private MudForm form = new();
+    private MudAutocomplete<Tag>? tagAutocomplete;
+    private Tag? selectedTag;
     private List<Tag> SelectedTags = new();
-    private List<Category>? Categories { get; set; }
-    private List<Account>? Accounts { get; set; }
-    private TransactionDto? TransactionDto { get; set; }
+    private TransactionDto TransactionDto = new();
+
+    private List<Tag> AllTags = new();
+    private List<Category> AllCategories = new();
+    private List<Account> AllAccounts = new();
 
     protected override async Task OnParametersSetAsync()
     {
-
         await base.OnParametersSetAsync();
-        Categories = await Mediator.Send(new GetCategoriesQuery() { UserId = CurrentUserService.GetUserId() });
-        if (Categories.Count == 0)
+        AllCategories = await Mediator.Send(new GetCategoriesQuery() { UserId = CurrentUserService.GetUserId() });
+        if (AllCategories.Count == 0)
         {
             Snackbar.Add("No categories found! Create some then try again!", Severity.Error);
             MudDialog.Close();
             return;
         }
 
-        Accounts = await Mediator.Send(new GetAccountsQuery() { UserId = CurrentUserService.GetUserId() });
-        if (Accounts.Count == 0)
+        AllAccounts = await Mediator.Send(new GetAccountsQuery() { UserId = CurrentUserService.GetUserId() });
+        if (AllAccounts.Count == 0)
         {
             Snackbar.Add("No accounts found! Create some then try again!", Severity.Error);
             MudDialog.Close();
@@ -200,15 +200,7 @@
 
         AllTags = await Mediator.Send(new GetTagsQuery() { UserId = CurrentUserService.GetUserId() });
 
-        TransactionDto = new TransactionDto();
-        TransactionDto.AccountId = Accounts.First().Id;
-        TransactionDto.CategoryId = Categories.First().Id;
-        TransactionDto.TransactionType = Categories.First().Type;
-        TransactionDto.Date = DateTime.Now;
-        TransactionDto.Time = DateTime.Now.TimeOfDay;
-        TransactionDto.Amount = 0;
-        SelectedTags = new();
-        TransactionDto.IsReoccuring = Reoccuring;
+        TransactionDto = GetDefaultTransaction(AllAccounts, AllCategories, Reoccuring);
         if (TransactionId != null)
         {
             try{
@@ -224,7 +216,7 @@
             }
         }
 
-        Categories = Categories.Where(c => c.Type == TransactionDto.TransactionType).ToList();
+        AllCategories = AllCategories.Where(c => c.Type == TransactionDto.TransactionType).ToList();
     }
 
     private async Task<IEnumerable<Tag>> TagSearchFunc(string searchText, CancellationToken cancellationToken)
@@ -321,7 +313,7 @@
             
             var message = TransactionId == null ? "Transaction successfully added!" : "Transaction successfully updated!";
             Snackbar.Add(message, MudBlazor.Severity.Success);
-            MudDialog.Close(DialogResult.Ok(result: true));
+            NewTransaction();
         }
         catch(FluentValidation.ValidationException vex){
             var errors = string.Join(", ", vex.Errors.Select(e => e.ErrorMessage));
@@ -337,17 +329,39 @@
 
     private async Task TransactionTypeChanged()
     {
-        Categories = await Mediator.Send(new GetCategoriesQuery() { UserId = CurrentUserService.GetUserId()  });
-        Categories = Categories.Where(c => c.Type == TransactionDto.TransactionType).ToList();
+        AllCategories = await Mediator.Send(new GetCategoriesQuery() { UserId = CurrentUserService.GetUserId()  });
+        AllCategories = AllCategories.Where(c => c.Type == TransactionDto.TransactionType).ToList();
 
-        if (Categories.Count == 0)
+        if (AllCategories.Count == 0)
         {
             TransactionDto.CategoryId = null;
             Snackbar.Add("No categories for this transaction type!", Severity.Warning);
             return;
         }
 
-        TransactionDto.CategoryId = Categories.First().Id;
+        TransactionDto.CategoryId = AllCategories.First().Id;
         StateHasChanged();
     }
+
+
+    private TransactionDto GetDefaultTransaction(List<Account> accounts, List<Category> categories, bool reoccuring)
+    {
+        var result = new TransactionDto();
+        result.AccountId = accounts.First().Id;
+        result.CategoryId = categories.First().Id;
+        result.TransactionType = categories.First().Type;
+        result.Date = DateTime.Now;
+        result.Time = DateTime.Now.TimeOfDay;
+        result.Amount = 0;
+        SelectedTags = new();
+        result.IsReoccuring = reoccuring;
+        return result;
+    }
+
+    private void NewTransaction(){
+        TransactionDto = GetDefaultTransaction(AllAccounts, AllCategories, Reoccuring);
+        SelectedTags = new();
+        TransactionId = null;
+    }
+    
 }

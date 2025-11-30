@@ -23,6 +23,10 @@ namespace ExpenseTrackerWebApp.Features.SharedKernel.Transactions.Commands
             RuleFor(x => x.TransactionDto.Amount)
                 .NotEmpty().WithMessage("Amount is required!")
                 .When(x => x.TransactionDto != null);
+                
+            RuleFor(x => x.TransactionDto.Amount)
+                .GreaterThan(0).WithMessage("Amount must be greater than 0!")
+                .When(x => x.TransactionDto != null);
 
             RuleFor(x => x.TransactionDto.Date)
                 .NotNull().WithMessage("Date is required!")

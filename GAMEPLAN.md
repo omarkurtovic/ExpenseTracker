@@ -2,9 +2,6 @@
 
 ## Current Status
 - why is form input so slow?
-- don't close the transatction input on adding
-
----
 
 ## Known Issues to Fix
 
