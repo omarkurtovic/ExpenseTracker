@@ -70,7 +70,7 @@ namespace ExpenseTrackerWebApp.Features.Budgets.Handlers
                     break;
                 case BudgetType.Monthly:
                     var monthStart = DateTime.Now.StartOfMonth(CultureInfo.CurrentCulture);
-                    var monthEnd = DateTime.Now.EndOfMonth(CultureInfo.CurrentCulture);
+                    var monthEnd = DateTime.Now.EndOfMonth(CultureInfo.CurrentCulture) + new TimeSpan(23, 59, 59);
                     filteredTransctions = [.. filteredTransctions.Where(t => t.Date >= monthStart && t.Date <= monthEnd)];
                     break;
                 case BudgetType.Yearly:

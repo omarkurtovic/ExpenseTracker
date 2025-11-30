@@ -7,6 +7,7 @@
 
 - [ ] Enter key to submit forms (use Tab+Click instead)
 - [ ] Dashboard query optimization (1000+ transactions)
+-- opening existing tracsaction that is expense the amount should not be negative
 
 ## Potential Features
 

@@ -40,8 +40,16 @@ namespace ExpenseTrackerWebApp.Features.SharedKernel.Transactions.Commands
                 .NotEmpty().WithMessage("Account ID is required!")
                 .When(x => x.TransactionDto != null);
 
+            RuleFor(x => x.TransactionDto.AccountId)
+                .GreaterThan(0).WithMessage("Account ID must be greater than 0!")
+                .When(x => x.TransactionDto != null);
+
             RuleFor(x => x.TransactionDto.CategoryId)
                 .NotEmpty().WithMessage("Category ID is required!")
+                .When(x => x.TransactionDto != null);
+
+            RuleFor(x => x.TransactionDto.CategoryId)
+                .GreaterThan(0).WithMessage("Category ID must be greater than 0!")
                 .When(x => x.TransactionDto != null);
 
             RuleFor(x => x.TransactionDto.ReoccuranceFrequency)

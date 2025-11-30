@@ -6,6 +6,7 @@ using MudBlazor;
 using Microsoft.EntityFrameworkCore;
 using ExpenseTrackerWebApp.Features.SharedKernel.Commands;
 using ExpenseTrackerWebApp.Features.SharedKernel.Queries;
+using ExpenseTrackerWebApp.Features.SharedKernel.Transactions.Dtos;
 
 namespace ExpenseTrackerWebApp.Features.Transactions.Handlers{
     public class SeedUserCommandHandler : IRequestHandler<SeedUserCommand>
@@ -28,7 +29,7 @@ namespace ExpenseTrackerWebApp.Features.Transactions.Handlers{
 
             var tags = await CreateSeedTagsAsync(request.UserId);
             var random = new Random();
-            var today = DateTime.Today;
+            List<Transaction> transactions = new List<Transaction>();
             
             for (int i = 0; i < request.Options.NumberOfTransaction; i++)
             {
@@ -44,6 +45,24 @@ namespace ExpenseTrackerWebApp.Features.Transactions.Handlers{
                     amount = -amount;
                 }
 
+                var transaction = new Transaction
+                {
+                    Amount = amount,
+                    Date = date.Date + new TimeSpan(random.Next(0, 24), random.Next(0, 60), 0),
+                    AccountId = account.Id,
+                    CategoryId = category.Id,
+                    Description = GetRandomDescription(random)
+                };
+                transactions.Add(transaction);
+            }
+
+
+            _context.Transactions.AddRange(transactions);
+            await _context.SaveChangesAsync();
+
+            List<TransactionTag> transactionTags = new List<TransactionTag>();
+            foreach(var transaction in transactions)
+            {
                 var tagCount = random.Next(0, (int)request.Options.MaxNumberOfTags! + 1);
                 var assignedTags = new List<int>();
                 for (int j = 0; j < tagCount; j++)
@@ -54,28 +73,20 @@ namespace ExpenseTrackerWebApp.Features.Transactions.Handlers{
                         assignedTags.Add(tag.Id);
                     }
                 }
-
-                var transaction = new Transaction
-                {
-                    Amount = amount,
-                    Date = date.Date + new TimeSpan(random.Next(0, 24), random.Next(0, 60), 0),
-                    AccountId = account.Id,
-                    CategoryId = category.Id,
-                    Description = GetRandomDescription(random)
-                };
-
-                _context.Transactions.Add(transaction);
-                await _context.SaveChangesAsync();
                 foreach (var tagId in assignedTags)
                 {
-                    _context.TransactionTags.Add(new TransactionTag
+                    var tt = new TransactionTag
                     {
                         TransactionId = transaction.Id,
                         TagId = tagId
-                    });
+                    };
+                    transactionTags.Add(tt);
                 }
-                await _context.SaveChangesAsync();
             }
+
+
+            _context.TransactionTags.AddRange(transactionTags);
+            await _context.SaveChangesAsync();
         }
         
         private async Task<List<Tag>> CreateSeedTagsAsync(string userId)
