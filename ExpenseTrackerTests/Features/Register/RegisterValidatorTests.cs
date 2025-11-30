@@ -107,8 +107,8 @@ namespace ExpenseTrackerTests.Features.Register
                 RegisterDataDto = new RegisterDataDto
                 {
                     Email = "user@example.com",
-                    Password = "Test@1",
-                    PasswordConfirm = "Test@1"
+                    Password = "Test@",
+                    PasswordConfirm = "Test@"
                 }
             };
 

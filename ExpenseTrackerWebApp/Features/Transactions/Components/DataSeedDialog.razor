@@ -1,0 +1,86 @@
+@using ExpenseTrackerWebApp.Features.Transactions.Dtos
+@using ExpenseTrackerWebApp.Services
+@using MediatR
+@using MudBlazor
+
+@inject ISender Mediator
+@inject ICurrentUserService CurrentUserService
+@inject ISnackbar Snackbar
+<MudDialog>
+    <TitleContent>
+        <MudText Typo="Typo.h5">
+            Seed data
+        </MudText>
+    </TitleContent>
+        <DialogContent>
+        @if(Loading){
+        <MudProgressCircular Indeterminate="true" Size="Size.Large" />
+        }
+        else{
+            <MudGrid>
+                <MudItem xd = "12">
+                    <MudAlert Severity="Severity.Info" Elevation="0" Variant="Variant.Filled" Class="mb-4">
+                        You are about to seed sample transaction data into your account. This action will delete all existing accounts, categories, tags, and transactions and will create new sample data. This action cannot be undone.
+                    </MudAlert>
+                </MudItem>
+                <MudItem xs="12">
+                    <MudForm  @ref="form">
+                        <MudNumericField @bind-Value="SeedDataOptionsDto.NumberOfTransaction" Label="Number of Transactions" Variant="Variant.Outlined"
+                            Required="true" RequiredError="Number of Transactions is required!" Min="1" Max="10000">
+                        </MudNumericField>
+                        <MudNumericField @bind-Value="SeedDataOptionsDto.TransactionMinAmount" Label="Transaction Minimum Amount" Variant="Variant.Outlined"
+                            Required="true" RequiredError="Transaction Minimum Amount is required!" Min="1">
+                        </MudNumericField>
+                        <MudNumericField @bind-Value="SeedDataOptionsDto.TransactionMaxAmount" Label="Transaction Maximum Amount" Variant="Variant.Outlined"
+                            Required="true" RequiredError="Transaction Maximum Amount is required!" Min="1" Max="1000000">
+                        </MudNumericField>
+                        <MudDatePicker @bind-Date="SeedDataOptionsDto.TransactionStartDate" Label="Transaction Start Date" Variant="Variant.Outlined"
+                                Required="true" RequiredError="Transaction Start Date is required!" />
+
+                        <MudDatePicker @bind-Date="SeedDataOptionsDto.TransactionEndDate" Label="Transaction End Date" Variant="Variant.Outlined"
+                                Required="true" RequiredError="Transaction End Date is required!" />
+
+                        <MudNumericField @bind-Value="SeedDataOptionsDto.MaxNumberOfTags" Label="Maximum Number of Tags per Transaction" Variant="Variant.Outlined"
+                            Required="true" RequiredError="Maximum Number of Tags is required!" Min="0" Max="10">
+                        </MudNumericField>
+                    </MudForm>
+                </MudItem>
+                <MudItem xs="12" Class="d-flex justify-end gap-2 mt-6">
+                    <MudButton OnClick="Cancel" Variant="Variant.Outlined">Cancel</MudButton>
+                    <MudButton OnClick="Seed" Color="Color.Primary" Variant="Variant.Filled">Seed</MudButton>
+                </MudItem>
+            </MudGrid>
+        }
+        </DialogContent>
+    
+</MudDialog>
+
+@code{
+    MudForm? form;
+
+    [CascadingParameter]
+    private IMudDialogInstance? MudDialog { get; set; }
+
+    private bool Loading = false;
+    private SeedDataOptionsDto SeedDataOptionsDto = new SeedDataOptionsDto();
+    private void Cancel() => MudDialog.Cancel();
+    private async Task Seed()
+    {
+        try
+        {
+            Loading = true;
+            await Mediator.Send(new Commands.SeedUserCommand
+            {
+                UserId = CurrentUserService.GetUserId(),
+                Options = SeedDataOptionsDto
+            });
+            Loading = false;
+            MudDialog.Close(DialogResult.Ok(result: true));
+            Snackbar.Add("Data seeded successfully!", Severity.Success);
+        }    
+    catch (Exception ex){
+        Console.WriteLine($"Error seeding data: {ex.Message}");
+        Snackbar.Add("An error occurred while seeding data. Please try again.", Severity.Error);
+        }
+    }
+}

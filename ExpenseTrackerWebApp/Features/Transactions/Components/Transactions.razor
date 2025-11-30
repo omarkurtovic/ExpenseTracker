@@ -265,10 +265,26 @@ else
 
     private async Task AddTestData()
     {
-        await Mediator.Send(new SeedUserCommand() { UserId = CurrentUserService.GetUserId() });
-        Snackbar.Add("Test data added successfully!", Severity.Success);
-        var transactions = await Mediator.Send(new GetTransactionsQuery() { UserId = CurrentUserService.GetUserId(), IsReoccuring = IsReoccuring });
-        TransactionsPageStateDto.RefreshTransactions(transactions);
+        var options = new DialogOptions
+        {
+            CloseOnEscapeKey = true,
+            NoHeader = false,
+            CloseButton = true,
+            MaxWidth = MaxWidth.Medium
+        };
+
+        var parameters = new DialogParameters<DataSeedDialog>
+        {
+        };
+
+        var dialog = await DialogService.ShowAsync<DataSeedDialog>(title: "", parameters, options);
+        var result = await dialog.Result;
+        
+        if (!result.Canceled)
+        {
+            var transactions = await Mediator.Send(new GetTransactionsQuery() { UserId = CurrentUserService.GetUserId(), IsReoccuring = IsReoccuring });
+            TransactionsPageStateDto.RefreshTransactions(transactions);
+        }
     }
 
     private async Task OpenExportDialog()

@@ -1,11 +1,8 @@
 # Expense Tracker - Development Roadmap
 
 ## Current Status
-- ✅ Live on Azure
-- ✅ Mobile responsive
-- ✅ Core features: Transactions, Accounts, Categories, Tags, Dashboard
-- ✅ Multi-tenant architecture with user isolation
-- ⚠️ Some UI bugs and polish needed
+- why is form input so slow?
+- don't close the transatction input on adding
 
 ---
 

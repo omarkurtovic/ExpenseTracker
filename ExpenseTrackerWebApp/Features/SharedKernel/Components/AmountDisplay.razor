@@ -34,10 +34,8 @@ else
         var culture = CultureInfo.CurrentCulture;
         var formatted = amount.ToString("C2", culture);
         
-        // If negative, replace parentheses format with minus sign if needed
         if (amount < 0 && formatted.Contains("("))
         {
-            // Remove parentheses and ensure minus sign
             formatted = formatted.Replace("(", "-").Replace(")", "");
         }
         
