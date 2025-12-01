@@ -205,6 +205,7 @@
         {
             try{
                 TransactionDto = await Mediator.Send(new GetTransactionQuery() { UserId = CurrentUserService.GetUserId(), Id = (int)TransactionId });
+                TransactionDto.Amount = Math.Abs((decimal)TransactionDto.Amount!);
                 SelectedTags = AllTags.Where(t => TransactionDto.TagIds.Contains(t.Id)).ToList();
             }
             catch (Exception ex)
@@ -302,6 +303,9 @@
         }
         TransactionDto.IsReoccuring = Reoccuring;
         TransactionDto.TagIds = SelectedTags.Select(t => t.Id).ToList();
+        if(TransactionDto.Date != null){
+            TransactionDto.Date = new DateTime(TransactionDto.Date.Value.Year, TransactionDto.Date.Value.Month, TransactionDto.Date.Value.Day,0, 0, 0);
+        }
 
         try{
             if(TransactionId == null){
@@ -350,7 +354,7 @@
         result.AccountId = accounts.First().Id;
         result.CategoryId = categories.First().Id;
         result.TransactionType = categories.First().Type;
-        result.Date = DateTime.Now;
+        result.Date = DateTime.Now.Date;
         result.Time = DateTime.Now.TimeOfDay;
         result.Amount = 0;
         SelectedTags = new();
