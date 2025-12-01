@@ -1,7 +1,6 @@
 using ExpenseTrackerWebApp.Database.Models;
 using ExpenseTrackerWebApp.Features.Categories.Dtos;
 using MudBlazor;
-using Xunit;
 
 namespace ExpenseTrackerTests.Features.Categories.Handlers
 {

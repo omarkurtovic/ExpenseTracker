@@ -2,7 +2,6 @@ using ExpenseTrackerWebApp.Features.Budgets.Queries;
 using ExpenseTrackerWebApp.Features.Budgets.Handlers;
 using ExpenseTrackerTests.Features.Budgets.Handlers.Fixtures;
 using MudBlazor;
-using Xunit;
 
 namespace ExpenseTrackerTests.Features.Budgets.Handlers
 {

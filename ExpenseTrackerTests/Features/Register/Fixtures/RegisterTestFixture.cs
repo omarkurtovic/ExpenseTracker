@@ -1,6 +1,5 @@
 using System.Data.Common;
 using ExpenseTrackerWebApp.Database;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 

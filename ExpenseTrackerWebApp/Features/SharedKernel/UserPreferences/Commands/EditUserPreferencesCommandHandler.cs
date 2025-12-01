@@ -1,6 +1,5 @@
 using ExpenseTrackerWebApp.Database;
 using ExpenseTrackerWebApp.Features.SharedKernel.UserPreferences.Commands;
-using ExpenseTrackerWebApp.Services;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 

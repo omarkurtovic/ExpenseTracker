@@ -1,15 +1,9 @@
 using ExpenseTrackerWebApp.Database.Models;
-using ExpenseTrackerWebApp.Database;
 using ExpenseTrackerWebApp.Features.Transactions.Commands;
 using ExpenseTrackerWebApp.Features.Transactions.Dtos;
 using ExpenseTrackerWebApp.Features.Transactions.Handlers;
-using ExpenseTrackerWebApp.Features.SharedKernel.Commands;
-using ExpenseTrackerWebApp.Features.SharedKernel.Queries;
 using ExpenseTrackerTests.Features.Transactions.Fixtures;
-using MediatR;
 using Microsoft.EntityFrameworkCore;
-using Moq;
-using Xunit;
 
 namespace ExpenseTrackerTests.Features.Transactions.Handlers
 {

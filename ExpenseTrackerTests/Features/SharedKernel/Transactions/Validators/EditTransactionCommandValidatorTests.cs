@@ -1,7 +1,6 @@
 using ExpenseTrackerWebApp.Database.Models;
 using ExpenseTrackerWebApp.Features.SharedKernel.Transactions.Commands;
 using ExpenseTrackerWebApp.Features.SharedKernel.Transactions.Dtos;
-using Xunit;
 
 namespace ExpenseTrackerTests.Features.SharedKernel.Transactions.Validators
 {

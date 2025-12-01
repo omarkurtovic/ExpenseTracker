@@ -8,6 +8,8 @@
 - [ ] Enter key to submit forms (use Tab+Click instead)
 - [ ] Dashboard query optimization (1000+ transactions)
 -- opening existing tracsaction that is expense the amount should not be negative
+-- need to redirect user automatically to dashboard if logged in not show login page
+-- click on accounts/categories to go to trasactions page with preset filter?
 
 ## Potential Features
 

@@ -1,7 +1,3 @@
-using System.ComponentModel.Design;
-using ExpenseTrackerWebApp.Database.Models;
-using ExpenseTrackerWebApp.Features.Budgets.Commands;
-using ExpenseTrackerWebApp.Features.Budgets.Dtos;
 using ExpenseTrackerWebApp.Features.Budgets.Queries;
 
 namespace ExpenseTrackerTests.Features.Budgets.Validators

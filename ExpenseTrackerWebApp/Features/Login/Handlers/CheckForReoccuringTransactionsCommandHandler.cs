@@ -2,7 +2,6 @@ using ExpenseTrackerWebApp.Database;
 using ExpenseTrackerWebApp.Database.Models;
 using ExpenseTrackerWebApp.Features.Login.Commands;
 using ExpenseTrackerWebApp.Features.SharedKernel.Queries;
-using FluentValidation;
 using MediatR;
 
 namespace ExpenseTrackerWebApp.Features.Login.Handlers

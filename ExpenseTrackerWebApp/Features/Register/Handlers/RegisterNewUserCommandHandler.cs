@@ -1,4 +1,3 @@
-using ExpenseTrackerWebApp.Database;
 using ExpenseTrackerWebApp.Features.Register.Commands;
 using ExpenseTrackerWebApp.Features.SharedKernel.Commands;
 using MediatR;

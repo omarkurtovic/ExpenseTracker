@@ -1,7 +1,6 @@
 using ExpenseTrackerWebApp.Database;
 using ExpenseTrackerWebApp.Database.Models;
 using ExpenseTrackerWebApp.Features.Accounts.Commands;
-using FluentValidation;
 using MediatR;
 
 namespace ExpenseTrackerWebApp.Features.Accounts.Handlers{

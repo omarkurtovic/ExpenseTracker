@@ -1,6 +1,5 @@
 using ExpenseTrackerWebApp.Database;
 using ExpenseTrackerWebApp.Database.Models;
-using ExpenseTrackerWebApp.Dtos;
 using Microsoft.EntityFrameworkCore;
 
 namespace ExpenseTrackerWebApp.Services

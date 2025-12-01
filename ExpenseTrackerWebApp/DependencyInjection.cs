@@ -1,4 +1,3 @@
-using MediatR;
 using ExpenseTrackerWebApp.Features.SharedKernel.Behaviors;
 using ExpenseTrackerWebApp.Features.SharedKernel.Behaviours;
 

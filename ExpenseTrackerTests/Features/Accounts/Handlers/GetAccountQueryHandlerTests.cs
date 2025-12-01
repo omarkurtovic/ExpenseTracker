@@ -1,8 +1,6 @@
-using ExpenseTrackerWebApp.Database.Models;
 using ExpenseTrackerWebApp.Features.Accounts.Queries;
 using ExpenseTrackerWebApp.Features.Accounts.Handlers;
 using ExpenseTrackerTests.Features.Accounts.Fixtures;
-using Microsoft.EntityFrameworkCore;
 
 namespace ExpenseTrackerTests.Features.Accounts.Handlers
 {

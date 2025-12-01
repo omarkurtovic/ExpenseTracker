@@ -1,5 +1,4 @@
 using ExpenseTrackerWebApp.Database.Models;
-using Microsoft.AspNetCore.Identity;
 
 namespace ExpenseTrackerWebApp.Features.Budgets.Dtos
 {

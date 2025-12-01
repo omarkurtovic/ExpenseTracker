@@ -1,4 +1,3 @@
-using System.Text.RegularExpressions;
 using ExpenseTrackerWebApp.Features.Register.Dtos;
 using FluentValidation;
 using MediatR;

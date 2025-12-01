@@ -3,7 +3,6 @@ using ExpenseTrackerWebApp.Features.SharedKernel.Transactions.Commands;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using ExpenseTrackerWebApp.Database.Models;
-using ExpenseTrackerWebApp.Dtos;
 
 namespace ExpenseTrackerWebApp.SharedKernel.Transactions.Handlers
 {

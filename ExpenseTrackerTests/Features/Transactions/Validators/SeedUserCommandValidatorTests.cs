@@ -1,6 +1,5 @@
 using ExpenseTrackerWebApp.Features.Transactions.Commands;
 using ExpenseTrackerWebApp.Features.Transactions.Dtos;
-using Xunit;
 
 namespace ExpenseTrackerTests.Features.Transactions.Validators
 {

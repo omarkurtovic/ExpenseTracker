@@ -1,4 +1,3 @@
-using ExpenseTrackerWebApp.Database.Models;
 using Microsoft.AspNetCore.Identity;
 
 namespace ExpenseTrackerWebApp.Database.Models

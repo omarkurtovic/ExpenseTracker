@@ -1,5 +1,4 @@
 using ExpenseTrackerWebApp.Features.SharedKernel.Transactions.Commands;
-using Xunit;
 
 namespace ExpenseTrackerTests.Features.SharedKernel.Transactions.Validators
 {

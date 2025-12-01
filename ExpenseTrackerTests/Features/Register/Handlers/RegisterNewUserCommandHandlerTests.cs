@@ -3,7 +3,6 @@ using ExpenseTrackerWebApp.Features.Register.Commands;
 using ExpenseTrackerWebApp.Features.Register.Dtos;
 using ExpenseTrackerWebApp.Features.Register.Handlers;
 using ExpenseTrackerWebApp.Features.SharedKernel.Commands;
-using ExpenseTrackerWebApp.Features.SharedKernel.Handlers;
 using ExpenseTrackerTests.Features.Register.Fixtures;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
@@ -12,7 +11,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Moq;
-using Xunit;
 
 namespace ExpenseTrackerTests.Features.Register.Handlers
 {

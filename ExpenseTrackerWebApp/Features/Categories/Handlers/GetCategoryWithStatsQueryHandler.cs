@@ -3,7 +3,6 @@ using MediatR;
 using ExpenseTrackerWebApp.Features.Categories.Queries;
 using ExpenseTrackerWebApp.Features.Categories.Dtos;
 using Microsoft.EntityFrameworkCore;
-using System.Transactions;
 
 namespace ExpenseTrackerWebApp.Features.Categories.Handlers
 {

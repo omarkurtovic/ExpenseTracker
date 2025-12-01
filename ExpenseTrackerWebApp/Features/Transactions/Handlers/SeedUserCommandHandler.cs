@@ -2,11 +2,8 @@ using MediatR;
 using ExpenseTrackerWebApp.Features.Transactions.Commands;
 using ExpenseTrackerWebApp.Database;
 using ExpenseTrackerWebApp.Database.Models;
-using MudBlazor;
-using Microsoft.EntityFrameworkCore;
 using ExpenseTrackerWebApp.Features.SharedKernel.Commands;
 using ExpenseTrackerWebApp.Features.SharedKernel.Queries;
-using ExpenseTrackerWebApp.Features.SharedKernel.Transactions.Dtos;
 
 namespace ExpenseTrackerWebApp.Features.Transactions.Handlers{
     public class SeedUserCommandHandler : IRequestHandler<SeedUserCommand>

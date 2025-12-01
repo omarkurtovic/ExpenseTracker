@@ -1,4 +1,3 @@
-using ExpenseTrackerWebApp.Dtos;
 using ExpenseTrackerWebApp.Features.Accounts.Commands;
 using ExpenseTrackerWebApp.Features.Accounts.Handlers;
 using ExpenseTrackerTests.Features.Accounts.Fixtures;

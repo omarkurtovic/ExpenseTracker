@@ -3,7 +3,6 @@ using ExpenseTrackerWebApp.Features.SharedKernel.Transactions.Commands;
 using ExpenseTrackerWebApp.Features.SharedKernel.Transactions.Dtos;
 using ExpenseTrackerWebApp.SharedKernel.Transactions.Handlers;
 using ExpenseTrackerTests.Features.SharedKernel.Transactions.Fixtures;
-using Xunit;
 
 namespace ExpenseTrackerTests.Features.SharedKernel.Transactions.Handlers
 {

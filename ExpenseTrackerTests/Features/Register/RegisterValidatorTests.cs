@@ -1,6 +1,5 @@
 using ExpenseTrackerWebApp.Features.Register.Commands;
 using ExpenseTrackerWebApp.Features.Register.Dtos;
-using Xunit;
 
 namespace ExpenseTrackerTests.Features.Register
 {

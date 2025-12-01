@@ -1,9 +1,7 @@
 using ExpenseTrackerWebApp.Database.Models;
-using ExpenseTrackerWebApp.Features.Categories.Dtos;
 using ExpenseTrackerWebApp.Features.Categories.Handlers;
 using ExpenseTrackerWebApp.Features.Categories.Queries;
 using ExpenseTrackerTests.Features.Categories.Fixtures;
-using Xunit;
 
 namespace ExpenseTrackerTests.Features.Categories.Handlers
 {

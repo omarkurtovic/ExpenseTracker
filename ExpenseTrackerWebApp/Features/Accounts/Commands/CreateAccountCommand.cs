@@ -1,4 +1,3 @@
-using ExpenseTrackerWebApp.Dtos;
 using ExpenseTrackerWebApp.Features.Accounts.Dtos;
 using FluentValidation;
 using MediatR;

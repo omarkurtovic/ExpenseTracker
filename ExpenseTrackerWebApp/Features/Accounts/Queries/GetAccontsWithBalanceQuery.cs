@@ -1,8 +1,6 @@
-using ExpenseTrackerWebApp.Dtos;
 using ExpenseTrackerWebApp.Features.Accounts.Dtos;
 using FluentValidation;
 using MediatR;
-using Microsoft.Identity.Client;
 
 namespace ExpenseTrackerWebApp.Features.Accounts.Queries
 {

@@ -1,8 +1,6 @@
 using ExpenseTrackerWebApp.Features.Categories.Commands;
-using ExpenseTrackerWebApp.Features.Categories.Handlers;
 using ExpenseTrackerTests.Features.Categories.Fixtures;
 using Microsoft.EntityFrameworkCore;
-using Xunit;
 using DeleteCategoryCommandHandler = ExpenseTrackerWebApp.Features.Categories.Handlers.DeleteCategoryCommandHandler;
 
 namespace ExpenseTrackerTests.Features.Categories.Handlers

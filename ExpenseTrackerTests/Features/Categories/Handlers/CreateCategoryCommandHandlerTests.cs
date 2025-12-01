@@ -4,7 +4,6 @@ using ExpenseTrackerWebApp.Features.Categories.Dtos;
 using ExpenseTrackerWebApp.Features.Categories.Handlers;
 using ExpenseTrackerTests.Features.Categories.Fixtures;
 using Microsoft.EntityFrameworkCore;
-using Xunit;
 
 namespace ExpenseTrackerTests.Features.Categories.Handlers
 {
