@@ -24,9 +24,12 @@
                         </MudTextField>
                 </MudItem>
                 <MudItem xs="12">
-                    <MudTextField @bind-Value="password" Label="Password" Variant="Variant.Text"
-                        Required="true" RequiredError="Password is required!" InputType="InputType.Password">
-                    </MudTextField>
+                    <MudTextField @bind-Value="password" Label="Password"
+                    Required="true" RequiredError="Password is required!"
+                        Variant="Variant.Text" InputType="@PasswordInput"
+                        Adornment="Adornment.End" AdornmentIcon="@PasswordInputIcon"
+                        OnAdornmentClick="ShowPasswordClick" AdornmentAriaLabel="Show Password" />
+
                 </MudItem>
                 <MudItem xs="12" Class="d-flex justify-center">
                     <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="@BtnLogin_Click" Class="px-20 py-1">Login</MudButton>
@@ -59,6 +62,9 @@
     public string password {get; set;} = "";
 
     private MudForm form;
+    private bool isShow;
+    private InputType PasswordInput = InputType.Password;
+    private string PasswordInputIcon = Icons.Material.Filled.VisibilityOff;
 
     protected override async Task OnParametersSetAsync()
     {
@@ -87,5 +93,20 @@
 
     private void BtnRegister_Click(){
         NavigationManager.NavigateTo("Register");
+    }
+    
+    private void ShowPasswordClick()
+    {
+        @if (isShow)
+        {
+            isShow = false;
+            PasswordInputIcon = Icons.Material.Filled.VisibilityOff;
+            PasswordInput = InputType.Password;
+        }
+        else {
+            isShow = true;
+            PasswordInputIcon = Icons.Material.Filled.Visibility;
+            PasswordInput = InputType.Text;
+        }
     }
 }
