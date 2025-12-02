@@ -1,16 +1,8 @@
 # Expense Tracker - Development Roadmap
 
-## Current Status
-- why is form input so slow?
-
 ## Known Issues to Fix
 
 - [ ] Enter key to submit forms (use Tab+Click instead)
-- [ ] Dashboard query optimization (1000+ transactions)
--- opening existing tracsaction that is expense the amount should not be negative
--- need to redirect user automatically to dashboard if logged in not show login page
--- click on accounts/categories to go to trasactions page with preset filter?
-
 ## Potential Features
 
 ### Quick Wins (3-5 hours)
@@ -30,7 +22,6 @@
 - **Multi-currency** - Support multiple currencies with conversion rates
 - **Bill splitting** - Split transactions between multiple people
 
-Budgets (11 hours) - Real feature, domain logic, impressive
 Performance optimization (4-6 hours) - Shows you can think about scale
 Transfers (3.5 hours) - Quick win, feels complete
-Background jobs for recurring (8 hours) - Shows scheduler knowledge
+Background jobs for recurring (8 hours) - Shows scheduler knowledge - hangfire
