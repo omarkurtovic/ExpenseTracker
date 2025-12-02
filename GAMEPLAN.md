@@ -3,6 +3,13 @@
 ## Known Issues to Fix
 
 - [ ] Enter key to submit forms (use Tab+Click instead)
+
+-- need to show transaction time and also group transactions per day
+like monday 12.01.2025 this much
+-- remember me?
+-- loading?? 
+-- scroll na trasactions
+
 ## Potential Features
 
 ### Quick Wins (3-5 hours)

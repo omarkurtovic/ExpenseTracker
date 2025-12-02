@@ -1,4 +1,7 @@
 
+using System.ComponentModel.DataAnnotations.Schema;
+using System.Globalization;
+
 namespace ExpenseTrackerWebApp.Database.Models
 {
     public class Transaction
@@ -7,6 +10,9 @@ namespace ExpenseTrackerWebApp.Database.Models
         public decimal Amount { get; set; }
         public string? Description { get; set; }
         public DateTime Date { get; set; }
+        [NotMapped]
+        public string DateStr => Date.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
+
         public int AccountId { get; set; }
         public Account Account { get; set; }
         public int CategoryId{ get; set; }

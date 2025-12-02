@@ -109,8 +109,8 @@ else
                 {
                     <MudItem xs="12" Class="mt-4">
                         <MudPaper Outlined="true" Elevation="1" Class="border-2">
-                            <MudDataGrid T="Transaction" Items="@TransactionsPageStateDto.FilteredTransactions" Virtualize="true"
-                                Height="700px">
+                            <MudDataGrid @ref="@_dataGrid" T="Transaction" Hover Groupable
+                                Height="700px" Virtualize="true" Items="TransactionsPageStateDto.FilteredTransactions" ItemSize="52.68f">
                                 <Columns>
                                     <TemplateColumn Title="Account">
                                         <CellTemplate>
@@ -128,7 +128,25 @@ else
                                     }
                                     else
                                     {
-                                        <PropertyColumn Property="t => t.Date" Format="dd/MM/yyyy" Title="Date"></PropertyColumn>
+                                        <PropertyColumn Property="t => t.DateStr" Title="Time" Grouping="true" GroupExpanded="true" >
+                                            <GroupTemplate>
+                                                @if (@context.Grouping.Key!.ToString() == DateTime.Now.ToString("yyyy-MM-dd"))
+                                                {
+                                                    <span>Today</span>
+                                                }
+                                                else if (@context.Grouping.Key!.ToString() == DateTime.Now.AddDays(-1).ToString("yyyy-MM-dd"))
+                                                {
+                                                    <span>Yesterday</span>
+                                                }
+                                                else
+                                                {
+                                                    <span>@(context.Grouping.Key)</span>
+                                                }
+                                            </GroupTemplate>
+                                            <CellTemplate>
+                                                @context.Item.Date.TimeOfDay.ToString(@"hh\:mm")
+                                            </CellTemplate>
+                                        </PropertyColumn>
                                     }
                                     <TemplateColumn Title="Amount" SortBy="t => t.Amount" Sortable="true">
                                         <CellTemplate>
@@ -160,6 +178,9 @@ else
                                         </CellTemplate>
                                     </TemplateColumn>
                                 </Columns>
+                                <PagerContent>
+                                    <MudDataGridPager T="Transaction" />
+                                </PagerContent>
                             </MudDataGrid>
                             <MudItem xs="12" Class="pa-6 pl-0">
                                 @{
@@ -191,14 +212,18 @@ else
 
     [CascadingParameter]
     private Task<AuthenticationState>? authenticationState { get; set; }
-    bool loading = true;
-    private TransactionsPageStateDto? TransactionsPageStateDto { get; set; }
+    bool loading = false;
+    private TransactionsPageStateDto TransactionsPageStateDto { get; set; } = new TransactionsPageStateDto();
+
+    private MudDataGrid<Transaction> _dataGrid = null!;
 
     protected override async Task OnParametersSetAsync()
     {
+        await base.OnParametersSetAsync();
         TransactionsPageStateDto = await GetTransactionsPageState();
         loading = false;
     }
+
 
     private async Task<TransactionsPageStateDto> GetTransactionsPageState()
     {
