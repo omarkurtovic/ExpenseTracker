@@ -69,7 +69,7 @@ else
                         <MudItem xs="12">
                             <MudButton OnClick="OnExpandCollapseClick" Variant="Variant.Outlined">Filters</MudButton>
                         </MudItem>
-                        <MudItem xs="12">
+                        <MudItem xs="12" Style="padding-top: 0px;">
                             <MudCollapse Expanded="_expanded" Class="">
                                 <TransactionsFilter TransactionsPageStateDto="TransactionsPageStateDto" OnFiltersChanged="@(() => StateHasChanged())" />
                             </MudCollapse>
@@ -107,10 +107,10 @@ else
                 }
                 else
                 {
-                    <MudItem xs="12" Class="mt-4">
+                    <MudItem xs="12" Style="height: 100%;">
                         <MudPaper Outlined="true" Elevation="1" Class="border-2">
-                            <MudDataGrid @ref="@_dataGrid" T="Transaction" Hover Groupable
-                                Height="700px" Virtualize="true" Items="TransactionsPageStateDto.FilteredTransactions" ItemSize="52.68f">
+                            <MudDataGrid @ref="@_dataGrid" T="Transaction" Hover Groupable Height="45vh" ItemSize="30f"
+                                Items="TransactionsPageStateDto.FilteredTransactions" FixedHeader FixedFooter>
                                 <Columns>
                                     <TemplateColumn Title="Account">
                                         <CellTemplate>
