@@ -48,7 +48,6 @@ namespace ExpenseTrackerWebApp.Services
                 throw new ArgumentException("User not authenticated");
             }
 
-            // Check if tag already exists for this user
             var existingTag = await GetByNameAsync(name);
             if (existingTag != null)
             {
@@ -58,7 +57,7 @@ namespace ExpenseTrackerWebApp.Services
             var tag = new Tag
             {
                 Name = name,
-                Color = color ?? "#9E9E9E", // Default gray color
+                Color = color ?? "#9E9E9E", 
                 IdentityUserId = userId
             };
 
@@ -69,27 +68,22 @@ namespace ExpenseTrackerWebApp.Services
 
         public async Task DeleteAsync(int tagId)
         {
-            await GetTagsQuery(_context)
-                .Where(t => t.Id == tagId)
-                .ExecuteDeleteAsync();
+            await _context.Tags.Where(t => t.Id == tagId).ExecuteDeleteAsync();
+            _context.ChangeTracker.Clear();
         }
 
 
         public async Task SetTransactionTagsAsync(int transactionId, List<int> tagIds)
         {
-            // Delete existing tags for this transaction
             await _context.TransactionTags
                 .Where(tt => tt.TransactionId == transactionId)
                 .ExecuteDeleteAsync();
 
-            // Clear the change tracker to avoid tracking conflicts with deleted entities
             _context.ChangeTracker.Clear();
 
-            // Only add if there are new tags to add
             if (tagIds.Count == 0)
                 return;
 
-            // Bulk add new tags
             var newTransactionTags = tagIds
                 .Select(tagId => new TransactionTag { TransactionId = transactionId, TagId = tagId })
                 .ToList();

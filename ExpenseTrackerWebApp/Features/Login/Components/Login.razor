@@ -29,7 +29,9 @@
                         Variant="Variant.Text" InputType="@PasswordInput"
                         Adornment="Adornment.End" AdornmentIcon="@PasswordInputIcon"
                         OnAdornmentClick="ShowPasswordClick" AdornmentAriaLabel="Show Password" />
-
+                </MudItem>
+                <MudItem xs="12">
+                    <MudCheckBox @bind-Value="rememberMe" Label="Remember Me"></MudCheckBox>
                 </MudItem>
                 <MudItem xs="12" Class="d-flex justify-center">
                     <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="@BtnLogin_Click" Class="px-20 py-1">Login</MudButton>
@@ -59,7 +61,9 @@
     [Parameter]
     public string email {get; set;} = "";
 
-    public string password {get; set;} = "";
+    private string password {get; set;} = "";
+
+    private bool rememberMe = false;
 
     private MudForm form;
     private bool isShow;
@@ -88,7 +92,7 @@
     
     private void HandleLogin()
     {
-        NavigationManager.NavigateTo($"/api/auth/login?email={email}&password={password}", forceLoad: true);
+        NavigationManager.NavigateTo($"/api/auth/login?email={email}&password={password}&rememberMe={rememberMe}", forceLoad: true);
     }
 
     private void BtnRegister_Click(){

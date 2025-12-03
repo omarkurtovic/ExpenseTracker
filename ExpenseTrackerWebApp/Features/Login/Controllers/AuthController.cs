@@ -20,7 +20,7 @@ namespace ExpenseTrackerWebApp.Features.Login.Controllers
         }
 
         [HttpGet("login")]
-        public async Task<IActionResult> Login(string email, string password, bool rememberMe = false)
+        public async Task<IActionResult> Login(string email, string password, bool rememberMe)
         {
             var result = await _mediator.Send(new LoginUserCommand
             {

@@ -193,11 +193,21 @@ namespace ExpenseTrackerWebApp.Features.Transactions.Dtos
             }
         }
 
-        public void RefreshTransactions(List<Transaction> transactions){
+        public void RefreshTags(List<Tag> tags)
+        {
+            Tags = tags;
+            if(TagsFilter != null && TagsFilter.Count() != 0)
+            {
+                var tagIds = TagsFilter.Select(t => t.Id).ToList();
+                TagsFilter = Tags.Where(t => tagIds.Contains(t.Id)).ToList();
+            }
+        }
+
+        public void RefreshTransactions(List<Transaction> transactions)
+        {
             Transactions = transactions;
             FilterChanged();
         }
-
 
     }
 

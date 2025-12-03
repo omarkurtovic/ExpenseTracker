@@ -21,10 +21,11 @@ namespace ExpenseTrackerWebApp.Features.Transactions.Handlers{
         {
             await _mediator.Send(new ResetToDefaultAccountsCommand { UserId =  request.UserId }, cancellationToken);
             await _mediator.Send(new ResetToDefaultCategoriesCommand { UserId =  request.UserId }, cancellationToken);
+            await _mediator.Send(new ResetToDefaultTagsCommand { UserId =  request.UserId }, cancellationToken);
             var accounts = await _mediator.Send(new GetAccountsQuery { UserId = request.UserId });
             var categories = await _mediator.Send(new GetCategoriesQuery { UserId = request.UserId });
+            var tags = await _mediator.Send(new GetTagsQuery { UserId = request.UserId });
 
-            var tags = await CreateSeedTagsAsync(request.UserId);
             var random = new Random();
             List<Transaction> transactions = new List<Transaction>();
             
@@ -86,32 +87,6 @@ namespace ExpenseTrackerWebApp.Features.Transactions.Handlers{
             await _context.SaveChangesAsync();
         }
         
-        private async Task<List<Tag>> CreateSeedTagsAsync(string userId)
-        {
-            var seedTags = new List<(string name, string color)>
-            {
-                ("Groceries", "#4CAF50"),       
-                ("Dining Out", "#FF9800"),      
-                ("Shopping", "#E91E63"),        
-                ("Utilities", "#2196F3"),       
-                ("Entertainment", "#9C27B0"),   
-                ("Transportation", "#00BCD4"),  
-                ("Health", "#F44336"),          
-                ("Work Related", "#FFC107"),    
-                ("Subscription", "#795548"),    
-                ("Emergency", "#607D8B")        
-            };
-
-            var tags = new List<Tag>();
-            foreach (var (name, color) in seedTags)
-            {
-                var tag = new Tag(){Name = name, Color = color, IdentityUserId = userId};
-                tags.Add(tag);
-            }
-            _context.Tags.AddRange(tags);
-            await _context.SaveChangesAsync();
-            return tags;
-        }
         private static string? GetRandomDescription(Random random)
         {
             var descriptions = new List<string?>()
