@@ -1,0 +1,207 @@
+@using ExpenseTrackerSharedCL.Features.Accounts.Dtos
+@using ExpenseTrackerSharedCL.Features.Budgets.Dtos
+@using Microsoft.AspNetCore.Authorization
+@using MudBlazor
+@using ExpenseTrackerSharedCL.Features.Categories.Dtos
+@using ExpenseTrackerWasmWebApp.Features.SharedKernel.Components
+@using System.Net.Http.Headers
+@using global::ExpenseTrackerWasmWebApp.Features.Categories
+@inject HttpClient Http
+@inject ISnackbar Snackbar
+@inject IJSRuntime JSRuntime
+
+@if (BudgetDto is not null)
+{
+    <MudDialog>
+        <TitleContent>
+            <MudText Typo="Typo.h5">
+                @(BudgetDto == null ? "Add Budget" : "Edit Budget")
+            </MudText>
+        </TitleContent>
+        <DialogContent>
+            <MudGrid>
+                <MudItem xs="12">
+                    <MudForm @ref="form">
+                        <MudTextField @bind-Value="BudgetDto.Name" Label="Name" Variant="Variant.Outlined" Required="true"
+                            RequiredError="Name is required!">
+                        </MudTextField>
+                        <MudSelect @bind-Value="BudgetDto.BudgetType" Label="Type" Variant="Variant.Outlined"
+                            Required="true" RequiredError="Budget type is required!">
+                            @foreach (BudgetType? item in Enum.GetValues(typeof(BudgetType)))
+                            {
+                                <MudSelectItem Value="@((BudgetType?)item)">@item</MudSelectItem>
+                            }
+                        </MudSelect>
+                        <MudNumericField @bind-Value="BudgetDto.Amount" Label="Amount"
+                            Variant="Variant.Outlined" Required="true" RequiredError="Amount is required!"
+                            Format="C2" Class="mt-4">
+                        </MudNumericField>
+                        <MudTextField @bind-Value="BudgetDto.Description" Label="Description" Variant="Variant.Outlined">
+                        </MudTextField>
+                        <MudSelect T="int" Label="Categories" @bind-SelectedValues="BudgetDto.Categories"
+                            MultiSelectionTextFunc="@(new Func<List<string>, string>(GetCategoryMultiSelectionText))"
+                            MultiSelection="true" Clearable="true" FullWidth="true" 
+                            Required="true" RequiredError="At least one category is required!">
+                            @foreach (var category in Categories)
+                            {
+                                <MudSelectItem Value="@(category.Id)">
+                                    <TextWithIcon Text="@category.Name" Icon="@category.Icon" IconColor="@category.Color" IconSize="Size.Small" TextTypo="Typo.body1"></TextWithIcon>
+                                </MudSelectItem>
+                            }
+                        </MudSelect>
+                        <MudSelect T="int" Label="Accounts" @bind-SelectedValues="BudgetDto.Accounts"
+                            MultiSelectionTextFunc="@(new Func<List<string>, string>(GetAccountMultiSelectionText))"
+                            MultiSelection="true" Clearable="true" FullWidth="true" 
+                            Required="true" RequiredError="At least one account is required!">
+                            @foreach (var account in Accounts)
+                            {
+                                <MudSelectItem Value="@(account.Id)">
+                                    <TextWithIcon Text="@account.Name" Icon="@account.Icon" IconColor="@account.Color" IconSize="Size.Small" TextTypo="Typo.body1"></TextWithIcon>
+                                </MudSelectItem>
+                            }
+                        </MudSelect>
+                    </MudForm>
+                </MudItem>
+                <MudItem xs="12" Class="d-flex justify-end gap-2 mt-12">
+                    <MudButton OnClick="Cancel" Variant="Variant.Outlined">Cancel</MudButton>
+                    <MudButton OnClick="Submit" Color="Color.Primary" Variant="Variant.Filled">Save</MudButton>
+                </MudItem>
+            </MudGrid>
+        </DialogContent>
+    </MudDialog>
+}
+
+<style>
+    .mud-dialog {
+        max-width: 600px !important;  
+        margin-inline: 15px;
+    }
+</style>
+
+@code {
+    MudForm form;
+
+    [CascadingParameter]
+    private IMudDialogInstance MudDialog { get; set; }
+
+    [Parameter]
+    public int? BudgetId { get; set; }
+
+    [Parameter]
+    public BudgetDto BudgetDto {get; set;} = new();
+    public List<CategoryDto> Categories{get; set;} = new();
+    public List<AccountDto> Accounts{get; set;} = new();
+
+    protected override async Task OnParametersSetAsync()
+    {
+        BudgetDto = new BudgetDto();
+        
+        try
+        {
+            string url = "api/accounts";
+            var request = new HttpRequestMessage(HttpMethod.Get, url);
+            var response = await Http.SendAsync(request);
+            if(response.IsSuccessStatusCode)
+            {
+                Accounts = await response.Content.ReadFromJsonAsync<List<AccountDto>>();
+            }
+            else
+            {
+                Snackbar.Add("Error fetching accounts!", Severity.Error);
+            }
+
+            
+            url = "api/categories";
+            request = new HttpRequestMessage(HttpMethod.Get, url);
+            response = await Http.SendAsync(request);
+            if(response.IsSuccessStatusCode)
+            {
+                Categories = await response.Content.ReadFromJsonAsync<List<CategoryDto>>();
+            }
+            else
+            {
+                Snackbar.Add("Error fetching categories!", Severity.Error);
+            }
+
+            if (BudgetId == null)
+            {
+                return;
+            }
+
+            url = $"api/budgets/{BudgetId}";
+            request = new HttpRequestMessage(HttpMethod.Get, url);
+            response = await Http.SendAsync(request);
+            if(response.IsSuccessStatusCode)
+            {
+                BudgetDto = await response.Content.ReadFromJsonAsync<BudgetDto>() ?? new();
+            }
+            else
+            {
+                Snackbar.Add("Error getting budget!", Severity.Error);
+                MudDialog.Close();
+                return;
+            }
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"An error occurred: {ex.Message}", Severity.Error);
+        }
+    }
+
+    private async Task Submit()
+    {
+        await form.Validate();
+        if (!form.IsValid)
+        {
+            StateHasChanged();
+            return;
+        }
+
+        try
+        {
+            HttpResponseMessage? response;
+            if(BudgetId == null){
+                string url = $"api/budgets";
+                var request = new HttpRequestMessage(HttpMethod.Post, url);
+                request.Content = JsonContent.Create(BudgetDto);
+                request.Content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
+                response = await Http.SendAsync(request);
+            }
+            else{
+                string url = $"api/budgets/{BudgetId}";
+                var request = new HttpRequestMessage(HttpMethod.Put, url);
+                request.Content = JsonContent.Create(BudgetDto);
+                request.Content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
+                response = await Http.SendAsync(request);
+            }
+
+            if(response.IsSuccessStatusCode){
+                Snackbar.Add("Budget saved successfully!", Severity.Success);
+                MudDialog.Close(DialogResult.Ok(result: true));
+            }
+            else
+            {
+                Snackbar.Add("Error saving budget!", Severity.Error);
+                MudDialog.Close();
+                return;
+            }
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"An error occurred: {ex.Message}", Severity.Error);
+            MudDialog.Close();
+            return;
+        }
+    }
+
+    private void Cancel() => MudDialog.Cancel();
+
+    private string GetAccountMultiSelectionText(List<string> selectedValues)
+    {
+        return string.Join(separator: ", ", Accounts.Where(a => selectedValues.Contains(a.Id.ToString())).Select(a => a.Name));
+    }
+    private string GetCategoryMultiSelectionText(List<string> selectedValues)
+    {
+        return string.Join(separator: ", ", Categories.Where(c => selectedValues.Contains(c.Id.ToString())).Select(c => c.Name));
+    }
+}

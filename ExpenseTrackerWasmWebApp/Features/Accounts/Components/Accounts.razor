@@ -1,5 +1,4 @@
 @page "/accounts"
-@attribute [Authorize]
 @using ExpenseTrackerSharedCL.Features.Accounts.Dtos
 @using Microsoft.AspNetCore.Authorization
 @using MudBlazor
@@ -110,19 +109,22 @@ else
         {
             try
             {
-                string storedToken = await JSRuntime.InvokeAsync<string>("localStorage.getItem", "authToken");
-                string url = $"http://localhost:5001/api/accounts/{accountId}";
+                string url = $"api/accounts/{accountId}";
                 var request = new HttpRequestMessage(HttpMethod.Delete, url);
-                request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", storedToken);
                 var response = await Http.SendAsync(request);
-                response.EnsureSuccessStatusCode();
-                Snackbar.Add("Account succesfully deleted! ", Severity.Success);
-                await UpdatePage();
+                if(response.IsSuccessStatusCode)
+                {
+                    Snackbar.Add("Account succesfully deleted! ", Severity.Success);
+                    await UpdatePage();
+                }
+                else
+                {
+                    Snackbar.Add("Error deleting account!", Severity.Error);
+                }
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error deleting account: {ex.Message}");
-                Snackbar.Add($"Error deleting account!", Severity.Error);
+                Snackbar.Add($"An error occurred: {ex.Message}", Severity.Error);
             }
         }
     }
@@ -131,20 +133,22 @@ else
     private async Task UpdatePage()
     {
         try
-        {       
-            string storedToken = await JSRuntime.InvokeAsync<string>("localStorage.getItem", "authToken");
-            string url = "http://localhost:5001/api/accounts";
-            var request = new HttpRequestMessage(HttpMethod.Get, url);
-            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", storedToken);
-            var response = await Http.SendAsync(request);
-            response.EnsureSuccessStatusCode();
-            MyAccounts = await response.Content.ReadFromJsonAsync<List<AccountWithBalanceDto>>();
-        }
-        catch (HttpRequestException ex)
         {
-            Console.WriteLine($"Error fetching data: {ex.Message}");
-            Snackbar.Add($"Error loading accounts!", Severity.Error);
+            string url = "api/accounts";
+            var request = new HttpRequestMessage(HttpMethod.Get, url);
+            var response = await Http.SendAsync(request);
+            if(response.IsSuccessStatusCode)
+            {
+                MyAccounts = await response.Content.ReadFromJsonAsync<List<AccountWithBalanceDto>>();
+            }
+            else
+            {
+                Snackbar.Add("Error fetching accounts!", Severity.Error);
+            }
         }
-
+        catch (Exception ex)
+        {
+            Snackbar.Add($"An error occurred: {ex.Message}", Severity.Error);
+        }
     }
 }

@@ -1,0 +1,164 @@
+@page "/budgets"
+@attribute [Authorize]
+
+@using ExpenseTrackerSharedCL.Features.Budgets.Dtos
+@using Microsoft.AspNetCore.Authorization
+@using MudBlazor
+@using Microsoft.AspNetCore.Components.Web
+@using ExpenseTrackerWasmWebApp.Features.SharedKernel.Components
+@using System.Net.Http.Headers
+@inject IDialogService DialogService
+@inject ISnackbar Snackbar
+@inject HttpClient Http
+@inject IJSRuntime JSRuntime
+
+<PageTitle>Budgets</PageTitle>
+
+@if (loading)
+{
+    <div class="d-flex justify-center align-center" style="height: 80vh;">
+        <MudProgressCircular Indeterminate="true" Size="Size.Large" />
+    </div>
+}
+else
+{
+    @if(MyBudgets != null){
+        <MudContainer MaxWidth="MaxWidth.Medium">
+            <MudPaper Class="pa-6 mt-6" Elevation="15">
+                <MudGrid>
+                    <MudItem xs="12" Class="d-flex justify-center">
+                        <MudText Typo="Typo.h4">Budgets</MudText>
+                    </MudItem>
+                    <DynamicContent>
+                        <DesktopContent>
+                            <MudItem xs="12" Class="d-flex justify-center gap-5 mb-4">
+                                <MudButton Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Add" OnClick="@(() => OpenBudgetDialogAsync(null))">Add</MudButton>
+                            </MudItem>
+                        </DesktopContent>
+                        <MobileContent>
+                            <FabButton Text="Add" IconClass="@Icons.Material.Filled.Add" OnClick="@(() => OpenBudgetDialogAsync(null))" />
+                        </MobileContent>
+                    </DynamicContent>
+                    @if(MyBudgets == null || MyBudgets.Count == 0)
+                    {
+                        <MudItem xs="12" Class="d-flex justify-center mt-4">
+                            <MudText Typo="Typo.h5">No budgets found!</MudText>
+                        </MudItem>
+                    }
+                    else
+                    {
+                        @foreach(var budget in MyBudgets)
+                        {
+                            <MudItem xs="12" md="6">
+                                <BudgetCard 
+                                    Budget="@budget"
+                                    OnEdit="OpenBudgetDialogAsync"
+                                    OnDelete="ConfirmDelete">
+                                    <Content>
+                                        <MudProgressLinear Value="@(budget.Progress)" Color="@budget.ProgressColor"></MudProgressLinear>
+                                        <MudText Typo="Typo.body2">Spent: $@budget.Spent.ToString("F2") / $@budget.Amount?.ToString("F2")</MudText>
+                                    </Content>
+                                </BudgetCard>
+                            </MudItem>
+                        }
+                    }
+                </MudGrid>
+            </MudPaper>
+        </MudContainer>
+    }
+}
+
+
+@code {
+   
+    private List<BudgetWithProgressDto>? MyBudgets { get; set; }
+    private bool loading = true;
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+        await RefreshPage();
+        loading = false;
+    }
+
+    private async Task OpenBudgetDialogAsync(int? budget_id)
+    {
+        var options = new DialogOptions { 
+            CloseOnEscapeKey = true, 
+            NoHeader=false, 
+            CloseButton=true, 
+            MaxWidth=MaxWidth.Medium  
+        };
+        var parameters = new DialogParameters<BudgetDialog>
+        {
+            { x => x.BudgetId, budget_id }
+        };
+
+        var dialog = await DialogService.ShowAsync<BudgetDialog>(title: "", parameters, options);
+        var result = await dialog.Result;
+        if (result != null && !result.Canceled)
+        {
+            await RefreshPage();
+            StateHasChanged();
+        }
+    }
+
+    private async Task ConfirmDelete(int budget_id)
+    {
+        var options = new DialogOptions { 
+            CloseOnEscapeKey = true, 
+        };
+        var parameters = new DialogParameters<ConfirmDialog>
+        {
+            { x => x.Message,  "Are you sure you want to delete the budget? " }
+        };
+
+        var dialog = await DialogService.ShowAsync<ConfirmDialog>(title: "", parameters, options);
+        var result = await dialog.Result;
+        if (result != null && !result.Canceled)
+        {
+            try
+            {
+                string url = $"api/budgets/{budget_id}";
+                var request = new HttpRequestMessage(HttpMethod.Delete, url);
+                var response = await Http.SendAsync(request);
+                if(response.IsSuccessStatusCode)
+                {
+                    Snackbar.Add("Budget succesfully deleted! ", Severity.Success);
+                    await RefreshPage();
+                }
+                else
+                {
+                    Snackbar.Add("Error deleting budget!", Severity.Error);
+                }
+            }
+            catch (Exception ex)
+            {
+                Snackbar.Add($"An error occurred: {ex.Message}", Severity.Error);
+            }
+
+            await RefreshPage();
+            StateHasChanged();
+        }
+    }
+
+    async Task RefreshPage(){
+        try
+        {
+            string url = $"api/budgets";
+            var request = new HttpRequestMessage(HttpMethod.Get, url);
+            var response = await Http.SendAsync(request);
+            if(response.IsSuccessStatusCode)
+            {
+                MyBudgets = await response.Content.ReadFromJsonAsync<List<BudgetWithProgressDto>>() ?? new();
+            }
+            else
+            {
+                Snackbar.Add("Error fetching budgets!", Severity.Error);
+            }
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"An error occurred: {ex.Message}", Severity.Error);
+        }
+    }
+}

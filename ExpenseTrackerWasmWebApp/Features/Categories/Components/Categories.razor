@@ -1,0 +1,197 @@
+
+@page "/categories"
+@using ExpenseTrackerSharedCL.Features.Categories.Dtos
+@using Microsoft.AspNetCore.Authorization
+@using MudBlazor
+@using Microsoft.AspNetCore.Components.Web
+@using ExpenseTrackerWasmWebApp.Features.SharedKernel.Components
+@using System.Net.Http.Headers
+@inject IDialogService DialogService
+@inject ISnackbar Snackbar
+@inject HttpClient Http
+@inject IJSRuntime JSRuntime
+
+<PageTitle>Categories</PageTitle>
+
+@if (loading)
+{
+    <div class="d-flex justify-center align-center" style="height: 80vh;">
+        <MudProgressCircular Indeterminate="true" Size="Size.Large" />
+    </div>
+}
+else
+{
+    @if(MyCategories != null){
+        <MudContainer MaxWidth="MaxWidth.Medium">
+            <MudPaper Class="pa-6 mt-6" Elevation="15">
+                <MudGrid>
+                    <MudItem xs="12" Class="d-flex justify-center">
+                        <MudText Typo="Typo.h4">Categories</MudText>
+                    </MudItem>
+                    <DynamicContent>
+                        <DesktopContent>
+                            <MudItem xs="12" Class="d-flex justify-center gap-5 mb-4">
+                                <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="@(() => OpenCategoryDialogAsync(null))" StartIcon="@Icons.Material.Filled.Add">Add</MudButton>
+                            </MudItem>
+                            <MudItem xs="12">
+                                <MudTabs Elevation="0" ApplyEffectsToContainer="true" PanelClass="pa-6" Centered="true" ActivePanelIndexChanged="PanelChanged" >
+                                    <MudTabPanel Text= "Expense" Icon="@Icons.Material.Filled.TrendingDown">
+                                        @RenderCategoryContent()
+                                    </MudTabPanel>
+                                    <MudTabPanel Text="Income" Icon="@Icons.Material.Filled.TrendingUp">
+                                        @RenderCategoryContent()
+                                    </MudTabPanel>
+                                </MudTabs>
+                            </MudItem>
+                        </DesktopContent>
+                        <MobileContent>
+                            <MudItem xs="12">
+                                <MudTabs Elevation="0" ApplyEffectsToContainer="true" PanelClass="pa-6" Centered="true" ActivePanelIndexChanged="PanelChanged">
+                                    <MudTabPanel Text="" Icon="@Icons.Material.Filled.TrendingDown">
+                                        @RenderCategoryContent()
+                                    </MudTabPanel>
+                                    <MudTabPanel Text="" Icon="@Icons.Material.Filled.TrendingUp">
+                                        @RenderCategoryContent()
+                                    </MudTabPanel>
+                                </MudTabs>
+                            </MudItem>
+                            <FabButton Text="Add" IconClass="@Icons.Material.Filled.Add" OnClick="@(() => OpenCategoryDialogAsync(null))" />
+                            <style>
+                                .mud-tab {
+                                    display: flex;
+                                    min-width: 100px !important;
+                                    flex-direction: column-reverse;
+                                }
+                            </style>
+                        </MobileContent>
+                    </DynamicContent>
+                </MudGrid>
+            </MudPaper>
+        </MudContainer>
+    }
+}
+
+
+@code {
+    private int activePanelIndex = 0;
+    private List<CategoryWithStatsDto> MyCategories { get; set; } = new();
+    private TransactionType transactionType = TransactionType.Expense;
+
+    bool loading = true;
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+        await RefreshPage();
+        loading = false;
+    }
+
+    private async Task OpenCategoryDialogAsync(int? category_id)
+    {
+        var options = new DialogOptions { 
+            CloseOnEscapeKey = true, 
+            NoHeader=false, 
+            CloseButton=true, 
+            MaxWidth=MaxWidth.Medium  
+        };
+        var parameters = new DialogParameters<CategoryDialog>
+        {
+            { x => x.CategoryId, category_id },
+            { x => x.Type, activePanelIndex == 0 ? TransactionType.Expense : TransactionType.Income }
+        };
+
+        var dialog = await DialogService.ShowAsync<CategoryDialog>(title: "", parameters, options);
+        var result = await dialog.Result;
+        if (result != null && !result.Canceled)
+        {
+            await RefreshPage();
+            StateHasChanged();
+        }
+    }
+
+    private async Task ConfirmDelete(int category_id)
+    {
+        var options = new DialogOptions { 
+            CloseOnEscapeKey = true, 
+        };
+        var parameters = new DialogParameters<ConfirmDialog>
+        {
+            { x => x.Message,  "Are you sure you want to delete the category? " }
+        };
+
+        var dialog = await DialogService.ShowAsync<ConfirmDialog>(title: "", parameters, options);
+        var result = await dialog.Result;
+
+        if (result is not null && !result.Canceled)
+        {
+            try
+            {
+                string url = $"api/categories/{category_id}";
+                var request = new HttpRequestMessage(HttpMethod.Delete, url);
+                var response = await Http.SendAsync(request);
+                if(response.IsSuccessStatusCode)
+                {
+                    Snackbar.Add("Category succesfully deleted! ", Severity.Success);
+                    await RefreshPage();
+                }
+                else
+                {
+                    Snackbar.Add("Error deleting category!", Severity.Error);
+                }
+            }
+            catch (Exception ex)
+            {
+                Snackbar.Add($"An error occurred: {ex.Message}", Severity.Error);
+            }
+        }
+    }
+
+    private async Task PanelChanged(int index){
+        activePanelIndex = index;
+        transactionType = index == 0 ? TransactionType.Expense : TransactionType.Income;
+        await RefreshPage();
+    }
+
+    private async Task RefreshPage()
+    {
+        try
+        {
+            string url = $"api/categories?type={(int)transactionType}";
+            var request = new HttpRequestMessage(HttpMethod.Get, url);
+            var response = await Http.SendAsync(request);
+            if(response.IsSuccessStatusCode)
+            {
+                MyCategories = await response.Content.ReadFromJsonAsync<List<CategoryWithStatsDto>>() ?? new();
+            }
+            else
+            {
+                Snackbar.Add("Error fetching categories!", Severity.Error);
+            }
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"An error occurred: {ex.Message}", Severity.Error);
+        }
+    }
+
+    private RenderFragment RenderCategoryContent() => @<text>
+        @if(MyCategories == null || MyCategories.Count == 0)
+        {
+            <MudItem xs="12" Class="d-flex justify-center mt-4">
+                <MudText Typo="Typo.h5">No @(transactionType == TransactionType.Expense ? "expense" : "income") categories found!</MudText>
+            </MudItem>
+        }
+        else
+        {
+            <MudPaper Elevation="0">
+                <MudGrid>
+                    @foreach(var category in MyCategories)
+                    {
+                        <MudItem xs="12" md="6">
+                            <CategoryCard CategoryDto="@category" OpenCategoryDialogAsync="OpenCategoryDialogAsync" ConfirmDelete="ConfirmDelete"></CategoryCard>
+                        </MudItem>
+                    }
+                </MudGrid>
+            </MudPaper>
+        }
+    </text>;
+}

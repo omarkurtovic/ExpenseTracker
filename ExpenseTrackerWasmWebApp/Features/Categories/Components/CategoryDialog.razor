@@ -1,43 +1,46 @@
 @using Microsoft.AspNetCore.Authorization
 @using MudBlazor
-@using ExpenseTrackerSharedCL.Features.Accounts.Dtos
+@using ExpenseTrackerSharedCL.Features.Categories.Dtos
 @using ExpenseTrackerWasmWebApp.Features.SharedKernel.Components
 @using System.Net.Http.Headers
-@using global::ExpenseTrackerWasmWebApp.Features.Accounts
+@using global::ExpenseTrackerWasmWebApp.Features.Categories
 @inject HttpClient Http
 @inject ISnackbar Snackbar
 @inject IJSRuntime JSRuntime
 
-@if (AccountDto is not null)
+@if (CategoryDto is not null)
 {
     <MudDialog>
         <TitleContent>
             <MudText Typo="Typo.h5">
-                @(AccountId == null ? "Add Account" : "Edit Account")
+                @(CategoryId == null ? "Add Category" : "Edit Category")
             </MudText>
         </TitleContent>
         <DialogContent>
             <MudGrid>
                 <MudItem xs="12">
                     <MudForm @ref="form">
-                        <MudTextField @bind-Value="AccountDto.Name" Label="Name" Variant="Variant.Outlined" Required="true"
+                        <MudTextField @bind-Value="CategoryDto.Name" Label="Name" Variant="Variant.Outlined" Required="true"
                             RequiredError="Name is required!">
                         </MudTextField>
-                        <MudNumericField @bind-Value="AccountDto.InitialBalance" Label="Initial Balance"
-                            Variant="Variant.Outlined" Required="true" RequiredError="Initial balace is required!"
-                            Format="F2" Class="mt-4">
-                        </MudNumericField>
+                        <MudSelect @bind-Value="CategoryDto.Type" Label="Type" Variant="Variant.Outlined" Required="true"
+                            RequiredError="Type is required!" Class="mt-4">
+                            @foreach (TransactionType? item in Enum.GetValues(typeof(TransactionType)))
+                            {
+                                <MudSelectItem Value="@item">@item</MudSelectItem>
+                            }
+                        </MudSelect>
                         <MudPaper Elevation="0" Style="display: grid; grid-template-columns: 1fr 2fr; gap: 1rem;">
-                            <MudSelect @bind-Value="AccountDto.Icon" Label="Icon" Variant="Variant.Outlined" Required="true"
+                            <MudSelect @bind-Value="CategoryDto.Icon" Label="Icon" Variant="Variant.Outlined" Required="true"
                                 RequiredError="Icon is required!" Class="flex-grow-1" Style="width: 100%;" FullWidth="true">
-                                @foreach (string? item in AccountsHelper.GetDefaultAccountIcons())
+                                @foreach (string? item in CategoriesHelper.GetDefaultCategoryIcons())
                                 {
                                     <MudSelectItem Value="@item" Style="display: inline-block; width: 40px; height: 40px; padding: 8px;">
-                                        <MudIcon Icon="@item" Style="@($"color:{AccountDto.Color};")" Size="Size.Medium" />
+                                        <MudIcon Icon="@item" Style="@($"color:{CategoryDto.Color};")" Size="Size.Medium" />
                                     </MudSelectItem>
                                 }
                             </MudSelect>
-                            <MudColorPicker @bind-Text="AccountDto.Color" Label="Color" Variant="Variant.Outlined" Required="true"
+                            <MudColorPicker @bind-Text="CategoryDto.Color" Label="Color" Variant="Variant.Outlined" Required="true"
                                 RequiredError="Color is required!" Style="flex-shrink: 0;">
                             </MudColorPicker>
                         </MudPaper>
@@ -59,39 +62,49 @@
     }
 </style>
 
+
 @code {
-    MudForm form;
+    MudForm form = null!;
 
     [CascadingParameter]
-    private IMudDialogInstance MudDialog { get; set; }
+    private IMudDialogInstance MudDialog { get; set; } = null!;
 
     [Parameter]
-    public int? AccountId { get; set; }
-    private AccountDto AccountDto { get; set; }
+    public int? CategoryId { get; set; }
+
+    [Parameter]
+    public TransactionType? Type { get; set; }
+    private CategoryDto CategoryDto { get; set; } = new();
 
 
     protected override async Task OnParametersSetAsync()
     {
-        AccountDto = new AccountDto();
-        AccountDto.Color = "#1976d2";
+        await base.OnParametersSetAsync();
+        CategoryDto = new CategoryDto();
+        CategoryDto.Color = "#1976d2";
 
-        if (AccountId == null)
+        if (Type != null)
+        {
+            CategoryDto.Type = Type;
+        }
+
+        if (CategoryId == null)
         {
             return;
         }
-
+        
         try
         {
-            string url = $"api/accounts/{AccountId}";
+            string url = $"api/categories/{CategoryId}";
             var request = new HttpRequestMessage(HttpMethod.Get, url);
             var response = await Http.SendAsync(request);
             if(response.IsSuccessStatusCode)
             {
-                AccountDto = await response.Content.ReadFromJsonAsync<AccountDto>();
+                CategoryDto = await response.Content.ReadFromJsonAsync<CategoryDto>() ?? new();
             }
             else
             {
-                Snackbar.Add("Error getting account!", Severity.Error);
+                Snackbar.Add("Error getting category!", Severity.Error);
                 MudDialog.Close();
                 return;
             }
@@ -112,32 +125,31 @@
             StateHasChanged();
             return;
         }
-
         try
         {
             HttpResponseMessage? response;
-            if(AccountId == null){
-                string url = $"api/accounts";
+            if(CategoryId == null){
+                string url = $"api/categories";
                 var request = new HttpRequestMessage(HttpMethod.Post, url);
-                request.Content = JsonContent.Create(AccountDto);
+                request.Content = JsonContent.Create(CategoryDto);
                 request.Content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
                 response = await Http.SendAsync(request);
             }
             else{
-                string url = $"api/accounts/{AccountId}";
+                string url = $"api/categories/{CategoryId}";
                 var request = new HttpRequestMessage(HttpMethod.Put, url);
-                request.Content = JsonContent.Create(AccountDto);
+                request.Content = JsonContent.Create(CategoryDto);
                 request.Content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
                 response = await Http.SendAsync(request);
             }
 
             if(response.IsSuccessStatusCode){
-                Snackbar.Add("Account saved successfully!", Severity.Success);
+                Snackbar.Add("Category saved successfully!", Severity.Success);
                 MudDialog.Close(DialogResult.Ok(result: true));
             }
             else
             {
-                Snackbar.Add("Error saving account!", Severity.Error);
+                Snackbar.Add("Error saving category!", Severity.Error);
                 MudDialog.Close();
                 return;
             }
