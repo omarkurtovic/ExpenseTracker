@@ -69,7 +69,7 @@ else
                         <MudItem xs="12">
                             <MudButton OnClick="OnExpandCollapseClick" Variant="Variant.Outlined">Filters</MudButton>
                         </MudItem>
-                        <MudItem xs="12">
+                        <MudItem xs="12" Style="padding-top: 0px;">
                             <MudCollapse Expanded="_expanded" Class="">
                                 <TransactionsFilter TransactionsPageStateDto="TransactionsPageStateDto" OnFiltersChanged="@(() => StateHasChanged())" />
                             </MudCollapse>
@@ -107,10 +107,10 @@ else
                 }
                 else
                 {
-                    <MudItem xs="12" Class="mt-4">
+                    <MudItem xs="12" Style="height: 100%;">
                         <MudPaper Outlined="true" Elevation="1" Class="border-2">
-                            <MudDataGrid @ref="@_dataGrid" T="Transaction" Hover Groupable
-                                Height="700px" Virtualize="true" Items="TransactionsPageStateDto.FilteredTransactions" ItemSize="52.68f">
+                            <MudDataGrid @ref="@_dataGrid" T="Transaction" Hover Groupable Height="45vh" ItemSize="30f"
+                                Items="TransactionsPageStateDto.FilteredTransactions" FixedHeader FixedFooter>
                                 <Columns>
                                     <TemplateColumn Title="Account">
                                         <CellTemplate>
@@ -155,7 +155,7 @@ else
                                     </TemplateColumn>
                                     <TemplateColumn Title="Tags">
                                         <CellTemplate>
-                                            <MudPaper Elevation="0" Class="d-flex gap-1 flex-wrap">
+                                            <MudPaper Elevation="0" Class="d-flex gap-1 flex-wrap" Style="background-color:transparent;">
                                                 @foreach (var tag in context.Item.TransactionTags)
                                                 {
                                                     <MudChip T="string" Style="@($"background-color:{tag.Tag.Color}; color:white;")"
@@ -168,7 +168,7 @@ else
                                     </TemplateColumn>
                                     <TemplateColumn>
                                         <CellTemplate>
-                                            <MudPaper Elevation="0" Class="d-flex gap-4">
+                                            <MudPaper Elevation="0" Class="d-flex gap-4" Style="background-color:transparent;">
                                                 <MudIconButton Icon="@Icons.Material.Filled.Edit" Color="Color.Primary"
                                                     OnClick="@(() => OpenTransactionDialogAsync(context.Item.Id))">
                                                 </MudIconButton>
@@ -266,7 +266,14 @@ else
 
         var dialog = await DialogService.ShowAsync<TransactionDialog>(title: "Simple Dialog", parameters, options);
         var result = await dialog.Result;
+
+        // after editing it's quite possible that the user changed some transactions
+        // but also that he changed some tags
+
         var transactions = await Mediator.Send(new GetTransactionsQuery() { UserId = CurrentUserService.GetUserId(), IsReoccuring = IsReoccuring });
+        var tags = await Mediator.Send(new GetTagsQuery() { UserId = CurrentUserService.GetUserId() });
+        
+        TransactionsPageStateDto.RefreshTags(tags);
         TransactionsPageStateDto.RefreshTransactions(transactions);
     }
 
@@ -307,8 +314,7 @@ else
         
         if (!result.Canceled)
         {
-            var transactions = await Mediator.Send(new GetTransactionsQuery() { UserId = CurrentUserService.GetUserId(), IsReoccuring = IsReoccuring });
-            TransactionsPageStateDto.RefreshTransactions(transactions);
+            TransactionsPageStateDto = await GetTransactionsPageState();
         }
     }
 
@@ -343,6 +349,7 @@ else
         {
             Snackbar.Add("Transactions were refreshed!", Severity.Success);
         }
+        StateHasChanged();
     }
 
     private MudDialog _filterDialog;

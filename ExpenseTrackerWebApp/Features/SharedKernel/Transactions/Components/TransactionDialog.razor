@@ -8,6 +8,7 @@
 @using ExpenseTrackerWebApp.Features.SharedKernel.Transactions.Dtos
 @using ExpenseTrackerWebApp.Services
 
+@inject IDialogService DialogService
 @inject ISnackbar Snackbar
 @inject ISender Mediator   
 @inject ICurrentUserService CurrentUserService
@@ -89,10 +90,10 @@
                                 ToStringFunc="@(e => e == null ? null : e.Name)" Label="Add Tags" Variant="Variant.Outlined"
                                 ValueChanged="@OnTagSelected" Clearable="true" Class="flex-grow-1">
                                 <ItemTemplate>
-                                    <MudPaper Elevation="0" Class="d-flex gap-2">
+                                    <MudPaper Elevation="0" Class="d-flex gap-2" Style="background-color:transparent;">
                                         @if (!string.IsNullOrEmpty(context?.Color))
                                         {
-                                            <MudPaper Elevation="0" Class="d-flex gap-2">
+                                            <MudPaper Elevation="0" Class="d-flex gap-2" Style="background-color:transparent;">
 
                                                 <MudChip T="Tag" Style="@($"background-color:{context.Color}; color:white;")"
                                                     Size="Size.Small">@context.Name</MudChip>
@@ -113,7 +114,7 @@
                                         <span>No tags found </span>
                                         @if (!string.IsNullOrWhiteSpace(tagAutocomplete?.Text))
                                         {
-                                            <MudPaper Elevation="0" Class="d-flex justify-center mt-2">
+                                            <MudPaper Elevation="0" Class="d-flex justify-center mt-2" Style="background-color:transparent;">
                                                 <MudButton Variant="Variant.Outlined" OnClick="@CreateNewTag"
                                                     StartIcon="@Icons.Material.Filled.Add">
                                                     Create new tag: <strong>@tagAutocomplete.Text</strong>
@@ -125,7 +126,6 @@
                                 </NoItemsTemplate>
                             </MudAutocomplete>
                         </MudPaper>
-
                         <MudPaper Elevation="0" Class="d-flex gap-2 mt-2 flex-wrap">
                             @foreach (var tag in SelectedTags)
                             {
@@ -140,6 +140,7 @@
                                 </MudPaper>
                             }
                         </MudPaper>
+                        
 
                     </MudForm>
                 </MudItem>
@@ -283,13 +284,25 @@
 
     private async Task DeleteTag(Tag tag)
     {
-        await TagService.DeleteAsync(tag.Id);
-        AllTags.RemoveAll(t => t.Id == tag.Id);
-        RemoveTag(tag);
-        Snackbar.Add("Tag deleted successfully!", Severity.Success);
-        if (tagAutocomplete != null)
+        
+        var options = new DialogOptions { CloseOnEscapeKey = true };
+        var parameters = new DialogParameters<ConfirmDialog>
         {
-            await tagAutocomplete.ResetAsync();
+            { x => x.Message, "Are you sure you want to delete the tag? " }
+        };
+
+        var dialog = await DialogService.ShowAsync<ConfirmDialog>(title: "Warning", parameters, options);
+        var result = await dialog.Result;
+        if (!result.Canceled)
+        {
+            await TagService.DeleteAsync(tag.Id);
+            AllTags.RemoveAll(t => t.Id == tag.Id);
+            RemoveTag(tag);
+            Snackbar.Add("Tag deleted successfully!", Severity.Success);
+            if (tagAutocomplete != null)
+            {
+                await tagAutocomplete.ResetAsync();
+            }
         }
     }
 
@@ -317,7 +330,7 @@
             
             var message = TransactionId == null ? "Transaction successfully added!" : "Transaction successfully updated!";
             Snackbar.Add(message, MudBlazor.Severity.Success);
-            NewTransaction();
+            MudDialog.Close();
         }
         catch(FluentValidation.ValidationException vex){
             var errors = string.Join(", ", vex.Errors.Select(e => e.ErrorMessage));
