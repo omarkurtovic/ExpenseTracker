@@ -1,0 +1,26 @@
+@using MudBlazor
+<MudPaper Elevation="0" Class="d-flex gap-3 align-end" Style="background: transparent;">
+    @if (!string.IsNullOrEmpty(Icon))
+    {
+        <MudIcon Icon="@(Icon)" Style="@($"color: {IconColor};")" Size="@IconSize" />
+    }
+    <MudText Typo="@TextTypo">@Text</MudText>
+</MudPaper>
+
+
+@code{
+    [Parameter]
+    public required string Text { get; set; }
+
+    [Parameter]
+    public required string Icon { get; set; }
+
+    [Parameter]
+    public required string IconColor { get; set; }
+
+    [Parameter]
+    public Size IconSize { get; set; } = Size.Small;
+
+    [Parameter]
+    public Typo TextTypo { get; set; } = Typo.body2;
+}

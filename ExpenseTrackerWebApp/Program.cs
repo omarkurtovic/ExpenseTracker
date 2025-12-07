@@ -11,11 +11,13 @@ using Microsoft.EntityFrameworkCore;
 using MudBlazor;
 using MudBlazor.Services;
 using FluentValidation;
+using Microsoft.AspNetCore.Components.WebAssembly.Http;
 
 var builder = WebApplication.CreateBuilder(args);
 
 SetupCulture();
 ConfigureServices(builder.Services, builder.Environment);
+
 
 var app = builder.Build();
 
@@ -124,6 +126,7 @@ void ConfigureCustomServices(IServiceCollection services)
 {
     services.AddScoped<ICurrentUserService, CurrentUserService>();
     services.AddScoped<TagService>();
+    
 }
 
 void InitalizeDatabase(WebApplication app)
@@ -205,3 +208,4 @@ void ConfigurePipeline(WebApplication app)
         .AddInteractiveServerRenderMode();
 
 }
+

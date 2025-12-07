@@ -1,18 +1,12 @@
 @page "/accounts"
 @attribute [Authorize]
-@using ExpenseTrackerWebApp.Features.Accounts.Commands
-@using ExpenseTrackerWebApp.Features.Accounts.Dtos
-@using ExpenseTrackerWebApp.Features.Accounts.Queries
-@using ExpenseTrackerWebApp.Services
-@using MediatR
+@using ExpenseTrackerSharedCL.Features.Accounts.Dtos
 @using Microsoft.AspNetCore.Authorization
 @using MudBlazor
 @using Microsoft.AspNetCore.Components.Web
-@using ExpenseTrackerWebApp.Features.SharedKernel.Components
+@using ExpenseTrackerWasmWebApp.Features.SharedKernel.Components
 @inject IDialogService DialogService
 @inject ISnackbar Snackbar
-@inject ISender Mediator   
-@inject ICurrentUserService CurrentUserService
 @inject HttpClient Http
 @inject NavigationManager NavigationManager
 
@@ -115,7 +109,7 @@ else
         {
             try
             {
-                await Mediator.Send(new DeleteAccountCommand() { Id = accountId, UserId = CurrentUserService.GetUserId() });
+                //await Mediator.Send(new DeleteAccountCommand() { Id = accountId, UserId = CurrentUserService.GetUserId() });
                 Snackbar.Add("Account succesfully deleted! ", Severity.Success);
                 await UpdatePage();
             }

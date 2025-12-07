@@ -1,0 +1,25 @@
+@using MudBlazor
+@using ExpenseTrackerSharedCL.Features.Accounts.Dtos
+@using ExpenseTrackerWasmWebApp.Features.SharedKernel.Components
+
+<EntityCard OnEdit="@(() => OnEdit.InvokeAsync())" OnDelete="@(() => OnDelete.InvokeAsync())">
+    <HeaderContent>
+    <TextWithIcon Text="@Account.Name" Icon="@Account.Icon" IconColor="@Account.Color" IconSize="Size.Large" TextTypo="Typo.h6"></TextWithIcon>
+    </HeaderContent>
+    <Content>
+        <MudPaper Elevation="0" Class="d-flex flex-row gap-3 align-center">
+            <AmountDisplay Amount="@Account.CurrentBalance" FontSize="Typo.h4" />
+        </MudPaper>
+    </Content>
+</EntityCard>
+
+@code {
+    [Parameter]
+    public required AccountWithBalanceDto Account { get; set; }
+
+    [Parameter]
+    public EventCallback OnEdit { get; set; }
+
+    [Parameter]
+    public EventCallback OnDelete { get; set; }
+}

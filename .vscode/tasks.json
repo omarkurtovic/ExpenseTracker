@@ -36,6 +36,32 @@
                 "${workspaceFolder}/ExpenseTracker.sln"
             ],
             "problemMatcher": "$msCompile"
+        },
+        {
+            "label": "run-wasm",
+            "command": "dotnet",
+            "type": "process",
+            "args": [
+                "watch",
+                "run",
+                "--project",
+                "${workspaceFolder}/ExpenseTrackerWasmWebApp"
+            ],
+            "isBackground": true,
+            "problemMatcher": {
+                "owner": "msCompile",
+                "fileLocation": "absolute",
+                "pattern": "$msCompile",
+                "background": {
+                    "activeOnStart": true,
+                    "beginsPattern": "^\\s*dotnet watch",
+                    "endsPattern": "^\\s*Now listening on:\\s+(https?://\\S+)"
+                }
+            },
+            "presentation": {
+                "reveal": "always",
+                "panel": "dedicated"
+            }
         }
     ]
 }

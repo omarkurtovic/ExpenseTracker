@@ -1,0 +1,130 @@
+@using Microsoft.AspNetCore.Authorization
+@using MudBlazor
+@using ExpenseTrackerSharedCL.Features.Accounts.Dtos
+@using ExpenseTrackerWasmWebApp.Features.SharedKernel.Components
+@inject ISnackbar Snackbar
+
+@if (AccountDto is not null)
+{
+    <MudDialog>
+        <TitleContent>
+            <MudText Typo="Typo.h5">
+                @(AccountId == null ? "Add Account" : "Edit Account")
+            </MudText>
+        </TitleContent>
+        <DialogContent>
+            <MudGrid>
+                <MudItem xs="12">
+                    <MudForm @ref="form">
+                        <MudTextField @bind-Value="AccountDto.Name" Label="Name" Variant="Variant.Outlined" Required="true"
+                            RequiredError="Name is required!">
+                        </MudTextField>
+                        <MudNumericField @bind-Value="AccountDto.InitialBalance" Label="Initial Balance"
+                            Variant="Variant.Outlined" Required="true" RequiredError="Initial balace is required!"
+                            Format="F2" Class="mt-4">
+                        </MudNumericField>
+                        <MudPaper Elevation="0" Style="display: grid; grid-template-columns: 1fr 2fr; gap: 1rem;">
+                            <MudSelect @bind-Value="AccountDto.Icon" Label="Icon" Variant="Variant.Outlined" Required="true"
+                                RequiredError="Icon is required!" Class="flex-grow-1" Style="width: 100%;" FullWidth="true">
+                                @* @foreach (string? item in AccountsHelper.GetDefaultAccountIcons())
+                                {
+                                    <MudSelectItem Value="@item" Style="display: inline-block; width: 40px; height: 40px; padding: 8px;">
+                                        <MudIcon Icon="@item" Style="@($"color:{AccountDto.Color};")" Size="Size.Medium" />
+                                    </MudSelectItem>
+                                } *@
+                            </MudSelect>
+                            <MudColorPicker @bind-Text="AccountDto.Color" Label="Color" Variant="Variant.Outlined" Required="true"
+                                RequiredError="Color is required!" Style="flex-shrink: 0;">
+                            </MudColorPicker>
+                        </MudPaper>
+                    </MudForm>
+                </MudItem>
+                <MudItem xs="12" Class="d-flex justify-end gap-2 mt-12">
+                    <MudButton OnClick="Cancel" Variant="Variant.Outlined">Cancel</MudButton>
+                    <MudButton OnClick="Submit" Color="Color.Primary" Variant="Variant.Filled">Save</MudButton>
+                </MudItem>
+            </MudGrid>
+        </DialogContent>
+    </MudDialog>
+}
+
+<style>
+    .mud-dialog {
+        max-width: 600px !important;  
+        margin-inline: 15px;
+    }
+</style>
+
+@code {
+    MudForm form;
+
+    [CascadingParameter]
+    private IMudDialogInstance MudDialog { get; set; }
+
+    [Parameter]
+    public int? AccountId { get; set; }
+    private AccountDto AccountDto { get; set; }
+
+
+    protected override async Task OnParametersSetAsync()
+    {
+        AccountDto = new AccountDto();
+        AccountDto.Color = "#1976d2";
+
+        @* if (string.IsNullOrWhiteSpace(CurrentUserService.GetUserId()))
+        {
+            Snackbar.Add("Server error! Please try again.", MudBlazor.Severity.Error);
+            MudDialog.Close();
+            return;
+        } *@
+
+        if (AccountId == null)
+        {
+            return;
+        }
+
+        try{
+            //AccountDto = await Mediator.Send(new GetAccountQuery() { UserId = CurrentUserService.GetUserId(), Id = (int)AccountId });
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error getting account: {ex.Message}");
+            Snackbar.Add($"Error getting account!", MudBlazor.Severity.Error);
+            MudDialog.Close();
+            return;
+        }
+    }
+
+    private async Task Submit()
+    {
+        await form.Validate();
+        if (!form.IsValid)
+        {
+            StateHasChanged();
+            return;
+        }
+
+        @* try{
+            if(AccountId == null){
+                await Mediator.Send(new CreateAccountCommand() { AccountDto = AccountDto, UserId = CurrentUserService.GetUserId() });
+            }
+            else{
+                await Mediator.Send(new EditAccountCommand() { Id = (int)AccountId, AccountDto = AccountDto, UserId = CurrentUserService.GetUserId() });
+            }
+            
+            var message = AccountId == null ? "Account successfully added!" : "Account successfully updated!";
+            Snackbar.Add(message, MudBlazor.Severity.Success);
+            MudDialog.Close(DialogResult.Ok(result: true));
+        } *@
+        @* catch(FluentValidation.ValidationException vex){
+            var errors = string.Join(", ", vex.Errors.Select(e => e.ErrorMessage));
+            Snackbar.Add($"Validation error: {errors}!", MudBlazor.Severity.Error);
+        }
+        catch(Exception ex){
+            Console.WriteLine($"Error saving account: {ex.Message}");
+            Snackbar.Add($"Server error!", MudBlazor.Severity.Error);
+        } *@
+    }
+
+    private void Cancel() => MudDialog.Cancel();
+}

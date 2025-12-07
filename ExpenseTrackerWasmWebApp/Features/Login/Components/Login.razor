@@ -1,0 +1,98 @@
+
+@attribute [AllowAnonymous]
+@page "/login"
+@using Microsoft.AspNetCore.Authorization
+@using MudBlazor
+@using ExpenseTrackerSharedCL.Features.Login.Dtos
+@inject ISnackbar Snackbar
+@inject HttpClient Http
+@inject NavigationManager Nav
+
+<PageTitle>Login</PageTitle>
+
+<MudContainer MaxWidth="MaxWidth.Small" >
+    <MudPaper Class="pa-6 mt-6" Elevation="15">
+        <MudForm @ref="form">
+            <MudGrid>
+                <MudItem xs="12" Class="d-flex justify-center">
+                    <MudText Typo="Typo.h4">Welcome back!</MudText>
+                </MudItem>
+                <MudItem xs="12">
+                        <MudTextField @bind-Value="loginRequest.Email" Label="Email" Variant="Variant.Text"
+                            Required="true" RequiredError="Email is required!">
+                        </MudTextField>
+                </MudItem>
+                <MudItem xs="12">
+                    <MudTextField @bind-Value="loginRequest.Password" Label="Password"
+                    Required="true" RequiredError="Password is required!"
+                        Variant="Variant.Text" InputType="@PasswordInput"
+                        Adornment="Adornment.End" AdornmentIcon="@PasswordInputIcon"
+                        OnAdornmentClick="ShowPasswordClick" AdornmentAriaLabel="Show Password" />
+
+                </MudItem>
+                <MudItem xs="12" Class="d-flex justify-center">
+                    <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="@BtnLogin_Click" Class="px-20 py-1">Login</MudButton>
+                </MudItem>
+                <MudItem xs="12" Class="d-flex justify-center mt-10">
+                    <MudText Typo="Typo.body1">Dont't have an account? Register <MudButton Variant="Variant.Text" Color="Color.Secondary" OnClick="BtnRegister_Click">HERE</MudButton></MudText>
+                </MudItem>
+            </MudGrid>
+        </MudForm>
+    </MudPaper>
+</MudContainer>
+    
+    
+
+@code{
+
+
+    LoginRequestDto loginRequest = new LoginRequestDto();
+
+    private MudForm form;
+    private bool isShow;
+    private InputType PasswordInput = InputType.Password;
+    private string PasswordInputIcon = Icons.Material.Filled.VisibilityOff;
+
+    private async Task BtnLogin_Click(){
+        
+        await form.Validate();
+        if (!form.IsValid)
+        {
+            return;
+        }
+
+        HandleLogin();
+    }
+    
+    private async Task HandleLogin()
+    {
+        string url = "https://localhost:5001/api/login";
+        var response = await Http.PostAsJsonAsync(url, loginRequest);
+        
+        if (response.IsSuccessStatusCode)
+        {
+            var result = await response.Content.ReadFromJsonAsync<LoginResponseDto>();
+            @* await LocalStorage.SetItemAsync("token", result.Token);
+            Nav.NavigateTo("/"); *@
+        }
+    }
+
+    private void BtnRegister_Click(){
+        Nav.NavigateTo("Register");
+    }
+    
+    private void ShowPasswordClick()
+    {
+        @if (isShow)
+        {
+            isShow = false;
+            PasswordInputIcon = Icons.Material.Filled.VisibilityOff;
+            PasswordInput = InputType.Password;
+        }
+        else {
+            isShow = true;
+            PasswordInputIcon = Icons.Material.Filled.Visibility;
+            PasswordInput = InputType.Text;
+        }
+    }
+}

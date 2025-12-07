@@ -1,0 +1,44 @@
+@using MudBlazor
+@using Microsoft.AspNetCore.Components
+@using System.Globalization
+
+@if (Amount == 0)
+{
+    <MudText Typo="@FontSize">
+        @FormatCurrency(Amount)
+    </MudText>
+}
+else if (Amount < 0)
+{
+    <MudText Typo="@FontSize" Color="Color.Error">
+        @FormatCurrency(Amount)
+    </MudText>
+}
+else
+{
+    <MudText Typo="@FontSize" Color="Color.Success">
+        @FormatCurrency(Amount)
+    </MudText>
+}
+
+
+@code{
+    [Parameter]
+    public decimal Amount { get; set; }
+
+    [Parameter]
+    public Typo FontSize { get; set; } = Typo.body1;
+
+    private string FormatCurrency(decimal amount)
+    {
+        var culture = CultureInfo.CurrentCulture;
+        var formatted = amount.ToString("C2", culture);
+        
+        if (amount < 0 && formatted.Contains("("))
+        {
+            formatted = formatted.Replace("(", "-").Replace(")", "");
+        }
+        
+        return formatted;
+    }
+}
