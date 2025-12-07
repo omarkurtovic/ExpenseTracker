@@ -2,7 +2,10 @@
 @using MudBlazor
 @using ExpenseTrackerSharedCL.Features.Accounts.Dtos
 @using ExpenseTrackerWasmWebApp.Features.SharedKernel.Components
+@using System.Net.Http.Headers
+@inject HttpClient Http
 @inject ISnackbar Snackbar
+@inject IJSRuntime JSRuntime
 
 @if (AccountDto is not null)
 {
@@ -26,12 +29,12 @@
                         <MudPaper Elevation="0" Style="display: grid; grid-template-columns: 1fr 2fr; gap: 1rem;">
                             <MudSelect @bind-Value="AccountDto.Icon" Label="Icon" Variant="Variant.Outlined" Required="true"
                                 RequiredError="Icon is required!" Class="flex-grow-1" Style="width: 100%;" FullWidth="true">
-                                @* @foreach (string? item in AccountsHelper.GetDefaultAccountIcons())
+                                @foreach (string? item in AccountsHelper.GetDefaultAccountIcons())
                                 {
                                     <MudSelectItem Value="@item" Style="display: inline-block; width: 40px; height: 40px; padding: 8px;">
                                         <MudIcon Icon="@item" Style="@($"color:{AccountDto.Color};")" Size="Size.Medium" />
                                     </MudSelectItem>
-                                } *@
+                                }
                             </MudSelect>
                             <MudColorPicker @bind-Text="AccountDto.Color" Label="Color" Variant="Variant.Outlined" Required="true"
                                 RequiredError="Color is required!" Style="flex-shrink: 0;">
@@ -71,20 +74,20 @@
         AccountDto = new AccountDto();
         AccountDto.Color = "#1976d2";
 
-        @* if (string.IsNullOrWhiteSpace(CurrentUserService.GetUserId()))
-        {
-            Snackbar.Add("Server error! Please try again.", MudBlazor.Severity.Error);
-            MudDialog.Close();
-            return;
-        } *@
-
         if (AccountId == null)
         {
             return;
         }
 
         try{
-            //AccountDto = await Mediator.Send(new GetAccountQuery() { UserId = CurrentUserService.GetUserId(), Id = (int)AccountId });
+            
+            string storedToken = await JSRuntime.InvokeAsync<string>("localStorage.getItem", "authToken");
+            string url = $"http://localhost:5001/api/accounts/{AccountId}";
+            var request = new HttpRequestMessage(HttpMethod.Get, url);
+            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", storedToken);
+            var response = await Http.SendAsync(request);
+            response.EnsureSuccessStatusCode();
+            AccountDto = await response.Content.ReadFromJsonAsync<AccountDto>();
         }
         catch (Exception ex)
         {
@@ -104,26 +107,36 @@
             return;
         }
 
-        @* try{
+        try{
             if(AccountId == null){
-                await Mediator.Send(new CreateAccountCommand() { AccountDto = AccountDto, UserId = CurrentUserService.GetUserId() });
+                string storedToken = await JSRuntime.InvokeAsync<string>("localStorage.getItem", "authToken");
+                string url = "http://localhost:5001/api/accounts";
+                var request = new HttpRequestMessage(HttpMethod.Post, url);
+                request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", storedToken);
+                request.Content = JsonContent.Create(AccountDto);
+                request.Content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
+                var response = await Http.SendAsync(request);
+                response.EnsureSuccessStatusCode();
             }
             else{
-                await Mediator.Send(new EditAccountCommand() { Id = (int)AccountId, AccountDto = AccountDto, UserId = CurrentUserService.GetUserId() });
-            }
+                string storedToken = await JSRuntime.InvokeAsync<string>("localStorage.getItem", "authToken");
+                string url = $"http://localhost:5001/api/accounts/{AccountId}";
+                var request = new HttpRequestMessage(HttpMethod.Put, url);
+                request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", storedToken);
+                request.Content = JsonContent.Create(AccountDto);
+                request.Content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
+                var response = await Http.SendAsync(request);
+                response.EnsureSuccessStatusCode();    
+            }        
             
             var message = AccountId == null ? "Account successfully added!" : "Account successfully updated!";
             Snackbar.Add(message, MudBlazor.Severity.Success);
             MudDialog.Close(DialogResult.Ok(result: true));
-        } *@
-        @* catch(FluentValidation.ValidationException vex){
-            var errors = string.Join(", ", vex.Errors.Select(e => e.ErrorMessage));
-            Snackbar.Add($"Validation error: {errors}!", MudBlazor.Severity.Error);
-        }
+        } 
         catch(Exception ex){
             Console.WriteLine($"Error saving account: {ex.Message}");
             Snackbar.Add($"Server error!", MudBlazor.Severity.Error);
-        } *@
+        } 
     }
 
     private void Cancel() => MudDialog.Cancel();

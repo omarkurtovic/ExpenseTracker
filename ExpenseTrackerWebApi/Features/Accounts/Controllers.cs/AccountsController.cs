@@ -10,6 +10,7 @@ namespace ExpenseTrackerWebApi.Features.Accounts.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize]
     public class AccountsController : ControllerBase
     {
         private readonly ISender _mediator;   
@@ -21,14 +22,13 @@ namespace ExpenseTrackerWebApi.Features.Accounts.Controllers
             _userManager = userManager;
         }
 
-        [Authorize]
         [HttpGet]
         public async Task<IActionResult> GetAllAccounts()
         {
             try
             {
-                var user = await _userManager.GetUserAsync(User);
-                var accounts = await _mediator.Send(new GetAccountsWithBalanceQuery() { UserId = user.Id });
+                var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+                var accounts = await _mediator.Send(new GetAccountsWithBalanceQuery() { UserId = userId });
                 return Ok(accounts);
             }
             catch (Exception ex)
@@ -43,8 +43,8 @@ namespace ExpenseTrackerWebApi.Features.Accounts.Controllers
         {
             try
             {
-                var user = await _userManager.GetUserAsync(User);
-                var accountDto = await _mediator.Send(new GetAccountQuery() { UserId = user.Id, Id = id });
+                var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+                var accountDto = await _mediator.Send(new GetAccountQuery() { UserId = userId, Id = id });
                 if(accountDto == null)
                 {
                     return NotFound();
@@ -64,8 +64,8 @@ namespace ExpenseTrackerWebApi.Features.Accounts.Controllers
         {
             try
             {
-                var user = await _userManager.GetUserAsync(User);
-                await _mediator.Send(new CreateAccountCommand() { AccountDto = accountDto, UserId = user.Id });
+                var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+                await _mediator.Send(new CreateAccountCommand() { AccountDto = accountDto, UserId = userId });
                 return Ok();
             }
 
@@ -86,8 +86,8 @@ namespace ExpenseTrackerWebApi.Features.Accounts.Controllers
         {
             try
             {
-                var user = await _userManager.GetUserAsync(User);
-                await _mediator.Send(new EditAccountCommand() { Id = id, AccountDto = accountDto, UserId = user.Id });
+                var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+                await _mediator.Send(new EditAccountCommand() { Id = id, AccountDto = accountDto, UserId = userId });
                 return Ok();
             }
 
@@ -108,8 +108,8 @@ namespace ExpenseTrackerWebApi.Features.Accounts.Controllers
         {
             try
             {
-                var user = await _userManager.GetUserAsync(User);
-                await _mediator.Send(new DeleteAccountCommand() { Id = id, UserId = user.Id });
+                var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+                await _mediator.Send(new DeleteAccountCommand() { Id = id, UserId = userId });
                 return Ok("Account deleted successfully.");
             }
             catch (Exception ex)

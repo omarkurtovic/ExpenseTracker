@@ -5,10 +5,11 @@
 @using MudBlazor
 @using Microsoft.AspNetCore.Components.Web
 @using ExpenseTrackerWasmWebApp.Features.SharedKernel.Components
+@using System.Net.Http.Headers
 @inject IDialogService DialogService
 @inject ISnackbar Snackbar
 @inject HttpClient Http
-@inject NavigationManager NavigationManager
+@inject IJSRuntime JSRuntime
 
 <PageTitle>Accounts</PageTitle>
 
@@ -109,7 +110,12 @@ else
         {
             try
             {
-                //await Mediator.Send(new DeleteAccountCommand() { Id = accountId, UserId = CurrentUserService.GetUserId() });
+                string storedToken = await JSRuntime.InvokeAsync<string>("localStorage.getItem", "authToken");
+                string url = $"http://localhost:5001/api/accounts/{accountId}";
+                var request = new HttpRequestMessage(HttpMethod.Delete, url);
+                request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", storedToken);
+                var response = await Http.SendAsync(request);
+                response.EnsureSuccessStatusCode();
                 Snackbar.Add("Account succesfully deleted! ", Severity.Success);
                 await UpdatePage();
             }
@@ -125,8 +131,14 @@ else
     private async Task UpdatePage()
     {
         try
-        {
-            MyAccounts = await Http.GetFromJsonAsync<List<AccountWithBalanceDto>>($"{NavigationManager.BaseUri}api/accounts");
+        {       
+            string storedToken = await JSRuntime.InvokeAsync<string>("localStorage.getItem", "authToken");
+            string url = "http://localhost:5001/api/accounts";
+            var request = new HttpRequestMessage(HttpMethod.Get, url);
+            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", storedToken);
+            var response = await Http.SendAsync(request);
+            response.EnsureSuccessStatusCode();
+            MyAccounts = await response.Content.ReadFromJsonAsync<List<AccountWithBalanceDto>>();
         }
         catch (HttpRequestException ex)
         {

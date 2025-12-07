@@ -6,7 +6,8 @@
 @using ExpenseTrackerSharedCL.Features.Login.Dtos
 @inject ISnackbar Snackbar
 @inject HttpClient Http
-@inject NavigationManager Nav
+@inject NavigationManager Nav    
+@inject IJSRuntime JSRuntime
 
 <PageTitle>Login</PageTitle>
 
@@ -61,19 +62,22 @@
             return;
         }
 
-        HandleLogin();
+        await HandleLogin();
     }
     
     private async Task HandleLogin()
     {
-        string url = "https://localhost:5001/api/login";
+        string url = "http://localhost:5001/api/login";
         var response = await Http.PostAsJsonAsync(url, loginRequest);
         
         if (response.IsSuccessStatusCode)
         {
             var result = await response.Content.ReadFromJsonAsync<LoginResponseDto>();
-            @* await LocalStorage.SetItemAsync("token", result.Token);
-            Nav.NavigateTo("/"); *@
+            await JSRuntime.InvokeVoidAsync("localStorage.setItem", "authToken", result.Token);
+            Nav.NavigateTo("/");
+        }
+        else{
+            Snackbar.Add("Login failed. Please check your credentials and try again.", Severity.Error);
         }
     }
 

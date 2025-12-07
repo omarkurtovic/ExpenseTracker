@@ -16,7 +16,13 @@ public class LoginController : ControllerBase
     private readonly UserManager<IdentityUser> _userManager;
     private readonly IConfiguration _config;
 
-    [HttpPost("login")]
+    public LoginController(UserManager<IdentityUser> userManager, IConfiguration config)
+    {
+        _userManager = userManager;
+        _config = config;
+    }
+
+    [HttpPost]
     public async Task<IActionResult> Login([FromBody] LoginRequestDto request)
     {
         var user = await _userManager.FindByNameAsync(request.Email);
@@ -29,22 +35,20 @@ public class LoginController : ControllerBase
 
     private string GenerateJwt(IdentityUser user)
     {
-        var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"]));
-        var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
-
         var claims = new[]
         {
-            new Claim(ClaimTypes.NameIdentifier, user.Id),
-            new Claim(ClaimTypes.Name, user.UserName)
+            new Claim(JwtRegisteredClaimNames.Sub, user.Id)
         };
 
+        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("YourSuperSecretKeyThatIsAtLeast32CharactersLongForSecurity"));
+        var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+
         var token = new JwtSecurityToken(
-            issuer: _config["Jwt:Issuer"],
-            audience: _config["Jwt:Audience"],
+            issuer: "ExpenseTrackerWebApi",
+            audience: "ExpenseTrackerWebApiUsers",
             claims: claims,
-            expires: DateTime.UtcNow.AddHours(1),
-            signingCredentials: credentials
-        );
+            expires: DateTime.Now.AddMinutes(30),
+            signingCredentials: creds);
 
         return new JwtSecurityTokenHandler().WriteToken(token);
     }
