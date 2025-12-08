@@ -181,7 +181,11 @@ else
                 if(response.IsSuccessStatusCode)
                 {
                     Snackbar.Add("Budget succesfully deleted! ", Severity.Success);
-                    await RefreshPage();
+                    BudgetWithProgressDto? budgetToRemove = MyBudgets?.FirstOrDefault(b => b.Id == budget_id);
+                    if (budgetToRemove != null)
+                    {
+                        MyBudgets?.Remove(budgetToRemove);
+                    }
                 }
                 else
                 {
@@ -192,9 +196,6 @@ else
             {
                 Snackbar.Add($"An error occurred: {ex.Message}", Severity.Error);
             }
-
-            await RefreshPage();
-            StateHasChanged();
         }
     }
 

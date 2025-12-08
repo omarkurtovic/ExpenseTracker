@@ -122,19 +122,20 @@
 
             if(response.IsSuccessStatusCode){
                 Snackbar.Add("Budget saved successfully!", Severity.Success);
+                
                 MudDialog.Close(DialogResult.Ok(result: true));
             }
             else
             {
                 Snackbar.Add("Error saving budget!", Severity.Error);
-                MudDialog.Close();
+                MudDialog.Close(DialogResult.Ok(result: false));
                 return;
             }
         }
         catch (Exception ex)
         {
             Snackbar.Add($"An error occurred: {ex.Message}", Severity.Error);
-            MudDialog.Close();
+            MudDialog.Close(DialogResult.Ok(result: false));
             return;
         }
     }
