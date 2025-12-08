@@ -4,15 +4,15 @@ using MediatR;
 
 namespace ExpenseTrackerWebApi.Features.Categories.Queries
 {
-    public class GetCategoriesWithStatsQuery : IRequest<List<CategoryWithStatsDto>>
+    public class GetCategoriesQuery : IRequest<List<CategoryDto>>
     {
         public required string UserId { get; set; }
         public TransactionTypeDto? Type { get; set; }
     }
 
-    public class GetCategoriesWithStatsQueryValidator : AbstractValidator<GetCategoriesWithStatsQuery>
+    public class GetCategoriesQueryValidator : AbstractValidator<GetCategoriesQuery>
     {
-        public GetCategoriesWithStatsQueryValidator()
+        public GetCategoriesQueryValidator()
         {
             RuleFor(x => x.UserId)
                 .NotEmpty().WithMessage("User ID is required!");

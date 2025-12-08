@@ -44,7 +44,7 @@
                             Required="true" RequiredError="At least one category is required!">
                             @foreach (var category in Categories)
                             {
-                                <MudSelectItem Value="@(category.Id)">
+                                <MudSelectItem T="int" Value="@((int)category.Id)">
                                     <TextWithIcon Text="@category.Name" Icon="@category.Icon" IconColor="@category.Color" IconSize="Size.Small" TextTypo="Typo.body1"></TextWithIcon>
                                 </MudSelectItem>
                             }
@@ -55,7 +55,7 @@
                             Required="true" RequiredError="At least one account is required!">
                             @foreach (var account in Accounts)
                             {
-                                <MudSelectItem Value="@(account.Id)">
+                                <MudSelectItem T="int" Value="@((int)account.Id)">
                                     <TextWithIcon Text="@account.Name" Icon="@account.Icon" IconColor="@account.Color" IconSize="Size.Small" TextTypo="Typo.body1"></TextWithIcon>
                                 </MudSelectItem>
                             }
@@ -85,68 +85,13 @@
     private IMudDialogInstance MudDialog { get; set; }
 
     [Parameter]
-    public int? BudgetId { get; set; }
+    public BudgetDto BudgetDto {get; set;} = new();
 
     [Parameter]
-    public BudgetDto BudgetDto {get; set;} = new();
     public List<CategoryDto> Categories{get; set;} = new();
+    
+    [Parameter]
     public List<AccountDto> Accounts{get; set;} = new();
-
-    protected override async Task OnParametersSetAsync()
-    {
-        BudgetDto = new BudgetDto();
-        
-        try
-        {
-            string url = "api/accounts";
-            var request = new HttpRequestMessage(HttpMethod.Get, url);
-            var response = await Http.SendAsync(request);
-            if(response.IsSuccessStatusCode)
-            {
-                Accounts = await response.Content.ReadFromJsonAsync<List<AccountDto>>();
-            }
-            else
-            {
-                Snackbar.Add("Error fetching accounts!", Severity.Error);
-            }
-
-            
-            url = "api/categories";
-            request = new HttpRequestMessage(HttpMethod.Get, url);
-            response = await Http.SendAsync(request);
-            if(response.IsSuccessStatusCode)
-            {
-                Categories = await response.Content.ReadFromJsonAsync<List<CategoryDto>>();
-            }
-            else
-            {
-                Snackbar.Add("Error fetching categories!", Severity.Error);
-            }
-
-            if (BudgetId == null)
-            {
-                return;
-            }
-
-            url = $"api/budgets/{BudgetId}";
-            request = new HttpRequestMessage(HttpMethod.Get, url);
-            response = await Http.SendAsync(request);
-            if(response.IsSuccessStatusCode)
-            {
-                BudgetDto = await response.Content.ReadFromJsonAsync<BudgetDto>() ?? new();
-            }
-            else
-            {
-                Snackbar.Add("Error getting budget!", Severity.Error);
-                MudDialog.Close();
-                return;
-            }
-        }
-        catch (Exception ex)
-        {
-            Snackbar.Add($"An error occurred: {ex.Message}", Severity.Error);
-        }
-    }
 
     private async Task Submit()
     {
@@ -160,7 +105,7 @@
         try
         {
             HttpResponseMessage? response;
-            if(BudgetId == null){
+            if(BudgetDto.Id == null){
                 string url = $"api/budgets";
                 var request = new HttpRequestMessage(HttpMethod.Post, url);
                 request.Content = JsonContent.Create(BudgetDto);
@@ -168,7 +113,7 @@
                 response = await Http.SendAsync(request);
             }
             else{
-                string url = $"api/budgets/{BudgetId}";
+                string url = $"api/budgets/{BudgetDto.Id}";
                 var request = new HttpRequestMessage(HttpMethod.Put, url);
                 request.Content = JsonContent.Create(BudgetDto);
                 request.Content.Headers.ContentType = new MediaTypeHeaderValue("application/json");

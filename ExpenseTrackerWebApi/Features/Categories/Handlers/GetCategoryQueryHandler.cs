@@ -33,7 +33,7 @@ namespace ExpenseTrackerWebApi.Features.Categories.Handlers
             return new CategoryDto
             {
                 Name = category.Name,
-                Type = (ExpenseTrackerSharedCL.Features.Categories.Dtos.TransactionType)category.Type,
+                Type = (TransactionTypeDto)category.Type,
                 Icon = category.Icon,
                 Color = category.Color
             };

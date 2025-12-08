@@ -1,89 +1,75 @@
-using ExpenseTrackerWebApi.Features.Accounts.Commands;
-using ExpenseTrackerSharedCL.Features.Accounts.Dtos;
+
+using ExpenseTrackerSharedCL.Features.Budgets.Dtos;
 using ExpenseTrackerWebApi.Features.Accounts.Queries;
+using ExpenseTrackerWebApi.Features.Budgets.Commands;
+using ExpenseTrackerWebApi.Features.Budgets.Queries;
+using ExpenseTrackerWebApi.Features.Categories.Queries;
 using MediatR;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
-namespace ExpenseTrackerWebApi.Features.Accounts.Controllers
+namespace ExpenseTrackerWebApi.Features.Budgets.Controllers
 {
+
     [ApiController]
-    [Route("api/[controller]")]
-    [Authorize]
-    public class AccountsController : ControllerBase
+    [Route("api/budgets")]
+    public class BudgetController : ControllerBase
     {
         private readonly ISender _mediator;   
         private readonly UserManager<IdentityUser> _userManager;
 
-        public AccountsController(ISender mediator, UserManager<IdentityUser> userManager)
+        public BudgetController(ISender mediator, UserManager<IdentityUser> userManager)
         {
             _mediator = mediator;
             _userManager = userManager;
         }
 
+
+
         [HttpGet]
-        public async Task<IActionResult> GetAccounts()
+        public async Task<IActionResult> GetBudgetsWithProgress()
         {
             try
             {
                 var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
-                var accounts = await _mediator.Send(new GetAccountsQuery() { UserId = userId });
-                return Ok(accounts);
+                var budgets = await _mediator.Send(new GetBudgetsWithProgressQuery() { UserId = userId });
+                return Ok(budgets);
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error getting accounts: {ex.Message}");
-                return StatusCode(500, "An error occurred while processing your request.");
-            }
-        }
-
-
-        [HttpGet]
-        [Route("with-balances")]
-        public async Task<IActionResult> GetAccountsWithBalance()
-        {
-            try
-            {
-                var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
-                var accounts = await _mediator.Send(new GetAccountsWithBalanceQuery() { UserId = userId });
-                return Ok(accounts);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error getting accounts: {ex.Message}");
+                Console.WriteLine($"Error getting budgets with progress: {ex.Message}");
                 return StatusCode(500, "An error occurred while processing your request.");
             }
         }
 
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetAccountById(int id)
+        public async Task<IActionResult> GetBudgetById(int id)
         {
             try
             {
                 var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
-                var accountDto = await _mediator.Send(new GetAccountQuery() { UserId = userId, Id = id });
-                if(accountDto == null)
+                var budgetDto = await _mediator.Send(new GetBudgetQuery() { UserId = userId, Id = id });
+                if(budgetDto == null)
                 {
                     return NotFound();
                 }
 
-                return Ok(accountDto);
+                return Ok(budgetDto);
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error getting account: {ex.Message}");
+                Console.WriteLine($"Error getting budget: {ex.Message}");
                 return StatusCode(500, "An error occurred while processing your request.");
             }
         }
 
         [HttpPost]
-        public async Task<IActionResult> CreateAccount([FromBody] AccountDto accountDto)
+        public async Task<IActionResult> CreateBudget([FromBody] BudgetDto budgetDto)
         {
             try
             {
                 var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
-                await _mediator.Send(new CreateAccountCommand() { AccountDto = accountDto, UserId = userId });
+                await _mediator.Send(new CreateBudgetCommand() { BudgetDto = budgetDto, UserId = userId });
                 return Ok();
             }
 
@@ -94,18 +80,18 @@ namespace ExpenseTrackerWebApi.Features.Accounts.Controllers
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error saving account: {ex.Message}");
+                Console.WriteLine($"Error saving budget: {ex.Message}");
                 return StatusCode(500, "An error occurred while processing your request.");
             }
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateAccount(int id, [FromBody] AccountDto accountDto)
+        public async Task<IActionResult> UpdateBudget(int id, [FromBody] BudgetDto budgetDto)
         {
             try
             {
                 var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
-                await _mediator.Send(new EditAccountCommand() { Id = id, AccountDto = accountDto, UserId = userId });
+                await _mediator.Send(new EditBudgetCommand() { Id = id, BudgetDto = budgetDto, UserId = userId });
                 return Ok();
             }
 
@@ -116,23 +102,23 @@ namespace ExpenseTrackerWebApi.Features.Accounts.Controllers
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error saving account: {ex.Message}");
+                Console.WriteLine($"Error saving budget: {ex.Message}");
                 return StatusCode(500, "An error occurred while processing your request.");
             }
         }
 
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteAccount(int id)
+        public async Task<IActionResult> DeleteBudget(int id)
         {
             try
             {
                 var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
-                await _mediator.Send(new DeleteAccountCommand() { Id = id, UserId = userId });
-                return Ok("Account deleted successfully.");
+                await _mediator.Send(new DeleteBudgetCommand() { Id = id, UserId = userId });
+                return Ok("Budget deleted successfully.");
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error deleting account: {ex.Message}");
+                Console.WriteLine($"Error deleting budget: {ex.Message}");
                 return StatusCode(500, "An error occurred while processing your request.");
             }
         }

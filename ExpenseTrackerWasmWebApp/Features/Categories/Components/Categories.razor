@@ -75,7 +75,7 @@ else
 @code {
     private int activePanelIndex = 0;
     private List<CategoryWithStatsDto> MyCategories { get; set; } = new();
-    private TransactionType transactionType = TransactionType.Expense;
+    private TransactionTypeDto transactionType = TransactionTypeDto.Expense;
 
     bool loading = true;
     protected override async Task OnInitializedAsync()
@@ -96,7 +96,7 @@ else
         var parameters = new DialogParameters<CategoryDialog>
         {
             { x => x.CategoryId, category_id },
-            { x => x.Type, activePanelIndex == 0 ? TransactionType.Expense : TransactionType.Income }
+            { x => x.Type, activePanelIndex == 0 ? TransactionTypeDto.Expense : TransactionTypeDto.Income }
         };
 
         var dialog = await DialogService.ShowAsync<CategoryDialog>(title: "", parameters, options);
@@ -147,7 +147,7 @@ else
 
     private async Task PanelChanged(int index){
         activePanelIndex = index;
-        transactionType = index == 0 ? TransactionType.Expense : TransactionType.Income;
+        transactionType = index == 0 ? TransactionTypeDto.Expense : TransactionTypeDto.Income;
         await RefreshPage();
     }
 
@@ -155,7 +155,7 @@ else
     {
         try
         {
-            string url = $"api/categories?type={(int)transactionType}";
+            string url = $"api/categories/with-stats/?type={(int)transactionType}";
             var request = new HttpRequestMessage(HttpMethod.Get, url);
             var response = await Http.SendAsync(request);
             if(response.IsSuccessStatusCode)
@@ -177,7 +177,7 @@ else
         @if(MyCategories == null || MyCategories.Count == 0)
         {
             <MudItem xs="12" Class="d-flex justify-center mt-4">
-                <MudText Typo="Typo.h5">No @(transactionType == TransactionType.Expense ? "expense" : "income") categories found!</MudText>
+                <MudText Typo="Typo.h5">No @(transactionType == TransactionTypeDto.Expense ? "expense" : "income") categories found!</MudText>
             </MudItem>
         }
         else

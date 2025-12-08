@@ -5,7 +5,7 @@ namespace ExpenseTrackerSharedCL.Features.Categories.Dtos
     {
         public int Id{get; set;}
         public string? Name{get; set;}
-        public TransactionType? Type { get; set; }
+        public TransactionTypeDto? Type { get; set; }
         public string? Icon{get; set;}
         public string? Color{get; set;}
         public int TransactionsCount{get; set;}
@@ -20,7 +20,7 @@ namespace ExpenseTrackerSharedCL.Features.Categories.Dtos
                 if (LastMonthAmount == 0)
                 return MudBlazor.Color.Default;
 
-                if(Type == TransactionType.Expense)
+                if(Type == TransactionTypeDto.Expense)
                 {
                     if (CurrentMonthAmount < LastMonthAmount)
                         return MudBlazor.Color.Success;
@@ -29,7 +29,7 @@ namespace ExpenseTrackerSharedCL.Features.Categories.Dtos
                     else
                         return MudBlazor.Color.Default;
                 }
-                else if(Type == TransactionType.Income)
+                else if(Type == TransactionTypeDto.Income)
                 {
                     if (CurrentMonthAmount > LastMonthAmount)
                         return MudBlazor.Color.Success;
@@ -60,10 +60,5 @@ namespace ExpenseTrackerSharedCL.Features.Categories.Dtos
             }
         }
             
-    }
-    public enum TransactionType
-    {
-        Income = 0,
-        Expense = 1
     }
 }

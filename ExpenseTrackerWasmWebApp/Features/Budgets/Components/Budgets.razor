@@ -1,7 +1,9 @@
 @page "/budgets"
 @attribute [Authorize]
 
+@using ExpenseTrackerSharedCL.Features.Accounts.Dtos
 @using ExpenseTrackerSharedCL.Features.Budgets.Dtos
+@using ExpenseTrackerSharedCL.Features.Categories.Dtos
 @using Microsoft.AspNetCore.Authorization
 @using MudBlazor
 @using Microsoft.AspNetCore.Components.Web
@@ -11,6 +13,7 @@
 @inject ISnackbar Snackbar
 @inject HttpClient Http
 @inject IJSRuntime JSRuntime
+@inject NavigationManager NavigationManager
 
 <PageTitle>Budgets</PageTitle>
 
@@ -72,25 +75,79 @@ else
 @code {
    
     private List<BudgetWithProgressDto>? MyBudgets { get; set; }
+    private List<CategoryDto> CategoryDtos { get; set; } = new();
+    private List<AccountDto> AccountDtos { get; set; } = new();
     private bool loading = true;
     protected override async Task OnInitializedAsync()
     {
         await base.OnInitializedAsync();
+        try
+        {
+            string url = "api/accounts";
+            var request = new HttpRequestMessage(HttpMethod.Get, url);
+            var response = await Http.SendAsync(request);
+            if(response.IsSuccessStatusCode)
+            {
+                AccountDtos = await response.Content.ReadFromJsonAsync<List<AccountDto>>();
+            }
+            else
+            {
+                Snackbar.Add("Error fetching accounts!", Severity.Error);
+            }
+
+            
+            url = "api/categories";
+            request = new HttpRequestMessage(HttpMethod.Get, url);
+            response = await Http.SendAsync(request);
+            if(response.IsSuccessStatusCode)
+            {
+                CategoryDtos = await response.Content.ReadFromJsonAsync<List<CategoryDto>>();
+            }
+            else
+            {
+                Snackbar.Add("Error fetching categories!", Severity.Error);
+            }
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"An error occurred: {ex.Message}", Severity.Error);
+            NavigationManager.NavigateTo("/");
+
+        }
+
         await RefreshPage();
         loading = false;
     }
 
-    private async Task OpenBudgetDialogAsync(int? budget_id)
+    private async Task OpenBudgetDialogAsync(BudgetWithProgressDto? budget)
     {
+        var budgetDto = new BudgetDto();
+        if(budget != null)
+        {
+            budgetDto = new BudgetDto
+            {
+                Id = budget.Id,
+                Name = budget.Name,
+                Amount = budget.Amount,
+                BudgetType = budget.BudgetType,
+                Description = budget.Description,
+                Categories = budget.BudgetCategories.Select(c => c.CategoryId).ToList(),
+                Accounts = budget.BudgetAccounts.Select(a => a.AccountId).ToList()
+            };
+        }
+
         var options = new DialogOptions { 
             CloseOnEscapeKey = true, 
             NoHeader=false, 
             CloseButton=true, 
             MaxWidth=MaxWidth.Medium  
         };
+
         var parameters = new DialogParameters<BudgetDialog>
         {
-            { x => x.BudgetId, budget_id }
+            { x => x.BudgetDto, budgetDto },
+            { x => x.Categories, CategoryDtos },
+            { x => x.Accounts, AccountDtos }
         };
 
         var dialog = await DialogService.ShowAsync<BudgetDialog>(title: "", parameters, options);

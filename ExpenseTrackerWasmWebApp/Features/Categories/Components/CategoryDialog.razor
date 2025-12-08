@@ -25,7 +25,7 @@
                         </MudTextField>
                         <MudSelect @bind-Value="CategoryDto.Type" Label="Type" Variant="Variant.Outlined" Required="true"
                             RequiredError="Type is required!" Class="mt-4">
-                            @foreach (TransactionType? item in Enum.GetValues(typeof(TransactionType)))
+                            @foreach (TransactionTypeDto? item in Enum.GetValues(typeof(TransactionTypeDto)))
                             {
                                 <MudSelectItem Value="@item">@item</MudSelectItem>
                             }
@@ -73,7 +73,7 @@
     public int? CategoryId { get; set; }
 
     [Parameter]
-    public TransactionType? Type { get; set; }
+    public TransactionTypeDto? Type { get; set; }
     private CategoryDto CategoryDto { get; set; } = new();
 
 

@@ -1,11 +1,10 @@
-@using ExpenseTrackerWebApp.Database.Models
-@using ExpenseTrackerWebApp.Features.Budgets.Dtos
+@using ExpenseTrackerSharedCL.Features.Budgets.Dtos
 @using MudBlazor
 @using MudBlazor.Extensions
 @using System.Globalization
-@using ExpenseTrackerWebApp.Features.SharedKernel.Components
+@using ExpenseTrackerWasmWebApp.Features.SharedKernel.Components
 
-<EntityCard OnEdit="@(() => OnEdit.InvokeAsync(Budget?.Id))" OnDelete="@(() => OnDelete.InvokeAsync(Budget?.Id ?? 0))">
+<EntityCard OnEdit="@(() => OnEdit.InvokeAsync(Budget))" OnDelete="@(() => OnDelete.InvokeAsync(Budget?.Id ?? 0))">
     <HeaderContent>
         <MudText Typo="Typo.h6">@Budget.Name</MudText>
     </HeaderContent>
@@ -21,7 +20,7 @@
     public required BudgetWithProgressDto Budget { get; set; }
 
     [Parameter]
-    public EventCallback<int?> OnEdit { get; set; }
+    public EventCallback<BudgetWithProgressDto> OnEdit { get; set; }
 
     [Parameter]
     public EventCallback<int> OnDelete { get; set; }

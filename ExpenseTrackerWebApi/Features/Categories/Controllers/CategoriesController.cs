@@ -21,7 +21,24 @@ namespace ExpenseTrackerWebApi.Features.Categories.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetAllCategories([FromQuery] TransactionType? type)
+        public async Task<IActionResult> GetCategories([FromQuery] TransactionTypeDto? type)
+        {
+            try
+            {
+                var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+                var categories = await _mediator.Send(new GetCategoriesQuery { UserId = userId!, Type = type });
+                return Ok(categories);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error getting categories: {ex.Message}");
+                return StatusCode(500, "An error occurred while processing your request.");
+            }
+        }
+
+        [HttpGet]
+        [Route("with-stats")]
+        public async Task<IActionResult> GetCategoriesWithStats([FromQuery] TransactionTypeDto? type)
         {
             try
             {

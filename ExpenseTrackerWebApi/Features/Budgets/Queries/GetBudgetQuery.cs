@@ -1,8 +1,8 @@
-using ExpenseTrackerWebApp.Features.Budgets.Dtos;
+using ExpenseTrackerSharedCL.Features.Budgets.Dtos;
 using FluentValidation;
 using MediatR;
 
-namespace ExpenseTrackerWebApp.Features.Budgets.Queries
+namespace ExpenseTrackerWebApi.Features.Budgets.Queries
 {
     public class GetBudgetQuery : IRequest<BudgetDto>
     {

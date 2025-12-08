@@ -1,3 +1,4 @@
+using ExpenseTrackerSharedCL.Features.Categories.Dtos;
 using ExpenseTrackerWebApi.Database;
 using ExpenseTrackerWebApi.Database.Models;
 using ExpenseTrackerWebApi.Features.Categories.Commands;
@@ -38,11 +39,11 @@ namespace ExpenseTrackerWebApi.Features.Categories.Handlers
 
                 foreach (var tx in transactions)
                 {
-                    if (request.CategoryDto.Type == ExpenseTrackerSharedCL.Features.Categories.Dtos.TransactionType.Income)
+                    if (request.CategoryDto.Type == TransactionTypeDto.Income)
                     {
                         tx.Amount = Math.Abs(tx.Amount);
                     }
-                    else if (request.CategoryDto.Type == ExpenseTrackerSharedCL.Features.Categories.Dtos.TransactionType.Expense)
+                    else if (request.CategoryDto.Type == TransactionTypeDto.Expense)
                     {
                         tx.Amount = -Math.Abs(tx.Amount);
                     }

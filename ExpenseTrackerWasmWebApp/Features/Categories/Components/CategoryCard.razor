@@ -9,7 +9,7 @@
     <Content>
         <MudText Typo="Typo.body1">Total transactions: @CategoryDto.TransactionsCount</MudText>
         <MudPaper Elevation="0" Class="d-flex gap-2 mb-3">
-            <MudText Typo="Typo.body1">@(CategoryDto.Type == TransactionType.Income ? "Total income: " : "Total expenses: ")</MudText>
+            <MudText Typo="Typo.body1">@(CategoryDto.Type == TransactionTypeDto.Income ? "Total income: " : "Total expenses: ")</MudText>
             <AmountDisplay Amount="@CategoryDto.TotalAmount" FontSize="Typo.body1" />
         </MudPaper>
         <MudPaper Elevation="0" Class="d-flex gap-2 align-center">

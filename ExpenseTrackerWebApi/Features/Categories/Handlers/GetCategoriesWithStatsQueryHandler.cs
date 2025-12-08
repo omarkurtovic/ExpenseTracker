@@ -20,7 +20,9 @@ namespace ExpenseTrackerWebApi.Features.Categories.Handlers
         {
             return await _context.Categories
                 .Where(c => c.IdentityUserId == request.UserId)
-                .Where(c => request.Type == null || c.Type == (DbTransactionType)request.Type)
+                .Where(c => request.Type == null ||
+                             (request.Type == TransactionTypeDto.Income && c.Type == DbTransactionType.Income) ||
+                             (request.Type == TransactionTypeDto.Expense && c.Type == DbTransactionType.Expense))
                 .Include(c => c.Transactions)
                 .Select(category => new
                 {
@@ -31,7 +33,7 @@ namespace ExpenseTrackerWebApi.Features.Categories.Handlers
                 {
                     Id = c.category.Id,
                     Name = c.category.Name,
-                    Type = (TransactionType)c.category.Type,
+                    Type = (TransactionTypeDto)c.category.Type,
                     TransactionsCount = c.Transactions.Count(),
                     TotalAmount = c.Transactions.Sum(t => t.Amount),
                     CurrentMonthAmount = c.Transactions.Where(t => t.Date.Month == DateTime.Now.Month && t.Date.Year == DateTime.Now.Year).Sum(t => t.Amount),

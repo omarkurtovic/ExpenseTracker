@@ -134,7 +134,7 @@ else
     {
         try
         {
-            string url = "api/accounts";
+            string url = "api/accounts/with-balances";
             var request = new HttpRequestMessage(HttpMethod.Get, url);
             var response = await Http.SendAsync(request);
             if(response.IsSuccessStatusCode)
