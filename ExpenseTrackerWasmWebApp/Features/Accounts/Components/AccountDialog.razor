@@ -1,3 +1,4 @@
+@using ExpenseTrackerWasmWebApp.Services
 @using Microsoft.AspNetCore.Authorization
 @using MudBlazor
 @using ExpenseTrackerSharedCL.Features.Accounts.Dtos
@@ -7,6 +8,7 @@
 @inject HttpClient Http
 @inject ISnackbar Snackbar
 @inject IJSRuntime JSRuntime
+@inject CachedDataService CachedData
 
 @if (AccountDto is not null)
 {
@@ -133,6 +135,14 @@
 
             if(response.IsSuccessStatusCode){
                 Snackbar.Add("Account saved successfully!", Severity.Success);
+                if(AccountId == null){
+                    var createdAccount = await response.Content.ReadFromJsonAsync<AccountDto>();
+                    CachedData.AddAccount(createdAccount);
+                }
+                else{
+                    CachedData.UpdateAccount(AccountDto);
+                }
+                
                 MudDialog.Close(DialogResult.Ok(result: true));
             }
             else

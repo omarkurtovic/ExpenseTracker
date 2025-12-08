@@ -1,6 +1,7 @@
 
 @attribute [AllowAnonymous]
 @page "/login"
+@using ExpenseTrackerWasmWebApp.Services
 @using Microsoft.AspNetCore.Authorization
 @using MudBlazor
 @using ExpenseTrackerSharedCL.Features.Login.Dtos
@@ -8,6 +9,7 @@
 @inject HttpClient Http
 @inject NavigationManager Nav    
 @inject Blazored.LocalStorage.ILocalStorageService LocalStorage
+@inject CachedDataService CachedData
 
 <PageTitle>Login</PageTitle>
 
@@ -74,6 +76,7 @@
             {
                 var result = await response.Content.ReadFromJsonAsync<LoginResponseDto>();
                 await LocalStorage.SetItemAsync("authToken", result.Token);
+                await CachedData.InitializeAsync();
                 Nav.NavigateTo("/");
             }
             else

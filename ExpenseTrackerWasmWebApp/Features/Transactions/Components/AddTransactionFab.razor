@@ -1,0 +1,53 @@
+@using ExpenseTrackerWasmWebApp.Services
+@using MudBlazor
+@using ExpenseTrackerWasmWebApp.Features.SharedKernel.Components
+
+@inject ISnackbar Snackbar
+@inject IDialogService DialogService
+@inject CachedDataService CachedData
+
+<FabButton Text="Add" IconClass="@Icons.Material.Filled.Add" OnClick="() => OpenTransactionDialogAsync()" />
+    
+@code{
+    
+    [CascadingParameter]
+    public bool Reoccuring{get; set;} = false;
+    
+    [Parameter]
+    public EventCallback<bool> OnClose { get; set; }
+    
+    private async Task OpenTransactionDialogAsync()
+    {
+        var categories = CachedData.GetCategories();
+        var accounts = CachedData.GetAccounts();
+        
+        if (categories.Count == 0)
+        {
+            Snackbar.Add("No categories found! Create some then try again!", Severity.Error);
+            return;
+        }
+
+        if (accounts.Count == 0)
+        {
+            Snackbar.Add("No accounts found! Create some then try again!", Severity.Error);
+            return;
+        }
+
+        var options = new DialogOptions
+        {
+            CloseOnEscapeKey = true,
+            NoHeader = false,
+            CloseButton = true,
+            MaxWidth = MaxWidth.Medium
+        };
+        var parameters = new DialogParameters<TransactionDialog>
+            {
+                { x => x.TransactionId, null },
+                { x => x.Reoccuring, false }
+            };
+
+        var dialog = await DialogService.ShowAsync<TransactionDialog>(title: "Simple Dialog", parameters, options);
+        var result = await dialog.Result;
+        await OnClose.InvokeAsync(false);
+    } 
+}

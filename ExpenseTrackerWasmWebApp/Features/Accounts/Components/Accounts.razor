@@ -1,5 +1,6 @@
 @page "/accounts"
 @using ExpenseTrackerSharedCL.Features.Accounts.Dtos
+@using ExpenseTrackerWasmWebApp.Services
 @using Microsoft.AspNetCore.Authorization
 @using MudBlazor
 @using Microsoft.AspNetCore.Components.Web
@@ -9,6 +10,7 @@
 @inject ISnackbar Snackbar
 @inject HttpClient Http
 @inject IJSRuntime JSRuntime
+@inject CachedDataService CachedData
 
 <PageTitle>Accounts</PageTitle>
 
@@ -115,7 +117,11 @@ else
                 if(response.IsSuccessStatusCode)
                 {
                     Snackbar.Add("Account succesfully deleted! ", Severity.Success);
-                    await UpdatePage();
+                    var account = MyAccounts.FirstOrDefault(a => a.Id == accountId);
+                    if(account != null){
+                        MyAccounts.Remove(account);
+                        CachedData.RemoveAccount(accountId);
+                    }
                 }
                 else
                 {

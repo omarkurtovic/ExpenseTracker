@@ -131,7 +131,10 @@ else
                 if(response.IsSuccessStatusCode)
                 {
                     Snackbar.Add("Category succesfully deleted! ", Severity.Success);
-                    await RefreshPage();
+                    var category = MyCategories.FirstOrDefault(c => c.Id == category_id);
+                    if(category != null){
+                        MyCategories.Remove(category);
+                    }
                 }
                 else
                 {

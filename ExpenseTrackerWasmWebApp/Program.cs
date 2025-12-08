@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using MudBlazor.Services;
 using ExpenseTrackerWasmWebApp;
+using ExpenseTrackerWasmWebApp.Services;
 using System.Net.Http.Headers;
 using Blazored.LocalStorage;
 
@@ -18,6 +19,8 @@ builder.Services.AddHttpClient("WebAPI",
 
 builder.Services.AddScoped(sp => sp.GetRequiredService<IHttpClientFactory>()
     .CreateClient("WebAPI"));
+
+builder.Services.AddScoped<CachedDataService>();
 
 await builder.Build().RunAsync();
 
