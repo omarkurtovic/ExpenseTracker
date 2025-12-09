@@ -8,5 +8,6 @@ namespace ExpenseTrackerSharedCL.Features.Categories.Dtos
         public TransactionTypeDto? Type {get; set;}
         public string? Icon {get; set;}
         public string? Color{get; set;}
+
     }
 }

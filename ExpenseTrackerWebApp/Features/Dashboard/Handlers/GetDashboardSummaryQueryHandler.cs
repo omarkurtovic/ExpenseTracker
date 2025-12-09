@@ -6,7 +6,8 @@ using ExpenseTrackerWebApp.Features.SharedKernel.Queries;
 using MediatR;
 using MudBlazor.Extensions;
 
-namespace ExpenseTrackerWebApp.Features.Dashboard.Handlers{
+namespace ExpenseTrackerWebApp.Features.Dashboard.Handlers
+{
     public class GetDashboardSummaryQueryHandler : IRequestHandler<GetDashboardSummaryQuery, DashboardSummaryDto>
     {
         private readonly ISender _mediator;

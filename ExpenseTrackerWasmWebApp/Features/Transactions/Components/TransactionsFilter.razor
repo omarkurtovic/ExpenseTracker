@@ -1,17 +1,19 @@
-@using ExpenseTrackerWebApp.Features.SharedKernel.Components
+@using ExpenseTrackerSharedCL.Features.Accounts.Dtos
+@using ExpenseTrackerSharedCL.Features.Categories.Dtos
+@using ExpenseTrackerSharedCL.Features.Tags.Dtos
 @using MudBlazor
-@using ExpenseTrackerWebApp.Database.Models;
-@using ExpenseTrackerWebApp.Features.Transactions.Dtos;
+@using ExpenseTrackerSharedCL.Features.Transactions.Dtos
+@using ExpenseTrackerWasmWebApp.Features.SharedKernel.Components
 
 <MudGrid>
     <MudItem xs="12" md="6">
         <MudPaper Elevation="0" Class="d-flex gap-5">
-            <MudSelect T="Account" Label="Account" @bind-SelectedValues="TransactionsPageStateDto.AccountsFilter" @bind-SelectedValues:after="NotifyFilterChange"
+            <MudSelect T="AccountDto" Label="Account" @bind-SelectedValues="TransactionsPageStateDto.AccountsFilter" @bind-SelectedValues:after="NotifyFilterChange"
                 MultiSelectionTextFunc="@(new Func<List<string>, string>(GetAccountsMultiSelectionText))"
                 MultiSelection="true" Clearable="true" FullWidth="true">
                 @foreach (var account in TransactionsPageStateDto.Accounts)
                 {
-                    <MudSelectItem Value="@(account)">
+                    <MudSelectItem T="AccountDto" Value="@(account)">
                         <TextWithIcon Text="@account.Name" Icon="@account.Icon" IconColor="@account.Color" IconSize="Size.Small" TextTypo="Typo.body2"></TextWithIcon>
                     </MudSelectItem>
                 }
@@ -31,19 +33,19 @@
     </MudItem>
     <MudItem xs="12" md="6">
         <MudPaper Elevation="0" Class="d-flex gap-5">
-            <MudSelect T="TransactionType ?" Label="Type" @bind-Value="TransactionsPageStateDto.TypeFilter" @bind-Value:after="NotifyFilterChange"
+            <MudSelect T="TransactionTypeDto?" Label="Type" @bind-Value="TransactionsPageStateDto.TypeFilter" @bind-Value:after="NotifyFilterChange"
                 Clearable="true" FullWidth="true">
-                @foreach (TransactionType item in Enum.GetValues(typeof(TransactionType)))
+                @foreach (TransactionTypeDto item in Enum.GetValues(typeof(TransactionTypeDto)))
                 {
-                    <MudSelectItem Value="@((TransactionType?)item)">@item</MudSelectItem>
+                    <MudSelectItem Value="@((TransactionTypeDto?)item)">@item</MudSelectItem>
                 }
             </MudSelect>
-            <MudSelect T="Category" Label="Category" @bind-SelectedValues="TransactionsPageStateDto.CategoriesFilter" @bind-SelectedValues:after="NotifyFilterChange"
+            <MudSelect T="CategoryDto" Label="Category" @bind-SelectedValues="TransactionsPageStateDto.CategoriesFilter" @bind-SelectedValues:after="NotifyFilterChange"
                 MultiSelectionTextFunc="@(new Func<List<string>, string>(GetCategoriesMultiSelectionText))"
                 MultiSelection="true" Clearable="true" FullWidth="true">
                 @foreach (var category in TransactionsPageStateDto.FilteredCategories)
                 {
-                    <MudSelectItem Value="@(category)">
+                    <MudSelectItem T="CategoryDto" Value="@(category)">
                         <TextWithIcon Text="@category.Name" Icon="@category.Icon" IconColor="@category.Color" IconSize="Size.Small" TextTypo="Typo.body2"></TextWithIcon>
                     </MudSelectItem>
                 }
@@ -51,13 +53,13 @@
         </MudPaper>
     </MudItem>
     <MudItem xs="12" md="6">
-        <MudSelect T="Tag" Label="Tags" @bind-SelectedValues="TransactionsPageStateDto.TagsFilter" @bind-SelectedValues:after="NotifyFilterChange"
+        <MudSelect T="TagDto" Label="Tags" @bind-SelectedValues="TransactionsPageStateDto.TagsFilter" @bind-SelectedValues:after="NotifyFilterChange"
             MultiSelectionTextFunc="@(new Func<List<string>, string>(GetTagsMultiSelectionText))"
             MultiSelection="true" Clearable="true" FullWidth="true">
             @foreach (var tag in TransactionsPageStateDto.Tags)
             {
                 <MudSelectItem Value="@(tag)">
-                    <MudChip T="Tag" Style="@($"background-color:{tag.Color}; color:white;")" Size="Size.Small"
+                    <MudChip T="TagDto" Style="@($"background-color:{tag.Color}; color:white;")" Size="Size.Small"
                         Variant="Variant.Filled">
                         @tag.Name
                     </MudChip>

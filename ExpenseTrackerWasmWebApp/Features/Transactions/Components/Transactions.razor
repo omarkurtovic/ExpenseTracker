@@ -2,15 +2,18 @@
 @using ExpenseTrackerSharedCL.Features.Categories.Dtos
 @using ExpenseTrackerSharedCL.Features.Tags.Dtos
 @using ExpenseTrackerSharedCL.Features.Transactions.Dtos
+@using ExpenseTrackerWasmWebApp.Services
 @using Microsoft.AspNetCore.Authorization
 @using MudBlazor
 @using Microsoft.AspNetCore.Components.Web
 @using ExpenseTrackerWasmWebApp.Features.SharedKernel.Components
 @using System.Net.Http.Headers
+@using ExpenseTrackerWasmWebApp.Features.DataSeeding.Components
 @inject IDialogService DialogService
 @inject ISnackbar Snackbar
 @inject HttpClient Http
 @inject IJSRuntime JSRuntime
+@inject CachedDataService CachedData
 
 
 <PageTitle>@(IsReoccuring ? "Reoccuring Transactions" : "Transactions")</PageTitle>
@@ -38,7 +41,7 @@ else
                                 <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="@(() => OpenTransactionDialogAsync(null))"
                                         StartIcon="@Icons.Material.Filled.Add">Add
                                     </MudButton>
-                                    <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="() => RefreshTransctions(true)"
+                                    <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="() => RefreshTransactions(true)"
                                         StartIcon="@Icons.Material.Filled.Refresh">Refresh
                                     </MudButton>
                                 </MudPaper>
@@ -75,8 +78,7 @@ else
                                 StartIcon="@Icons.Material.Filled.ImportExport">Export</MudButton>
                             <MudButton OnClick="OnClickShowFilterDialog" Variant="Variant.Outlined">Filters</MudButton>
                         </MudItem>
-                        <AddTransactionFab OnClose="@(() => RefreshTransctions(false))" />
-
+                        <AddTransactionFab OnClose="@(() => RefreshTransactions(false))" />
                         <MudDialog @ref="_filterDialog">
                             <TitleContent>Filters</TitleContent>
                                 <DialogContent>
@@ -164,7 +166,7 @@ else
                                         <CellTemplate>
                                             <MudPaper Elevation="0" Class="d-flex gap-4" Style="background-color:transparent;">
                                                 <MudIconButton Icon="@Icons.Material.Filled.Edit" Color="Color.Primary"
-                                                    OnClick="@(() => OpenTransactionDialogAsync(context.Item.Id))">
+                                                    OnClick="@(() => OpenTransactionDialogAsync(context.Item))">
                                                 </MudIconButton>
                                                 <MudIconButton Icon="@Icons.Material.Filled.Delete" Color="Color.Error"
                                                     OnClick="@(() => ConfirmDelete((int)context.Item.Id!))"></MudIconButton>
@@ -209,15 +211,24 @@ else
 
     private MudDataGrid<TransactionDto> _dataGrid = null!;
 
+    protected override void OnInitialized()
+    {
+        TransactionsPageStateDto.Categories = CachedData.GetCategories();
+        TransactionsPageStateDto.FilteredCategories = [..CachedData.GetCategories()];
+        TransactionsPageStateDto.Accounts = CachedData.GetAccounts();
+        TransactionsPageStateDto.Tags = CachedData.GetTags();
+        base.OnInitialized();
+    }
+
     protected override async Task OnParametersSetAsync()
     {
         await base.OnParametersSetAsync();
-        TransactionsPageStateDto = await GetTransactionsPageState();
+        await RefreshTransactions();
         loading = false;
     }
 
 
-    private async Task<TransactionsPageStateDto> GetTransactionsPageState()
+    private async Task RefreshTransactions(bool showMessage = false)
     {
         try
         {
@@ -226,7 +237,13 @@ else
             var response = await Http.SendAsync(request);
             if(response.IsSuccessStatusCode)
             {
-                return await response.Content.ReadFromJsonAsync<TransactionsPageStateDto>() ?? new();
+                var transactions = await response.Content.ReadFromJsonAsync<List<TransactionDto>>() ?? new();
+                TransactionsPageStateDto.RefreshTransactions(transactions);
+                
+                if(showMessage)
+                {
+                    Snackbar.Add("Transactions were refreshed!", Severity.Success);
+                }
             }
             else
             {
@@ -237,11 +254,9 @@ else
         {
             Snackbar.Add($"An error occurred: {ex.Message}", Severity.Error);
         }
-
-        return new TransactionsPageStateDto();
     }
 
-    private async Task OpenTransactionDialogAsync(int? transaction_id)
+    private async Task OpenTransactionDialogAsync(TransactionDto? transactionDto)
     {
         if (TransactionsPageStateDto.Categories.Count == 0)
         {
@@ -255,6 +270,18 @@ else
             return;
         }
 
+        if(transactionDto == null){
+            
+            transactionDto = new TransactionDto();
+            transactionDto.AccountId = TransactionsPageStateDto.Accounts.First().Id;
+            transactionDto.CategoryId = TransactionsPageStateDto.Categories.First().Id;
+            transactionDto.TransactionType = TransactionsPageStateDto.Categories.First().Type;
+            transactionDto.Date = DateTime.Now.Date;
+            transactionDto.Time = DateTime.Now.TimeOfDay;
+            transactionDto.Amount = 0;
+            transactionDto.IsReoccuring = IsReoccuring;
+        }
+
         var options = new DialogOptions
         {
             CloseOnEscapeKey = true,
@@ -264,8 +291,7 @@ else
         };
         var parameters = new DialogParameters<TransactionDialog>
             {
-                { x => x.TransactionId, transaction_id },
-                { x => x.Reoccuring, IsReoccuring }
+                { x => x.TransactionDto, transactionDto }
             };
 
         var dialog = await DialogService.ShowAsync<TransactionDialog>(title: "Simple Dialog", parameters, options);
@@ -274,7 +300,9 @@ else
         // after editing it's quite possible that the user changed some transactions
         // but also that he changed some tags
 
-        TransactionsPageStateDto = await GetTransactionsPageState();
+        await CachedData.RefreshTagsAsync();
+        TransactionsPageStateDto.Tags = CachedData.GetTags();
+        await RefreshTransactions();
     }
 
     private async Task ConfirmDelete(int transaction_id)
@@ -297,10 +325,7 @@ else
                 if(response.IsSuccessStatusCode)
                 {
                     Snackbar.Add("Transaction succesfully deleted! ", Severity.Success);
-                    var transaction = TransactionsPageStateDto.Transactions.FirstOrDefault(t => t.Id == transaction_id);
-                    if(transaction != null){
-                        TransactionsPageStateDto.Transactions.Remove(transaction);
-                    }
+                    await RefreshTransactions();
                 }
                 else
                 {
@@ -333,7 +358,11 @@ else
         
         if (!result.Canceled)
         {
-            TransactionsPageStateDto = await GetTransactionsPageState();
+            await CachedData.InitializeAsync();
+            TransactionsPageStateDto.Categories = CachedData.GetCategories();
+            TransactionsPageStateDto.Accounts = CachedData.GetAccounts();
+            TransactionsPageStateDto.Tags = CachedData.GetTags();
+            await RefreshTransactions();
         }
     }
 
@@ -355,22 +384,13 @@ else
 
         var parameters = new DialogParameters<ExportDialog>
         {
+            { x => x.Transactions, TransactionsPageStateDto.Transactions }
         };
 
         var dialog = await DialogService.ShowAsync<ExportDialog>(title: "", parameters, options);
     }
 
-    private async Task RefreshTransctions(bool showMessage = false)
-    {
-        TransactionsPageStateDto = await GetTransactionsPageState();
-        if(showMessage)
-        {
-            Snackbar.Add("Transactions were refreshed!", Severity.Success);
-        }
-        StateHasChanged();
-    }
-
-    private MudDialog _filterDialog;
+    private MudDialog _filterDialog = null!;
     bool _expanded = false;
 
     private void OnExpandCollapseClick() {

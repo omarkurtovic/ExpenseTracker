@@ -1,5 +1,6 @@
 using ExpenseTrackerSharedCL.Features.Accounts.Dtos;
 using ExpenseTrackerSharedCL.Features.Categories.Dtos;
+using ExpenseTrackerSharedCL.Features.Tags.Dtos;
 using System.Net.Http.Json;
 
 namespace ExpenseTrackerWasmWebApp.Services;
@@ -9,8 +10,7 @@ public class CachedDataService
     private readonly HttpClient _http;
     private List<AccountDto>? _accounts;
     private List<CategoryDto>? _categories;
-    private List<AccountWithBalanceDto>? _accountsWithBalance;
-    private List<CategoryWithStatsDto>? _categoriesWithStats;
+    private List<TagDto>? _tags;
     private bool _isInitialized = false;
 
     public CachedDataService(HttpClient http)
@@ -24,11 +24,13 @@ public class CachedDataService
         {
             var accountsTask = _http.GetFromJsonAsync<List<AccountDto>>("api/accounts");
             var categoriesTask = _http.GetFromJsonAsync<List<CategoryDto>>("api/categories");
+            var tagsTask = _http.GetFromJsonAsync<List<TagDto>>("api/tags");
 
             await Task.WhenAll(accountsTask, categoriesTask);
 
             _accounts = await accountsTask ?? new();
             _categories = await categoriesTask ?? new();
+            _tags = await tagsTask ?? new();
             _isInitialized = true;
         }
         catch
@@ -47,12 +49,16 @@ public class CachedDataService
     {
         return _categories ?? new();
     }
+    public List<TagDto> GetTags()
+    {
+        return _tags ?? new();
+    }
+    
     public async Task RefreshAccountsAsync()
     {
         try
         {
             _accounts = await _http.GetFromJsonAsync<List<AccountDto>>("api/accounts") ?? new();
-            _accountsWithBalance = null;
         }
         catch
         {
@@ -64,49 +70,68 @@ public class CachedDataService
         try
         {
             _categories = await _http.GetFromJsonAsync<List<CategoryDto>>("api/categories") ?? new();
-            _categoriesWithStats = null;
+        }
+        catch
+        {
+        }
+    }
+    public async Task RefreshTagsAsync()
+    {
+        try
+        {
+            _tags = await _http.GetFromJsonAsync<List<TagDto>>("api/tags") ?? new();
         }
         catch
         {
         }
     }
 
-    public void RemoveAccount(int accountId)
+    public async Task<List<AccountWithBalanceDto>> GetAccountsWithBalanceAsync()
     {
-        if (_accounts != null)
+        var result = new List<AccountWithBalanceDto>();
+        try
         {
-            var account = _accounts.FirstOrDefault(a => a.Id == accountId);
-            if (account != null)
+            result = await _http.GetFromJsonAsync<List<AccountWithBalanceDto>>("api/accounts/with-balances") ?? new();
+            _accounts = [.. result.Select(r => new AccountDto
             {
-                _accounts.Remove(account);
-            }
+                Id = r.Id,
+                Name = r.Name,
+                InitialBalance = r.InitialBalance,
+                Color = r.Color,
+                Icon = r.Icon
+            })];
         }
-    }
-    public void AddAccount(AccountDto account)
-    {
-        if (_accounts != null)
+        catch
         {
-            _accounts.Add(account);
         }
+        return result;
     }
 
-    public void UpdateAccount(AccountDto updatedAccount)
+    public async Task<List<CategoryWithStatsDto>> GetCategoriesWithStatsAsync(TransactionTypeDto transactionTtype)
     {
-        if (_accounts != null)
+        var result = new List<CategoryWithStatsDto>();
+        try
         {
-            var index = _accounts.FindIndex(a => a.Id == updatedAccount.Id);
-            if (index != -1)
+            result = await _http.GetFromJsonAsync<List<CategoryWithStatsDto>>($"api/categories/with-stats?type={(int)transactionTtype}") ?? new();
+            _categories = [.. result.Select(r => new CategoryDto
             {
-                _accounts[index] = updatedAccount;
-            }
+                Id = r.Id,
+                Name = r.Name,
+                Type = r.Type,
+                Color = r.Color,
+                Icon = r.Icon
+            })];
         }
+        catch
+        {
+        }
+        return result;
     }
+
     public void ClearCache()
     {
         _accounts = null;
         _categories = null;
-        _accountsWithBalance = null;
-        _categoriesWithStats = null;
         _isInitialized = false;
     }
 

@@ -3,7 +3,7 @@ namespace ExpenseTrackerSharedCL.Features.Categories.Dtos
 {
     public class CategoryWithStatsDto
     {
-        public int Id{get; set;}
+        public int? Id{get; set;}
         public string? Name{get; set;}
         public TransactionTypeDto? Type { get; set; }
         public string? Icon{get; set;}

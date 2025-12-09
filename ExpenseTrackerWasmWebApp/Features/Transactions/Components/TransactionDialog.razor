@@ -1,32 +1,30 @@
-@using ExpenseTrackerWebApp.Database.Models
-@using ExpenseTrackerWebApp.Features.SharedKernel.Components
-@using ExpenseTrackerWebApp.Features.SharedKernel.Transactions.Commands
-@using ExpenseTrackerWebApp.Features.SharedKernel.Transactions.Queries
-@using ExpenseTrackerWebApp.Features.SharedKernel.Queries
-@using MediatR
+@using ExpenseTrackerSharedCL.Features.Accounts.Dtos
+@using ExpenseTrackerSharedCL.Features.Categories.Dtos
+@using ExpenseTrackerSharedCL.Features.Tags.Dtos
+@using ExpenseTrackerSharedCL.Features.Transactions.Dtos
+@using ExpenseTrackerWasmWebApp.Services
 @using MudBlazor
-@using ExpenseTrackerWebApp.Features.SharedKernel.Transactions.Dtos
-@using ExpenseTrackerWebApp.Services
+@using System.Net.Http.Headers
+@using ExpenseTrackerWasmWebApp.Features.SharedKernel.Components
 
 @inject IDialogService DialogService
 @inject ISnackbar Snackbar
-@inject ISender Mediator   
-@inject ICurrentUserService CurrentUserService
-@inject TagService TagService 
+@inject CachedDataService DataService
+@inject HttpClient Http
 
 @if (TransactionDto is not null)
 {
     <MudDialog>
         <TitleContent>
             <MudText Typo="Typo.h5">
-                @(TransactionId == null ? "Add Transaction" : "Edit Transaction")
+                @(TransactionDto.Id == null ? "Add Transaction" : "Edit Transaction")
             </MudText>
         </TitleContent>
         <DialogContent>
             <MudGrid>
                 <MudItem xs="12">
                     <MudForm @ref="form">
-                        @if (Reoccuring)
+                        @if ((bool)TransactionDto.IsReoccuring!)
                         {
                             <MudAlert Severity="Severity.Info" Elevation="0" Variant="Variant.Filled" Class="mb-4">
                                 You are adding a reoccuring transaction. This transaction will be repeated based on the
@@ -37,9 +35,9 @@
                             <MudSelect @bind-Value="TransactionDto.ReoccuranceFrequency" Label="Reoccurance type"
                                 Variant="Variant.Outlined" Required="true" RequiredError="Reoccurance type is required!"
                                 @bind-Value:after="this.TransactionTypeChanged">
-                                @foreach (ReoccuranceFrequency? item in Enum.GetValues(typeof(ReoccuranceFrequency)))
+                                @foreach (ReoccuranceFrequencyDto? item in Enum.GetValues(typeof(ReoccuranceFrequencyDto)))
                                 {
-                                    <MudSelectItem Value="@((ReoccuranceFrequency?)item)">@item</MudSelectItem>
+                                    <MudSelectItem Value="@((ReoccuranceFrequencyDto?)item)">@item</MudSelectItem>
                                 }
                             </MudSelect>
                         }
@@ -55,9 +53,9 @@
                         <MudSelect @bind-Value="TransactionDto.TransactionType" Label="Type" Variant="Variant.Outlined"
                             Required="true" RequiredError="Type of transaction is required!"
                             @bind-Value:after="this.TransactionTypeChanged">
-                            @foreach (TransactionType? item in Enum.GetValues(typeof(TransactionType)))
+                            @foreach (TransactionTypeDto? item in Enum.GetValues(typeof(TransactionTypeDto)))
                             {
-                                <MudSelectItem Value="@((TransactionType?)item)">@item</MudSelectItem>
+                                <MudSelectItem Value="@((TransactionTypeDto?)item)">@item</MudSelectItem>
                             }
                         </MudSelect>
                         <MudSelect @bind-Value="TransactionDto.CategoryId" Label="Category" Variant="Variant.Outlined"
@@ -86,7 +84,7 @@
                         </MudTextField>
 
                         <MudPaper Elevation="0" Class="d-flex gap-2 mt-4">
-                            <MudAutocomplete T="Tag" @ref="tagAutocomplete" SearchFunc="@TagSearchFunc"
+                            <MudAutocomplete T="TagDto" @ref="tagAutocomplete" SearchFunc="@TagSearchFunc"
                                 ToStringFunc="@(e => e == null ? null : e.Name)" Label="Add Tags" Variant="Variant.Outlined"
                                 ValueChanged="@OnTagSelected" Clearable="true" Class="flex-grow-1">
                                 <ItemTemplate>
@@ -95,7 +93,7 @@
                                         {
                                             <MudPaper Elevation="0" Class="d-flex gap-2" Style="background-color:transparent;">
 
-                                                <MudChip T="Tag" Style="@($"background-color:{context.Color}; color:white;")"
+                                                <MudChip T="TagDto" Style="@($"background-color:{context.Color}; color:white;")"
                                                     Size="Size.Small">@context.Name</MudChip>
 
                                                 <MudIconButton Icon="@Icons.Material.Filled.Close" Size="Size.Small"
@@ -130,7 +128,7 @@
                             @foreach (var tag in SelectedTags)
                             {
                                 <MudPaper Elevation="0" Class="flex gap-2">
-                                    <MudChip T="Tag" Style="@($"background-color:{tag.Color}; color:white;")"
+                                    <MudChip T="TagDto" Style="@($"background-color:{tag.Color}; color:white;")"
                                         Size="Size.Medium">
                                         <MudText Typo="Typo.body2">@tag.Name</MudText>
                                         <MudIconButton Icon="@Icons.Material.Filled.Close" Size="Size.Small"
@@ -162,36 +160,35 @@
 
 @code {
     [Parameter]
-    public int? TransactionId { get; set; }
-    [Parameter]
-    public bool Reoccuring { get; set; }
+    public bool IsReoccuring { get; set; }
 
     [CascadingParameter]
     public required IMudDialogInstance MudDialog { get; set; }
 
-
     private MudForm form = new();
-    private MudAutocomplete<Tag>? tagAutocomplete;
-    private Tag? selectedTag;
-    private List<Tag> SelectedTags = new();
-    private TransactionDto TransactionDto = new();
+    private MudAutocomplete<TagDto>? tagAutocomplete;
+    private TagDto? selectedTag;
+    private List<TagDto> SelectedTags = new();
+    public TransactionDto TransactionDto = new();
 
-    private List<Tag> AllTags = new();
-    private List<Category> AllCategories = new();
-    private List<Account> AllAccounts = new();
+    private List<TagDto> AllTags = new();
+    private List<CategoryDto> AllCategories = new();
+    private List<AccountDto> AllAccounts = new();
 
-    protected override async Task OnParametersSetAsync()
+    protected override void OnInitialized()
     {
-        await base.OnParametersSetAsync();
-        AllCategories = await Mediator.Send(new GetCategoriesQuery() { UserId = CurrentUserService.GetUserId() });
+        base.OnInitialized();
+        AllTags = DataService.GetTags();
+        AllAccounts = DataService.GetAccounts();
+        AllCategories = DataService.GetCategories();
+        
         if (AllCategories.Count == 0)
         {
             Snackbar.Add("No categories found! Create some then try again!", Severity.Error);
             MudDialog.Close();
             return;
         }
-
-        AllAccounts = await Mediator.Send(new GetAccountsQuery() { UserId = CurrentUserService.GetUserId() });
+        
         if (AllAccounts.Count == 0)
         {
             Snackbar.Add("No accounts found! Create some then try again!", Severity.Error);
@@ -199,51 +196,33 @@
             return;
         }
 
-        AllTags = await Mediator.Send(new GetTagsQuery() { UserId = CurrentUserService.GetUserId() });
-
-        TransactionDto = GetDefaultTransaction(AllAccounts, AllCategories, Reoccuring);
-        if (TransactionId != null)
-        {
-            try{
-                TransactionDto = await Mediator.Send(new GetTransactionQuery() { UserId = CurrentUserService.GetUserId(), Id = (int)TransactionId });
-                TransactionDto.Amount = Math.Abs((decimal)TransactionDto.Amount!);
-                SelectedTags = AllTags.Where(t => TransactionDto.TagIds.Contains(t.Id)).ToList();
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error getting transaction: {ex.Message}");
-                Snackbar.Add($"Error getting transaction!", Severity.Error);
-                MudDialog.Close();
-                return;
-            }
-        }
-
         AllCategories = AllCategories.Where(c => c.Type == TransactionDto.TransactionType).ToList();
     }
 
-    private async Task<IEnumerable<Tag>> TagSearchFunc(string searchText, CancellationToken cancellationToken)
+
+    private async Task<IEnumerable<TagDto>> TagSearchFunc(string searchText, CancellationToken cancellationToken)
     {
         if (string.IsNullOrWhiteSpace(searchText))
         {
-            var results = new List<Tag>(AllTags);
+            var results = new List<TagDto>(AllTags);
             results.RemoveAll(t => SelectedTags.Any(st => st.Id == t.Id));
             return results;
         }
 
         var filteredTags = AllTags
-        .Where(t => t.Name.Contains(searchText, StringComparison.OrdinalIgnoreCase))
+        .Where(t => t.Name!.Contains(searchText, StringComparison.OrdinalIgnoreCase))
         .Where(t => !SelectedTags.Any(st => st.Id == t.Id))
         .ToList();
 
         return await Task.FromResult(filteredTags);
     }
 
-    private async Task OnTagSelected(Tag tag)
+    private async Task OnTagSelected(TagDto tag)
     {
         if (tag != null && !SelectedTags.Any(t => t.Id == tag.Id))
         {
             SelectedTags.Add(tag);
-            TransactionDto.TagIds.Add(tag.Id);
+            TransactionDto.TagIds.Add((int)tag.Id!);
             selectedTag = null;
             if (tagAutocomplete != null)
             {
@@ -259,30 +238,45 @@
 
         try
         {
-            var newTag = await TagService.SaveAsync(tagAutocomplete.Text, "#9E9E9E");
-            AllTags.Add(newTag);
-            SelectedTags.Add(newTag);
-            TransactionDto.TagIds.Add(newTag.Id);
+            var tagDto = new TagDto();
+            tagDto.Name = tagAutocomplete.Text;
+            tagDto.Color = "#9E9E9E";
+
+            string url = $"api/tags";
+            var request = new HttpRequestMessage(HttpMethod.Post, url);
+            request.Content = JsonContent.Create(tagDto);
+            request.Content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
+            var response = await Http.SendAsync(request);
+
+            if(!response.IsSuccessStatusCode){
+                Snackbar.Add($"Error creating tag!", Severity.Error);
+                return;
+            }
+            
+            AllTags.Add(tagDto);
+            SelectedTags.Add(tagDto);
+            TransactionDto.TagIds.Add((int)tagDto.Id!);
             selectedTag = null;
             if (tagAutocomplete != null)
             {
                 await tagAutocomplete.ResetAsync();
             }
-            Snackbar.Add($"Tag '{newTag.Name}' created!", Severity.Success);
+            Snackbar.Add($"Tag '{tagDto.Name}' created!", Severity.Success);
         }
         catch (Exception ex)
         {
-            Snackbar.Add($"Error creating tag: {ex.Message}", Severity.Error);
+            Console.WriteLine(ex.Message);
+            Snackbar.Add($"Error creating tag!", Severity.Error);
         }
     }
 
-    private void RemoveTag(Tag tag)
+    private void RemoveTag(TagDto tag)
     {
         SelectedTags.Remove(tag);
-        TransactionDto.TagIds.Remove(tag.Id);
+        TransactionDto.TagIds.Remove((int)tag.Id!);
     }
 
-    private async Task DeleteTag(Tag tag)
+    private async Task DeleteTag(TagDto tag)
     {
         
         var options = new DialogOptions { CloseOnEscapeKey = true };
@@ -295,13 +289,30 @@
         var result = await dialog.Result;
         if (!result.Canceled)
         {
-            await TagService.DeleteAsync(tag.Id);
-            AllTags.RemoveAll(t => t.Id == tag.Id);
-            RemoveTag(tag);
-            Snackbar.Add("Tag deleted successfully!", Severity.Success);
-            if (tagAutocomplete != null)
+            try
             {
-                await tagAutocomplete.ResetAsync();
+                string url = $"api/tags/{tag.Id}";
+                var request = new HttpRequestMessage(HttpMethod.Delete, url);
+                var response = await Http.SendAsync(request);
+                if(response.IsSuccessStatusCode)
+                {
+                    AllTags.RemoveAll(t => t.Id == tag.Id);
+                    RemoveTag(tag);
+                    Snackbar.Add("Tag deleted successfully!", Severity.Success);
+                    if (tagAutocomplete != null)
+                    {
+                        await tagAutocomplete.ResetAsync();
+                    }
+                }
+                else
+                {
+                    Snackbar.Add("Error deleting tag!", Severity.Error);
+                }
+            }
+            catch(Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                Snackbar.Add("Error deleting tag!", Severity.Error);
             }
         }
     }
@@ -314,31 +325,46 @@
             StateHasChanged();
             return;
         }
-        TransactionDto.IsReoccuring = Reoccuring;
-        TransactionDto.TagIds = SelectedTags.Select(t => t.Id).ToList();
+        TransactionDto.TagIds = SelectedTags.Select(t => (int)t.Id!).ToList();
         if(TransactionDto.Date != null){
             TransactionDto.Date = new DateTime(TransactionDto.Date.Value.Year, TransactionDto.Date.Value.Month, TransactionDto.Date.Value.Day,0, 0, 0);
         }
 
-        try{
-            if(TransactionId == null){
-                await Mediator.Send(new CreateTransactionCommand() { TransactionDto = TransactionDto, UserId = CurrentUserService.GetUserId() });
+        try
+        {
+            HttpResponseMessage? response;
+            if(TransactionDto.Id == null)
+            {
+                string url = $"api/transactions";
+                var request = new HttpRequestMessage(HttpMethod.Post, url);
+                request.Content = JsonContent.Create(TransactionDto);
+                request.Content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
+                response = await Http.SendAsync(request);
             }
             else{
-                await Mediator.Send(new EditTransactionCommand() { Id = (int)TransactionId, TransactionDto = TransactionDto, UserId = CurrentUserService.GetUserId() });
+                string url = $"api/transactions/{TransactionDto.Id}";
+                var request = new HttpRequestMessage(HttpMethod.Put, url);
+                request.Content = JsonContent.Create(TransactionDto);
+                request.Content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
+                response = await Http.SendAsync(request);
             }
-            
-            var message = TransactionId == null ? "Transaction successfully added!" : "Transaction successfully updated!";
-            Snackbar.Add(message, MudBlazor.Severity.Success);
+
+            if(response.IsSuccessStatusCode){
+                Snackbar.Add("Transaction saved successfully!", Severity.Success);
+                MudDialog.Close(DialogResult.Ok(result: true));
+            }
+            else
+            {
+                Snackbar.Add("Error saving transaction!", Severity.Error);
+                MudDialog.Close();
+                return;
+            }
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"An error occurred: {ex.Message}", Severity.Error);
             MudDialog.Close();
-        }
-        catch(FluentValidation.ValidationException vex){
-            var errors = string.Join(", ", vex.Errors.Select(e => e.ErrorMessage));
-            Snackbar.Add($"Validation error: {errors}!", MudBlazor.Severity.Error);
-        }
-        catch(Exception ex){
-            Console.WriteLine($"Error saving transaction: {ex.Message}");
-            Snackbar.Add($"Server error!", MudBlazor.Severity.Error);
+            return;
         }
     }
 
@@ -346,7 +372,7 @@
 
     private async Task TransactionTypeChanged()
     {
-        AllCategories = await Mediator.Send(new GetCategoriesQuery() { UserId = CurrentUserService.GetUserId()  });
+        AllCategories = DataService.GetCategories();
         AllCategories = AllCategories.Where(c => c.Type == TransactionDto.TransactionType).ToList();
 
         if (AllCategories.Count == 0)
@@ -360,25 +386,4 @@
         StateHasChanged();
     }
 
-
-    private TransactionDto GetDefaultTransaction(List<Account> accounts, List<Category> categories, bool reoccuring)
-    {
-        var result = new TransactionDto();
-        result.AccountId = accounts.First().Id;
-        result.CategoryId = categories.First().Id;
-        result.TransactionType = categories.First().Type;
-        result.Date = DateTime.Now.Date;
-        result.Time = DateTime.Now.TimeOfDay;
-        result.Amount = 0;
-        SelectedTags = new();
-        result.IsReoccuring = reoccuring;
-        return result;
-    }
-
-    private void NewTransaction(){
-        TransactionDto = GetDefaultTransaction(AllAccounts, AllCategories, Reoccuring);
-        SelectedTags = new();
-        TransactionId = null;
-    }
-    
 }

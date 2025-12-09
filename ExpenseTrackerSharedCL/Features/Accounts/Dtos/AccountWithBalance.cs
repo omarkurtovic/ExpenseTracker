@@ -3,7 +3,7 @@ namespace ExpenseTrackerSharedCL.Features.Accounts.Dtos
 {
     public class AccountWithBalanceDto
     {
-        public int Id { get; set; }
+        public int? Id { get; set; }
         public string? Name { get; set; }
         public decimal InitialBalance { get; set; }
         public decimal CurrentBalance { get; set; }

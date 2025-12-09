@@ -23,6 +23,7 @@ namespace ExpenseTrackerWebApi.Features.Budgets.Handlers
 
             return budgets.Select(budget => new BudgetDto()
             {
+                Id = budget.Id,
                 Name = budget.Name,
                 BudgetType = (ExpenseTrackerSharedCL.Features.Budgets.Dtos.BudgetType?)budget.BudgetType,
                 Amount = budget.Amount,

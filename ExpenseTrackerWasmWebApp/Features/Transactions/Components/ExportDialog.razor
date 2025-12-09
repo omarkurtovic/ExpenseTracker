@@ -1,20 +1,15 @@
 @using CsvHelper
-@using ExpenseTrackerWebApp.Database.Models
-@using ExpenseTrackerWebApp.Dtos
-@using ExpenseTrackerWebApp.Features.SharedKernel.Queries
-@using ExpenseTrackerWebApp.Services
-@using MediatR
+@using ExpenseTrackerSharedCL.Features.Transactions.Dtos
 @using Microsoft.AspNetCore.Authorization
-@using Microsoft.AspNetCore.Components.Authorization
 @using System.Text
 @using System.Globalization
 @using Microsoft.JSInterop
 @using MudBlazor
 @using MudBlazor.Utilities
+@using System.Transactions
 @inject ISnackbar Snackbar
-@inject ISender Mediator
 @inject IJSRuntime JSRuntime
-@inject ICurrentUserService CurrentUserService
+@inject HttpClient Http
 
     <MudDialog>
         <TitleContent>
@@ -56,10 +51,13 @@
     </MudDialog>
 
 @code {
-    MudForm form;
+    MudForm form = null!;
 
     [CascadingParameter]
-    private IMudDialogInstance MudDialog { get; set; }
+    private IMudDialogInstance MudDialog { get; set; } = null!;
+
+    [Parameter]
+    public List<TransactionDto> Transactions { get; set; } = new List<TransactionDto>();
 
     private void ItemUpdated(MudItemDropInfo<DropItem> dropItem)
     {
@@ -78,34 +76,34 @@
     
     public class DropItem
     {
-        public string Name { get; init; }
-        public string Selector { get; set; }
+        public string Name { get; init; } = null!;
+        public string Selector { get; set; } = null!;
         public bool Selected{get; set;}
         public int Order{get; set;}
     }
 
     private void Cancel() => MudDialog.Cancel();
 
-    private async Task Export(){
+    private async Task Export()
+    {
         if(_items.Count(i => i.Selected) == 0){
             Snackbar.Add("Please pick at least one column for export!", Severity.Error);
             return;
         } 
-
-        var transactions = await Mediator.Send(new GetTransactionsQuery(){UserId = CurrentUserService.GetUserId(), IsReoccuring=false});
-        if(transactions.Count == 0){
+        
+        if(Transactions.Count == 0){
             Snackbar.Add("No transactions found for export!", Severity.Error);
             return;
         }
         
-        var csvContent = GenerateCsvContent(transactions, _items.OrderBy(i => i.Order).ToList());
+        var csvContent = GenerateCsvContent(Transactions, _items.OrderBy(i => i.Order).ToList());
         var fileName = "ExpenseTrackerWebApp.csv";        
         await JSRuntime.InvokeVoidAsync("downloadFileFromText", fileName, csvContent);
         Snackbar.Add("Export successful!", Severity.Success);
         MudDialog.Close();
     }
 
-    public string GenerateCsvContent(List<Transaction> transactions, List<DropItem> dropItems)
+    public string GenerateCsvContent(List<TransactionDto> transactions, List<DropItem> dropItems)
     {
         using (var memoryStream = new MemoryStream())
         using (var streamWriter = new StreamWriter(memoryStream, Encoding.UTF8))
@@ -151,15 +149,15 @@
                     }
                     switch(item.Name){
                         case "Account":
-                            csvWriter.WriteField(transaction.Account.Name);
+                            csvWriter.WriteField(transaction.AccountDto!.Name);
                         break;
                         
                         case "Type":
-                            csvWriter.WriteField(transaction.Category.Type);
+                            csvWriter.WriteField(transaction.CategoryDto!.Type);
                         break;
                         
                         case "Category":
-                            csvWriter.WriteField(transaction.Category.Name);
+                            csvWriter.WriteField(transaction.CategoryDto!.Name);
                         break;
                         
                         case "Amount":

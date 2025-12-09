@@ -1,5 +1,6 @@
 @using ExpenseTrackerSharedCL.Features.Accounts.Dtos
 @using ExpenseTrackerSharedCL.Features.Budgets.Dtos
+@using ExpenseTrackerWasmWebApp.Services
 @using Microsoft.AspNetCore.Authorization
 @using MudBlazor
 @using ExpenseTrackerSharedCL.Features.Categories.Dtos
@@ -9,13 +10,14 @@
 @inject HttpClient Http
 @inject ISnackbar Snackbar
 @inject IJSRuntime JSRuntime
+@inject CachedDataService CachedData
 
 @if (BudgetDto is not null)
 {
     <MudDialog>
         <TitleContent>
             <MudText Typo="Typo.h5">
-                @(BudgetDto == null ? "Add Budget" : "Edit Budget")
+                @(BudgetDto.Id == null ? "Add Budget" : "Edit Budget")
             </MudText>
         </TitleContent>
         <DialogContent>
@@ -79,19 +81,22 @@
 </style>
 
 @code {
-    MudForm form;
+    MudForm form = null!;
 
     [CascadingParameter]
-    private IMudDialogInstance MudDialog { get; set; }
+    private IMudDialogInstance MudDialog { get; set; } = null!;
 
     [Parameter]
     public BudgetDto BudgetDto {get; set;} = new();
 
-    [Parameter]
     public List<CategoryDto> Categories{get; set;} = new();
-    
-    [Parameter]
     public List<AccountDto> Accounts{get; set;} = new();
+    protected override void OnInitialized()
+    {
+        Categories = CachedData.GetCategories();
+        Accounts = CachedData.GetAccounts();
+        base.OnInitialized();
+    }
 
     private async Task Submit()
     {
@@ -105,14 +110,16 @@
         try
         {
             HttpResponseMessage? response;
-            if(BudgetDto.Id == null){
+            if(BudgetDto.Id == null)
+            {
                 string url = $"api/budgets";
                 var request = new HttpRequestMessage(HttpMethod.Post, url);
                 request.Content = JsonContent.Create(BudgetDto);
                 request.Content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
                 response = await Http.SendAsync(request);
             }
-            else{
+            else
+            {
                 string url = $"api/budgets/{BudgetDto.Id}";
                 var request = new HttpRequestMessage(HttpMethod.Put, url);
                 request.Content = JsonContent.Create(BudgetDto);

@@ -52,7 +52,7 @@ else
                     @foreach (var account in MyAccounts)
                     {
                         <MudItem xs="12" md="6">
-                            <AccountCard Account="@account" OnEdit="@(() => OpenAccountDialogAsync(account.Id))" OnDelete="@(() => ConfirmDelete(account.Id))"></AccountCard>
+                            <AccountCard Account="@account" OnEdit="@(() => OpenAccountDialogAsync(account))" OnDelete="@(() => ConfirmDelete((int)account.Id!))"></AccountCard>
                         </MudItem>
                     }
                 }
@@ -73,8 +73,20 @@ else
         loading = false;
     }
 
-    private async Task OpenAccountDialogAsync(int? accountId)
+    private async Task OpenAccountDialogAsync(AccountWithBalanceDto? accountWithBalance)
     {
+        var accountDto = new AccountDto();
+        if(accountWithBalance == null)
+        {
+            accountDto.Color = "#1976d2";
+        }
+        else{
+            accountDto.Id = accountWithBalance.Id;
+            accountDto.Name = accountWithBalance.Name;
+            accountDto.InitialBalance = accountWithBalance.InitialBalance;
+            accountDto.Color = accountWithBalance.Color;
+            accountDto.Icon = accountWithBalance.Icon;
+        }
         var options = new DialogOptions
         {
             CloseOnEscapeKey = true,
@@ -85,7 +97,7 @@ else
 
         var parameters = new DialogParameters<AccountDialog>
         {
-            { x => x.AccountId, accountId }
+            { x => x.AccountDto, accountDto }
         };
 
         var dialog = await DialogService.ShowAsync<AccountDialog>(title: "", parameters, options);
@@ -117,11 +129,7 @@ else
                 if(response.IsSuccessStatusCode)
                 {
                     Snackbar.Add("Account succesfully deleted! ", Severity.Success);
-                    var account = MyAccounts.FirstOrDefault(a => a.Id == accountId);
-                    if(account != null){
-                        MyAccounts.Remove(account);
-                        CachedData.RemoveAccount(accountId);
-                    }
+                    await UpdatePage();
                 }
                 else
                 {
@@ -138,23 +146,6 @@ else
 
     private async Task UpdatePage()
     {
-        try
-        {
-            string url = "api/accounts/with-balances";
-            var request = new HttpRequestMessage(HttpMethod.Get, url);
-            var response = await Http.SendAsync(request);
-            if(response.IsSuccessStatusCode)
-            {
-                MyAccounts = await response.Content.ReadFromJsonAsync<List<AccountWithBalanceDto>>();
-            }
-            else
-            {
-                Snackbar.Add("Error fetching accounts!", Severity.Error);
-            }
-        }
-        catch (Exception ex)
-        {
-            Snackbar.Add($"An error occurred: {ex.Message}", Severity.Error);
-        }
+        MyAccounts = await CachedData.GetAccountsWithBalanceAsync();
     }
 }

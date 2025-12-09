@@ -13,7 +13,7 @@
     <MudDialog>
         <TitleContent>
             <MudText Typo="Typo.h5">
-                @(CategoryId == null ? "Add Category" : "Edit Category")
+                @(CategoryDto.Id == null ? "Add Category" : "Edit Category")
             </MudText>
         </TitleContent>
         <DialogContent>
@@ -70,52 +70,8 @@
     private IMudDialogInstance MudDialog { get; set; } = null!;
 
     [Parameter]
-    public int? CategoryId { get; set; }
+    public CategoryDto CategoryDto { get; set; } = new();
 
-    [Parameter]
-    public TransactionTypeDto? Type { get; set; }
-    private CategoryDto CategoryDto { get; set; } = new();
-
-
-    protected override async Task OnParametersSetAsync()
-    {
-        await base.OnParametersSetAsync();
-        CategoryDto = new CategoryDto();
-        CategoryDto.Color = "#1976d2";
-
-        if (Type != null)
-        {
-            CategoryDto.Type = Type;
-        }
-
-        if (CategoryId == null)
-        {
-            return;
-        }
-        
-        try
-        {
-            string url = $"api/categories/{CategoryId}";
-            var request = new HttpRequestMessage(HttpMethod.Get, url);
-            var response = await Http.SendAsync(request);
-            if(response.IsSuccessStatusCode)
-            {
-                CategoryDto = await response.Content.ReadFromJsonAsync<CategoryDto>() ?? new();
-            }
-            else
-            {
-                Snackbar.Add("Error getting category!", Severity.Error);
-                MudDialog.Close();
-                return;
-            }
-        }
-        catch (Exception ex)
-        {
-            Snackbar.Add($"An error occurred: {ex.Message}", Severity.Error);
-            MudDialog.Close();
-            return;
-        }
-    }
 
     private async Task Submit()
     {
@@ -128,7 +84,8 @@
         try
         {
             HttpResponseMessage? response;
-            if(CategoryId == null){
+            if(CategoryDto.Id == null)
+            {
                 string url = $"api/categories";
                 var request = new HttpRequestMessage(HttpMethod.Post, url);
                 request.Content = JsonContent.Create(CategoryDto);
@@ -136,7 +93,7 @@
                 response = await Http.SendAsync(request);
             }
             else{
-                string url = $"api/categories/{CategoryId}";
+                string url = $"api/categories/{CategoryDto.Id}";
                 var request = new HttpRequestMessage(HttpMethod.Put, url);
                 request.Content = JsonContent.Create(CategoryDto);
                 request.Content.Headers.ContentType = new MediaTypeHeaderValue("application/json");

@@ -2,7 +2,7 @@
 @using MudBlazor
 @using ExpenseTrackerWasmWebApp.Features.SharedKernel.Components
 
-<EntityCard OnEdit="@(() => OpenCategoryDialogAsync.InvokeAsync(CategoryDto?.Id))" OnDelete="@(() => ConfirmDelete.InvokeAsync(CategoryDto?.Id ?? 0))">
+<EntityCard OnEdit="@(() => OpenCategoryDialogAsync.InvokeAsync(CategoryDto))" OnDelete="@(() => ConfirmDelete.InvokeAsync(CategoryDto?.Id ?? 0))">
     <HeaderContent>
     <TextWithIcon Text="@CategoryDto.Name" Icon="@CategoryDto.Icon" IconColor="@CategoryDto.Color" IconSize="Size.Large" TextTypo="Typo.h6"></TextWithIcon>
     </HeaderContent>
@@ -33,7 +33,7 @@
     public required CategoryWithStatsDto CategoryDto { get; set; }
 
     [Parameter]
-    public EventCallback<int?> OpenCategoryDialogAsync { get; set; }
+    public EventCallback<CategoryWithStatsDto?> OpenCategoryDialogAsync { get; set; }
 
     [Parameter]
     public EventCallback<int> ConfirmDelete { get; set; }

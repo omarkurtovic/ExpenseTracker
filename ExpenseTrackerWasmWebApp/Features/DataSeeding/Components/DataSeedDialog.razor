@@ -1,11 +1,8 @@
-@using ExpenseTrackerWebApp.Features.Transactions.Dtos
-@using ExpenseTrackerWebApp.Services
-@using MediatR
 @using MudBlazor
-
-@inject ISender Mediator
-@inject ICurrentUserService CurrentUserService
+@using ExpenseTrackerSharedCL.Features.DataSeeding.Dtos
+@using System.Net.Http.Headers
 @inject ISnackbar Snackbar
+@inject HttpClient Http
 <MudDialog>
     <TitleContent>
         <MudText Typo="Typo.h5">
@@ -25,22 +22,22 @@
                 </MudItem>
                 <MudItem xs="12">
                     <MudForm  @ref="form">
-                        <MudNumericField @bind-Value="SeedDataOptionsDto.NumberOfTransaction" Label="Number of Transactions" Variant="Variant.Outlined"
+                        <MudNumericField @bind-Value="DataSeedOptionsDto.NumberOfTransaction" Label="Number of Transactions" Variant="Variant.Outlined"
                             Required="true" RequiredError="Number of Transactions is required!" Min="1" Max="10000">
                         </MudNumericField>
-                        <MudNumericField @bind-Value="SeedDataOptionsDto.TransactionMinAmount" Label="Transaction Minimum Amount" Variant="Variant.Outlined"
+                        <MudNumericField @bind-Value="DataSeedOptionsDto.TransactionMinAmount" Label="Transaction Minimum Amount" Variant="Variant.Outlined"
                             Required="true" RequiredError="Transaction Minimum Amount is required!" Min="1">
                         </MudNumericField>
-                        <MudNumericField @bind-Value="SeedDataOptionsDto.TransactionMaxAmount" Label="Transaction Maximum Amount" Variant="Variant.Outlined"
+                        <MudNumericField @bind-Value="DataSeedOptionsDto.TransactionMaxAmount" Label="Transaction Maximum Amount" Variant="Variant.Outlined"
                             Required="true" RequiredError="Transaction Maximum Amount is required!" Min="1" Max="1000000">
                         </MudNumericField>
-                        <MudDatePicker @bind-Date="SeedDataOptionsDto.TransactionStartDate" Label="Transaction Start Date" Variant="Variant.Outlined"
+                        <MudDatePicker @bind-Date="DataSeedOptionsDto.TransactionStartDate" Label="Transaction Start Date" Variant="Variant.Outlined"
                                 Required="true" RequiredError="Transaction Start Date is required!" />
 
-                        <MudDatePicker @bind-Date="SeedDataOptionsDto.TransactionEndDate" Label="Transaction End Date" Variant="Variant.Outlined"
+                        <MudDatePicker @bind-Date="DataSeedOptionsDto.TransactionEndDate" Label="Transaction End Date" Variant="Variant.Outlined"
                                 Required="true" RequiredError="Transaction End Date is required!" />
 
-                        <MudNumericField @bind-Value="SeedDataOptionsDto.MaxNumberOfTags" Label="Maximum Number of Tags per Transaction" Variant="Variant.Outlined"
+                        <MudNumericField @bind-Value="DataSeedOptionsDto.MaxNumberOfTags" Label="Maximum Number of Tags per Transaction" Variant="Variant.Outlined"
                             Required="true" RequiredError="Maximum Number of Tags is required!" Min="0" Max="10">
                         </MudNumericField>
                     </MudForm>
@@ -56,31 +53,44 @@
 </MudDialog>
 
 @code{
-    MudForm? form;
+    MudForm? form = null!;
 
     [CascadingParameter]
-    private IMudDialogInstance? MudDialog { get; set; }
+    private IMudDialogInstance? MudDialog { get; set; } = null!;
 
     private bool Loading = false;
-    private SeedDataOptionsDto SeedDataOptionsDto = new SeedDataOptionsDto();
-    private void Cancel() => MudDialog.Cancel();
+    private DataSeedOptionsDto DataSeedOptionsDto = new DataSeedOptionsDto();
+    private void Cancel() => MudDialog!.Cancel();
     private async Task Seed()
     {
+        Loading = true;
+
         try
         {
-            Loading = true;
-            await Mediator.Send(new Commands.SeedUserCommand
+            string url = $"api/dataseeding";
+            var request = new HttpRequestMessage(HttpMethod.Post, url);
+            request.Content = JsonContent.Create(DataSeedOptionsDto);
+            request.Content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
+            var response = await Http.SendAsync(request);
+
+            if (response.IsSuccessStatusCode)
             {
-                UserId = CurrentUserService.GetUserId(),
-                Options = SeedDataOptionsDto
-            });
-            Loading = false;
-            MudDialog.Close(DialogResult.Ok(result: true));
-            Snackbar.Add("Data seeded successfully!", Severity.Success);
-        }    
-    catch (Exception ex){
-        Console.WriteLine($"Error seeding data: {ex.Message}");
-        Snackbar.Add("An error occurred while seeding data. Please try again.", Severity.Error);
+                Snackbar.Add("Data seeded successfully!", Severity.Success);
+                MudDialog!.Close(DialogResult.Ok(result: true));
+            }
+            else
+            {
+                Snackbar.Add("An error occurred while seeding data. Please try again.", Severity.Error);
+                return;
+            }
         }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+            Snackbar.Add("An error occurred while seeding data. Please try again.", Severity.Error);
+            return;
+        }
+        Loading = false;
+
     }
 }

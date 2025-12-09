@@ -32,6 +32,7 @@ namespace ExpenseTrackerWebApi.Features.Categories.Handlers
 
             return new CategoryDto
             {
+                Id = category.Id,
                 Name = category.Name,
                 Type = (TransactionTypeDto)category.Type,
                 Icon = category.Icon,

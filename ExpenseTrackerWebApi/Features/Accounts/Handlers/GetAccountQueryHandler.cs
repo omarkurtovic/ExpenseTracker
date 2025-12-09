@@ -36,6 +36,7 @@ namespace ExpenseTrackerWebApi.Features.Accounts.Handlers
 
             return new AccountDto()
             {
+                Id = account.Id,
                 Name = account.Name,
                 InitialBalance = account.InitialBalance,
                 Color = account.Color,

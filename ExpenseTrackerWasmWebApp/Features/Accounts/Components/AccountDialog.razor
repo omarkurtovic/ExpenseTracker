@@ -15,7 +15,7 @@
     <MudDialog>
         <TitleContent>
             <MudText Typo="Typo.h5">
-                @(AccountId == null ? "Add Account" : "Edit Account")
+                @(AccountDto.Id == null ? "Add Account" : "Edit Account")
             </MudText>
         </TitleContent>
         <DialogContent>
@@ -62,50 +62,13 @@
 </style>
 
 @code {
-    MudForm form;
+    MudForm form = null!;
 
     [CascadingParameter]
-    private IMudDialogInstance MudDialog { get; set; }
+    private IMudDialogInstance MudDialog { get; set; } = null!;
 
     [Parameter]
-    public int? AccountId { get; set; }
-    private AccountDto AccountDto { get; set; }
-
-
-    protected override async Task OnParametersSetAsync()
-    {
-        AccountDto = new AccountDto();
-        AccountDto.Color = "#1976d2";
-
-        if (AccountId == null)
-        {
-            return;
-        }
-
-        try
-        {
-            string url = $"api/accounts/{AccountId}";
-            var request = new HttpRequestMessage(HttpMethod.Get, url);
-            var response = await Http.SendAsync(request);
-            if(response.IsSuccessStatusCode)
-            {
-                AccountDto = await response.Content.ReadFromJsonAsync<AccountDto>();
-            }
-            else
-            {
-                Snackbar.Add("Error getting account!", Severity.Error);
-                MudDialog.Close();
-                return;
-            }
-        }
-        catch (Exception ex)
-        {
-            Snackbar.Add($"An error occurred: {ex.Message}", Severity.Error);
-            MudDialog.Close();
-            return;
-        }
-    }
-
+    public AccountDto AccountDto { get; set; } = new AccountDto();
     private async Task Submit()
     {
         await form.Validate();
@@ -118,7 +81,7 @@
         try
         {
             HttpResponseMessage? response;
-            if(AccountId == null){
+            if(AccountDto.Id == null){
                 string url = $"api/accounts";
                 var request = new HttpRequestMessage(HttpMethod.Post, url);
                 request.Content = JsonContent.Create(AccountDto);
@@ -126,7 +89,7 @@
                 response = await Http.SendAsync(request);
             }
             else{
-                string url = $"api/accounts/{AccountId}";
+                string url = $"api/accounts/{AccountDto.Id}";
                 var request = new HttpRequestMessage(HttpMethod.Put, url);
                 request.Content = JsonContent.Create(AccountDto);
                 request.Content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
@@ -135,14 +98,6 @@
 
             if(response.IsSuccessStatusCode){
                 Snackbar.Add("Account saved successfully!", Severity.Success);
-                if(AccountId == null){
-                    var createdAccount = await response.Content.ReadFromJsonAsync<AccountDto>();
-                    CachedData.AddAccount(createdAccount);
-                }
-                else{
-                    CachedData.UpdateAccount(AccountDto);
-                }
-                
                 MudDialog.Close(DialogResult.Ok(result: true));
             }
             else

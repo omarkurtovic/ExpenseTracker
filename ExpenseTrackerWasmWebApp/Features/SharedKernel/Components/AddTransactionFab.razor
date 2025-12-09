@@ -1,10 +1,9 @@
 @using ExpenseTrackerWasmWebApp.Services
 @using MudBlazor
-@using ExpenseTrackerWasmWebApp.Features.SharedKernel.Components
 
 @inject ISnackbar Snackbar
 @inject IDialogService DialogService
-@inject CachedDataService CachedData
+@inject CachedDataService DataService
 
 <FabButton Text="Add" IconClass="@Icons.Material.Filled.Add" OnClick="() => OpenTransactionDialogAsync()" />
     
@@ -18,9 +17,9 @@
     
     private async Task OpenTransactionDialogAsync()
     {
-        var categories = CachedData.GetCategories();
-        var accounts = CachedData.GetAccounts();
-        
+        DataService.GetAccounts();
+        var categories = DataService.GetCategories();
+        var accounts = DataService.GetAccounts();
         if (categories.Count == 0)
         {
             Snackbar.Add("No categories found! Create some then try again!", Severity.Error);

@@ -1,0 +1,50 @@
+using ExpenseTrackerWebApi.Database;
+using ExpenseTrackerWebApi.Database.Models;
+using ExpenseTrackerWebApi.Features.Accounts.Commands;
+using MediatR;
+using Microsoft.EntityFrameworkCore;
+using MudBlazor;
+
+namespace ExpenseTrackerWebApi.Features.Accounts.Handlers
+{
+    public class ResetToDefaultAccountsCommandHandler : IRequestHandler<ResetToDefaultAccountsCommand>
+    {
+        private readonly AppDbContext _context;
+
+        public ResetToDefaultAccountsCommandHandler(AppDbContext context)
+        {
+            _context = context;
+        }
+
+        public async Task Handle(ResetToDefaultAccountsCommand request, CancellationToken cancellationToken)
+        {
+            await _context.Accounts.Where(c => c.IdentityUserId == request.UserId)
+                .ExecuteDeleteAsync(cancellationToken);
+            
+            _context.ChangeTracker.Clear();
+
+            var accounts = new List<Account>()
+            {
+                new()
+                {
+                    Name = "Cash",
+                    InitialBalance = 0,
+                    Icon = Icons.Material.Filled.Payments,
+                    Color = "#FF5733",
+                    IdentityUserId = request.UserId
+                },
+                new()
+                {
+                    Name = "Bank",
+                    InitialBalance = 0,
+                    Icon = Icons.Material.Filled.AccountBalance,
+                    Color = "#33C1FF",
+                    IdentityUserId = request.UserId
+                }
+            };
+
+            _context.Accounts.AddRange(accounts);
+            await _context.SaveChangesAsync();
+        }
+    }
+}
