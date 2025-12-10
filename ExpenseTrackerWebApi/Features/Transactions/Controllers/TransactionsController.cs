@@ -14,12 +14,12 @@ namespace ExpenseTrackerWebApi.Features.Transactions.Controllers
     [ApiController]
     [Route("api/[controller]")]
     [Authorize]
-    public class AccountsController : ControllerBase
+    public class TransactionsController : ControllerBase
     {
         private readonly ISender _mediator;   
         private readonly UserManager<IdentityUser> _userManager;
 
-        public AccountsController(ISender mediator, UserManager<IdentityUser> userManager)
+        public TransactionsController(ISender mediator, UserManager<IdentityUser> userManager)
         {
             _mediator = mediator;
             _userManager = userManager;

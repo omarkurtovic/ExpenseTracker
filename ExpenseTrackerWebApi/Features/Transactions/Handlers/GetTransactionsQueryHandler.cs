@@ -64,7 +64,7 @@ namespace ExpenseTrackerWebApi.Features.Transactions.Handlers
                 },
                 TransactionType = (TransactionTypeDto)transaction.Category.Type,
                 IsReoccuring = transaction.IsReoccuring,
-                ReoccuranceFrequency = (ReoccuranceFrequencyDto)transaction.ReoccuranceFrequency!,
+                ReoccuranceFrequency = transaction.ReoccuranceFrequency != null ? (ReoccuranceFrequencyDto)transaction.ReoccuranceFrequency : null,
                 NextReoccuranceDate = transaction.NextReoccuranceDate,
                 TagIds = transaction.TransactionTags.Select(tt => tt.TagId).ToList(),
                 TransactionTags = [.. transaction.TransactionTags.Select(tt => new TransactionTagDto()

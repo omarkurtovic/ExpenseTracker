@@ -17,21 +17,6 @@
     
     private async Task OpenTransactionDialogAsync()
     {
-        DataService.GetAccounts();
-        var categories = DataService.GetCategories();
-        var accounts = DataService.GetAccounts();
-        if (categories.Count == 0)
-        {
-            Snackbar.Add("No categories found! Create some then try again!", Severity.Error);
-            return;
-        }
-
-        if (accounts.Count == 0)
-        {
-            Snackbar.Add("No accounts found! Create some then try again!", Severity.Error);
-            return;
-        }
-
         var options = new DialogOptions
         {
             CloseOnEscapeKey = true,

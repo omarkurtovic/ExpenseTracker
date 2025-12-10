@@ -6,10 +6,8 @@
 @inject IApexChartService apexChartService
 @inject HttpClient Http
 @inject ISnackbar Snackbar
+@inject IApexChartService ApexChartService
 
-<MudPopoverProvider />
-<MudDialogProvider /> 
-<MudSnackbarProvider />
 <MudThemeProvider @bind-IsDarkMode="@_isDarkMode" Theme="_theme" />
 
 <MudLayout>
@@ -116,28 +114,6 @@
     }
 
 
-    private async Task<UserPreferenceDto?> GetUserPreferencesDto()
-    {
-        UserPreferenceDto? userPreferenceDto = null;
-
-        string url = "api/userpreferences";
-        var request = new HttpRequestMessage(HttpMethod.Get, url);
-        var response = await Http.SendAsync(request);
-        if (response.IsSuccessStatusCode)
-        {
-            userPreferenceDto = await response.Content.ReadFromJsonAsync<UserPreferenceDto>();
-        }
-        return userPreferenceDto;
-    }
-
-    private async Task<bool> SetDefaultUserPreferences()
-    {
-        string url = "api/userpreferences/default";
-        var request = new HttpRequestMessage(HttpMethod.Post, url);
-        var response = await Http.SendAsync(request);
-        return response.IsSuccessStatusCode;
-    }
-
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
@@ -160,7 +136,7 @@
     {
         if (IsLoggedIn)
         {
-            await Mediator.Send(new EditUserPreferencesCommand { DarkMode = _isDarkMode, UserId = CurrentUserService.GetUserId() });
+            await SetDarkMode(_isDarkMode);
         }
 
         await RefreshGraphs();
@@ -184,9 +160,39 @@
         }, true);
     }
 
-    private void RedirectToTransctions(bool reoccuring)
+    private async Task<UserPreferenceDto?> GetUserPreferencesDto()
     {
-        NavigationManager.NavigateTo($"/transactions?isreoccuring={reoccuring}", forceLoad: true);
+        UserPreferenceDto? userPreferenceDto = null;
+
+        string url = "api/userpreferences";
+        var request = new HttpRequestMessage(HttpMethod.Get, url);
+        var response = await Http.SendAsync(request);
+        if (response.IsSuccessStatusCode)
+        {
+            userPreferenceDto = await response.Content.ReadFromJsonAsync<UserPreferenceDto>();
+        }
+        return userPreferenceDto;
+    }
+
+    private async Task<bool> SetDefaultUserPreferences()
+    {
+        string url = "api/userpreferences/default";
+        var request = new HttpRequestMessage(HttpMethod.Post, url);
+        var response = await Http.SendAsync(request);
+        return response.IsSuccessStatusCode;
+    }
+
+    public async Task SetDarkMode(bool isDarkMode)
+    {
+        UserPreferenceDto? userPreferenceDto = null;
+        userPreferenceDto = new UserPreferenceDto
+        {
+            DarkMode = isDarkMode
+        };
+
+        string url = "api/userpreferences";
+        var request = new HttpRequestMessage(HttpMethod.Put, url);
+        var response = await Http.SendAsync(request);
     }
 
 }

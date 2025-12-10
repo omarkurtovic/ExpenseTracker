@@ -1,3 +1,4 @@
+using ExpenseTrackerSharedCL.Features.UserPreferences.Dtos;
 using ExpenseTrackerWebApi.Features.Features.UserPreferences.Queries;
 using ExpenseTrackerWebApi.Features.UserPreferences.Commands;
 using MediatR;
@@ -58,6 +59,37 @@ namespace ExpenseTrackerWebApi.Features.UserPreferences.Controllers
             catch (Exception ex)
             {
                 Console.WriteLine($"Error creating user preferences: {ex.Message}");
+                return StatusCode(500, "An error occurred while processing your request.");
+            }
+        }
+
+        [HttpPut]
+        public async Task<IActionResult> EditUserPreferences([FromBody] UserPreferenceDto userPreferencesDto)
+        {
+            try
+            {
+                var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value!;
+                var command = new EditUserPreferencesCommand
+                {
+                    UserId = userId,
+                    UserPreferencesDto = userPreferencesDto
+                };
+                await _mediator.Send(command);
+                return Ok();
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                Console.WriteLine($"Unauthorized access: {ex.Message}");
+                return Forbid();
+            }
+            catch (ArgumentException ex)
+            {
+                Console.WriteLine($"Invalid argument: {ex.Message}");
+                return BadRequest(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error editing user preferences: {ex.Message}");
                 return StatusCode(500, "An error occurred while processing your request.");
             }
         }

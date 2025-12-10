@@ -4,9 +4,8 @@ using MediatR;
 
 namespace ExpenseTrackerWebApi.Features.UserPreferences.Commands
 {
-    public class EditUserPreferencesCommand : IRequest<int>
+    public class EditUserPreferencesCommand : IRequest<Unit>
     {
-        public required int Id{get; set;}
         public required string UserId{get; set;}
         public required UserPreferenceDto UserPreferencesDto{get; set;}
     }

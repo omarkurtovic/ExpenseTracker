@@ -1,6 +1,6 @@
 
-@attribute [AllowAnonymous]
 @page "/login"
+@attribute [AllowAnonymous]
 @using ExpenseTrackerWasmWebApp.Services
 @using Microsoft.AspNetCore.Authorization
 @using MudBlazor
@@ -10,6 +10,8 @@
 @inject NavigationManager Nav    
 @inject Blazored.LocalStorage.ILocalStorageService LocalStorage
 @inject CachedDataService CachedData
+
+<MudThemeProvider />
 
 <PageTitle>Login</PageTitle>
 

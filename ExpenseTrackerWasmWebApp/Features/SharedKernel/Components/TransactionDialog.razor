@@ -24,7 +24,7 @@
             <MudGrid>
                 <MudItem xs="12">
                     <MudForm @ref="form">
-                        @if ((bool)TransactionDto.IsReoccuring!)
+                        @if (IsReoccuring)
                         {
                             <MudAlert Severity="Severity.Info" Elevation="0" Variant="Variant.Filled" Class="mb-4">
                                 You are adding a reoccuring transaction. This transaction will be repeated based on the
@@ -178,38 +178,25 @@
     private List<CategoryDto> AllCategories = new();
     private List<AccountDto> AllAccounts = new();
 
-    protected override void OnInitialized()
+    protected override void OnParametersSet()
     {
-        base.OnInitialized();
         AllTags = DataService.GetTags();
         AllAccounts = DataService.GetAccounts();
         AllCategories = DataService.GetCategories();
-
-        if (AllCategories.Count == 0)
-        {
-            Snackbar.Add("No categories found! Create some then try again!", Severity.Error);
-            MudDialog.Close();
-            return;
-        }
-
-        if (AllAccounts.Count == 0)
-        {
-            Snackbar.Add("No accounts found! Create some then try again!", Severity.Error);
-            MudDialog.Close();
-            return;
-        }
-
         AllCategories = AllCategories.Where(c => c.Type == TransactionDto.TransactionType).ToList();
-    }
 
-    protected override void OnParametersSet()
-    {
         if(transactionDto == null)
         {
             transactionDto = new TransactionDto();
-            transactionDto.AccountId = AllAccounts.First().Id;
-            transactionDto.CategoryId = AllCategories.First().Id;
-            transactionDto.TransactionType = AllCategories.First().Type;
+            if(AllCategories.Count > 0){
+                transactionDto.CategoryId = AllCategories.First().Id;
+                transactionDto.TransactionType = AllCategories.First().Type;
+                transactionDto.CategoryDto = AllCategories.First();
+            }
+            if(AllAccounts.Count > 0){
+                transactionDto.AccountId = AllAccounts.First().Id;
+                transactionDto.AccountDto = AllAccounts.First();
+            }
             transactionDto.Date = DateTime.Now.Date;
             transactionDto.Time = DateTime.Now.TimeOfDay;
             transactionDto.Amount = 0;
@@ -394,15 +381,15 @@
         AllCategories = DataService.GetCategories();
         AllCategories = AllCategories.Where(c => c.Type == TransactionDto.TransactionType).ToList();
 
-        if (AllCategories.Count == 0)
+        if (AllCategories.Count > 0)
         {
+            TransactionDto.CategoryId = AllCategories.First().Id;
+            TransactionDto.CategoryDto = AllCategories.First();
+        }
+        else{
             TransactionDto.CategoryId = null;
-            Snackbar.Add("No categories for this transaction type!", Severity.Warning);
-            return;
         }
 
-        TransactionDto.CategoryId = AllCategories.First().Id;
-        StateHasChanged();
     }
 
 }
