@@ -54,9 +54,6 @@
     [CascadingParameter]
     private IMudDialogInstance MudDialog { get; set; } = null!;
 
-    [Parameter]
-    public List<TransactionDto> Transactions { get; set; } = new List<TransactionDto>();
-
     private void ItemUpdated(MudItemDropInfo<DropItem> dropItem)
     {
         _items.UpdateOrder(dropItem, item => item.Order, 0);
@@ -89,7 +86,7 @@
             return;
         } 
         
-        if(Transactions.Count == 0){
+        @* if(Transactions.Count == 0){
             Snackbar.Add("No transactions found for export!", Severity.Error);
             return;
         }
@@ -98,7 +95,7 @@
         var fileName = "ExpenseTrackerWebApp.csv";        
         await JSRuntime.InvokeVoidAsync("downloadFileFromText", fileName, csvContent);
         Snackbar.Add("Export successful!", Severity.Success);
-        MudDialog.Close();
+        MudDialog.Close(); *@
     }
 
     public string GenerateCsvContent(List<TransactionDto> transactions, List<DropItem> dropItems)

@@ -41,7 +41,7 @@ else
                                 <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="@(() => OpenTransactionDialogAsync(null))"
                                         StartIcon="@Icons.Material.Filled.Add">Add
                                     </MudButton>
-                                    <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="() => RefreshTransactions(true)"
+                                    <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="() => dataGrid.ReloadServerData()"
                                         StartIcon="@Icons.Material.Filled.Refresh">Refresh
                                     </MudButton>
                                 </MudPaper>
@@ -68,7 +68,7 @@ else
                         </MudItem>
                         <MudItem xs="12" Style="padding-top: 0px;">
                             <MudCollapse Expanded="_expanded" Class="">
-                                <TransactionsFilter TransactionsPageStateDto="TransactionsPageStateDto" OnFiltersChanged="@(() => StateHasChanged())" />
+                                <TransactionsFilter Filters="Filters" OnFiltersChanged="@(() => StateHasChanged())" />
                             </MudCollapse>
                         </MudItem>
                     </DesktopContent>
@@ -78,7 +78,7 @@ else
                                 StartIcon="@Icons.Material.Filled.ImportExport">Export</MudButton>
                             <MudButton OnClick="OnClickShowFilterDialog" Variant="Variant.Outlined">Filters</MudButton>
                         </MudItem>
-                        <AddTransactionFab OnClose="@(() => RefreshTransactions(false))" />
+                        <AddTransactionFab OnClose="@(() => dataGrid.ReloadServerData())" />
                         <MudDialog @ref="_filterDialog">
                             <TitleContent>Filters</TitleContent>
                                 <DialogContent>
@@ -88,10 +88,10 @@ else
                     </MobileContent>
                 </DynamicContent>
 
-                @if (TransactionsPageStateDto.FilteredTransactions.Count == 0)
+                @if (NumberOfTransactions == 0)
                 {
                     <MudItem xs="12" Class="d-flex justify-center mt-4">
-                        @if (TransactionsPageStateDto.AreAnyFiltersActive)
+                        @if (Filters.AreAnyFiltersActive())
                         {
                             <MudText Typo="Typo.h5">No transactions found!</MudText>
                         }
@@ -105,8 +105,8 @@ else
                 {
                     <MudItem xs="12" Style="height: 100%;">
                         <MudPaper Outlined="true" Elevation="1" Class="border-2">
-                            <MudDataGrid @ref="@_dataGrid" T="TransactionDto" Hover Groupable Height="45vh" ItemSize="30f"
-                                Items="TransactionsPageStateDto.FilteredTransactions" FixedHeader FixedFooter>
+                            <MudDataGrid @ref="@dataGrid" T="TransactionDto" Hover Groupable Height="45vh" ItemSize="30f"
+                                ServerData="ServerReload" FixedHeader FixedFooter>
                                 <Columns>
                                     <TemplateColumn Title="Account">
                                         <CellTemplate>
@@ -149,7 +149,7 @@ else
                                             <AmountDisplay Amount="(decimal)context.Item.Amount!" />
                                         </CellTemplate>
                                     </TemplateColumn>
-                                    <TemplateColumn Title="Tags">
+                                    <TemplateColumn Title="Tags" Filterable="false">
                                         <CellTemplate>
                                             <MudPaper Elevation="0" Class="d-flex gap-1 flex-wrap" Style="background-color:transparent;">
                                                 @foreach (var tag in context.Item.TransactionTags)
@@ -178,18 +178,6 @@ else
                                     <MudDataGridPager T="TransactionDto" />
                                 </PagerContent>
                             </MudDataGrid>
-                            <MudItem xs="12" Class="pa-6 pl-0">
-                                @{
-                                    var balance = TransactionsPageStateDto.FilteredTransactions.Sum(t => t.Amount);
-                                }
-                                <MudPaper Elevation="0" Class="d-flex gap-2">
-                                    <MudText>
-                                        Balance:
-                                        <AmountDisplay Amount="(decimal)balance!" />
-                                    </MudText>
-                                </MudPaper>
-
-                            </MudItem>
                         </MudPaper>
                     </MudItem>
                 }
@@ -205,45 +193,41 @@ else
     [Parameter]
     [SupplyParameterFromQuery(Name = "isreoccuring")]
     public bool IsReoccuring { get; set; } = false;
-
+    private MudDataGrid<TransactionDto> dataGrid = null!;
+    private TransactionsFiltersDto Filters => new TransactionsFiltersDto();
+    private int NumberOfTransactions = 0;
     bool loading = false;
-    private TransactionsPageStateDto TransactionsPageStateDto { get; set; } = new TransactionsPageStateDto();
+    
 
-    private MudDataGrid<TransactionDto> _dataGrid = null!;
 
-    protected override void OnInitialized()
+    private async Task<GridData<TransactionDto>> ServerReload(GridState<TransactionDto> state)
     {
-        TransactionsPageStateDto.Categories = CachedData.GetCategories();
-        TransactionsPageStateDto.FilteredCategories = [..CachedData.GetCategories()];
-        TransactionsPageStateDto.Accounts = CachedData.GetAccounts();
-        TransactionsPageStateDto.Tags = CachedData.GetTags();
-        base.OnInitialized();
-    }
+        var options = new TransactionsGridOptionsDto();
+        options.IsReoccuring = IsReoccuring;
+        var sortDefintion = state.SortDefinitions.FirstOrDefault();
+        if(sortDefintion != null){
+            options.SortBy = sortDefintion.SortBy;
+            options.SortDescending = sortDefintion.Descending;
+        }
+        options.PageSize = state.PageSize;
+        options.CurrentPage = state.Page;
+        options.Filters = Filters;
 
-    protected override async Task OnParametersSetAsync()
-    {
-        await base.OnParametersSetAsync();
-        await RefreshTransactions();
-        loading = false;
-    }
-
-
-    private async Task RefreshTransactions(bool showMessage = false)
-    {
+        var result = new List<TransactionDto>();
         try
         {
-            string url = $"api/transactions?isReoccuring={IsReoccuring}";
-            var request = new HttpRequestMessage(HttpMethod.Get, url);
+            string url = $"api/transactions/search";
+            var request = new HttpRequestMessage(HttpMethod.Post, url);
             var response = await Http.SendAsync(request);
             if(response.IsSuccessStatusCode)
             {
                 var transactions = await response.Content.ReadFromJsonAsync<List<TransactionDto>>() ?? new();
-                TransactionsPageStateDto.RefreshTransactions(transactions);
-                
-                if(showMessage)
+                NumberOfTransactions = transactions.Count;
+                return new GridData<TransactionDto>()
                 {
-                    Snackbar.Add("Transactions were refreshed!", Severity.Success);
-                }
+                    Items = transactions,
+                    TotalItems = transactions.Count
+                };
             }
             else
             {
@@ -254,17 +238,25 @@ else
         {
             Snackbar.Add($"An error occurred: {ex.Message}", Severity.Error);
         }
+
+        NumberOfTransactions = 0;
+        return new GridData<TransactionDto>()
+        {
+            Items = result,
+            TotalItems = result.Count
+        };
+
     }
 
     private async Task OpenTransactionDialogAsync(TransactionDto? transactionDto)
     {
-        if (TransactionsPageStateDto.Categories.Count == 0)
+        if (CachedData.GetCategories().Count == 0)
         {
             Snackbar.Add("No categories found! Create some then try again!", Severity.Error);
             return;
         }
 
-        if (TransactionsPageStateDto.Accounts.Count == 0)
+        if (CachedData.GetAccounts().Count == 0)
         {
             Snackbar.Add("No accounts found! Create some then try again!", Severity.Error);
             return;
@@ -290,8 +282,7 @@ else
         // but also that he changed some tags
 
         await CachedData.RefreshTagsAsync();
-        TransactionsPageStateDto.Tags = CachedData.GetTags();
-        await RefreshTransactions();
+        await dataGrid.ReloadServerData();
     }
 
     private async Task ConfirmDelete(int transaction_id)
@@ -314,7 +305,7 @@ else
                 if(response.IsSuccessStatusCode)
                 {
                     Snackbar.Add("Transaction succesfully deleted! ", Severity.Success);
-                    await RefreshTransactions();
+                    await dataGrid.ReloadServerData();
                 }
                 else
                 {
@@ -348,21 +339,12 @@ else
         if (!result.Canceled)
         {
             await CachedData.InitializeAsync();
-            TransactionsPageStateDto.Categories = CachedData.GetCategories();
-            TransactionsPageStateDto.Accounts = CachedData.GetAccounts();
-            TransactionsPageStateDto.Tags = CachedData.GetTags();
-            await RefreshTransactions();
+            await dataGrid.ReloadServerData();
         }
     }
 
     private async Task OpenExportDialog()
     {
-        if (TransactionsPageStateDto.Transactions.Count == 0)
-        {
-            Snackbar.Add("No transactions to export!", Severity.Error);
-            return;
-        }
-
         var options = new DialogOptions
         {
             CloseOnEscapeKey = true,
@@ -371,11 +353,7 @@ else
             MaxWidth = MaxWidth.Medium
         };
 
-        var parameters = new DialogParameters<ExportDialog>
-        {
-            { x => x.Transactions, TransactionsPageStateDto.Transactions }
-        };
-
+        var parameters = new DialogParameters<ExportDialog>{};
         var dialog = await DialogService.ShowAsync<ExportDialog>(title: "", parameters, options);
     }
 

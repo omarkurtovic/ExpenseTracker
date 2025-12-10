@@ -7,25 +7,26 @@ namespace ExpenseTrackerWasmWebApp.Services;
 
 public class CachedDataService
 {
-    private readonly HttpClient _http;
     private List<AccountDto>? _accounts;
     private List<CategoryDto>? _categories;
     private List<TagDto>? _tags;
     private bool _isInitialized = false;
+    private readonly IHttpClientFactory _httpClientFactory;
 
-    public CachedDataService(HttpClient http)
+    public CachedDataService(IHttpClientFactory httpClientFactory)
     {
-        _http = http;
+        _httpClientFactory = httpClientFactory;
     }
 
     public async Task InitializeAsync()
     {
         try
         {
-            var accountsTask = _http.GetFromJsonAsync<List<AccountDto>>("api/accounts");
-            var categoriesTask = _http.GetFromJsonAsync<List<CategoryDto>>("api/categories");
-            var tagsTask = _http.GetFromJsonAsync<List<TagDto>>("api/tags");
+            var http = _httpClientFactory.CreateClient("WebAPI");
 
+            var accountsTask = http.GetFromJsonAsync<List<AccountDto>>("api/accounts");
+            var categoriesTask = http.GetFromJsonAsync<List<CategoryDto>>("api/categories");
+            var tagsTask = http.GetFromJsonAsync<List<TagDto>>("api/tags");
             await Task.WhenAll(accountsTask, categoriesTask);
 
             _accounts = await accountsTask ?? new();
@@ -58,7 +59,8 @@ public class CachedDataService
     {
         try
         {
-            _accounts = await _http.GetFromJsonAsync<List<AccountDto>>("api/accounts") ?? new();
+            var http = _httpClientFactory.CreateClient("WebAPI");
+            _accounts = await http.GetFromJsonAsync<List<AccountDto>>("api/accounts") ?? new();
         }
         catch
         {
@@ -69,7 +71,8 @@ public class CachedDataService
     {
         try
         {
-            _categories = await _http.GetFromJsonAsync<List<CategoryDto>>("api/categories") ?? new();
+            var http = _httpClientFactory.CreateClient("WebAPI");
+            _categories = await http.GetFromJsonAsync<List<CategoryDto>>("api/categories") ?? new();
         }
         catch
         {
@@ -79,7 +82,8 @@ public class CachedDataService
     {
         try
         {
-            _tags = await _http.GetFromJsonAsync<List<TagDto>>("api/tags") ?? new();
+            var http = _httpClientFactory.CreateClient("WebAPI");
+            _tags = await http.GetFromJsonAsync<List<TagDto>>("api/tags") ?? new();
         }
         catch
         {
@@ -91,7 +95,8 @@ public class CachedDataService
         var result = new List<AccountWithBalanceDto>();
         try
         {
-            result = await _http.GetFromJsonAsync<List<AccountWithBalanceDto>>("api/accounts/with-balances") ?? new();
+            var http = _httpClientFactory.CreateClient("WebAPI");
+            result = await http.GetFromJsonAsync<List<AccountWithBalanceDto>>("api/accounts/with-balances") ?? new();
             _accounts = [.. result.Select(r => new AccountDto
             {
                 Id = r.Id,
@@ -107,12 +112,13 @@ public class CachedDataService
         return result;
     }
 
-    public async Task<List<CategoryWithStatsDto>> GetCategoriesWithStatsAsync(TransactionTypeDto transactionTtype)
+    public async Task<List<CategoryWithStatsDto>> GetCategoriesWithStatsAsync()
     {
         var result = new List<CategoryWithStatsDto>();
         try
         {
-            result = await _http.GetFromJsonAsync<List<CategoryWithStatsDto>>($"api/categories/with-stats?type={(int)transactionTtype}") ?? new();
+            var http = _httpClientFactory.CreateClient("WebAPI");
+            result = await http.GetFromJsonAsync<List<CategoryWithStatsDto>>($"api/categories/with-stats") ?? new();
             _categories = [.. result.Select(r => new CategoryDto
             {
                 Id = r.Id,

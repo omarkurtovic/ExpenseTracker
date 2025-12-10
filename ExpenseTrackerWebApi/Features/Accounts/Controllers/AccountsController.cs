@@ -84,7 +84,7 @@ namespace ExpenseTrackerWebApi.Features.Accounts.Controllers
             {
                 var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value!;
                 await _mediator.Send(new CreateAccountCommand() { AccountDto = accountDto, UserId = userId });
-                return CreatedAtAction(nameof(GetAccountById), new { id = accountDto.Id }, accountDto);
+                return Ok();
             }
 
             catch (FluentValidation.ValidationException vex)

@@ -1,3 +1,4 @@
+using System.Transactions;
 using ExpenseTrackerSharedCL.Features.Transactions.Dtos;
 using ExpenseTrackerWebApi.Features.Accounts.Queries;
 using ExpenseTrackerWebApi.Features.Categories.Queries;
@@ -25,13 +26,14 @@ namespace ExpenseTrackerWebApi.Features.Transactions.Controllers
             _userManager = userManager;
         }
 
-        [HttpGet]
-        public async Task<IActionResult> GetTransactions(bool IsReoccuring = false)
+        [HttpPost]
+        [Route("search")]
+        public async Task<IActionResult> GetTransactions([FromBody] TransactionsGridOptionsDto transactionOptions)
         {
             try
             {
                 var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value!;
-                var transactions = await _mediator.Send(new GetTransactionsQuery() { UserId = userId, IsReoccuring = IsReoccuring });
+                var transactions = await _mediator.Send(new GetTransactionsQuery() { UserId = userId, TransactionOptions = transactionOptions });
                 return Ok(transactions);
             }
             catch (Exception ex)

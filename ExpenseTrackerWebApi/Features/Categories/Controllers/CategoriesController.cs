@@ -21,12 +21,12 @@ namespace ExpenseTrackerWebApi.Features.Categories.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetCategories([FromQuery] TransactionTypeDto? type)
+        public async Task<IActionResult> GetCategories()
         {
             try
             {
                 var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
-                var categories = await _mediator.Send(new GetCategoriesQuery { UserId = userId!, Type = type });
+                var categories = await _mediator.Send(new GetCategoriesQuery { UserId = userId! });
                 return Ok(categories);
             }
             catch (Exception ex)
@@ -38,12 +38,12 @@ namespace ExpenseTrackerWebApi.Features.Categories.Controllers
 
         [HttpGet]
         [Route("with-stats")]
-        public async Task<IActionResult> GetCategoriesWithStats([FromQuery] TransactionTypeDto? type)
+        public async Task<IActionResult> GetCategoriesWithStats()
         {
             try
             {
                 var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
-                var categories = await _mediator.Send(new GetCategoriesWithStatsQuery { UserId = userId!, Type = type });
+                var categories = await _mediator.Send(new GetCategoriesWithStatsQuery { UserId = userId! });
                 return Ok(categories);
             }
             catch (Exception ex)

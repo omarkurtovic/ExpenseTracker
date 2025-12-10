@@ -24,7 +24,7 @@
 }
 else
 {
-    @if(MyCategories != null){
+    @if(FilteredCategories != null){
         <MudContainer MaxWidth="MaxWidth.Medium">
             <MudPaper Class="pa-6 mt-6" Elevation="15">
                 <MudGrid>
@@ -77,7 +77,8 @@ else
 
 @code {
     private int activePanelIndex = 0;
-    private List<CategoryWithStatsDto> MyCategories { get; set; } = new();
+    private List<CategoryWithStatsDto> allCategories = new();
+    private List<CategoryWithStatsDto> FilteredCategories { get; set; } = new();
     private TransactionTypeDto transactionType = TransactionTypeDto.Expense;
 
     bool loading = true;
@@ -167,16 +168,17 @@ else
     private async Task PanelChanged(int index){
         activePanelIndex = index;
         transactionType = index == 0 ? TransactionTypeDto.Expense : TransactionTypeDto.Income;
-        await RefreshPage();
+        FilteredCategories = allCategories.Where(c => c.Type == transactionType).ToList();
     }
 
     private async Task RefreshPage()
     {
-        MyCategories = await DataService.GetCategoriesWithStatsAsync(transactionType);
+        allCategories = await DataService.GetCategoriesWithStatsAsync();
+        FilteredCategories = allCategories.Where(c => c.Type == transactionType).ToList();
     }
 
     private RenderFragment RenderCategoryContent() => @<text>
-        @if(MyCategories == null || MyCategories.Count == 0)
+        @if(FilteredCategories == null || FilteredCategories.Count == 0)
         {
             <MudItem xs="12" Class="d-flex justify-center mt-4">
                 <MudText Typo="Typo.h5">No @(transactionType == TransactionTypeDto.Expense ? "expense" : "income") categories found!</MudText>
@@ -186,7 +188,7 @@ else
         {
             <MudPaper Elevation="0">
                 <MudGrid>
-                    @foreach(var category in MyCategories)
+                    @foreach(var category in FilteredCategories)
                     {
                         <MudItem xs="12" md="6">
                             <CategoryCard CategoryDto="@category" OpenCategoryDialogAsync="OpenCategoryDialogAsync" ConfirmDelete="ConfirmDelete"></CategoryCard>

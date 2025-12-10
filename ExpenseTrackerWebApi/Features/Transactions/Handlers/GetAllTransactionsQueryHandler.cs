@@ -1,44 +1,44 @@
+using System.Globalization;
 using ExpenseTrackerSharedCL.Features.Accounts.Dtos;
 using ExpenseTrackerSharedCL.Features.Categories.Dtos;
 using ExpenseTrackerSharedCL.Features.Tags.Dtos;
 using ExpenseTrackerSharedCL.Features.Transactions.Dtos;
+using ExpenseTrackerSharedCL.Features.Transactions.Enums;
 using ExpenseTrackerWebApi.Database;
 using ExpenseTrackerWebApi.Database.Models;
 using ExpenseTrackerWebApi.Features.Transactions.Queries;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
+using MudBlazor.Extensions;
 
-namespace ExpenseTrackerWebApp.Features.SharedKernel.Transactions.Handlers
+namespace ExpenseTrackerWebApi.Features.Transactions.Handlers
 {
-    public class GetTransactionQueryHandler : IRequestHandler<GetTransactionQuery, TransactionDto>
+    public class GetAllTransactionsQueryHandler : IRequestHandler<GetAllTransactionsQuery, List<TransactionDto>>
     {
         private readonly AppDbContext _context;
-        public GetTransactionQueryHandler(AppDbContext context)
+
+        public GetAllTransactionsQueryHandler(AppDbContext context)
         {
             _context = context;
         }
-
-        public async Task<TransactionDto> Handle(GetTransactionQuery request, CancellationToken cancellationToken)
+        public async Task<List<TransactionDto>> Handle(GetAllTransactionsQuery request, CancellationToken cancellationToken)
         {
-            Transaction? transaction = await _context.Transactions
-            .Include(t => t.Category)
+            var result = _context.Transactions
             .Include(t => t.Account)
+            .Include(t => t.Category)
             .Include(t => t.TransactionTags)
                 .ThenInclude(tt => tt.Tag)
-            .Where(b => b.Id == request.Id).FirstOrDefaultAsync();
+            .Where(t => t.Account.IdentityUserId == request.UserId);
+            if(request.IsReoccuring)
+            {
+                result = result.Where(t => t.IsReoccuring == true);
+            }
+            else
+            {
+                result = result.Where(t => t.IsReoccuring == false);
+            }
             
-
-            if(transaction == null)
-            {
-                throw new ArgumentException("Transaction not found!");
-            }
-
-            if(transaction.Category.IdentityUserId != request.UserId)
-            {
-                throw new UnauthorizedAccessException("Transaction does not belong to user!");
-            }
-
-            return new TransactionDto
+            return [.. (await result.ToListAsync(cancellationToken: cancellationToken)).Select(transaction => new TransactionDto()
             {
                 Id = transaction.Id,
                 Amount = transaction.Amount,
@@ -65,10 +65,10 @@ namespace ExpenseTrackerWebApp.Features.SharedKernel.Transactions.Handlers
                 },
                 TransactionType = (TransactionTypeDto)transaction.Category.Type,
                 IsReoccuring = transaction.IsReoccuring,
-                ReoccuranceFrequency = (ReoccuranceFrequencyDto)transaction.ReoccuranceFrequency!,
+                ReoccuranceFrequency = transaction.ReoccuranceFrequency != null ? (ReoccuranceFrequencyDto)transaction.ReoccuranceFrequency : null,
                 NextReoccuranceDate = transaction.NextReoccuranceDate,
                 TagIds = transaction.TransactionTags.Select(tt => tt.TagId).ToList(),
-                TransactionTags = [.. transaction.TransactionTags.Select(tt => new TransactionTagDto
+                TransactionTags = [.. transaction.TransactionTags.Select(tt => new TransactionTagDto()
                 {
                     TagId = tt.TagId,
                     TransactionId = tt.TransactionId,
@@ -78,8 +78,9 @@ namespace ExpenseTrackerWebApp.Features.SharedKernel.Transactions.Handlers
                         Name = tt.Tag.Name,
                         Color = tt.Tag.Color
                     }
-                })]
-            };
+                })],
+            })];
         }
+
     }
 }

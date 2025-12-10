@@ -22,7 +22,7 @@ namespace ExpenseTrackerWebApi.Features.Dashboard.Handlers
         public async Task<DashboardSummaryDto> Handle(GetDashboardSummaryQuery request, CancellationToken cancellationToken)
         {
             var result = new DashboardSummaryDto();
-            result.Transactions = await _mediator.Send(new GetTransactionsQuery { UserId = request.UserId, IsReoccuring=false }, cancellationToken);
+            result.Transactions = await _mediator.Send(new GetAllTransactionsQuery { UserId = request.UserId, IsReoccuring=false }, cancellationToken);
             var accounts = await _mediator.Send(new GetAccountsQuery { UserId = request.UserId }, cancellationToken);
             
             result.Balance += accounts.Sum(a => (decimal)a.InitialBalance!);

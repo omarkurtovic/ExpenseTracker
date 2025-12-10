@@ -6,6 +6,8 @@
 
 -- loading?? 
 -- scroll na trasactions
+-- bit weird when have more than 2 accounts on page
+-- budget dialog width change on type
 
 ## Potential Features
 

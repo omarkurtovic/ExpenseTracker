@@ -7,7 +7,7 @@ namespace ExpenseTrackerWebApi.Features.Transactions.Queries
     public class GetTransactionsQuery : IRequest<List<TransactionDto>>
     {
         public required string UserId{get; set; }
-        public required bool IsReoccuring{get; set;}
+        public required TransactionsGridOptionsDto TransactionOptions{get; set;} 
     }
 
 
@@ -18,6 +18,9 @@ namespace ExpenseTrackerWebApi.Features.Transactions.Queries
         {
             RuleFor(x => x.UserId)
                 .NotEmpty().WithMessage("User ID is required!");
+
+            RuleFor(x => x.TransactionOptions)
+                .NotNull().WithMessage("Transaction options are required!");
         }
     }
 }

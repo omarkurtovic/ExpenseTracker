@@ -19,10 +19,7 @@ namespace ExpenseTrackerWebApi.Features.Categories.Handlers
         public async Task<List<CategoryDto>> Handle(GetCategoriesQuery request, CancellationToken cancellationToken)
         {
             return await _context.Categories
-                .Where(c => c.IdentityUserId == request.UserId &&
-                            (request.Type == null || 
-                             (request.Type == TransactionTypeDto.Income && c.Type == DbTransactionType.Income) ||
-                             (request.Type == TransactionTypeDto.Expense && c.Type == DbTransactionType.Expense)))
+                .Where(c => c.IdentityUserId == request.UserId)
                 .Select(c => new CategoryDto
                 {
                     Id = c.Id,

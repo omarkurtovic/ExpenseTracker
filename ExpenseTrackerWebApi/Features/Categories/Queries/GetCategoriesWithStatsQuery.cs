@@ -7,7 +7,6 @@ namespace ExpenseTrackerWebApi.Features.Categories.Queries
     public class GetCategoriesWithStatsQuery : IRequest<List<CategoryWithStatsDto>>
     {
         public required string UserId { get; set; }
-        public TransactionTypeDto? Type { get; set; }
     }
 
     public class GetCategoriesWithStatsQueryValidator : AbstractValidator<GetCategoriesWithStatsQuery>

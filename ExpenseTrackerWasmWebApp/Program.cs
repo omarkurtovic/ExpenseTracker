@@ -74,7 +74,7 @@ void ConfigureMudBlazor(IServiceCollection services)
 
 void ConfigureCustomServices(IServiceCollection services)
 {
-    services.AddScoped<CachedDataService>();
+    services.AddSingleton<CachedDataService>();
     services.AddScoped<AuthenticationStateProvider, CustomAuthenticationStateProvider>();
     services.AddScoped<BaseAddressAuthorizationMessageHandler>();
 }

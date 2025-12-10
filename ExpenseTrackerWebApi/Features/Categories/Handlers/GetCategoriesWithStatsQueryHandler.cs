@@ -20,9 +20,6 @@ namespace ExpenseTrackerWebApi.Features.Categories.Handlers
         {
             return await _context.Categories
                 .Where(c => c.IdentityUserId == request.UserId)
-                .Where(c => request.Type == null ||
-                             (request.Type == TransactionTypeDto.Income && c.Type == DbTransactionType.Income) ||
-                             (request.Type == TransactionTypeDto.Expense && c.Type == DbTransactionType.Expense))
                 .Include(c => c.Transactions)
                 .Select(category => new
                 {

@@ -20,7 +20,7 @@ namespace ExpenseTrackerWebApi.Features.Dashboard.Controllers
             _userManager = userManager;
         }
 
-        [HttpGet("summary")]
+        [HttpGet]
         public async Task<IActionResult> GetDashboardSummary([FromQuery] int monthsBehindToConsider = 5, [FromQuery] int maxCategoriesToShow = 6)
         {
             try
