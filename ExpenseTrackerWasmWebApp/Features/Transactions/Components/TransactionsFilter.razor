@@ -9,7 +9,7 @@
     <MudItem xs="12" md="6">
         <MudPaper Elevation="0" Class="d-flex gap-5">
             <MudSelect T="AccountDto" Label="Account" @bind-SelectedValues="TransactionsPageStateDto.AccountsFilter" @bind-SelectedValues:after="NotifyFilterChange"
-                MultiSelectionTextFunc="@(new Func<List<string>, string>(GetAccountsMultiSelectionText))"
+                MultiSelectionTextFunc="@(new Func<List<AccountDto>, string>(GetAccountsMultiSelectionText))"
                 MultiSelection="true" Clearable="true" FullWidth="true">
                 @foreach (var account in TransactionsPageStateDto.Accounts)
                 {
@@ -87,7 +87,7 @@
     {
         await OnFiltersChanged.InvokeAsync();
     }
-    private string GetAccountsMultiSelectionText(List<string> selectedAccounts)
+    private string GetAccountsMultiSelectionText(List<AccountDto> selectedAccounts)
     {
         return string.Join(", ", selectedAccounts);
     }

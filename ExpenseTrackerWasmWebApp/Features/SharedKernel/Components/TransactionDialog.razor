@@ -160,7 +160,7 @@
 
 @code {
     [Parameter]
-    public TransactionDto? transactionDto { get; set; }
+    public TransactionDto TransactionDto{get; set;} = new();
 
     [Parameter]
     public bool IsReoccuring { get; set; } = false;
@@ -172,7 +172,6 @@
     private MudAutocomplete<TagDto>? tagAutocomplete;
     private TagDto? selectedTag;
     private List<TagDto> SelectedTags = new();
-    public TransactionDto TransactionDto = new();
 
     private List<TagDto> AllTags = new();
     private List<CategoryDto> AllCategories = new();
@@ -183,25 +182,36 @@
         AllTags = DataService.GetTags();
         AllAccounts = DataService.GetAccounts();
         AllCategories = DataService.GetCategories();
-        AllCategories = AllCategories.Where(c => c.Type == TransactionDto.TransactionType).ToList();
 
-        if(transactionDto == null)
+        if(TransactionDto == null)
         {
-            transactionDto = new TransactionDto();
+            TransactionDto = new TransactionDto();
+            TransactionDto.TransactionType = TransactionTypeDto.Expense;
             if(AllCategories.Count > 0){
-                transactionDto.CategoryId = AllCategories.First().Id;
-                transactionDto.TransactionType = AllCategories.First().Type;
-                transactionDto.CategoryDto = AllCategories.First();
+                TransactionDto.CategoryId = AllCategories.First().Id;
+                TransactionDto.TransactionType = AllCategories.First().Type;
+                TransactionDto.CategoryDto = AllCategories.First();
             }
             if(AllAccounts.Count > 0){
-                transactionDto.AccountId = AllAccounts.First().Id;
-                transactionDto.AccountDto = AllAccounts.First();
+                TransactionDto.AccountId = AllAccounts.First().Id;
+                TransactionDto.AccountDto = AllAccounts.First();
             }
-            transactionDto.Date = DateTime.Now.Date;
-            transactionDto.Time = DateTime.Now.TimeOfDay;
-            transactionDto.Amount = 0;
-            transactionDto.IsReoccuring = IsReoccuring;
+            TransactionDto.Date = DateTime.Now.Date;
+            TransactionDto.Time = DateTime.Now.TimeOfDay;
+            TransactionDto.Amount = 0;
+            TransactionDto.IsReoccuring = IsReoccuring;
         }
+        else{
+            TransactionDto.Amount = Math.Abs((decimal)TransactionDto.Amount!);
+        }
+
+        AllCategories = AllCategories.Where(c => c.Type == TransactionDto.TransactionType).ToList();
+        if(TransactionDto.TagIds != null && TransactionDto.TagIds.Count > 0)
+        {
+            SelectedTags = AllTags.Where(t => TransactionDto.TagIds.Contains((int)t.Id!)).ToList();
+        }
+        
+
         base.OnParametersSet();
     }
 
