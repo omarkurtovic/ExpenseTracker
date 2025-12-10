@@ -27,7 +27,7 @@ namespace ExpenseTrackerWebApi.Features.Accounts.Controllers
         {
             try
             {
-                var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+                var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value!;
                 var accounts = await _mediator.Send(new GetAccountsQuery() { UserId = userId });
                 return Ok(accounts);
             }
@@ -45,7 +45,7 @@ namespace ExpenseTrackerWebApi.Features.Accounts.Controllers
         {
             try
             {
-                var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+                var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value!;
                 var accounts = await _mediator.Send(new GetAccountsWithBalanceQuery() { UserId = userId });
                 return Ok(accounts);
             }
@@ -61,7 +61,7 @@ namespace ExpenseTrackerWebApi.Features.Accounts.Controllers
         {
             try
             {
-                var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+                var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value!;
                 var accountDto = await _mediator.Send(new GetAccountQuery() { UserId = userId, Id = id });
                 if(accountDto == null)
                 {
@@ -82,7 +82,7 @@ namespace ExpenseTrackerWebApi.Features.Accounts.Controllers
         {
             try
             {
-                var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+                var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value!;
                 await _mediator.Send(new CreateAccountCommand() { AccountDto = accountDto, UserId = userId });
                 return CreatedAtAction(nameof(GetAccountById), new { id = accountDto.Id }, accountDto);
             }
@@ -104,7 +104,7 @@ namespace ExpenseTrackerWebApi.Features.Accounts.Controllers
         {
             try
             {
-                var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+                var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value!;
                 await _mediator.Send(new EditAccountCommand() { Id = id, AccountDto = accountDto, UserId = userId });
                 return Ok();
             }
@@ -126,7 +126,7 @@ namespace ExpenseTrackerWebApi.Features.Accounts.Controllers
         {
             try
             {
-                var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+                var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value!;
                 await _mediator.Send(new DeleteAccountCommand() { Id = id, UserId = userId });
                 return Ok("Account deleted successfully.");
             }

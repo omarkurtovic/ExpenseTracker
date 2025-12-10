@@ -30,7 +30,7 @@ namespace ExpenseTrackerWebApi.Features.Transactions.Controllers
         {
             try
             {
-                var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+                var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value!;
                 var transactions = await _mediator.Send(new GetTransactionsQuery() { UserId = userId, IsReoccuring = IsReoccuring });
                 return Ok(transactions);
             }
@@ -47,7 +47,7 @@ namespace ExpenseTrackerWebApi.Features.Transactions.Controllers
         {
             try
             {
-                var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+                var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value!;
                 var transactionDto = await _mediator.Send(new GetTransactionQuery() { UserId = userId, Id = id });
                 if(transactionDto == null)
                 {
@@ -68,7 +68,7 @@ namespace ExpenseTrackerWebApi.Features.Transactions.Controllers
         {
             try
             {
-                var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+                var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value!;
                 await _mediator.Send(new CreateTransactionCommand() { TransactionDto = transactionDto, UserId = userId });
                 return Ok();
             }
@@ -90,7 +90,7 @@ namespace ExpenseTrackerWebApi.Features.Transactions.Controllers
         {
             try
             {
-                var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+                var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value!;
                 await _mediator.Send(new EditTransactionCommand() { Id = id, TransactionDto = transactionDto, UserId = userId });
                 return Ok();
             }
@@ -112,7 +112,7 @@ namespace ExpenseTrackerWebApi.Features.Transactions.Controllers
         {
             try
             {
-                var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+                var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value!;
                 await _mediator.Send(new DeleteTransactionCommand() { Id = id, UserId = userId });
                 return Ok("Transaction deleted successfully.");
             }

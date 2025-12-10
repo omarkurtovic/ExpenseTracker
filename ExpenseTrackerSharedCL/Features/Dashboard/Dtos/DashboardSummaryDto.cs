@@ -27,6 +27,7 @@ namespace ExpenseTrackerSharedCL.Features.Dashboard.Dtos
 
         public DashboardSummaryDto()
         {
+            Username = string.Empty;
             Balance = 0;
             ExpensesThisMonth = 0;
             IncomeThisMonth = 0;
@@ -39,13 +40,13 @@ namespace ExpenseTrackerSharedCL.Features.Dashboard.Dtos
     
     public class CategoryData
     {
-        public string Category { get; set; }
+        public string Category { get; set; } = string.Empty;
         public decimal Amount { get; set; }
     }
 
     public class CumulativeData
     {
-        public string TimePeriod {get; set;}
+        public string TimePeriod {get; set;} = string.Empty;
         public decimal Amount {get; set;}
     }
 }

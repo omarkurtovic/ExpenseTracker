@@ -17,10 +17,10 @@
 
 @code{
     [CascadingParameter]
-    private IMudDialogInstance MudDialog { get; set; }
+    private IMudDialogInstance MudDialog { get; set; } = null!;
 
     [Parameter]
-    public string Message { get; set; }
+    public required string Message { get; set; }
 
     private async Task Confirm()
     {

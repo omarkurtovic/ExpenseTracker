@@ -160,7 +160,10 @@
 
 @code {
     [Parameter]
-    public bool IsReoccuring { get; set; }
+    public TransactionDto? transactionDto { get; set; }
+
+    [Parameter]
+    public bool IsReoccuring { get; set; } = false;
 
     [CascadingParameter]
     public required IMudDialogInstance MudDialog { get; set; }
@@ -181,14 +184,14 @@
         AllTags = DataService.GetTags();
         AllAccounts = DataService.GetAccounts();
         AllCategories = DataService.GetCategories();
-        
+
         if (AllCategories.Count == 0)
         {
             Snackbar.Add("No categories found! Create some then try again!", Severity.Error);
             MudDialog.Close();
             return;
         }
-        
+
         if (AllAccounts.Count == 0)
         {
             Snackbar.Add("No accounts found! Create some then try again!", Severity.Error);
@@ -197,6 +200,22 @@
         }
 
         AllCategories = AllCategories.Where(c => c.Type == TransactionDto.TransactionType).ToList();
+    }
+
+    protected override void OnParametersSet()
+    {
+        if(transactionDto == null)
+        {
+            transactionDto = new TransactionDto();
+            transactionDto.AccountId = AllAccounts.First().Id;
+            transactionDto.CategoryId = AllCategories.First().Id;
+            transactionDto.TransactionType = AllCategories.First().Type;
+            transactionDto.Date = DateTime.Now.Date;
+            transactionDto.Time = DateTime.Now.TimeOfDay;
+            transactionDto.Amount = 0;
+            transactionDto.IsReoccuring = IsReoccuring;
+        }
+        base.OnParametersSet();
     }
 
 
@@ -287,7 +306,7 @@
 
         var dialog = await DialogService.ShowAsync<ConfirmDialog>(title: "Warning", parameters, options);
         var result = await dialog.Result;
-        if (!result.Canceled)
+        if (!result!.Canceled)
         {
             try
             {

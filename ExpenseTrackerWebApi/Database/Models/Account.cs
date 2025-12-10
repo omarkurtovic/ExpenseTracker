@@ -5,14 +5,14 @@ namespace ExpenseTrackerWebApi.Database.Models
     public class Account : IEquatable<Account>
     {
         public int Id { get; set; }
-        public string Name { get; set; }
+        public string Name { get; set; } = string.Empty;
         public decimal InitialBalance { get; set; }
         public string? Icon {get; set;}
         public string? Color {get; set;}
-        public string IdentityUserId {get; set;}
-        public IdentityUser IdentityUser { get; set; }
-        public ICollection<Transaction> Transactions { get; set; }
-        public ICollection<BudgetAccount> BudgetAccounts { get; set; }
+        public string IdentityUserId {get; set;} = string.Empty;
+        public IdentityUser IdentityUser { get; set; } = null!;
+        public ICollection<Transaction> Transactions { get; set; } = [];
+        public ICollection<BudgetAccount> BudgetAccounts { get; set; } = [];
 
         public bool Equals(Account? other)
         {if (ReferenceEquals(null, other)) return false;

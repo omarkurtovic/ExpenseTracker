@@ -48,7 +48,7 @@ namespace ExpenseTrackerWebApi.Features.Budgets.Handlers
             await _context.SaveChangesAsync(cancellationToken);
 
             var budgetCategories = new List<BudgetCategory>();
-            foreach(var categoryId in request.BudgetDto.Categories)
+            foreach(var categoryId in request.BudgetDto.Categories!)
             {
                 var bc = new BudgetCategory()
                 {
@@ -58,7 +58,7 @@ namespace ExpenseTrackerWebApi.Features.Budgets.Handlers
                 budgetCategories.Add(bc);
             }
             var budgetAccounts = new List<BudgetAccount>();
-            foreach(var accountId in request.BudgetDto.Accounts)
+            foreach(var accountId in request.BudgetDto.Accounts!)
             {
                 var ba = new BudgetAccount()
                 {

@@ -46,7 +46,7 @@
                             Required="true" RequiredError="At least one category is required!">
                             @foreach (var category in Categories)
                             {
-                                <MudSelectItem T="int" Value="@((int)category.Id)">
+                                <MudSelectItem T="int" Value="@((int)category.Id!)">
                                     <TextWithIcon Text="@category.Name" Icon="@category.Icon" IconColor="@category.Color" IconSize="Size.Small" TextTypo="Typo.body1"></TextWithIcon>
                                 </MudSelectItem>
                             }
@@ -57,7 +57,7 @@
                             Required="true" RequiredError="At least one account is required!">
                             @foreach (var account in Accounts)
                             {
-                                <MudSelectItem T="int" Value="@((int)account.Id)">
+                                <MudSelectItem T="int" Value="@((int)account.Id!)">
                                     <TextWithIcon Text="@account.Name" Icon="@account.Icon" IconColor="@account.Color" IconSize="Size.Small" TextTypo="Typo.body1"></TextWithIcon>
                                 </MudSelectItem>
                             }
@@ -150,10 +150,10 @@
 
     private string GetAccountMultiSelectionText(List<string> selectedValues)
     {
-        return string.Join(separator: ", ", Accounts.Where(a => selectedValues.Contains(a.Id.ToString())).Select(a => a.Name));
+        return string.Join(separator: ", ", Accounts.Where(a => selectedValues.Contains(a.Id.ToString()!)).Select(a => a.Name));
     }
     private string GetCategoryMultiSelectionText(List<string> selectedValues)
     {
-        return string.Join(separator: ", ", Categories.Where(c => selectedValues.Contains(c.Id.ToString())).Select(c => c.Name));
+        return string.Join(separator: ", ", Categories.Where(c => selectedValues.Contains(c.Id.ToString()!)).Select(c => c.Name));
     }
 }

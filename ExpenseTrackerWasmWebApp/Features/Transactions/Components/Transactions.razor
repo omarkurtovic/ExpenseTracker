@@ -270,18 +270,6 @@ else
             return;
         }
 
-        if(transactionDto == null){
-            
-            transactionDto = new TransactionDto();
-            transactionDto.AccountId = TransactionsPageStateDto.Accounts.First().Id;
-            transactionDto.CategoryId = TransactionsPageStateDto.Categories.First().Id;
-            transactionDto.TransactionType = TransactionsPageStateDto.Categories.First().Type;
-            transactionDto.Date = DateTime.Now.Date;
-            transactionDto.Time = DateTime.Now.TimeOfDay;
-            transactionDto.Amount = 0;
-            transactionDto.IsReoccuring = IsReoccuring;
-        }
-
         var options = new DialogOptions
         {
             CloseOnEscapeKey = true,
@@ -291,7 +279,8 @@ else
         };
         var parameters = new DialogParameters<TransactionDialog>
             {
-                { x => x.TransactionDto, transactionDto }
+                { x => x.TransactionDto, transactionDto },
+                { x => x.IsReoccuring, IsReoccuring }
             };
 
         var dialog = await DialogService.ShowAsync<TransactionDialog>(title: "Simple Dialog", parameters, options);

@@ -31,7 +31,7 @@ namespace ExpenseTrackerWebApi.Features.Budgets.Controllers
         {
             try
             {
-                var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+                var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value!;
                 var budgets = await _mediator.Send(new GetBudgetsWithProgressQuery() { UserId = userId });
                 return Ok(budgets);
             }
@@ -47,7 +47,7 @@ namespace ExpenseTrackerWebApi.Features.Budgets.Controllers
         {
             try
             {
-                var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+                var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value!;
                 var budgetDto = await _mediator.Send(new GetBudgetQuery() { UserId = userId, Id = id });
                 if(budgetDto == null)
                 {
@@ -68,7 +68,7 @@ namespace ExpenseTrackerWebApi.Features.Budgets.Controllers
         {
             try
             {
-                var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+                var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value!;
                 await _mediator.Send(new CreateBudgetCommand() { BudgetDto = budgetDto, UserId = userId });
                 return Ok();
             }
@@ -90,7 +90,7 @@ namespace ExpenseTrackerWebApi.Features.Budgets.Controllers
         {
             try
             {
-                var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+                var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value!;
                 await _mediator.Send(new EditBudgetCommand() { Id = id, BudgetDto = budgetDto, UserId = userId });
                 return Ok();
             }
@@ -112,7 +112,7 @@ namespace ExpenseTrackerWebApi.Features.Budgets.Controllers
         {
             try
             {
-                var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+                var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value!;
                 await _mediator.Send(new DeleteBudgetCommand() { Id = id, UserId = userId });
                 return Ok("Budget deleted successfully.");
             }

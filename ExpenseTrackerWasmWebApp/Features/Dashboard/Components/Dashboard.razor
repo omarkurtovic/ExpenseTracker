@@ -98,7 +98,7 @@ else
                                 <PropertyColumn Property="t => t.Date" Format="dd/MM/yyyy" Title="Date"></PropertyColumn>
                                 <TemplateColumn Title="Amount">
                                     <CellTemplate>
-                                        <AmountDisplay Amount="(decimal)context.Item.Amount" />
+                                        <AmountDisplay Amount="(decimal)context.Item.Amount!" />
                                     </CellTemplate>
                                 </TemplateColumn>
                             </Columns>

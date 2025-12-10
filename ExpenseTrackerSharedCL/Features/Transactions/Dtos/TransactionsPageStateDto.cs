@@ -99,6 +99,9 @@ namespace ExpenseTrackerSharedCL.Features.Transactions.Dtos
             AccountsFilter = [];
             CategoriesFilter = [];
             TagsFilter = [];
+            accountsFilter = [];
+            categoriesFilter = [];
+            tagsFilter = [];
         }
 
         private void FilterChanged()

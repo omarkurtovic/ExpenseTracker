@@ -14,7 +14,9 @@ namespace ExpenseTrackerWebApi.Database.Models
         public Tag()
         {
             Name = "";
-            TransactionTags = new List<TransactionTag>();
+            TransactionTags = [];
+            IdentityUserId = "";
+            IdentityUser = null!;
         }
 
         public bool Equals(Tag? other)

@@ -3,8 +3,6 @@ using System.Globalization;
 using ExpenseTrackerSharedCL.Features.Accounts.Dtos;
 using ExpenseTrackerSharedCL.Features.Categories.Dtos;
 using ExpenseTrackerSharedCL.Features.Tags.Dtos;
-using System.ComponentModel.DataAnnotations.Schema;
-using System.Globalization;
 
 namespace ExpenseTrackerSharedCL.Features.Transactions.Dtos
 {

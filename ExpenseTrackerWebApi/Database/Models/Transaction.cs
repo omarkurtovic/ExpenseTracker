@@ -25,6 +25,8 @@ namespace ExpenseTrackerWebApi.Database.Models
         public Transaction()
         {
             TransactionTags = new List<TransactionTag>();
+            Account = null!;
+            Category = null!;
         }
     }
 

@@ -10,7 +10,7 @@
 @code{
     
     [CascadingParameter]
-    public bool Reoccuring{get; set;} = false;
+    public bool IsReoccuring{get; set;} = false;
     
     [Parameter]
     public EventCallback<bool> OnClose { get; set; }
@@ -41,8 +41,8 @@
         };
         var parameters = new DialogParameters<TransactionDialog>
             {
-                { x => x.TransactionId, null },
-                { x => x.Reoccuring, false }
+                { x => x.TransactionDto, null },
+                { x => x.IsReoccuring, IsReoccuring }
             };
 
         var dialog = await DialogService.ShowAsync<TransactionDialog>(title: "Simple Dialog", parameters, options);
