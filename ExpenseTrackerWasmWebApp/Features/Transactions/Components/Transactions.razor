@@ -41,7 +41,7 @@ else
                                 <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="@(() => OpenTransactionDialogAsync(null))"
                                         StartIcon="@Icons.Material.Filled.Add">Add
                                     </MudButton>
-                                    <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="() => dataGrid.ReloadServerData()"
+                                    <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="RefreshTransactions"
                                         StartIcon="@Icons.Material.Filled.Refresh">Refresh
                                     </MudButton>
                                 </MudPaper>
@@ -68,7 +68,7 @@ else
                         </MudItem>
                         <MudItem xs="12" Style="padding-top: 0px;">
                             <MudCollapse Expanded="_expanded" Class="">
-                                <TransactionsFilter Filters="Filters" OnFiltersChanged="@(() => StateHasChanged())" />
+                            <TransactionsFilter Filters="Filters" OnFiltersChanged="RefreshTransactions" />
                             </MudCollapse>
                         </MudItem>
                     </DesktopContent>
@@ -78,17 +78,17 @@ else
                                 StartIcon="@Icons.Material.Filled.ImportExport">Export</MudButton>
                             <MudButton OnClick="OnClickShowFilterDialog" Variant="Variant.Outlined">Filters</MudButton>
                         </MudItem>
-                        <AddTransactionFab OnClose="@(() => dataGrid.ReloadServerData())" />
+                        <AddTransactionFab OnClose="RefreshTransactions" />
                         <MudDialog @ref="_filterDialog">
                             <TitleContent>Filters</TitleContent>
                                 <DialogContent>
-                                    <TransactionsFilter TransactionsPageStateDto="TransactionsPageStateDto" OnFiltersChanged="@(() => StateHasChanged())" />
+                                    <TransactionsFilter Filters="@Filters" OnFiltersChanged="RefreshTransactions" />
                                 </DialogContent>
                         </MudDialog>
                     </MobileContent>
                 </DynamicContent>
 
-                @if (NumberOfTransactions == 0)
+                @* @if (NumberOfTransactions == 0)
                 {
                     <MudItem xs="12" Class="d-flex justify-center mt-4">
                         @if (Filters.AreAnyFiltersActive())
@@ -102,7 +102,7 @@ else
                     </MudItem>
                 }
                 else
-                {
+                { *@
                     <MudItem xs="12" Style="height: 100%;">
                         <MudPaper Outlined="true" Elevation="1" Class="border-2">
                             <MudDataGrid @ref="@dataGrid" T="TransactionDto" Hover Groupable Height="45vh" ItemSize="30f"
@@ -180,7 +180,7 @@ else
                             </MudDataGrid>
                         </MudPaper>
                     </MudItem>
-                }
+                @* } *@
             </MudGrid>
         </MudPaper>
     </MudContainer>
@@ -194,7 +194,7 @@ else
     [SupplyParameterFromQuery(Name = "isreoccuring")]
     public bool IsReoccuring { get; set; } = false;
     private MudDataGrid<TransactionDto> dataGrid = null!;
-    private TransactionsFiltersDto Filters => new TransactionsFiltersDto();
+    private TransactionsFiltersDto Filters{get; set;} = new TransactionsFiltersDto();
     private int NumberOfTransactions = 0;
     bool loading = false;
     
@@ -202,6 +202,7 @@ else
 
     private async Task<GridData<TransactionDto>> ServerReload(GridState<TransactionDto> state)
     {
+        Console.WriteLine("Reloading data grid...");
         var options = new TransactionsGridOptionsDto();
         options.IsReoccuring = IsReoccuring;
         var sortDefintion = state.SortDefinitions.FirstOrDefault();
@@ -212,21 +213,20 @@ else
         options.PageSize = state.PageSize;
         options.CurrentPage = state.Page;
         options.Filters = Filters;
-
+        Console.WriteLine(Filters.DateFilter.ToString());
         var result = new List<TransactionDto>();
         try
         {
             string url = $"api/transactions/search";
-            var request = new HttpRequestMessage(HttpMethod.Post, url);
-            var response = await Http.SendAsync(request);
+            var response = await Http.PostAsJsonAsync(url, options);
             if(response.IsSuccessStatusCode)
             {
-                var transactions = await response.Content.ReadFromJsonAsync<List<TransactionDto>>() ?? new();
-                NumberOfTransactions = transactions.Count;
+                var transactions = await response.Content.ReadFromJsonAsync<TransactionsPageDataDto>() ?? new();
+                NumberOfTransactions = transactions.TotalItems;
                 return new GridData<TransactionDto>()
                 {
-                    Items = transactions,
-                    TotalItems = transactions.Count
+                    Items = transactions.Transactions,
+                    TotalItems = transactions.TotalItems
                 };
             }
             else
@@ -245,8 +245,9 @@ else
             Items = result,
             TotalItems = result.Count
         };
-
     }
+
+
 
     private async Task OpenTransactionDialogAsync(TransactionDto? transactionDto)
     {
@@ -374,6 +375,18 @@ else
         };
 
         await _filterDialog.ShowAsync("Filters", options);
+    }
+
+    private async Task RefreshTransactions()
+    {
+        if (dataGrid != null)
+        {
+            await dataGrid.ReloadServerData();
+        }
+        else
+        {
+            StateHasChanged();
+        }
     }
 
 }

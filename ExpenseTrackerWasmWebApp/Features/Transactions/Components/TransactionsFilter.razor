@@ -71,7 +71,7 @@
         </MudSelect>
     </MudItem>
     <MudItem xs="12" md="2" Class="d-flex justify-center align-end">
-        <MudButton Variant="Variant.Outlined" OnClick="@Filters.ClearFilters"
+        <MudButton Variant="Variant.Outlined" OnClick="ClearFilters"
             Disabled="@(!Filters.AreAnyFiltersActive())"
             StartIcon="@Icons.Material.Filled.FilterListOff">Clear
         </MudButton>
@@ -88,6 +88,12 @@
 
     private async Task NotifyFilterChange()
     {
+        await OnFiltersChanged.InvokeAsync();
+    }
+
+    private async Task ClearFilters()
+    {
+        Filters.ClearFilters();
         await OnFiltersChanged.InvokeAsync();
     }
     private string GetAccountsMultiSelectionText(List<string> selectedAccounts)

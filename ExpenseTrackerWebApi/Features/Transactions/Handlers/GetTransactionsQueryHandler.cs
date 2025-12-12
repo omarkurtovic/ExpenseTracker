@@ -13,7 +13,7 @@ using MudBlazor.Extensions;
 
 namespace ExpenseTrackerWebApi.Features.Transactions.Handlers
 {
-    public class GetTransactionsQueryHandler : IRequestHandler<GetTransactionsQuery, List<TransactionDto>>
+    public class GetTransactionsQueryHandler : IRequestHandler<GetTransactionsQuery, TransactionsPageDataDto>
     {
         private readonly AppDbContext _context;
 
@@ -21,9 +21,9 @@ namespace ExpenseTrackerWebApi.Features.Transactions.Handlers
         {
             _context = context;
         }
-        public async Task<List<TransactionDto>> Handle(GetTransactionsQuery request, CancellationToken cancellationToken)
+        public async Task<TransactionsPageDataDto> Handle(GetTransactionsQuery request, CancellationToken cancellationToken)
         {
-            var result = _context.Transactions
+            var transctionsQuery = _context.Transactions
             .Include(t => t.Account)
             .Include(t => t.Category)
             .Include(t => t.TransactionTags)
@@ -35,25 +35,25 @@ namespace ExpenseTrackerWebApi.Features.Transactions.Handlers
 
             if (filters.TypeFilter is not null)
             {
-                result = result.Where(t => t.Category.Type == (TransactionType)filters.TypeFilter);
+                transctionsQuery = transctionsQuery.Where(t => t.Category.Type == (TransactionType)filters.TypeFilter);
             }
 
             if (filters.AccountsFilter is not null && filters.AccountsFilter.Count() != 0)
             {
                 var accountIds = filters.AccountsFilter.Select(a => a.Id).ToList();
-                result = result.Where(t => accountIds.Contains(t.AccountId));
+                transctionsQuery = transctionsQuery.Where(t => accountIds.Contains(t.AccountId));
             }
 
             if (filters.CategoriesFilter is not null && filters.CategoriesFilter.Count() != 0)
             {
                 var categoryIds = filters.CategoriesFilter.Select(a => a.Id).ToList();
-                result = result.Where(t => categoryIds.Contains(t.CategoryId));
+                transctionsQuery = transctionsQuery.Where(t => categoryIds.Contains(t.CategoryId));
             }
 
             if (filters.TagsFilter is not null && filters.TagsFilter.Count() != 0)
             {
                 var tagIds = filters.TagsFilter.Select(t => t.Id).ToList();
-                result = result.Where(t => t.TransactionTags.Any(tt => tagIds.Contains(tt.TagId)));
+                transctionsQuery = transctionsQuery.Where(t => t.TransactionTags.Any(tt => tagIds.Contains(tt.TagId)));
             }
 
             if (filters.DateFilter is not null)
@@ -62,26 +62,26 @@ namespace ExpenseTrackerWebApi.Features.Transactions.Handlers
                 {
                     case DateFilterPreset.ThisMonth:
                         var startOfMonth = DateTime.Now.StartOfMonth(CultureInfo.CurrentCulture);
-                        result = result.Where(t => t.Date >= startOfMonth);
+                        transctionsQuery = transctionsQuery.Where(t => t.Date >= startOfMonth);
                         break;
 
                     case DateFilterPreset.LastMonth:
                         DateTime oneMonthAgo = DateTime.Now.AddMonths(-1);
                         DateTime startOfLastMonth = oneMonthAgo.StartOfMonth(CultureInfo.CurrentCulture);
                         DateTime endOfLastMonth = oneMonthAgo.EndOfMonth(CultureInfo.CurrentCulture);
-                        result = result.Where(t => t.Date >= startOfLastMonth && t.Date < endOfLastMonth);
+                        transctionsQuery = transctionsQuery.Where(t => t.Date >= startOfLastMonth && t.Date < endOfLastMonth);
                         break;
 
                     case DateFilterPreset.Last3Months:
                         DateTime threeMonthsAgo = DateTime.Now.AddMonths(-3);
                         DateTime startOf3MonthsAgoMonth = threeMonthsAgo.StartOfMonth(CultureInfo.CurrentCulture);
-                        result = result.Where(t => t.Date >= startOf3MonthsAgoMonth);
+                        transctionsQuery = transctionsQuery.Where(t => t.Date >= startOf3MonthsAgoMonth);
                         break;
 
 
                     case DateFilterPreset.ThisYear:
                         var startOfyear = new DateTime(DateTime.Now.Year, 1, 1);
-                        result = result.Where(t => t.Date >= startOfyear);
+                        transctionsQuery = transctionsQuery.Where(t => t.Date >= startOfyear);
                         break;
 
                 }
@@ -90,11 +90,11 @@ namespace ExpenseTrackerWebApi.Features.Transactions.Handlers
 
             if (request.TransactionOptions.IsReoccuring)
             {
-                result = result.Where(t => t.IsReoccuring!= null && t.IsReoccuring == true);
+                transctionsQuery = transctionsQuery.Where(t => t.IsReoccuring != null && t.IsReoccuring == true);
             }
             else
             {
-                result = result.Where(t => t.IsReoccuring == null || t.IsReoccuring == false);
+                transctionsQuery = transctionsQuery.Where(t => t.IsReoccuring == null || t.IsReoccuring == false);
             }
 
             if (!string.IsNullOrWhiteSpace(options.SortBy))
@@ -102,35 +102,34 @@ namespace ExpenseTrackerWebApi.Features.Transactions.Handlers
                 switch (options.SortBy)
                 {
                     case nameof(TransactionDto.AccountDto):
-                        result = options.SortDescending ? result.OrderByDescending(t => t.Account.Name) : result.OrderBy(t => t.Account.Name);
+                        transctionsQuery = options.SortDescending ? transctionsQuery.OrderByDescending(t => t.Account.Name) : transctionsQuery.OrderBy(t => t.Account.Name);
                         break;
                     case nameof(TransactionDto.CategoryDto):
-                        result = options.SortDescending ? result.OrderByDescending(t => t.Category.Name) : result.OrderBy(t => t.Category.Name);
+                        transctionsQuery = options.SortDescending ? transctionsQuery.OrderByDescending(t => t.Category.Name) : transctionsQuery.OrderBy(t => t.Category.Name);
                         break;
                     case nameof(TransactionDto.NextReoccuranceDate):
-                        result = options.SortDescending ? result.OrderByDescending(t => t.NextReoccuranceDate) : result.OrderBy(t => t.NextReoccuranceDate);
+                        transctionsQuery = options.SortDescending ? transctionsQuery.OrderByDescending(t => t.NextReoccuranceDate) : transctionsQuery.OrderBy(t => t.NextReoccuranceDate);
                         break;
                     case nameof(TransactionDto.DateStr):
-                        result = options.SortDescending ? result.OrderByDescending(t => t.Date) : result.OrderBy(t => t.Date);
+                        transctionsQuery = options.SortDescending ? transctionsQuery.OrderByDescending(t => t.Date) : transctionsQuery.OrderBy(t => t.Date);
                         break;
                     case nameof(TransactionDto.Amount):
-                        result = options.SortDescending ? result.OrderByDescending(t => t.Amount) : result.OrderBy(t => t.Amount);
+                        transctionsQuery = options.SortDescending ? transctionsQuery.OrderByDescending(t => t.Amount) : transctionsQuery.OrderBy(t => t.Amount);
                         break;
                     default:
-                        result = result.OrderByDescending(t => t.Date);
+                        transctionsQuery = transctionsQuery.OrderByDescending(t => t.Date);
                         break;
                 }
             }
             else
             {
-                result = result.OrderByDescending(t => t.Date);
+                transctionsQuery = transctionsQuery.OrderByDescending(t => t.Date);
             }
 
+            int totalItems = await transctionsQuery.CountAsync(cancellationToken: cancellationToken);
+            transctionsQuery = transctionsQuery.Skip(options.CurrentPage * options.PageSize).Take(options.PageSize);
 
-            result = result.Skip(options.CurrentPage * options.PageSize).Take(options.PageSize);
-
-
-            return [.. (await result.ToListAsync(cancellationToken: cancellationToken)).Select(transaction => new TransactionDto()
+            var transactions = (await transctionsQuery.ToListAsync(cancellationToken: cancellationToken)).Select(transaction => new TransactionDto()
             {
                 Id = transaction.Id,
                 Amount = transaction.Amount,
@@ -170,9 +169,14 @@ namespace ExpenseTrackerWebApi.Features.Transactions.Handlers
                         Name = tt.Tag.Name,
                         Color = tt.Tag.Color
                     }
-                })],
-            })];
-        }
+                })]
+            }).ToList();
 
+            return new TransactionsPageDataDto
+            {
+                Transactions = transactions,
+                TotalItems = totalItems
+            };
+        }
     }
 }

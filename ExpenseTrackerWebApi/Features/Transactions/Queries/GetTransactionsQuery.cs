@@ -4,7 +4,7 @@ using ExpenseTrackerSharedCL.Features.Transactions.Dtos;
 
 namespace ExpenseTrackerWebApi.Features.Transactions.Queries
 {
-    public class GetTransactionsQuery : IRequest<List<TransactionDto>>
+    public class GetTransactionsQuery : IRequest<TransactionsPageDataDto>
     {
         public required string UserId{get; set; }
         public required TransactionsGridOptionsDto TransactionOptions{get; set;} 
