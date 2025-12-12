@@ -8,6 +8,10 @@
 -- scroll na trasactions
 -- bit weird when have more than 2 accounts on page
 -- budget dialog width change on type
+-- need to fix the sorting for transcctions
+-- why isn't the caching working properly?
+-- should probably design a single query that retrives accounts, categories
+and tags immediately not all three seperately
 
 ## Potential Features
 
