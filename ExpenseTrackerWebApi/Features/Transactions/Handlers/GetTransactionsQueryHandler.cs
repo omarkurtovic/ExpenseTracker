@@ -101,10 +101,10 @@ namespace ExpenseTrackerWebApi.Features.Transactions.Handlers
             {
                 switch (options.SortBy)
                 {
-                    case nameof(TransactionDto.AccountDto):
+                    case "AccountDto.Name":
                         transctionsQuery = options.SortDescending ? transctionsQuery.OrderByDescending(t => t.Account.Name) : transctionsQuery.OrderBy(t => t.Account.Name);
                         break;
-                    case nameof(TransactionDto.CategoryDto):
+                    case "CategoryDto.Name":
                         transctionsQuery = options.SortDescending ? transctionsQuery.OrderByDescending(t => t.Category.Name) : transctionsQuery.OrderBy(t => t.Category.Name);
                         break;
                     case nameof(TransactionDto.NextReoccuranceDate):

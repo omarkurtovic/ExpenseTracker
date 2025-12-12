@@ -105,26 +105,26 @@ else
                 { *@
                     <MudItem xs="12" Style="height: 100%;">
                         <MudPaper Outlined="true" Elevation="1" Class="border-2">
-                            <MudDataGrid @ref="@dataGrid" T="TransactionDto" Hover Groupable Height="45vh" ItemSize="30f"
+                            <MudDataGrid @ref="@dataGrid" T="TransactionDto" Hover Groupable Height="45vh" ItemSize="30f" SortMode="SortMode.Single"
                                 ServerData="ServerReload" FixedHeader FixedFooter>
                                 <Columns>
-                                    <TemplateColumn Title="Account">
+                                    <PropertyColumn Property="t => t.AccountDto!.Name" Title="Account" Sortable="true">
                                         <CellTemplate>
                                             <TextWithIcon Text="@context.Item.AccountDto!.Name" Icon="@context.Item.AccountDto.Icon" IconColor="@context.Item.AccountDto.Color" IconSize="Size.Small" TextTypo="Typo.body2"></TextWithIcon>
                                         </CellTemplate>
-                                    </TemplateColumn>
-                                    <TemplateColumn Title="Category" SortBy="t => t.CategoryDto!.Name" Sortable="true">
+                                    </PropertyColumn>
+                                    <PropertyColumn Property="t => t.CategoryDto!.Name" Title="Category" Sortable="true">
                                         <CellTemplate>
                                             <TextWithIcon Text="@context.Item.CategoryDto!.Name" Icon="@context.Item.CategoryDto.Icon" IconColor="@context.Item.CategoryDto.Color" IconSize="Size.Small" TextTypo="Typo.body2"></TextWithIcon>
                                         </CellTemplate>
-                                    </TemplateColumn>
+                                    </PropertyColumn>
                                     @if(IsReoccuring)
                                     {
-                                        <PropertyColumn Property="t => t.NextReoccuranceDate" Title="Next reoccurance" Format="dd/MM/yyyy"></PropertyColumn>
+                                        <PropertyColumn  Sortable="true" Property="t => t.NextReoccuranceDate" Title="Next reoccurance" Format="dd/MM/yyyy"></PropertyColumn>
                                     }
                                     else
                                     {
-                                        <PropertyColumn Property="t => t.DateStr" Title="Time" Grouping="true" GroupExpanded="true" >
+                                        <PropertyColumn Property="t => t.DateStr" Title="Time" Grouping="true" GroupExpanded="true"  Sortable="true">
                                             <GroupTemplate>
                                                 @if (@context.Grouping.Key!.ToString() == DateTime.Now.ToString("yyyy-MM-dd"))
                                                 {
@@ -144,12 +144,12 @@ else
                                             </CellTemplate>
                                         </PropertyColumn>
                                     }
-                                    <TemplateColumn Title="Amount" SortBy="t => t.Amount" Sortable="true">
+                                    <PropertyColumn Property="t => t.Amount" Title="Amount" Sortable="true">
                                         <CellTemplate>
                                             <AmountDisplay Amount="(decimal)context.Item.Amount!" />
                                         </CellTemplate>
-                                    </TemplateColumn>
-                                    <TemplateColumn Title="Tags" Filterable="false">
+                                    </PropertyColumn>
+                                    <TemplateColumn Title="Tags" Filterable="false" Sortable="false">
                                         <CellTemplate>
                                             <MudPaper Elevation="0" Class="d-flex gap-1 flex-wrap" Style="background-color:transparent;">
                                                 @foreach (var tag in context.Item.TransactionTags)
@@ -206,6 +206,8 @@ else
         var options = new TransactionsGridOptionsDto();
         options.IsReoccuring = IsReoccuring;
         var sortDefintion = state.SortDefinitions.FirstOrDefault();
+        Console.WriteLine($"Number of sort definitions: {state.SortDefinitions.Count}");
+        Console.WriteLine($"Sort definition: {sortDefintion?.SortBy}, Descending: {sortDefintion?.Descending}");
         if(sortDefintion != null){
             options.SortBy = sortDefintion.SortBy;
             options.SortDescending = sortDefintion.Descending;
