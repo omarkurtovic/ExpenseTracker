@@ -85,7 +85,6 @@
 
     [Parameter]
     public EventCallback OnFiltersChanged { get; set; }
-
     private async Task NotifyFilterChange()
     {
         await OnFiltersChanged.InvokeAsync();

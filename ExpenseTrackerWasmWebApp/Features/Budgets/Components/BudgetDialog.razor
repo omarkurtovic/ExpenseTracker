@@ -91,11 +91,12 @@
 
     public List<CategoryDto> Categories{get; set;} = new();
     public List<AccountDto> Accounts{get; set;} = new();
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
+        await CachedData.InitializeAsync();
         Categories = CachedData.GetCategories();
         Accounts = CachedData.GetAccounts();
-        base.OnInitialized();
+        await base.OnInitializedAsync();
     }
 
     private async Task Submit()

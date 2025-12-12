@@ -24,22 +24,31 @@ public class CachedDataService
         {
             var http = _httpClientFactory.CreateClient("WebAPI");
 
-            var accountsTask = http.GetFromJsonAsync<List<AccountDto>>("api/accounts");
-            var categoriesTask = http.GetFromJsonAsync<List<CategoryDto>>("api/categories");
-            var tagsTask = http.GetFromJsonAsync<List<TagDto>>("api/tags");
-            await Task.WhenAll(accountsTask, categoriesTask);
-
-            _accounts = await accountsTask ?? new();
-            _categories = await categoriesTask ?? new();
-            _tags = await tagsTask ?? new();
+            if(_accounts == null || _accounts.Count == 0)
+            {
+                var accounts = await http.GetFromJsonAsync<List<AccountDto>>("api/accounts");
+                _accounts = accounts ?? new();
+            }
+            if(_categories == null || _categories.Count == 0)
+            {
+                var categories = await http.GetFromJsonAsync<List<CategoryDto>>("api/categories");
+                _categories = categories ?? new();
+            }
+            if(_tags == null || _tags.Count == 0)
+            {
+                var tags = await http.GetFromJsonAsync<List<TagDto>>("api/tags");
+                _tags = tags ?? new();
+            }
             _isInitialized = true;
         }
         catch
         {
             _accounts = new();
             _categories = new();
+            _tags = new();
         }
     }
+
 
     public List<AccountDto> GetAccounts()
     {

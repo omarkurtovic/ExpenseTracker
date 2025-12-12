@@ -199,6 +199,10 @@ else
     bool loading = false;
     
 
+    protected override async Task OnInitializedAsync()
+    {
+        await CachedData.InitializeAsync();
+    }
 
     private async Task<GridData<TransactionDto>> ServerReload(GridState<TransactionDto> state)
     {
