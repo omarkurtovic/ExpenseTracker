@@ -8,6 +8,7 @@ using Blazored.LocalStorage;
 using Microsoft.AspNetCore.Components.Authorization;
 using ApexCharts;
 using MudBlazor;
+using ExpenseTrackerWasmWebApp.Features.Transactions.Services;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 builder.RootComponents.Add<App>("#app");
@@ -77,6 +78,7 @@ void ConfigureCustomServices(IServiceCollection services)
     services.AddSingleton<CachedDataService>();
     services.AddScoped<AuthenticationStateProvider, CustomAuthenticationStateProvider>();
     services.AddScoped<BaseAddressAuthorizationMessageHandler>();
+    services.AddTransient<TransactionService>();
 }
 
 

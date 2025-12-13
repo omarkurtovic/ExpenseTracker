@@ -33,6 +33,20 @@
     <script src="_framework/blazor.webassembly#[.{fingerprint}].js"></script>
     <!-- Important: Increment the version parameter whenever you update MudBlazor to prevent caching issues -->
     <script src="_content/MudBlazor/MudBlazor.min.js?v=1"></script>
+    <script>
+        window.downloadFileFromText = (fileName, textContent) => 
+        {
+            const blob = new Blob([textContent], { type: 'text/csv' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = fileName;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+    </script>>
 
 </body>
 

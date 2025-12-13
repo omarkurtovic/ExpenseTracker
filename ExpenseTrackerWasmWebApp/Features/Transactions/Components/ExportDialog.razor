@@ -1,5 +1,6 @@
 @using CsvHelper
 @using ExpenseTrackerSharedCL.Features.Transactions.Dtos
+@using ExpenseTrackerWasmWebApp.Features.Transactions.Services
 @using Microsoft.AspNetCore.Authorization
 @using System.Text
 @using System.Globalization
@@ -9,7 +10,7 @@
 @using System.Transactions
 @inject ISnackbar Snackbar
 @inject IJSRuntime JSRuntime
-@inject HttpClient Http
+@inject TransactionService TransactionService
 
     <MudDialog>
         <TitleContent>
@@ -54,6 +55,9 @@
     [CascadingParameter]
     private IMudDialogInstance MudDialog { get; set; } = null!;
 
+    [Parameter]
+    public TransactionsGridOptionsDto ExportOptions { get; set; } = new TransactionsGridOptionsDto();
+
     private void ItemUpdated(MudItemDropInfo<DropItem> dropItem)
     {
         _items.UpdateOrder(dropItem, item => item.Order, 0);
@@ -86,16 +90,17 @@
             return;
         } 
         
-        @* if(Transactions.Count == 0){
+        var transactions = (await TransactionService.GetTransactions(ExportOptions)).Transactions;
+        if(transactions.Count == 0){
             Snackbar.Add("No transactions found for export!", Severity.Error);
             return;
         }
         
-        var csvContent = GenerateCsvContent(Transactions, _items.OrderBy(i => i.Order).ToList());
+        var csvContent = GenerateCsvContent(transactions, _items.OrderBy(i => i.Order).ToList());
         var fileName = "ExpenseTrackerWebApp.csv";        
         await JSRuntime.InvokeVoidAsync("downloadFileFromText", fileName, csvContent);
         Snackbar.Add("Export successful!", Severity.Success);
-        MudDialog.Close(); *@
+        MudDialog.Close();
     }
 
     public string GenerateCsvContent(List<TransactionDto> transactions, List<DropItem> dropItems)

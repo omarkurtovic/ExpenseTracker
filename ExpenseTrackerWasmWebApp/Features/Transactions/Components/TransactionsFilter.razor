@@ -11,7 +11,7 @@
 <MudGrid>
     <MudItem xs="12" md="6">
         <MudPaper Elevation="0" Class="d-flex gap-5">
-            <MudSelect T="AccountDto" Label="Account" @bind-SelectedValues="Filters.AccountsFilter" @bind-SelectedValues:after="NotifyFilterChange"
+            <MudSelect T="AccountDto" Label="Account" @bind-SelectedValues="Filters.AccountsFilter"
                 MultiSelectionTextFunc="@(new Func<List<string>, string>(GetAccountsMultiSelectionText))"
                 MultiSelection="true" Clearable="true" FullWidth="true">
                 @foreach (var account in CachedDataService.GetAccounts())
@@ -21,7 +21,7 @@
                     </MudSelectItem>
                 }
             </MudSelect>
-            <MudSelect T="DateFilterPreset ?" Label="Date" @bind-Value="Filters.DateFilter" @bind-Value:after="NotifyFilterChange"
+            <MudSelect T="DateFilterPreset ?" Label="Date" @bind-Value="Filters.DateFilter"
                 FullWidth="true" Clearable="true">
                 <MudSelectItem Value="@((DateFilterPreset?)DateFilterPreset.ThisMonth)">This Month
                 </MudSelectItem>
@@ -36,14 +36,14 @@
     </MudItem>
     <MudItem xs="12" md="6">
         <MudPaper Elevation="0" Class="d-flex gap-5">
-            <MudSelect T="TransactionTypeDto?" Label="Type" @bind-Value="Filters.TypeFilter" @bind-Value:after="NotifyFilterChange"
+            <MudSelect T="TransactionTypeDto?" Label="Type" @bind-Value="Filters.TypeFilter"
                 Clearable="true" FullWidth="true">
                 @foreach (TransactionTypeDto item in Enum.GetValues(typeof(TransactionTypeDto)))
                 {
                     <MudSelectItem Value="@((TransactionTypeDto?)item)">@item</MudSelectItem>
                 }
             </MudSelect>
-            <MudSelect T="CategoryDto" Label="Category" @bind-SelectedValues="Filters.CategoriesFilter" @bind-SelectedValues:after="NotifyFilterChange"
+            <MudSelect T="CategoryDto" Label="Category" @bind-SelectedValues="Filters.CategoriesFilter"
                 MultiSelectionTextFunc="@(new Func<List<string>, string>(GetCategoriesMultiSelectionText))"
                 MultiSelection="true" Clearable="true" FullWidth="true">
                 @foreach (var category in CachedDataService.GetCategories())
@@ -56,7 +56,7 @@
         </MudPaper>
     </MudItem>
     <MudItem xs="12" md="6">
-        <MudSelect T="TagDto" Label="Tags" @bind-SelectedValues="Filters.TagsFilter" @bind-SelectedValues:after="NotifyFilterChange"
+        <MudSelect T="TagDto" Label="Tags" @bind-SelectedValues="Filters.TagsFilter"
             MultiSelectionTextFunc="@(new Func<List<string>, string>(GetTagsMultiSelectionText))"
             MultiSelection="true" Clearable="true" FullWidth="true">
             @foreach (var tag in CachedDataService.GetTags())
@@ -72,8 +72,13 @@
     </MudItem>
     <MudItem xs="12" md="2" Class="d-flex justify-center align-end">
         <MudButton Variant="Variant.Outlined" OnClick="ClearFilters"
-            Disabled="@(!Filters.AreAnyFiltersActive())"
+            Disabled="@(!AreAnyFiltersActive())"
             StartIcon="@Icons.Material.Filled.FilterListOff">Clear
+        </MudButton>
+    </MudItem>
+    <MudItem xs="12" md="2" Class="d-flex justify-center align-end">
+        <MudButton Variant="Variant.Outlined" OnClick="ApplyFilters"
+            StartIcon="@Icons.Material.Filled.FilterList">Apply
         </MudButton>
     </MudItem>
 </MudGrid>
@@ -81,19 +86,32 @@
 
 @code{
     [Parameter]
-    public TransactionsFiltersDto Filters { get; set; } = new TransactionsFiltersDto();
+    public Func<Task> RefreshDataGridAction { get; set; } = null!;
 
-    [Parameter]
-    public EventCallback OnFiltersChanged { get; set; }
-    private async Task NotifyFilterChange()
+    public TransactionsFiltersDto Filters { get; set; } = new TransactionsFiltersDto();
+    public TransactionsFiltersDto GetFilters()
     {
-        await OnFiltersChanged.InvokeAsync();
+        return Filters;
     }
 
-    private async Task ClearFilters()
+    
+    private async void ClearFilters()
     {
-        Filters.ClearFilters();
-        await OnFiltersChanged.InvokeAsync();
+        Filters = new TransactionsFiltersDto();
+        await RefreshDataGridAction();
+    }
+
+    private async void ApplyFilters()
+    {
+        await RefreshDataGridAction();
+    }
+
+
+
+
+    public bool AreAnyFiltersActive()
+    {
+        return Filters.AreAnyFiltersActive();
     }
     private string GetAccountsMultiSelectionText(List<string> selectedAccounts)
     {
