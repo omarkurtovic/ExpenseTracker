@@ -8,11 +8,11 @@
 @using MudBlazor
 @using Microsoft.AspNetCore.Components.Web
 @using ExpenseTrackerWasmWebApp.Features.SharedKernel.Components
-@using System.Net.Http.Headers
+@using ExpenseTrackerWasmWebApp.Features.Budgets.Services
+@using ExpenseTrackerWasmWebApp.Services
 @inject IDialogService DialogService
 @inject ISnackbar Snackbar
-@inject HttpClient Http
-@inject IJSRuntime JSRuntime
+@inject BudgetService BudgetService
 @inject NavigationManager NavigationManager
 
 <PageTitle>Budgets</PageTitle>
@@ -72,8 +72,7 @@ else
 }
 
 
-@code {
-   
+@code {    
     private List<BudgetWithProgressDto>? MyBudgets { get; set; }
     private bool loading = true;
     protected override async Task OnInitializedAsync()
@@ -133,46 +132,39 @@ else
         var result = await dialog.Result;
         if (result != null && !result.Canceled)
         {
-            try
+            var deleteResult = await BudgetService.DeleteBudgetAsync(budget_id);
+            if (deleteResult.IsSuccess)
             {
-                string url = $"api/budgets/{budget_id}";
-                var request = new HttpRequestMessage(HttpMethod.Delete, url);
-                var response = await Http.SendAsync(request);
-                if(response.IsSuccessStatusCode)
-                {
-                    Snackbar.Add("Budget succesfully deleted! ", Severity.Success);
-                    await RefreshPage();
-                }
-                else
-                {
-                    Snackbar.Add("Error deleting budget!", Severity.Error);
-                }
+                Snackbar.Add("Budget successfully deleted!", Severity.Success);
+                await RefreshPage();
             }
-            catch (Exception ex)
+            else if (deleteResult.Reason == FailureReason.Unauthorized)
             {
-                Snackbar.Add($"An error occurred: {ex.Message}", Severity.Error);
+                Snackbar.Add("Session expired. Please log in again.", Severity.Error);
+                NavigationManager.NavigateTo("login");
+            }
+            else
+            {
+                Snackbar.Add(deleteResult.ErrorMessage ?? "Error deleting budget!", Severity.Error);
             }
         }
     }
 
-    async Task RefreshPage(){
-        try
+    async Task RefreshPage()
+    {
+        var result = await BudgetService.GetBudgetsAsync();
+        if (result.IsSuccess)
         {
-            string url = $"api/budgets";
-            var request = new HttpRequestMessage(HttpMethod.Get, url);
-            var response = await Http.SendAsync(request);
-            if(response.IsSuccessStatusCode)
-            {
-                MyBudgets = await response.Content.ReadFromJsonAsync<List<BudgetWithProgressDto>>() ?? new();
-            }
-            else
-            {
-                Snackbar.Add("Error fetching budgets!", Severity.Error);
-            }
+            MyBudgets = result.Data;
         }
-        catch (Exception ex)
+        else if (result.Reason == FailureReason.Unauthorized)
         {
-            Snackbar.Add($"An error occurred: {ex.Message}", Severity.Error);
+            Snackbar.Add("Session expired. Please log in again.", Severity.Error);
+            NavigationManager.NavigateTo("login");
+        }
+        else
+        {
+            Snackbar.Add(result.ErrorMessage ?? "Error fetching budgets!", Severity.Error);
         }
     }
 }

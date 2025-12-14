@@ -1,20 +1,28 @@
 @using ExpenseTrackerSharedCL.Features.Accounts.Dtos
 @using ExpenseTrackerSharedCL.Features.Categories.Dtos
 @using ExpenseTrackerSharedCL.Features.Tags.Dtos
+@using ExpenseTrackerWasmWebApp.Features.Accounts.Services
+@using ExpenseTrackerWasmWebApp.Features.Categories.Services
+@using ExpenseTrackerWasmWebApp.Features.Tags.Services
 @using ExpenseTrackerWasmWebApp.Services
 @using MudBlazor
 @using ExpenseTrackerSharedCL.Features.Transactions.Dtos
 @using ExpenseTrackerSharedCL.Features.Transactions.Enums
 @using ExpenseTrackerWasmWebApp.Features.SharedKernel.Components
 
-@inject CachedDataService CachedDataService
+@inject AccountService AccountService
+@inject CategoryService CategoryService
+@inject TagService TagService
+@inject ISnackbar Snackbar
+@inject NavigationManager NavigationManager
+
 <MudGrid>
     <MudItem xs="12" md="6">
         <MudPaper Elevation="0" Class="d-flex gap-5">
             <MudSelect T="AccountDto" Label="Account" @bind-SelectedValues="Filters.AccountsFilter"
                 MultiSelectionTextFunc="@(new Func<List<string>, string>(GetAccountsMultiSelectionText))"
                 MultiSelection="true" Clearable="true" FullWidth="true">
-                @foreach (var account in CachedDataService.GetAccounts())
+                @foreach (var account in Accounts)
                 {
                     <MudSelectItem T="AccountDto" Value="@(account)">
                         <TextWithIcon Text="@account.Name" Icon="@account.Icon" IconColor="@account.Color" IconSize="Size.Small" TextTypo="Typo.body2"></TextWithIcon>
@@ -46,7 +54,7 @@
             <MudSelect T="CategoryDto" Label="Category" @bind-SelectedValues="Filters.CategoriesFilter"
                 MultiSelectionTextFunc="@(new Func<List<string>, string>(GetCategoriesMultiSelectionText))"
                 MultiSelection="true" Clearable="true" FullWidth="true">
-                @foreach (var category in CachedDataService.GetCategories())
+                @foreach (var category in Categories)
                 {
                     <MudSelectItem T="CategoryDto" Value="@(category)">
                         <TextWithIcon Text="@category.Name" Icon="@category.Icon" IconColor="@category.Color" IconSize="Size.Small" TextTypo="Typo.body2"></TextWithIcon>
@@ -59,7 +67,7 @@
         <MudSelect T="TagDto" Label="Tags" @bind-SelectedValues="Filters.TagsFilter"
             MultiSelectionTextFunc="@(new Func<List<string>, string>(GetTagsMultiSelectionText))"
             MultiSelection="true" Clearable="true" FullWidth="true">
-            @foreach (var tag in CachedDataService.GetTags())
+            @foreach (var tag in Tags)
             {
                 <MudSelectItem Value="@(tag)">
                     <MudChip T="TagDto" Style="@($"background-color:{tag.Color}; color:white;")" Size="Size.Small"
@@ -87,9 +95,51 @@
 @code{
     [Parameter]
     public Func<Task> RefreshDataGridAction { get; set; } = null!;
-    
+
     [Parameter]
     public TransactionsFiltersDto Filters { get; set; } = new TransactionsFiltersDto();
+
+    private List<AccountDto> Accounts = [];
+    private List<CategoryDto> Categories = [];
+    private List<TagDto> Tags = [];
+    protected override async Task OnInitializedAsync()
+    {
+        var lookupsLoaded = await LoadLookupsAsync();
+        if (!lookupsLoaded)
+        {
+            return;
+        }
+    }
+
+    private async Task<bool> LoadLookupsAsync()
+    {
+        var accountsResult = await AccountService.GetAccountsAsync();
+        if (!accountsResult.IsSuccess)
+        {
+            HandleFailure(accountsResult.ErrorMessage, accountsResult.Reason);
+            return false;
+        }
+        Accounts = accountsResult.Data ?? new();
+
+        var categoriesResult = await CategoryService.GetCategoriesAsync();
+        if (!categoriesResult.IsSuccess)
+        {
+            HandleFailure(categoriesResult.ErrorMessage, categoriesResult.Reason);
+            return false;
+        }
+        Categories = categoriesResult.Data ?? new();
+
+        var tagsResult = await TagService.GetTagsAsync();
+        if (!tagsResult.IsSuccess)
+        {
+            HandleFailure(tagsResult.ErrorMessage, tagsResult.Reason);
+            return false;
+        }
+        Tags = tagsResult.Data ?? new();
+
+        return true;
+    }
+
     private async void ClearFilters()
     {
         Filters = new TransactionsFiltersDto();
@@ -121,5 +171,18 @@
     private string GetTagsMultiSelectionText(List<string> selectedTags)
     {
         return string.Join(separator: ", ", selectedTags);
+    }
+
+     private void HandleFailure(string? errorMessage, FailureReason reason)
+    {
+        if (reason == FailureReason.Unauthorized)
+        {
+            Snackbar.Add("Session expired. Please log in again.", Severity.Error);
+            NavigationManager.NavigateTo("/login");
+        }
+        else
+        {
+            Snackbar.Add(errorMessage ?? "An error occurred.", Severity.Error);
+        }
     }
 }

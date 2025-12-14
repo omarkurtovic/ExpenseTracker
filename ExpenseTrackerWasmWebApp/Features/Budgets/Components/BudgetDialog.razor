@@ -5,12 +5,14 @@
 @using MudBlazor
 @using ExpenseTrackerSharedCL.Features.Categories.Dtos
 @using ExpenseTrackerWasmWebApp.Features.SharedKernel.Components
-@using System.Net.Http.Headers
-@using global::ExpenseTrackerWasmWebApp.Features.Categories
-@inject HttpClient Http
+@using ExpenseTrackerWasmWebApp.Features.Accounts.Services
+@using ExpenseTrackerWasmWebApp.Features.Categories.Services
+@using ExpenseTrackerWasmWebApp.Features.Budgets.Services
 @inject ISnackbar Snackbar
-@inject IJSRuntime JSRuntime
-@inject CachedDataService CachedData
+@inject NavigationManager NavigationManager
+@inject AccountService AccountService
+@inject CategoryService CategoryService
+@inject BudgetService BudgetService
 
 @if (BudgetDto is not null)
 {
@@ -81,8 +83,7 @@
 </style>
 
 @code {
-    MudForm form = null!;
-
+    private MudForm form = null!;
     [CascadingParameter]
     private IMudDialogInstance MudDialog { get; set; } = null!;
 
@@ -91,10 +92,33 @@
 
     public List<CategoryDto> Categories{get; set;} = new();
     public List<AccountDto> Accounts{get; set;} = new();
+    
     protected override async Task OnInitializedAsync()
     {
-        Categories = CachedData.GetCategories();
-        Accounts = CachedData.GetAccounts();
+        var categoriesResult = await CategoryService.GetCategoriesAsync();
+        if (categoriesResult.IsSuccess)
+        {
+            Categories = categoriesResult.Data ?? new();
+        }
+        else if (categoriesResult.Reason == FailureReason.Unauthorized)
+        {
+            Snackbar.Add("Session expired. Please log in again.", Severity.Error);
+            NavigationManager.NavigateTo("login");
+            return;
+        }
+
+        var accountsResult = await AccountService.GetAccountsAsync();
+        if (accountsResult.IsSuccess)
+        {
+            Accounts = accountsResult.Data ?? new();
+        }
+        else if (accountsResult.Reason == FailureReason.Unauthorized)
+        {
+            Snackbar.Add("Session expired. Please log in again.", Severity.Error);
+            NavigationManager.NavigateTo("login");
+            return;
+        }
+
         await base.OnInitializedAsync();
     }
 
@@ -107,42 +131,31 @@
             return;
         }
 
-        try
+        Result result;
+        if (BudgetDto.Id == null)
         {
-            HttpResponseMessage? response;
-            if(BudgetDto.Id == null)
-            {
-                string url = $"api/budgets";
-                var request = new HttpRequestMessage(HttpMethod.Post, url);
-                request.Content = JsonContent.Create(BudgetDto);
-                request.Content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
-                response = await Http.SendAsync(request);
-            }
-            else
-            {
-                string url = $"api/budgets/{BudgetDto.Id}";
-                var request = new HttpRequestMessage(HttpMethod.Put, url);
-                request.Content = JsonContent.Create(BudgetDto);
-                request.Content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
-                response = await Http.SendAsync(request);
-            }
-
-            if(response.IsSuccessStatusCode){
-                Snackbar.Add("Budget saved successfully!", Severity.Success);
-                MudDialog.Close(DialogResult.Ok(result: true));
-            }
-            else
-            {
-                Snackbar.Add("Error saving budget!", Severity.Error);
-                MudDialog.Close(DialogResult.Ok(result: false));
-                return;
-            }
+            result = await BudgetService.CreateBudgetAsync(BudgetDto);
         }
-        catch (Exception ex)
+        else
         {
-            Snackbar.Add($"An error occurred: {ex.Message}", Severity.Error);
+            result = await BudgetService.EditBudgetAsync(BudgetDto);
+        }
+
+        if (result.IsSuccess)
+        {
+            Snackbar.Add("Budget saved successfully!", Severity.Success);
+            MudDialog.Close(DialogResult.Ok(result: true));
+        }
+        else if (result.Reason == FailureReason.Unauthorized)
+        {
+            Snackbar.Add("Session expired. Please log in again.", Severity.Error);
+            NavigationManager.NavigateTo("login");
             MudDialog.Close(DialogResult.Ok(result: false));
-            return;
+        }
+        else
+        {
+            Snackbar.Add(result.ErrorMessage ?? "Error saving budget!", Severity.Error);
+            MudDialog.Close(DialogResult.Ok(result: false));
         }
     }
 

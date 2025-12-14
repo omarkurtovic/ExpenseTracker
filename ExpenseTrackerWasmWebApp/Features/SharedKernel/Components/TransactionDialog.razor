@@ -2,16 +2,21 @@
 @using ExpenseTrackerSharedCL.Features.Categories.Dtos
 @using ExpenseTrackerSharedCL.Features.Tags.Dtos
 @using ExpenseTrackerSharedCL.Features.Transactions.Dtos
+@using ExpenseTrackerWasmWebApp.Features.Accounts.Services
+@using ExpenseTrackerWasmWebApp.Features.Categories.Services
+@using ExpenseTrackerWasmWebApp.Features.Tags.Services
+@using ExpenseTrackerWasmWebApp.Features.Transactions.Services
 @using ExpenseTrackerWasmWebApp.Services
 @using MudBlazor
-@using System.Net.Http.Headers
 @using ExpenseTrackerWasmWebApp.Features.SharedKernel.Components
 
 @inject IDialogService DialogService
 @inject ISnackbar Snackbar
-@inject CachedDataService DataService
-@inject HttpClient Http
-@inject CachedDataService CachedDataService
+@inject AccountService AccountService
+@inject CategoryService CategoryService
+@inject TagService TagService
+@inject TransactionService TransactionService
+@inject NavigationManager NavigationManager
 
 @if (TransactionDto is not null)
 {
@@ -166,8 +171,6 @@
     [Parameter]
     public bool IsReoccuring { get; set; } = false;
 
-    [Parameter]
-    public Func<Task> RefreshData{get; set;} = null!;
 
     [CascadingParameter]
     public required IMudDialogInstance MudDialog { get; set; }
@@ -178,45 +181,92 @@
     private List<TagDto> SelectedTags = new();
 
     private List<TagDto> AllTags = new();
+    private List<CategoryDto> _allCategories = new();
     private List<CategoryDto> AllCategories = new();
     private List<AccountDto> AllAccounts = new();
 
-    protected override void OnParametersSet()
+    protected override async Task OnInitializedAsync()
     {
-        AllTags = DataService.GetTags();
-        AllAccounts = DataService.GetAccounts();
-        AllCategories = DataService.GetCategories();
-
-        if(TransactionDto == null)
+        var lookupsLoaded = await LoadLookupsAsync();
+        if (!lookupsLoaded)
         {
-            TransactionDto = new TransactionDto();
-            TransactionDto.TransactionType = TransactionTypeDto.Expense;
-            if(AllCategories.Count > 0){
-                TransactionDto.CategoryId = AllCategories.First().Id;
-                TransactionDto.TransactionType = AllCategories.First().Type;
-                TransactionDto.CategoryDto = AllCategories.First();
-            }
-            if(AllAccounts.Count > 0){
-                TransactionDto.AccountId = AllAccounts.First().Id;
-                TransactionDto.AccountDto = AllAccounts.First();
-            }
-            TransactionDto.Date = DateTime.Now.Date;
-            TransactionDto.Time = DateTime.Now.TimeOfDay;
-            TransactionDto.Amount = 0;
-            TransactionDto.IsReoccuring = IsReoccuring;
+            MudDialog.Cancel();
+            return;
         }
-        else{
+
+        InitializeTransactionModel();
+    }
+
+    private async Task<bool> LoadLookupsAsync()
+    {
+        var accountsResult = await AccountService.GetAccountsAsync();
+        if (!accountsResult.IsSuccess)
+        {
+            HandleFailure(accountsResult.ErrorMessage, accountsResult.Reason);
+            return false;
+        }
+        AllAccounts = accountsResult.Data ?? new();
+
+        var categoriesResult = await CategoryService.GetCategoriesAsync();
+        if (!categoriesResult.IsSuccess)
+        {
+            HandleFailure(categoriesResult.ErrorMessage, categoriesResult.Reason);
+            return false;
+        }
+        _allCategories = categoriesResult.Data ?? new();
+
+        var tagsResult = await TagService.GetTagsAsync();
+        if (!tagsResult.IsSuccess)
+        {
+            HandleFailure(tagsResult.ErrorMessage, tagsResult.Reason);
+            return false;
+        }
+        AllTags = tagsResult.Data ?? new();
+
+        return true;
+    }
+
+    private void InitializeTransactionModel()
+    {
+        if (TransactionDto == null)
+        {
+            TransactionDto = new TransactionDto
+            {
+                TransactionType = TransactionTypeDto.Expense,
+                Date = DateTime.Now.Date,
+                Time = DateTime.Now.TimeOfDay,
+                Amount = 0,
+                IsReoccuring = IsReoccuring
+            };
+            TransactionDto.TagIds = new List<int>();
+        }
+        else
+        {
             TransactionDto.Amount = Math.Abs((decimal)TransactionDto.Amount!);
         }
 
-        AllCategories = AllCategories.Where(c => c.Type == TransactionDto.TransactionType).ToList();
-        if(TransactionDto.TagIds != null && TransactionDto.TagIds.Count > 0)
+
+        AllCategories = _allCategories
+            .Where(c => c.Type == TransactionDto.TransactionType)
+            .ToList();
+
+        if (TransactionDto.CategoryId == null && AllCategories.Count > 0)
+        {
+            TransactionDto.CategoryId = AllCategories.First().Id;
+            TransactionDto.CategoryDto = AllCategories.First();
+            TransactionDto.TransactionType = AllCategories.First().Type;
+        }
+
+        if (TransactionDto.AccountId == null && AllAccounts.Count > 0)
+        {
+            TransactionDto.AccountId = AllAccounts.First().Id;
+            TransactionDto.AccountDto = AllAccounts.First();
+        }
+
+        if (TransactionDto.TagIds != null && TransactionDto.TagIds.Count > 0)
         {
             SelectedTags = AllTags.Where(t => TransactionDto.TagIds.Contains((int)t.Id!)).ToList();
         }
-        
-
-        base.OnParametersSet();
     }
 
     private async Task<IEnumerable<TagDto>> TagSearchFunc(string searchText, CancellationToken cancellationToken)
@@ -255,40 +305,28 @@
         if (string.IsNullOrWhiteSpace(tagAutocomplete?.Text))
             return;
 
-        try
+        var tagDto = new TagDto
         {
-            var tagDto = new TagDto();
-            tagDto.Name = tagAutocomplete.Text;
-            tagDto.Color = "#9E9E9E";
+            Name = tagAutocomplete.Text,
+            Color = "#9E9E9E"
+        };
 
-            string url = $"api/tags";
-            var request = new HttpRequestMessage(HttpMethod.Post, url);
-            request.Content = JsonContent.Create(tagDto);
-            request.Content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
-            var response = await Http.SendAsync(request);
-
-            Console.WriteLine(response.StatusCode);
-            if(!response.IsSuccessStatusCode){
-                Snackbar.Add($"Error creating tag!", Severity.Error);
-                return;
-            }
-            
-            await CachedDataService.RefreshTagsAsync();
-            AllTags.Add(tagDto);
-            SelectedTags.Add(tagDto);
-            TransactionDto.TagIds.Add((int)tagDto.Id!);
-            selectedTag = null;
-            if (tagAutocomplete != null)
-            {
-                await tagAutocomplete.ResetAsync();
-            }
-            Snackbar.Add($"Tag '{tagDto.Name}' created!", Severity.Success);
-        }
-        catch (Exception ex)
+        var result = await TagService.CreateTagAsync(tagDto);
+        if (!result.IsSuccess)
         {
-            Console.WriteLine(ex.Message);
-            Snackbar.Add($"Error creating tag!", Severity.Error);
+            HandleFailure(result.ErrorMessage, result.Reason);
+            return;
         }
+
+        AllTags.Add(result.Data!);
+        SelectedTags.Add(result.Data!);
+        TransactionDto.TagIds.Add((int)result.Data!.Id!);
+        selectedTag = null;
+        if (tagAutocomplete != null)
+        {
+            await tagAutocomplete.ResetAsync();
+        }
+        Snackbar.Add($"Tag '{result.Data.Name}' created!", Severity.Success);
     }
 
     private void RemoveTag(TagDto tag)
@@ -299,7 +337,6 @@
 
     private async Task DeleteTag(TagDto tag)
     {
-        
         var options = new DialogOptions { CloseOnEscapeKey = true };
         var parameters = new DialogParameters<ConfirmDialog>
         {
@@ -310,31 +347,19 @@
         var result = await dialog.Result;
         if (!result!.Canceled)
         {
-            try
+            var deleteResult = await TagService.DeleteTagAsync((int)tag.Id!);
+            if(!deleteResult.IsSuccess)
             {
-                string url = $"api/tags/{tag.Id}";
-                var request = new HttpRequestMessage(HttpMethod.Delete, url);
-                var response = await Http.SendAsync(request);
-                if(response.IsSuccessStatusCode)
-                {
-                    await CachedDataService.RefreshTagsAsync();
-                    AllTags.RemoveAll(t => t.Id == tag.Id);
-                    RemoveTag(tag);
-                    Snackbar.Add("Tag deleted successfully!", Severity.Success);
-                    if (tagAutocomplete != null)
-                    {
-                        await tagAutocomplete.ResetAsync();
-                    }
-                }
-                else
-                {
-                    Snackbar.Add("Error deleting tag!", Severity.Error);
-                }
+                HandleFailure(deleteResult.ErrorMessage, deleteResult.Reason);
+                return;
             }
-            catch(Exception ex)
+
+            AllTags.RemoveAll(t => t.Id == tag.Id);
+            RemoveTag(tag);
+            Snackbar.Add("Tag deleted successfully!", Severity.Success);
+            if (tagAutocomplete != null)
             {
-                Console.WriteLine(ex.Message);
-                Snackbar.Add("Error deleting tag!", Severity.Error);
+                await tagAutocomplete.ResetAsync();
             }
         }
     }
@@ -348,55 +373,37 @@
             return;
         }
         TransactionDto.TagIds = SelectedTags.Select(t => (int)t.Id!).ToList();
+
         if(TransactionDto.Date != null){
             TransactionDto.Date = new DateTime(TransactionDto.Date.Value.Year, TransactionDto.Date.Value.Month, TransactionDto.Date.Value.Day,0, 0, 0);
         }
 
-        try
-        {
-            HttpResponseMessage? response;
-            if(TransactionDto.Id == null)
-            {
-                string url = $"api/transactions";
-                var request = new HttpRequestMessage(HttpMethod.Post, url);
-                request.Content = JsonContent.Create(TransactionDto);
-                request.Content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
-                response = await Http.SendAsync(request);
-            }
-            else{
-                string url = $"api/transactions/{TransactionDto.Id}";
-                var request = new HttpRequestMessage(HttpMethod.Put, url);
-                request.Content = JsonContent.Create(TransactionDto);
-                request.Content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
-                response = await Http.SendAsync(request);
-            }
+        Result response;
 
-            if(response.IsSuccessStatusCode){
-                await RefreshData.Invoke();
-                Snackbar.Add("Transaction saved successfully!", Severity.Success);
-                MudDialog.Close(DialogResult.Ok(result: true));
-            }
-            else
-            {
-                Snackbar.Add("Error saving transaction!", Severity.Error);
-                MudDialog.Close();
-                return;
-            }
-        }
-        catch (Exception ex)
+        if (TransactionDto.Id == null)
         {
-            Snackbar.Add($"An error occurred: {ex.Message}", Severity.Error);
-            MudDialog.Close();
+            response = await TransactionService.CreateTransactionAsync(TransactionDto);
+        }
+        else
+        {
+            response = await TransactionService.UpdateTransactionAsync(TransactionDto);
+        }
+
+        if(!response.IsSuccess){
+            HandleFailure(response.ErrorMessage, response.Reason);
             return;
         }
+
+        Snackbar.Add("Transaction saved successfully!", Severity.Success);
+        MudDialog.Close(DialogResult.Ok(result: true));
+        return;
     }
 
     private void Cancel() => MudDialog.Cancel();
 
     private async Task TransactionTypeChanged()
     {
-        AllCategories = DataService.GetCategories();
-        AllCategories = AllCategories.Where(c => c.Type == TransactionDto.TransactionType).ToList();
+        AllCategories = _allCategories.Where(c => c.Type == TransactionDto.TransactionType).ToList();
 
         if (AllCategories.Count > 0)
         {
@@ -407,6 +414,20 @@
             TransactionDto.CategoryId = null;
         }
 
+    }
+
+    private void HandleFailure(string? errorMessage, FailureReason reason)
+    {
+        if (reason == FailureReason.Unauthorized)
+        {
+            Snackbar.Add("Session expired. Please log in again.", Severity.Error);
+            MudDialog.Close();
+            NavigationManager.NavigateTo("/login");
+        }
+        else
+        {
+            Snackbar.Add(errorMessage ?? "An error occurred.", Severity.Error);
+        }
     }
 
 }

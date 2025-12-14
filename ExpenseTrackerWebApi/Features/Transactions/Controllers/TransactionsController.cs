@@ -87,13 +87,13 @@ namespace ExpenseTrackerWebApi.Features.Transactions.Controllers
             }
         }
 
-        [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateTransaction(int id, [FromBody] TransactionDto transactionDto)
+        [HttpPut]
+        public async Task<IActionResult> UpdateTransaction([FromBody] TransactionDto transactionDto)
         {
             try
             {
                 var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value!;
-                await _mediator.Send(new EditTransactionCommand() { Id = id, TransactionDto = transactionDto, UserId = userId });
+                await _mediator.Send(new EditTransactionCommand() { Id = (int)transactionDto.Id!, TransactionDto = transactionDto, UserId = userId });
                 return Ok();
             }
 

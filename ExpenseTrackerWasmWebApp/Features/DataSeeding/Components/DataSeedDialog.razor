@@ -1,9 +1,11 @@
+@using ExpenseTrackerWasmWebApp.Features.DataSeeding.Services
 @using ExpenseTrackerWasmWebApp.Services
 @using MudBlazor
 @using ExpenseTrackerSharedCL.Features.DataSeeding.Dtos
 @using System.Net.Http.Headers
 @inject ISnackbar Snackbar
-@inject HttpClient Http
+@inject DataSeedService DataSeedService
+@inject NavigationManager NavigationManager
 @inject CachedDataService CachedData
 
 <div>
@@ -71,37 +73,24 @@
         Loading = true;
         StateHasChanged();
 
-        try
+        var result = await DataSeedService.SeedDataAsync(DataSeedOptionsDto);
+        if(result.IsSuccess)
         {
-            string url = $"api/dataseeding";
-            var request = new HttpRequestMessage(HttpMethod.Post, url);
-            request.Content = JsonContent.Create(DataSeedOptionsDto);
-            request.Content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
-            var response = await Http.SendAsync(request);
-
-            if (response.IsSuccessStatusCode)
-            {
-                Snackbar.Add("Data seeded successfully!", Severity.Success);
-                await CachedData.RefreshAll();
-                if(RefreshData != null)
-                {
-                    await RefreshData.Invoke();
-                }
-                Loading = false;
-            }
-            else
-            {
-                Snackbar.Add("An error occurred while seeding data. Please try again.", Severity.Error);
-                return;
-            }
+            Snackbar.Add("Data seeded successfully!", Severity.Success);
+            Loading = false;
+            MudDialog!.Close(DialogResult.Ok(result: true));
         }
-        catch (Exception ex)
+        else if(result.Reason == FailureReason.Unauthorized)
         {
-            Console.WriteLine(ex.Message);
-            Snackbar.Add("An error occurred while seeding data. Please try again.", Severity.Error);
-            return;
+            Snackbar.Add("Session expired. Please log in again.", Severity.Error);
+            MudDialog!.Close();
+            Loading = false;
+            NavigationManager.NavigateTo("/login");
         }
-        Loading = false;
-
+        else{
+            Snackbar.Add(result.ErrorMessage ?? "An error occurred while seeding data. Please try again.", Severity.Error);
+            Loading = false;
+        }
+        Loading = true;
     }
 }

@@ -37,6 +37,20 @@ public class CustomAuthenticationStateProvider : AuthenticationStateProvider
         return new AuthenticationState(new ClaimsPrincipal(identity));
     }
 
+    public async Task MarkUserAsAuthenticatedAsync(string token)
+    {
+        await _localStorage.SetItemAsync("authToken", token);
+        var authState = await GetAuthenticationStateAsync();
+        NotifyAuthenticationStateChanged(Task.FromResult(authState));
+    }
+
+    public async Task MarkUserAsLoggedOutAsync()
+    {
+        await _localStorage.RemoveItemAsync("authToken");
+        var anonymous = new AuthenticationState(new ClaimsPrincipal(new ClaimsIdentity()));
+        NotifyAuthenticationStateChanged(Task.FromResult(anonymous));
+    }
+
     private List<Claim> ParseClaimsFromJwt(string jwt)
     {
         var payload = jwt.Split('.')[1];

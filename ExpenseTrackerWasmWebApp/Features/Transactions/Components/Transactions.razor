@@ -4,7 +4,6 @@
 @using ExpenseTrackerSharedCL.Features.Tags.Dtos
 @using ExpenseTrackerSharedCL.Features.Transactions.Dtos
 @using ExpenseTrackerWasmWebApp.Features.Transactions.Services
-@using ExpenseTrackerWasmWebApp.Services
 @using Microsoft.AspNetCore.Authorization
 @using MudBlazor
 @using Microsoft.AspNetCore.Components.Web
@@ -15,8 +14,8 @@
 @inject IDialogService DialogService
 @inject ISnackbar Snackbar
 @inject IJSRuntime JSRuntime
-@inject CachedDataService CachedData
 @inject TransactionService TransactionService
+@inject NavigationManager NavigationManager
 
 
 <PageTitle>@(IsReoccuring ? "Reoccuring Transactions" : "Transactions")</PageTitle>
@@ -193,16 +192,36 @@
         {
             options.SortBy = sortDefintion.SortBy;
             options.SortDescending = sortDefintion.Descending;
-            _currentSort = sortDefintion; // Store current sort for export
+            _currentSort = sortDefintion; 
         }
         options.PageSize = state.PageSize;
         options.CurrentPage = state.Page;
         options.Filters = Filters;
-        var result = await TransactionService.GetTransactions(options);
+        var result = await TransactionService.GetTransactionsAsync(options);
+
+        if (result.IsSuccess && result.Data is not null)
+        {
+            return new GridData<TransactionDto>()
+            {
+                Items = result.Data.Transactions,
+                TotalItems = result.Data.TotalItems
+            };
+        }
+
+        if (result.Reason == FailureReason.Unauthorized)
+        {
+            Snackbar.Add("Session expired. Please log in again.", Severity.Error);
+            NavigationManager.NavigateTo("/login");
+        }
+        else
+        {
+            Snackbar.Add(result.ErrorMessage ?? "Error fetching transactions!", Severity.Error);
+        }
+
         return new GridData<TransactionDto>()
         {
-            Items = result.Transactions,
-            TotalItems = result.TotalItems
+            Items = new List<TransactionDto>(),
+            TotalItems = 0
         };
     }
     
@@ -221,18 +240,6 @@
 
     private async Task OpenTransactionDialogAsync(TransactionDto? transactionDto)
     {
-        if (CachedData.GetCategories().Count == 0)
-        {
-            Snackbar.Add("No categories found! Create some then try again!", Severity.Error);
-            return;
-        }
-
-        if (CachedData.GetAccounts().Count == 0)
-        {
-            Snackbar.Add("No accounts found! Create some then try again!", Severity.Error);
-            return;
-        }
-
         var options = new DialogOptions
         {
             CloseOnEscapeKey = true,
@@ -243,19 +250,11 @@
         var parameters = new DialogParameters<TransactionDialog>
         {
             { x => x.TransactionDto, transactionDto },
-            { x => x.IsReoccuring, IsReoccuring },
-            {x => x.RefreshData, new Func<Task>(async () => {
-                await ReloadGrid();
-            })}
+            { x => x.IsReoccuring, IsReoccuring }
         };
 
         var dialog = await DialogService.ShowAsync<TransactionDialog>(title: "Simple Dialog", parameters, options);
         var result = await dialog.Result;
-
-        // after editing it's quite possible that the user changed some transactions
-        // but also that he changed some tags
-
-        await CachedData.RefreshTagsAsync();
         await ReloadGrid();
     }
 
@@ -271,13 +270,18 @@
         var result = await dialog.Result;
         if (result is not null && !result.Canceled)
         {
-            var isSuccess = await TransactionService.DeleteTransaction(transactionId);
-            if(isSuccess){
+            var deleteResult = await TransactionService.DeleteTransactionAsync(transactionId);
+            if(deleteResult.IsSuccess){
                 Snackbar.Add("Transaction succesfully deleted! ", Severity.Success);
                 await ReloadGrid();
             }
+            else if(deleteResult.Reason == FailureReason.Unauthorized)
+            {
+                Snackbar.Add("Session expired. Please log in again.", Severity.Error);
+                NavigationManager.NavigateTo("/login");
+            }
             else{
-                Snackbar.Add("Error deleting transaction!", Severity.Error);
+                Snackbar.Add(deleteResult.ErrorMessage ?? "Error deleting transaction!", Severity.Error);
             }
         }
     }
@@ -303,7 +307,6 @@
 
         if (!result!.Canceled)
         {
-            await CachedData.InitializeAsync();
             await ReloadGrid();
         }
     }
@@ -336,14 +339,6 @@
         };
         var dialog = await DialogService.ShowAsync<ExportDialog>(title: "", parameters, dialogOptions);
     }
-
-
-    
-
-
-    // grid
-
-
 
 
     // filters

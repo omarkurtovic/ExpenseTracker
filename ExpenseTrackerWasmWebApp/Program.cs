@@ -9,6 +9,12 @@ using Microsoft.AspNetCore.Components.Authorization;
 using ApexCharts;
 using MudBlazor;
 using ExpenseTrackerWasmWebApp.Features.Transactions.Services;
+using ExpenseTrackerWasmWebApp.Features.Accounts.Services;
+using ExpenseTrackerWasmWebApp.Features.Categories.Services;
+using ExpenseTrackerWasmWebApp.Features.Budgets.Services;
+using ExpenseTrackerWasmWebApp.Features.Dashboard.Services;
+using ExpenseTrackerWasmWebApp.Features.Tags.Services;
+using ExpenseTrackerWasmWebApp.Features.DataSeeding.Services;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 builder.RootComponents.Add<App>("#app");
@@ -67,7 +73,12 @@ void ConfigureMudBlazor(IServiceCollection services)
 
 void ConfigureCustomServices(IServiceCollection services)
 {
-    services.AddSingleton<CachedDataService>();
+    services.AddTransient<AccountService>();
+    services.AddTransient<CategoryService>();
+    services.AddTransient<BudgetService>();
+    services.AddTransient<DashboardService>();
+    services.AddTransient<TagService>();
+    services.AddTransient<DataSeedService>();
     services.AddScoped<AuthenticationStateProvider, CustomAuthenticationStateProvider>();
     services.AddScoped<BaseAddressAuthorizationMessageHandler>();
     services.AddTransient<TransactionService>();

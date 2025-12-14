@@ -2,11 +2,12 @@
 @using MudBlazor
 @using ExpenseTrackerSharedCL.Features.Categories.Dtos
 @using ExpenseTrackerWasmWebApp.Features.SharedKernel.Components
-@using System.Net.Http.Headers
+@using ExpenseTrackerWasmWebApp.Features.Categories.Services
+@using ExpenseTrackerWasmWebApp.Services
 @using global::ExpenseTrackerWasmWebApp.Features.Categories
-@inject HttpClient Http
 @inject ISnackbar Snackbar
-@inject IJSRuntime JSRuntime
+@inject CategoryService CategoryService
+@inject NavigationManager NavigationManager
 
 @if (CategoryDto is not null)
 {
@@ -81,41 +82,28 @@
             StateHasChanged();
             return;
         }
-        try
+        Result result;
+        if(CategoryDto.Id == null)
         {
-            HttpResponseMessage? response;
-            if(CategoryDto.Id == null)
-            {
-                string url = $"api/categories";
-                var request = new HttpRequestMessage(HttpMethod.Post, url);
-                request.Content = JsonContent.Create(CategoryDto);
-                request.Content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
-                response = await Http.SendAsync(request);
-            }
-            else{
-                string url = $"api/categories/{CategoryDto.Id}";
-                var request = new HttpRequestMessage(HttpMethod.Put, url);
-                request.Content = JsonContent.Create(CategoryDto);
-                request.Content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
-                response = await Http.SendAsync(request);
-            }
-
-            if(response.IsSuccessStatusCode){
-                Snackbar.Add("Category saved successfully!", Severity.Success);
-                MudDialog.Close(DialogResult.Ok(result: true));
-            }
-            else
-            {
-                Snackbar.Add("Error saving category!", Severity.Error);
-                MudDialog.Close();
-                return;
-            }
+            result = await CategoryService.CreateCategoryAsync(CategoryDto);
         }
-        catch (Exception ex)
+        else{
+            result = await CategoryService.EditCategoryAsync(CategoryDto);
+        }
+
+        if(result.IsSuccess){
+            Snackbar.Add("Category saved successfully!", Severity.Success);
+            MudDialog.Close(DialogResult.Ok(result: true));
+        }
+        else if(result.Reason == FailureReason.Unauthorized)
         {
-            Snackbar.Add($"An error occurred: {ex.Message}", Severity.Error);
+            Snackbar.Add("Session expired. Please log in again.", Severity.Error);
+            NavigationManager.NavigateTo("/login");
             MudDialog.Close();
-            return;
+        }
+        else
+        {
+            Snackbar.Add(result.ErrorMessage ?? "Error saving category!", Severity.Error);
         }
     }
 

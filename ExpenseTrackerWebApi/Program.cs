@@ -19,18 +19,21 @@ var app = builder.Build();
 
 InitializeDatabase(app);
 
+if (app.Environment.IsDevelopment())
+{
+    app.UseWebAssemblyDebugging();
+}
+
 app.UseHttpsRedirection();
+app.UseBlazorFrameworkFiles();
+app.UseStaticFiles();
+
 app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
 
-app.UseBlazorFrameworkFiles();
-app.UseStaticFiles();
 app.MapControllers();
 app.MapFallbackToFile("index.html");
-
-
-
 
 app.Run();
 

@@ -2,17 +2,16 @@
 @page "/categories"
 @attribute [Authorize]
 @using ExpenseTrackerSharedCL.Features.Categories.Dtos
+@using ExpenseTrackerWasmWebApp.Features.Categories.Services
 @using ExpenseTrackerWasmWebApp.Services
 @using Microsoft.AspNetCore.Authorization
 @using MudBlazor
 @using Microsoft.AspNetCore.Components.Web
 @using ExpenseTrackerWasmWebApp.Features.SharedKernel.Components
-@using System.Net.Http.Headers
 @inject IDialogService DialogService
 @inject ISnackbar Snackbar
-@inject HttpClient Http
-@inject IJSRuntime JSRuntime
-@inject CachedDataService DataService
+@inject CategoryService CategoryService
+@inject NavigationManager NavigationManager
 
 <PageTitle>Categories</PageTitle>
 
@@ -143,24 +142,20 @@ else
 
         if (result is not null && !result.Canceled)
         {
-            try
+            var res = await CategoryService.DeleteCategoryAsync(category_id);
+            if(res.IsSuccess)
             {
-                string url = $"api/categories/{category_id}";
-                var request = new HttpRequestMessage(HttpMethod.Delete, url);
-                var response = await Http.SendAsync(request);
-                if(response.IsSuccessStatusCode)
-                {
-                    Snackbar.Add("Category succesfully deleted! ", Severity.Success);
-                    await RefreshPage();
-                }
-                else
-                {
-                    Snackbar.Add("Error deleting category!", Severity.Error);
-                }
+                Snackbar.Add("Category succesfully deleted! ", Severity.Success);
+                await RefreshPage();
             }
-            catch (Exception ex)
+            else if(res.Reason == FailureReason.Unauthorized)
             {
-                Snackbar.Add($"An error occurred: {ex.Message}", Severity.Error);
+                Snackbar.Add("Session expired. Please log in again.", Severity.Error);
+                NavigationManager.NavigateTo("/login");
+            }
+            else
+            {
+                Snackbar.Add(res.ErrorMessage ?? "Error deleting category!", Severity.Error);
             }
         }
     }
@@ -173,8 +168,21 @@ else
 
     private async Task RefreshPage()
     {
-        allCategories = await DataService.GetCategoriesWithStatsAsync();
-        FilteredCategories = allCategories.Where(c => c.Type == transactionType).ToList();
+        var result = await CategoryService.GetCategoriesWithStatsAsync();
+        if (result.IsSuccess)
+        {
+            allCategories = result.Data ?? new();
+            FilteredCategories = allCategories.Where(c => c.Type == transactionType).ToList();
+        }
+        else if(result.Reason == FailureReason.Unauthorized)
+        {
+            Snackbar.Add("Session expired. Please log in again.", Severity.Error);
+            NavigationManager.NavigateTo("/login");
+        }
+        else
+        {
+            Snackbar.Add(result.ErrorMessage ?? "Error loading categories!", Severity.Error);
+        }
     }
 
     private RenderFragment RenderCategoryContent() => @<text>

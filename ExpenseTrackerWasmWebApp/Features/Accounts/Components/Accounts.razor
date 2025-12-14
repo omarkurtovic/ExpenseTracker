@@ -1,6 +1,7 @@
 @page "/accounts"
 @attribute [Authorize]
 @using ExpenseTrackerSharedCL.Features.Accounts.Dtos
+@using ExpenseTrackerWasmWebApp.Features.Accounts.Services
 @using ExpenseTrackerWasmWebApp.Services
 @using Microsoft.AspNetCore.Authorization
 @using MudBlazor
@@ -9,9 +10,9 @@
 @using System.Net.Http.Headers
 @inject IDialogService DialogService
 @inject ISnackbar Snackbar
-@inject HttpClient Http
 @inject IJSRuntime JSRuntime
-@inject CachedDataService CachedData
+@inject AccountService AccountService
+@inject NavigationManager NavigationManager
 
 <PageTitle>Accounts</PageTitle>
 
@@ -122,24 +123,20 @@ else
         var result = await dialog.Result;
         if (!result!.Canceled)
         {
-            try
+            var res= await AccountService.DeleteAccountAsync(accountId);
+            if(res.IsSuccess)
             {
-                string url = $"api/accounts/{accountId}";
-                var request = new HttpRequestMessage(HttpMethod.Delete, url);
-                var response = await Http.SendAsync(request);
-                if(response.IsSuccessStatusCode)
-                {
-                    Snackbar.Add("Account succesfully deleted! ", Severity.Success);
-                    await UpdatePage();
-                }
-                else
-                {
-                    Snackbar.Add("Error deleting account!", Severity.Error);
-                }
+                Snackbar.Add("Account successfully deleted!", Severity.Success);
+                await UpdatePage();
             }
-            catch (Exception ex)
+            else if(res.Reason == FailureReason.Unauthorized)
             {
-                Snackbar.Add($"An error occurred: {ex.Message}", Severity.Error);
+                Snackbar.Add("Session expired. Please log in again.", Severity.Error);
+                NavigationManager.NavigateTo("/login");
+            }
+            else
+            {
+                Snackbar.Add(res.ErrorMessage?.ToString() ?? "Error deleting account!", Severity.Error);
             }
         }
     }
@@ -147,6 +144,20 @@ else
 
     private async Task UpdatePage()
     {
-        MyAccounts = await CachedData.GetAccountsWithBalanceAsync();
+        var result = await AccountService.GetAccountsWithBalanceAsync();
+        if (result.IsSuccess)
+        {
+            MyAccounts = result.Data!;
+        }
+        else if(result.Reason == FailureReason.Unauthorized)
+        {
+            Snackbar.Add("Session expired. Please log in again.", Severity.Error);
+            NavigationManager.NavigateTo("/login");
+        }
+        else
+        {
+            Snackbar.Add(result.ErrorMessage!, Severity.Error);
+            NavigationManager.NavigateTo("/login");
+        }
     }
 }

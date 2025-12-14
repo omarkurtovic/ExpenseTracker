@@ -2,13 +2,15 @@
 @attribute [Authorize]
 @using ExpenseTrackerSharedCL.Features.Dashboard.Dtos
 @using ExpenseTrackerSharedCL.Features.Transactions.Dtos
+@using ExpenseTrackerWasmWebApp.Features.Dashboard.Services
 @using Microsoft.AspNetCore.Authorization
 @using Microsoft.AspNetCore.Components.Web
 @using MudBlazor
 @using ExpenseTrackerWasmWebApp.Features.SharedKernel.Components
 @using ApexCharts
-@inject HttpClient Http
+@inject DashboardService DashboardService
 @inject ISnackbar Snackbar
+@inject NavigationManager NavigationManager
 
 <PageTitle>Dashboard</PageTitle>
 
@@ -127,14 +129,23 @@ else
 
     private async Task RefreshPage(bool showMessage = false)
     {
-        try
+
+        var result = await DashboardService.GetDashboardSummaryAsync();
+        if(result.IsSuccess)
         {
-            DashboardSummary = await Http.GetFromJsonAsync<DashboardSummaryDto>($"api/dashboard") ?? new DashboardSummaryDto();
-            
+            DashboardSummary = result.Data!;
+            return;
         }
-        catch
+        
+        if (result.Reason == FailureReason.Unauthorized)
         {
-            Snackbar.Add("Failed to load dashboard data.", Severity.Error);
+            Snackbar.Add("Session expired. Please log in again.", Severity.Error);
+            NavigationManager.NavigateTo("login");
         }
+        else
+        {
+            Snackbar.Add("Failed to load dashboard data. Please try again.", Severity.Error);
+        }
+
     }
 }

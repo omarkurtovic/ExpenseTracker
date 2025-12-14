@@ -1,6 +1,7 @@
 @page "/register"
 @attribute [AllowAnonymous]
 @using ExpenseTrackerSharedCL.Features.Auth.Dtos
+@using ExpenseTrackerWasmWebApp.Features.Auth.Services
 @using Microsoft.AspNetCore.Authorization
 @using MudBlazor.Extensions
 @using System.Globalization
@@ -8,9 +9,10 @@
 @using System.ComponentModel.DataAnnotations
 @using Microsoft.AspNetCore.Components.Web
 @using MudBlazor
+@layout ExpenseTrackerWasmWebApp.Features.SharedKernel.Layouts.UnauthorizeLayout
 @inject NavigationManager NavigationManager
 @inject ISnackbar Snackbar
-@inject HttpClient Http
+@inject AuthService AuthService
 
 <PageTitle>Registration</PageTitle>
 
@@ -56,7 +58,7 @@
 
 
 @code {
-    private MudForm form;
+    private MudForm form = null!;
     private RegisterDataDto RegisterData = new RegisterDataDto();
     
     private bool isPasswordShow;
@@ -76,23 +78,15 @@
             return;
         }
 
-        try{
-            string url = "api/auth/register";
-            var response = await Http.PostAsJsonAsync(url, RegisterData);
-            if (response.IsSuccessStatusCode)
-            {
-                Snackbar.Add("Registration success! Redirecting to login.", Severity.Success);
-                NavigationManager.NavigateTo("Login");
-            }
-            else
-            {
-                Snackbar.Add("Registration failed. Please check your information and try again.", Severity.Error);
-            }
-        }
-        catch (Exception ex)
+        var result = await AuthService.RegisterAsync(RegisterData);
+        if(result.IsSuccess)
         {
-            Snackbar.Add($"An error occurred: {ex.Message}", Severity.Error);
+            Snackbar.Add("Registration success! Redirecting to login.", Severity.Success);
+            NavigationManager.NavigateTo("Login");
+            return;
         }
+        
+        Snackbar.Add(result.ErrorMessage ?? "Registration failed. Please check your information and try again.", Severity.Error);
     }
     private void BtnLogin_Click(){
         NavigationManager.NavigateTo("Login");

@@ -11,6 +11,7 @@
 @inject ISnackbar Snackbar
 @inject IJSRuntime JSRuntime
 @inject TransactionService TransactionService
+@inject NavigationManager NavigationManager
 
     <MudDialog>
         <TitleContent>
@@ -90,7 +91,22 @@
             return;
         } 
         
-        var transactions = (await TransactionService.GetTransactions(ExportOptions)).Transactions;
+        var result = await TransactionService.GetTransactionsAsync(ExportOptions);
+        if(!result.IsSuccess){
+            if(result.Reason == FailureReason.Unauthorized){
+                Snackbar.Add("Session expired. Please log in again.", Severity.Error);
+                NavigationManager.NavigateTo("/login");
+                MudDialog.Close();
+                return;
+            }
+            else{
+                MudDialog.Close();
+                Snackbar.Add("An error occurred while fetching transactions for export.", Severity.Error);
+                return;
+            }
+        }
+
+        var transactions = result.Data!.Transactions;
         if(transactions.Count == 0){
             Snackbar.Add("No transactions found for export!", Severity.Error);
             return;
