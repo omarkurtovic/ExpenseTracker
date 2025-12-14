@@ -11,6 +11,7 @@
 @inject ISnackbar Snackbar
 @inject CachedDataService DataService
 @inject HttpClient Http
+@inject CachedDataService CachedDataService
 
 @if (TransactionDto is not null)
 {
@@ -165,6 +166,9 @@
     [Parameter]
     public bool IsReoccuring { get; set; } = false;
 
+    [Parameter]
+    public Func<Task> RefreshData{get; set;} = null!;
+
     [CascadingParameter]
     public required IMudDialogInstance MudDialog { get; set; }
 
@@ -215,7 +219,6 @@
         base.OnParametersSet();
     }
 
-
     private async Task<IEnumerable<TagDto>> TagSearchFunc(string searchText, CancellationToken cancellationToken)
     {
         if (string.IsNullOrWhiteSpace(searchText))
@@ -264,11 +267,13 @@
             request.Content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
             var response = await Http.SendAsync(request);
 
+            Console.WriteLine(response.StatusCode);
             if(!response.IsSuccessStatusCode){
                 Snackbar.Add($"Error creating tag!", Severity.Error);
                 return;
             }
             
+            await CachedDataService.RefreshTagsAsync();
             AllTags.Add(tagDto);
             SelectedTags.Add(tagDto);
             TransactionDto.TagIds.Add((int)tagDto.Id!);
@@ -312,6 +317,7 @@
                 var response = await Http.SendAsync(request);
                 if(response.IsSuccessStatusCode)
                 {
+                    await CachedDataService.RefreshTagsAsync();
                     AllTags.RemoveAll(t => t.Id == tag.Id);
                     RemoveTag(tag);
                     Snackbar.Add("Tag deleted successfully!", Severity.Success);
@@ -366,6 +372,7 @@
             }
 
             if(response.IsSuccessStatusCode){
+                await RefreshData.Invoke();
                 Snackbar.Add("Transaction saved successfully!", Severity.Success);
                 MudDialog.Close(DialogResult.Ok(result: true));
             }

@@ -93,7 +93,6 @@
     public List<AccountDto> Accounts{get; set;} = new();
     protected override async Task OnInitializedAsync()
     {
-        await CachedData.InitializeAsync();
         Categories = CachedData.GetCategories();
         Accounts = CachedData.GetAccounts();
         await base.OnInitializedAsync();

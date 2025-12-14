@@ -1,75 +1,77 @@
 using ExpenseTrackerSharedCL.Features.Accounts.Dtos;
 using ExpenseTrackerSharedCL.Features.Categories.Dtos;
 using ExpenseTrackerSharedCL.Features.Tags.Dtos;
+using ExpenseTrackerSharedCL.Features.UserPreferences.Dtos;
 using System.Net.Http.Json;
 
 namespace ExpenseTrackerWasmWebApp.Services;
 
-public class CachedDataService
+public class CachedDataService(IHttpClientFactory httpClientFactory)
 {
-    private List<AccountDto>? _accounts;
-    private List<CategoryDto>? _categories;
-    private List<TagDto>? _tags;
-    private bool _isInitialized = false;
-    private readonly IHttpClientFactory _httpClientFactory;
-
-    public CachedDataService(IHttpClientFactory httpClientFactory)
-    {
-        _httpClientFactory = httpClientFactory;
-    }
+    public bool IsInitialized{get; set;} = false;
+    private List<AccountDto> _accounts = [];
+    private List<CategoryDto> _categories = [];
+    private List<TagDto> _tags = [];
+    private UserPreferenceDto _userPreferenceDto = new UserPreferenceDto(){DarkMode = false};
+    private readonly IHttpClientFactory _httpClientFactory = httpClientFactory;
 
     public async Task InitializeAsync()
     {
+        if (IsInitialized)
+            return;
+
+        await RefreshAll();
+        IsInitialized = true;
+    }
+    public async Task RefreshAll()
+    {
         try
         {
-            var http = _httpClientFactory.CreateClient("WebAPI");
-
-            if(_accounts == null || _accounts.Count == 0)
-            {
-                var accounts = await http.GetFromJsonAsync<List<AccountDto>>("api/accounts");
-                _accounts = accounts ?? new();
-            }
-            if(_categories == null || _categories.Count == 0)
-            {
-                var categories = await http.GetFromJsonAsync<List<CategoryDto>>("api/categories");
-                _categories = categories ?? new();
-            }
-            if(_tags == null || _tags.Count == 0)
-            {
-                var tags = await http.GetFromJsonAsync<List<TagDto>>("api/tags");
-                _tags = tags ?? new();
-            }
-            _isInitialized = true;
+            await RefreshAccountsAsync();
+            await RefreshCategoriesAsync();
+            await RefreshTagsAsync();
+            await RefreshUserPreferencesAsync();
         }
         catch
         {
-            _accounts = new();
-            _categories = new();
-            _tags = new();
         }
     }
 
 
     public List<AccountDto> GetAccounts()
     {
-        return _accounts ?? new();
+        return _accounts;
     }
 
     public List<CategoryDto> GetCategories()
     {
-        return _categories ?? new();
+        return _categories;
     }
     public List<TagDto> GetTags()
     {
-        return _tags ?? new();
+        return _tags;
     }
-    
+    public UserPreferenceDto GetUserPreferences()
+    {
+        return _userPreferenceDto;
+    }
     public async Task RefreshAccountsAsync()
     {
         try
         {
             var http = _httpClientFactory.CreateClient("WebAPI");
             _accounts = await http.GetFromJsonAsync<List<AccountDto>>("api/accounts") ?? new();
+        }
+        catch
+        {
+        }
+    }
+    public async Task RefreshUserPreferencesAsync()
+    {
+        try
+        {
+            var http = _httpClientFactory.CreateClient("WebAPI");
+            _userPreferenceDto = await http.GetFromJsonAsync<UserPreferenceDto>("api/userpreferences");
         }
         catch
         {
@@ -145,10 +147,9 @@ public class CachedDataService
 
     public void ClearCache()
     {
-        _accounts = null;
-        _categories = null;
-        _isInitialized = false;
+        _accounts = [];
+        _categories = [];
+        _tags = [];
+        _userPreferenceDto = new UserPreferenceDto(){DarkMode = false};
     }
-
-    public bool IsInitialized => _isInitialized;
 }

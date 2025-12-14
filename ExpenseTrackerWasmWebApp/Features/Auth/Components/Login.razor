@@ -1,10 +1,10 @@
 
 @page "/login"
 @attribute [AllowAnonymous]
+@using ExpenseTrackerSharedCL.Features.Auth.Dtos
 @using ExpenseTrackerWasmWebApp.Services
 @using Microsoft.AspNetCore.Authorization
 @using MudBlazor
-@using ExpenseTrackerSharedCL.Features.Login.Dtos
 @inject ISnackbar Snackbar
 @inject HttpClient Http
 @inject NavigationManager Nav    
@@ -58,6 +58,11 @@
     private InputType PasswordInput = InputType.Password;
     private string PasswordInputIcon = Icons.Material.Filled.VisibilityOff;
 
+    override protected async Task OnInitializedAsync()
+    {
+        Nav.NavigateTo("/");
+    }
+
     private async Task BtnLogin_Click(){
         
         await form.Validate();
@@ -72,13 +77,13 @@
     private async Task HandleLogin()
     {
         try{
-            string url = "api/login";
+            string url = "api/auth/login";
             var response = await Http.PostAsJsonAsync(url, loginRequest);
             if (response.IsSuccessStatusCode)
             {
                 var result = await response.Content.ReadFromJsonAsync<LoginResponseDto>();
                 await LocalStorage.SetItemAsync("authToken", result!.Token);
-                await CachedData.InitializeAsync();
+                await CachedData.RefreshAll();
                 Nav.NavigateTo("/");
             }
             else

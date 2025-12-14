@@ -14,34 +14,26 @@ var builder = WebAssemblyHostBuilder.CreateDefault(args);
 builder.RootComponents.Add<App>("#app");
 builder.RootComponents.Add<HeadOutlet>("head::after");
 
-
 // Authentication and Authorization
 builder.Services.AddAuthorizationCore();
 builder.Services.AddBlazoredLocalStorage();
+builder.Services.AddCascadingAuthenticationState();
 
-
+// so that each request contains the auth token
 builder.Services.AddHttpClient("WebAPI", 
-        client => client.BaseAddress = new Uri("http://localhost:5001/"))
+        client => client.BaseAddress = new Uri(builder.HostEnvironment.BaseAddress))
     .AddHttpMessageHandler<BaseAddressAuthorizationMessageHandler>();
 
+// so we can inject IHttpClient directly
 builder.Services.AddScoped(sp => sp.GetRequiredService<IHttpClientFactory>()
     .CreateClient("WebAPI"));
 
 
-AddServices(builder.Services);
+ConfigureApexCharts(builder.Services);
+ConfigureMudBlazor(builder.Services);
+ConfigureCustomServices(builder.Services);
 await builder.Build().RunAsync();
 
-void AddServices(IServiceCollection services)
-{
-    // ApexCharts Configuration
-    ConfigureApexCharts(services);
-
-    // Custom Services
-    ConfigureCustomServices(services);
-
-    // MudBlazor
-    ConfigureMudBlazor(services);
-}
 
 void ConfigureApexCharts(IServiceCollection services)
 {

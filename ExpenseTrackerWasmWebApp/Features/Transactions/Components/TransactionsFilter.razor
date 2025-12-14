@@ -87,14 +87,9 @@
 @code{
     [Parameter]
     public Func<Task> RefreshDataGridAction { get; set; } = null!;
-
-    public TransactionsFiltersDto Filters { get; set; } = new TransactionsFiltersDto();
-    public TransactionsFiltersDto GetFilters()
-    {
-        return Filters;
-    }
-
     
+    [Parameter]
+    public TransactionsFiltersDto Filters { get; set; } = new TransactionsFiltersDto();
     private async void ClearFilters()
     {
         Filters = new TransactionsFiltersDto();

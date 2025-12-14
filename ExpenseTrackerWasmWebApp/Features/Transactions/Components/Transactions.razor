@@ -1,4 +1,5 @@
 @page "/transactions"
+@attribute [Authorize]
 @using ExpenseTrackerSharedCL.Features.Categories.Dtos
 @using ExpenseTrackerSharedCL.Features.Tags.Dtos
 @using ExpenseTrackerSharedCL.Features.Transactions.Dtos
@@ -63,7 +64,7 @@
                     </MudItem>
                     <MudItem xs="12" Style="padding-top: 0px;">
                         <MudCollapse Expanded="IsFiltersCollapsed">
-                            <TransactionsFilter @ref="FiltersCollapsable" RefreshDataGridAction="ReloadGrid" />
+                            <TransactionsFilter Filters="Filters" RefreshDataGridAction="ReloadGrid" />
                         </MudCollapse>
                     </MudItem>
                 </DesktopContent>
@@ -77,27 +78,11 @@
                     <MudDialog @ref="_filterDialog">
                         <TitleContent>Filters</TitleContent>
                         <DialogContent>
-                            <TransactionsFilter @ref="FiltersPopup" RefreshDataGridAction="ReloadGrid" />
+                            <TransactionsFilter Filters="Filters" RefreshDataGridAction="ReloadGrid" />
                         </DialogContent>
                     </MudDialog>
                 </MobileContent>
             </DynamicContent>
-
-            @* @if (NumberOfTransactions == 0)
-                {
-                    <MudItem xs="12" Class="d-flex justify-center mt-4">
-                        @if (Filters.AreAnyFiltersActive())
-                        {
-                            <MudText Typo="Typo.h5">No transactions found!</MudText>
-                        }
-                        else
-                        {
-                            <MudText Typo="Typo.h5">No transactions created yet!</MudText>
-                        }
-                    </MudItem>
-                }
-                else
-                { *@
             <MudItem xs="12" Style="height: 100%;">
                 <MudPaper Outlined="true" Elevation="1" Class="border-2">
                     <MudDataGrid @ref="@dataGrid" T="TransactionDto" Hover Groupable Height="45vh" ItemSize="30f"
@@ -184,7 +169,6 @@
                     </MudDataGrid>
                 </MudPaper>
             </MudItem>
-            @* } *@
         </MudGrid>
     </MudPaper>
 </MudContainer>
@@ -198,14 +182,8 @@
     [SupplyParameterFromQuery(Name = "isreoccuring")]
     public bool IsReoccuring { get; set; } = false;
     private MudDataGrid<TransactionDto> dataGrid = null!;
-    private int NumberOfTransactions = 0;
+    private int NumberOfTransactions = -1;
     private SortDefinition<TransactionDto>? _currentSort;
-
-    protected override async Task OnInitializedAsync()
-    {
-        await CachedData.InitializeAsync();
-    }
-
     private async Task<GridData<TransactionDto>> ServerReload(GridState<TransactionDto> state)
     {
         TransactionsGridOptionsDto options = new TransactionsGridOptionsDto();
@@ -219,7 +197,7 @@
         }
         options.PageSize = state.PageSize;
         options.CurrentPage = state.Page;
-        options.Filters = GetFilters();
+        options.Filters = Filters;
         var result = await TransactionService.GetTransactions(options);
         return new GridData<TransactionDto>()
         {
@@ -265,7 +243,10 @@
         var parameters = new DialogParameters<TransactionDialog>
         {
             { x => x.TransactionDto, transactionDto },
-            { x => x.IsReoccuring, IsReoccuring }
+            { x => x.IsReoccuring, IsReoccuring },
+            {x => x.RefreshData, new Func<Task>(async () => {
+                await ReloadGrid();
+            })}
         };
 
         var dialog = await DialogService.ShowAsync<TransactionDialog>(title: "Simple Dialog", parameters, options);
@@ -311,7 +292,13 @@
             MaxWidth = MaxWidth.Medium
         };
 
-        var dialog = await DialogService.ShowAsync<DataSeedDialog>(title: "", null!, options);
+        var parameters = new DialogParameters<DataSeedDialog>
+        {
+            {x => x.RefreshData, new Func<Task>(async () => {
+                await ReloadGrid();
+            })}
+        };
+        var dialog = await DialogService.ShowAsync<DataSeedDialog>(title: "", parameters, options);
         var result = await dialog.Result;
 
         if (!result!.Canceled)
@@ -332,7 +319,7 @@
         };
 
         var options = new TransactionsGridOptionsDto();
-        options.Filters = GetFilters();
+        options.Filters = Filters;
         options.IsReoccuring = IsReoccuring;
         options.PageSize = int.MaxValue;
         options.CurrentPage = 0;
@@ -361,41 +348,16 @@
 
     // filters
 
-    public TransactionsFilter FiltersCollapsable { get; set; } = null!;
     bool IsFiltersCollapsed = false;
     private void OnExpandCollapseClick()
     {
         IsFiltersCollapsed = !IsFiltersCollapsed;
     }
+    private TransactionsFiltersDto Filters{get; set;} = new TransactionsFiltersDto();
 
 
     public TransactionsFilter FiltersPopup { get; set; } = null!;
     private MudDialog _filterDialog = null!;
-
-    private TransactionsFiltersDto GetFilters()
-    {
-        if (FiltersCollapsable != null)
-        {
-            return FiltersCollapsable.GetFilters();
-        }
-        else if(FiltersPopup != null)
-        {
-            return FiltersPopup.GetFilters();
-        }
-        return new TransactionsFiltersDto();
-    }
-
-    private bool AreFiltersActive(){
-        if (FiltersCollapsable != null)
-        {
-            return FiltersCollapsable.AreAnyFiltersActive();
-        }
-        else if(FiltersPopup != null)
-        {
-            return FiltersPopup.AreAnyFiltersActive();
-        }
-        return false;
-    }
 
     private async Task OnClickShowFilterDialog()
     {

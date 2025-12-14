@@ -1,4 +1,4 @@
-namespace ExpenseTrackerSharedCL.Features.Login.Dtos
+namespace ExpenseTrackerSharedCL.Features.Auth.Dtos
 {
     public class LoginRequestDto
     {

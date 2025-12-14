@@ -1,8 +1,15 @@
+@using ExpenseTrackerWasmWebApp.Services
 @using MudBlazor
 @using ExpenseTrackerSharedCL.Features.DataSeeding.Dtos
 @using System.Net.Http.Headers
 @inject ISnackbar Snackbar
 @inject HttpClient Http
+@inject CachedDataService CachedData
+
+<div>
+<MudOverlay Visible="Loading" DarkBackground="true" Absolute="true" >
+    <MudProgressCircular Color="Color.Secondary" Indeterminate="true" />
+</MudOverlay>
 <MudDialog>
     <TitleContent>
         <MudText Typo="Typo.h5">
@@ -10,53 +17,51 @@
         </MudText>
     </TitleContent>
         <DialogContent>
-        @if(Loading){
-        <MudProgressCircular Indeterminate="true" Size="Size.Large" />
-        }
-        else{
-            <MudGrid>
-                <MudItem xd = "12">
-                    <MudAlert Severity="Severity.Info" Elevation="0" Variant="Variant.Filled" Class="mb-4">
-                        You are about to seed sample transaction data into your account. This action will delete all existing accounts, categories, tags, and transactions and will create new sample data. This action cannot be undone.
-                    </MudAlert>
-                </MudItem>
-                <MudItem xs="12">
-                    <MudForm  @ref="form">
-                        <MudNumericField @bind-Value="DataSeedOptionsDto.NumberOfTransaction" Label="Number of Transactions" Variant="Variant.Outlined"
-                            Required="true" RequiredError="Number of Transactions is required!" Min="1" Max="10000">
-                        </MudNumericField>
-                        <MudNumericField @bind-Value="DataSeedOptionsDto.TransactionMinAmount" Label="Transaction Minimum Amount" Variant="Variant.Outlined"
-                            Required="true" RequiredError="Transaction Minimum Amount is required!" Min="1">
-                        </MudNumericField>
-                        <MudNumericField @bind-Value="DataSeedOptionsDto.TransactionMaxAmount" Label="Transaction Maximum Amount" Variant="Variant.Outlined"
-                            Required="true" RequiredError="Transaction Maximum Amount is required!" Min="1" Max="1000000">
-                        </MudNumericField>
-                        <MudDatePicker @bind-Date="DataSeedOptionsDto.TransactionStartDate" Label="Transaction Start Date" Variant="Variant.Outlined"
-                                Required="true" RequiredError="Transaction Start Date is required!" />
+                <MudGrid>
+                    <MudItem xd = "12">
+                        <MudAlert Severity="Severity.Info" Elevation="0" Variant="Variant.Filled" Class="mb-4">
+                            You are about to seed sample transaction data into your account. This action will delete all existing accounts, categories, tags, and transactions and will create new sample data. This action cannot be undone.
+                        </MudAlert>
+                    </MudItem>
+                    <MudItem xs="12">
+                        <MudForm  @ref="form">
+                            <MudNumericField @bind-Value="DataSeedOptionsDto.NumberOfTransaction" Label="Number of Transactions" Variant="Variant.Outlined"
+                                Required="true" RequiredError="Number of Transactions is required!" Min="1" Max="10000">
+                            </MudNumericField>
+                            <MudNumericField @bind-Value="DataSeedOptionsDto.TransactionMinAmount" Label="Transaction Minimum Amount" Variant="Variant.Outlined"
+                                Required="true" RequiredError="Transaction Minimum Amount is required!" Min="1">
+                            </MudNumericField>
+                            <MudNumericField @bind-Value="DataSeedOptionsDto.TransactionMaxAmount" Label="Transaction Maximum Amount" Variant="Variant.Outlined"
+                                Required="true" RequiredError="Transaction Maximum Amount is required!" Min="1" Max="1000000">
+                            </MudNumericField>
+                            <MudDatePicker @bind-Date="DataSeedOptionsDto.TransactionStartDate" Label="Transaction Start Date" Variant="Variant.Outlined"
+                                    Required="true" RequiredError="Transaction Start Date is required!" />
 
-                        <MudDatePicker @bind-Date="DataSeedOptionsDto.TransactionEndDate" Label="Transaction End Date" Variant="Variant.Outlined"
-                                Required="true" RequiredError="Transaction End Date is required!" />
+                            <MudDatePicker @bind-Date="DataSeedOptionsDto.TransactionEndDate" Label="Transaction End Date" Variant="Variant.Outlined"
+                                    Required="true" RequiredError="Transaction End Date is required!" />
 
-                        <MudNumericField @bind-Value="DataSeedOptionsDto.MaxNumberOfTags" Label="Maximum Number of Tags per Transaction" Variant="Variant.Outlined"
-                            Required="true" RequiredError="Maximum Number of Tags is required!" Min="0" Max="10">
-                        </MudNumericField>
-                    </MudForm>
-                </MudItem>
-                <MudItem xs="12" Class="d-flex justify-end gap-2 mt-6">
-                    <MudButton OnClick="Cancel" Variant="Variant.Outlined">Cancel</MudButton>
-                    <MudButton OnClick="Seed" Color="Color.Primary" Variant="Variant.Filled">Seed</MudButton>
-                </MudItem>
-            </MudGrid>
-        }
+                            <MudNumericField @bind-Value="DataSeedOptionsDto.MaxNumberOfTags" Label="Maximum Number of Tags per Transaction" Variant="Variant.Outlined"
+                                Required="true" RequiredError="Maximum Number of Tags is required!" Min="0" Max="10">
+                            </MudNumericField>
+                        </MudForm>
+                    </MudItem>
+                    <MudItem xs="12" Class="d-flex justify-end gap-2 mt-6">
+                        <MudButton OnClick="Cancel" Variant="Variant.Outlined">Cancel</MudButton>
+                        <MudButton OnClick="Seed" Color="Color.Primary" Variant="Variant.Filled">Seed</MudButton>
+                    </MudItem>
+                </MudGrid>
         </DialogContent>
     
 </MudDialog>
-
+</div>
 @code{
     MudForm? form = null!;
 
     [CascadingParameter]
     private IMudDialogInstance? MudDialog { get; set; } = null!;
+
+    [Parameter]
+    public Func<Task> RefreshData{get; set;} = null!;
 
     private bool Loading = false;
     private DataSeedOptionsDto DataSeedOptionsDto = new DataSeedOptionsDto();
@@ -64,6 +69,7 @@
     private async Task Seed()
     {
         Loading = true;
+        StateHasChanged();
 
         try
         {
@@ -76,7 +82,12 @@
             if (response.IsSuccessStatusCode)
             {
                 Snackbar.Add("Data seeded successfully!", Severity.Success);
-                MudDialog!.Close(DialogResult.Ok(result: true));
+                await CachedData.RefreshAll();
+                if(RefreshData != null)
+                {
+                    await RefreshData.Invoke();
+                }
+                Loading = false;
             }
             else
             {

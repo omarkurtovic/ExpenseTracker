@@ -1,5 +1,7 @@
 ﻿@using ApexCharts
 @using ExpenseTrackerSharedCL.Features.UserPreferences.Dtos
+@using ExpenseTrackerWasmWebApp.Services
+@using Microsoft.AspNetCore.Components.Authorization
 @using MudBlazor
 @inherits LayoutComponentBase
 @inject NavigationManager NavigationManager
@@ -7,6 +9,9 @@
 @inject HttpClient Http
 @inject ISnackbar Snackbar
 @inject IApexChartService ApexChartService
+@inject AuthenticationStateProvider AuthStateProvider
+@inject CachedDataService CachedDataService
+@inject Blazored.LocalStorage.ILocalStorageService LocalStorage
 
 <MudThemeProvider @bind-IsDarkMode="@_isDarkMode" Theme="_theme" />
 
@@ -67,7 +72,6 @@
 
 </MudLayout>
 @code {
-
     bool _drawerOpen = true;
 
     void DrawerToggle()
@@ -78,39 +82,26 @@
 
     private bool IsLoggedIn = false;
     private string email = "";
+    private UserPreferenceDto userPreferenceDto = new UserPreferenceDto(){DarkMode = false};
 
     protected override async Task OnInitializedAsync()
     {
-        string url = "api/accounts";
-        var request = new HttpRequestMessage(HttpMethod.Get, url);
-        var response = await Http.SendAsync(request);
-        if(response.IsSuccessStatusCode)
-        {
-            IsLoggedIn = true;
-        }
-        else
-        {
-            IsLoggedIn = false;
-        }
+        var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+        IsLoggedIn = user.Identity?.IsAuthenticated ?? false;
+        email = user.Identity?.Name ?? "";
 
-        if (IsLoggedIn)
+        if(IsLoggedIn && !CachedDataService.IsInitialized)
         {
-            UserPreferenceDto? userPreferenceDto = await GetUserPreferencesDto();
-            if(userPreferenceDto == null)
-            {
-                var result = await SetDefaultUserPreferences();
-                if(!result)
-                {
-                    userPreferenceDto = new();
-                    userPreferenceDto.DarkMode = false;
-                }
-                else
-                {
-                    userPreferenceDto = await GetUserPreferencesDto();
-                }
+            await CachedDataService.InitializeAsync();
+            var uri = NavigationManager.ToBaseRelativePath(NavigationManager.Uri).ToLower();
+            bool UserIsOnLoginOrRegister = uri.StartsWith("login") || uri.StartsWith("register");
+            if(UserIsOnLoginOrRegister){
+                NavigationManager.NavigateTo("/");
             }
-            _isDarkMode = userPreferenceDto!.DarkMode;
         }
+        userPreferenceDto = CachedDataService.GetUserPreferences();
+        _isDarkMode = userPreferenceDto.DarkMode;
     }
 
 
@@ -122,10 +113,12 @@
         }
     }
 
-    private void Logout()
+    private async Task Logout()
     {
-        var theme = _isDarkMode ? "dark" : "light";
-        NavigationManager.NavigateTo($"/api/auth/logout", forceLoad: true);
+        CachedDataService.ClearCache();
+        await LocalStorage.RemoveItemAsync("authToken");
+        Snackbar.Add("You have been logged out.", Severity.Info);
+        NavigationManager.NavigateTo("login");
     }
 
 
@@ -140,7 +133,6 @@
         }
 
         await RefreshGraphs();
-        StateHasChanged();
     }
 
     private async Task RefreshGraphs()
@@ -160,32 +152,9 @@
         }, true);
     }
 
-    private async Task<UserPreferenceDto?> GetUserPreferencesDto()
-    {
-        UserPreferenceDto? userPreferenceDto = null;
-
-        string url = "api/userpreferences";
-        var request = new HttpRequestMessage(HttpMethod.Get, url);
-        var response = await Http.SendAsync(request);
-        if (response.IsSuccessStatusCode)
-        {
-            userPreferenceDto = await response.Content.ReadFromJsonAsync<UserPreferenceDto>();
-        }
-        return userPreferenceDto;
-    }
-
-    private async Task<bool> SetDefaultUserPreferences()
-    {
-        string url = "api/userpreferences/default";
-        var request = new HttpRequestMessage(HttpMethod.Post, url);
-        var response = await Http.SendAsync(request);
-        return response.IsSuccessStatusCode;
-    }
-
     public async Task SetDarkMode(bool isDarkMode)
     {
-        UserPreferenceDto? userPreferenceDto = null;
-        userPreferenceDto = new UserPreferenceDto
+        UserPreferenceDto userPreferenceDto = new UserPreferenceDto
         {
             DarkMode = isDarkMode
         };
@@ -193,6 +162,10 @@
         string url = "api/userpreferences";
         var request = new HttpRequestMessage(HttpMethod.Put, url);
         var response = await Http.SendAsync(request);
+        if(response.IsSuccessStatusCode){
+            await CachedDataService.RefreshUserPreferencesAsync();
+            userPreferenceDto = CachedDataService.GetUserPreferences();
+        }
     }
 
 }

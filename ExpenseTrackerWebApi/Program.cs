@@ -10,64 +10,54 @@ using Microsoft.AspNetCore.Identity;
 
 var builder = WebApplication.CreateBuilder(args);
 
-const string CorsPolicy = "WasmOrigin";
-
-SetupCulture();
-ConfigureServices(builder.Services, builder.Environment);
+builder.Services.AddControllers();
+ConfigureDatabase(builder.Services, builder.Environment);
+ConfigureAuthentication(builder.Services);
+ConfigureMediatR(builder.Services);
 
 var app = builder.Build();
 
-InitalizeDatabase(app);
+InitializeDatabase(app);
 
 app.UseHttpsRedirection();
-app.UseCors(CorsPolicy);
+app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
+
+app.UseBlazorFrameworkFiles();
+app.UseStaticFiles();
 app.MapControllers();
+app.MapFallbackToFile("index.html");
+
+
+
+
 app.Run();
 
 
-void SetupCulture()
-{
-    var culture = new CultureInfo("en-US");
-    CultureInfo.DefaultThreadCurrentCulture = culture;
-    CultureInfo.DefaultThreadCurrentUICulture = culture;
-}
 
-
-void ConfigureServices(IServiceCollection services, IWebHostEnvironment env)
+void ConfigureDatabase(IServiceCollection services, IWebHostEnvironment env)
 {
-    services.AddControllers();
-    services.AddCors(options =>
-    {
-        options.AddPolicy(CorsPolicy, policy =>
-            policy.WithOrigins(
-                "http://localhost:5003",
-                "https://localhost:5003"
-            )
-            .AllowAnyHeader()
-            .AllowAnyMethod()
-            .AllowCredentials());
-    });
-    
-    ConfigureDatabase(services, env);
-    ConfigureAuthentication(services);
-    ConfigureMediatR(services);
-    ConfigureValidation(services);
+    if (env.IsDevelopment())
+        services.AddDbContext<AppDbContext>(options =>
+            options.UseSqlite("Data Source=app.db"));
+    else
+        services.AddDbContext<AppDbContext>(options =>
+            options.UseSqlite("Data Source=/home/app.db"));
 }
 
 void ConfigureAuthentication(IServiceCollection services)
 {
-    // Identity MUST come first
     services.AddIdentity<IdentityUser, IdentityRole>()
         .AddEntityFrameworkStores<AppDbContext>()
         .AddDefaultTokenProviders();
-
-    // Then configure authentication with JWT as the default scheme
+        
     services.AddAuthentication(options =>
     {
         options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
         options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+        options.DefaultSignInScheme = JwtBearerDefaults.AuthenticationScheme;
+        options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
     })
     .AddJwtBearer(options =>
     {
@@ -82,20 +72,9 @@ void ConfigureAuthentication(IServiceCollection services)
             IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("YourSuperSecretKeyThatIsAtLeast32CharactersLongForSecurity"))
         };
     });
-
     services.AddAuthorization();
-}
 
-
-
-void ConfigureDatabase(IServiceCollection services, IWebHostEnvironment env)
-{
-    if (env.IsDevelopment())
-        services.AddDbContext<AppDbContext>(options =>
-            options.UseSqlite("Data Source=app.db"));
-    else
-        services.AddDbContext<AppDbContext>(options =>
-            options.UseSqlite("Data Source=/home/app.db"));
+    
 }
 
 void ConfigureMediatR(IServiceCollection services)
@@ -106,14 +85,10 @@ void ConfigureMediatR(IServiceCollection services)
         options.AddOpenBehavior(typeof(PerformanceBehaviour<,>));
         options.AddOpenBehavior(typeof(ValidationBehavior<,>));
     });
-}
-
-void ConfigureValidation(IServiceCollection services)
-{
     services.AddValidatorsFromAssembly(typeof(Program).Assembly, includeInternalTypes: true);
 }
 
-void InitalizeDatabase(WebApplication app)
+void InitializeDatabase(WebApplication app)
 {
 
     using var scope = app.Services.CreateScope();
