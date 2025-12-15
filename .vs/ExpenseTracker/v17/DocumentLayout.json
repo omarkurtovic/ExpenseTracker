@@ -1,0 +1,400 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "C:\\Users\\omark\\Desktop\\info\\vs code\\ExpenseTracker\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{17125588-70E8-4AFD-B38D-A70A7193381D}|ExpenseTrackerWebApi\\ExpenseTrackerWebApi.csproj|c:\\users\\omark\\desktop\\info\\vs code\\expensetracker\\expensetrackerwebapi\\features\\dashboard\\controllers\\dashboardcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{17125588-70E8-4AFD-B38D-A70A7193381D}|ExpenseTrackerWebApi\\ExpenseTrackerWebApi.csproj|solutionrelative:expensetrackerwebapi\\features\\dashboard\\controllers\\dashboardcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{17125588-70E8-4AFD-B38D-A70A7193381D}|ExpenseTrackerWebApi\\ExpenseTrackerWebApi.csproj|c:\\users\\omark\\desktop\\info\\vs code\\expensetracker\\expensetrackerwebapi\\features\\auth\\components\\login.razor||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{17125588-70E8-4AFD-B38D-A70A7193381D}|ExpenseTrackerWebApi\\ExpenseTrackerWebApi.csproj|solutionrelative:expensetrackerwebapi\\features\\auth\\components\\login.razor||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{17125588-70E8-4AFD-B38D-A70A7193381D}|ExpenseTrackerWebApi\\ExpenseTrackerWebApi.csproj|c:\\users\\omark\\desktop\\info\\vs code\\expensetracker\\expensetrackerwebapi\\features\\auth\\identityredirectmanager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{17125588-70E8-4AFD-B38D-A70A7193381D}|ExpenseTrackerWebApi\\ExpenseTrackerWebApi.csproj|solutionrelative:expensetrackerwebapi\\features\\auth\\identityredirectmanager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{17125588-70E8-4AFD-B38D-A70A7193381D}|ExpenseTrackerWebApi\\ExpenseTrackerWebApi.csproj|c:\\users\\omark\\desktop\\info\\vs code\\expensetracker\\expensetrackerwebapi\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{17125588-70E8-4AFD-B38D-A70A7193381D}|ExpenseTrackerWebApi\\ExpenseTrackerWebApi.csproj|solutionrelative:expensetrackerwebapi\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{427FC4E9-8C46-41B1-ADEA-64CE81D7D213}|ExpenseTrackerWasmWebApp\\ExpenseTrackerWasmWebApp.csproj|c:\\users\\omark\\desktop\\info\\vs code\\expensetracker\\expensetrackerwasmwebapp\\features\\dashboard\\services\\dashboardservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{427FC4E9-8C46-41B1-ADEA-64CE81D7D213}|ExpenseTrackerWasmWebApp\\ExpenseTrackerWasmWebApp.csproj|solutionrelative:expensetrackerwasmwebapp\\features\\dashboard\\services\\dashboardservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{17125588-70E8-4AFD-B38D-A70A7193381D}|ExpenseTrackerWebApi\\ExpenseTrackerWebApi.csproj|c:\\users\\omark\\desktop\\info\\vs code\\expensetracker\\expensetrackerwebapi\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
+      "RelativeMoniker": "D:0:0:{17125588-70E8-4AFD-B38D-A70A7193381D}|ExpenseTrackerWebApi\\ExpenseTrackerWebApi.csproj|solutionrelative:expensetrackerwebapi\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{427FC4E9-8C46-41B1-ADEA-64CE81D7D213}|ExpenseTrackerWasmWebApp\\ExpenseTrackerWasmWebApp.csproj|c:\\users\\omark\\desktop\\info\\vs code\\expensetracker\\expensetrackerwasmwebapp\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{427FC4E9-8C46-41B1-ADEA-64CE81D7D213}|ExpenseTrackerWasmWebApp\\ExpenseTrackerWasmWebApp.csproj|solutionrelative:expensetrackerwasmwebapp\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{427FC4E9-8C46-41B1-ADEA-64CE81D7D213}|ExpenseTrackerWasmWebApp\\ExpenseTrackerWasmWebApp.csproj|c:\\users\\omark\\desktop\\info\\vs code\\expensetracker\\expensetrackerwasmwebapp\\_imports.razor||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{427FC4E9-8C46-41B1-ADEA-64CE81D7D213}|ExpenseTrackerWasmWebApp\\ExpenseTrackerWasmWebApp.csproj|solutionrelative:expensetrackerwasmwebapp\\_imports.razor||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{427FC4E9-8C46-41B1-ADEA-64CE81D7D213}|ExpenseTrackerWasmWebApp\\ExpenseTrackerWasmWebApp.csproj|c:\\users\\omark\\desktop\\info\\vs code\\expensetracker\\expensetrackerwasmwebapp\\features\\dashboard\\components\\dashboard.razor||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{427FC4E9-8C46-41B1-ADEA-64CE81D7D213}|ExpenseTrackerWasmWebApp\\ExpenseTrackerWasmWebApp.csproj|solutionrelative:expensetrackerwasmwebapp\\features\\dashboard\\components\\dashboard.razor||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{17125588-70E8-4AFD-B38D-A70A7193381D}|ExpenseTrackerWebApi\\ExpenseTrackerWebApi.csproj|c:\\users\\omark\\desktop\\info\\vs code\\expensetracker\\expensetrackerwebapi\\features\\auth\\components\\register.razor||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{17125588-70E8-4AFD-B38D-A70A7193381D}|ExpenseTrackerWebApi\\ExpenseTrackerWebApi.csproj|solutionrelative:expensetrackerwebapi\\features\\auth\\components\\register.razor||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{17125588-70E8-4AFD-B38D-A70A7193381D}|ExpenseTrackerWebApi\\ExpenseTrackerWebApi.csproj|c:\\users\\omark\\desktop\\info\\vs code\\expensetracker\\expensetrackerwebapi\\_imports.razor||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{17125588-70E8-4AFD-B38D-A70A7193381D}|ExpenseTrackerWebApi\\ExpenseTrackerWebApi.csproj|solutionrelative:expensetrackerwebapi\\_imports.razor||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{17125588-70E8-4AFD-B38D-A70A7193381D}|ExpenseTrackerWebApi\\ExpenseTrackerWebApi.csproj|c:\\users\\omark\\desktop\\info\\vs code\\expensetracker\\expensetrackerwebapi\\features\\sharedkernel\\components\\error.razor||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{17125588-70E8-4AFD-B38D-A70A7193381D}|ExpenseTrackerWebApi\\ExpenseTrackerWebApi.csproj|solutionrelative:expensetrackerwebapi\\features\\sharedkernel\\components\\error.razor||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{17125588-70E8-4AFD-B38D-A70A7193381D}|ExpenseTrackerWebApi\\ExpenseTrackerWebApi.csproj|c:\\users\\omark\\desktop\\info\\vs code\\expensetracker\\expensetrackerwebapi\\features\\sharedkernel\\components\\home.razor||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{17125588-70E8-4AFD-B38D-A70A7193381D}|ExpenseTrackerWebApi\\ExpenseTrackerWebApi.csproj|solutionrelative:expensetrackerwebapi\\features\\sharedkernel\\components\\home.razor||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{17125588-70E8-4AFD-B38D-A70A7193381D}|ExpenseTrackerWebApi\\ExpenseTrackerWebApi.csproj|c:\\users\\omark\\desktop\\info\\vs code\\expensetracker\\expensetrackerwebapi\\app.razor||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{17125588-70E8-4AFD-B38D-A70A7193381D}|ExpenseTrackerWebApi\\ExpenseTrackerWebApi.csproj|solutionrelative:expensetrackerwebapi\\app.razor||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{17125588-70E8-4AFD-B38D-A70A7193381D}|ExpenseTrackerWebApi\\ExpenseTrackerWebApi.csproj|c:\\users\\omark\\desktop\\info\\vs code\\expensetracker\\expensetrackerwebapi\\routes.razor||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{17125588-70E8-4AFD-B38D-A70A7193381D}|ExpenseTrackerWebApi\\ExpenseTrackerWebApi.csproj|solutionrelative:expensetrackerwebapi\\routes.razor||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{17125588-70E8-4AFD-B38D-A70A7193381D}|ExpenseTrackerWebApi\\ExpenseTrackerWebApi.csproj|c:\\users\\omark\\desktop\\info\\vs code\\expensetracker\\expensetrackerwebapi\\features\\sharedkernel\\layout\\mainlayout.razor||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{17125588-70E8-4AFD-B38D-A70A7193381D}|ExpenseTrackerWebApi\\ExpenseTrackerWebApi.csproj|solutionrelative:expensetrackerwebapi\\features\\sharedkernel\\layout\\mainlayout.razor||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{17125588-70E8-4AFD-B38D-A70A7193381D}|ExpenseTrackerWebApi\\ExpenseTrackerWebApi.csproj|c:\\users\\omark\\desktop\\info\\vs code\\expensetracker\\expensetrackerwebapi\\properties\\launchsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
+      "RelativeMoniker": "D:0:0:{17125588-70E8-4AFD-B38D-A70A7193381D}|ExpenseTrackerWebApi\\ExpenseTrackerWebApi.csproj|solutionrelative:expensetrackerwebapi\\properties\\launchsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{427FC4E9-8C46-41B1-ADEA-64CE81D7D213}|ExpenseTrackerWasmWebApp\\ExpenseTrackerWasmWebApp.csproj|c:\\users\\omark\\desktop\\info\\vs code\\expensetracker\\expensetrackerwasmwebapp\\features\\dataseeding\\components\\dataseeddialog.razor||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{427FC4E9-8C46-41B1-ADEA-64CE81D7D213}|ExpenseTrackerWasmWebApp\\ExpenseTrackerWasmWebApp.csproj|solutionrelative:expensetrackerwasmwebapp\\features\\dataseeding\\components\\dataseeddialog.razor||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 15,
+          "Children": [
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{b1e99781-ab81-11d0-b683-00aa00a3ee26}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{18e1c256-ac83-3310-a9c0-01b5de508316}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{c478b6ac-54a8-3bd5-bc46-494f58b422c9}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{01321f1c-6c9e-3b5b-9c0f-66d2a373c254}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{f6c90d9a-1aa8-32e5-baac-467b7262213c}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{33c88fe3-43b3-374e-9aac-c4679036dce0}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{e1b7d1f8-9b3c-49b1-8f4f-bfc63a88835d}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:2:0:{57d563b6-44a5-47df-85be-f4199ad6b651}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:1:0:{7f40df72-066b-4810-a08b-c0fbed76c948}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:4:0:{57d563b6-44a5-47df-85be-f4199ad6b651}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:6:0:{57d563b6-44a5-47df-85be-f4199ad6b651}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{26341fe2-71dd-46fd-bb1b-2e51a92a0d64}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{7d1a5679-04f2-3f4a-851f-855baa54731c}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{57d563b6-44a5-47df-85be-f4199ad6b651}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{aa2115a1-9712-457b-9047-dbb71ca2cdd2}"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "DashboardController.cs",
+              "DocumentMoniker": "C:\\Users\\omark\\Desktop\\info\\vs code\\ExpenseTracker\\ExpenseTrackerWebApi\\Features\\Dashboard\\Controllers\\DashboardController.cs",
+              "RelativeDocumentMoniker": "ExpenseTrackerWebApi\\Features\\Dashboard\\Controllers\\DashboardController.cs",
+              "ToolTip": "C:\\Users\\omark\\Desktop\\info\\vs code\\ExpenseTracker\\ExpenseTrackerWebApi\\Features\\Dashboard\\Controllers\\DashboardController.cs",
+              "RelativeToolTip": "ExpenseTrackerWebApi\\Features\\Dashboard\\Controllers\\DashboardController.cs",
+              "ViewState": "AgIAAAsAAAAAAAAAAAAxwBMAAAAnAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-12-15T15:37:58.989Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 6,
+              "Title": "Program.cs",
+              "DocumentMoniker": "C:\\Users\\omark\\Desktop\\info\\vs code\\ExpenseTracker\\ExpenseTrackerWasmWebApp\\Program.cs",
+              "RelativeDocumentMoniker": "ExpenseTrackerWasmWebApp\\Program.cs",
+              "ToolTip": "C:\\Users\\omark\\Desktop\\info\\vs code\\ExpenseTracker\\ExpenseTrackerWasmWebApp\\Program.cs",
+              "RelativeToolTip": "ExpenseTrackerWasmWebApp\\Program.cs",
+              "ViewState": "AgIAAA8AAAAAAAAAAAAAADkAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-12-15T15:09:05.625Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "appsettings.json",
+              "DocumentMoniker": "C:\\Users\\omark\\Desktop\\info\\vs code\\ExpenseTracker\\ExpenseTrackerWebApi\\appsettings.json",
+              "RelativeDocumentMoniker": "ExpenseTrackerWebApi\\appsettings.json",
+              "ToolTip": "C:\\Users\\omark\\Desktop\\info\\vs code\\ExpenseTracker\\ExpenseTrackerWebApi\\appsettings.json",
+              "RelativeToolTip": "ExpenseTrackerWebApi\\appsettings.json",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
+              "WhenOpened": "2025-12-15T15:26:27.367Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "Login.razor",
+              "DocumentMoniker": "C:\\Users\\omark\\Desktop\\info\\vs code\\ExpenseTracker\\ExpenseTrackerWebApi\\Features\\Auth\\Components\\Login.razor",
+              "RelativeDocumentMoniker": "ExpenseTrackerWebApi\\Features\\Auth\\Components\\Login.razor",
+              "ToolTip": "C:\\Users\\omark\\Desktop\\info\\vs code\\ExpenseTracker\\ExpenseTrackerWebApi\\Features\\Auth\\Components\\Login.razor",
+              "RelativeToolTip": "ExpenseTrackerWebApi\\Features\\Auth\\Components\\Login.razor",
+              "ViewState": "AgIAADEAAAAAAAAAAAAAAEkAAAAIAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2025-12-15T13:34:34.316Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "Program.cs",
+              "DocumentMoniker": "C:\\Users\\omark\\Desktop\\info\\vs code\\ExpenseTracker\\ExpenseTrackerWebApi\\Program.cs",
+              "RelativeDocumentMoniker": "ExpenseTrackerWebApi\\Program.cs",
+              "ToolTip": "C:\\Users\\omark\\Desktop\\info\\vs code\\ExpenseTracker\\ExpenseTrackerWebApi\\Program.cs",
+              "RelativeToolTip": "ExpenseTrackerWebApi\\Program.cs",
+              "ViewState": "AgIAAEsAAAAAAAAAAAAUwG8AAAANAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-12-15T15:19:46.052Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "IdentityRedirectManager.cs",
+              "DocumentMoniker": "C:\\Users\\omark\\Desktop\\info\\vs code\\ExpenseTracker\\ExpenseTrackerWebApi\\Features\\Auth\\IdentityRedirectManager.cs",
+              "RelativeDocumentMoniker": "ExpenseTrackerWebApi\\Features\\Auth\\IdentityRedirectManager.cs",
+              "ToolTip": "C:\\Users\\omark\\Desktop\\info\\vs code\\ExpenseTracker\\ExpenseTrackerWebApi\\Features\\Auth\\IdentityRedirectManager.cs",
+              "RelativeToolTip": "ExpenseTrackerWebApi\\Features\\Auth\\IdentityRedirectManager.cs",
+              "ViewState": "AgIAAAgAAAAAAAAAAAAQwB4AAAAMAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-12-15T15:05:54.554Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "DashboardService.cs",
+              "DocumentMoniker": "C:\\Users\\omark\\Desktop\\info\\vs code\\ExpenseTracker\\ExpenseTrackerWasmWebApp\\Features\\Dashboard\\Services\\DashboardService.cs",
+              "RelativeDocumentMoniker": "ExpenseTrackerWasmWebApp\\Features\\Dashboard\\Services\\DashboardService.cs",
+              "ToolTip": "C:\\Users\\omark\\Desktop\\info\\vs code\\ExpenseTracker\\ExpenseTrackerWasmWebApp\\Features\\Dashboard\\Services\\DashboardService.cs",
+              "RelativeToolTip": "ExpenseTrackerWasmWebApp\\Features\\Dashboard\\Services\\DashboardService.cs",
+              "ViewState": "AgIAAAUAAAAAAAAAAAAqwA8AAAAPAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-12-15T15:12:11.5Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 7,
+              "Title": "_Imports.razor",
+              "DocumentMoniker": "C:\\Users\\omark\\Desktop\\info\\vs code\\ExpenseTracker\\ExpenseTrackerWasmWebApp\\_Imports.razor",
+              "RelativeDocumentMoniker": "ExpenseTrackerWasmWebApp\\_Imports.razor",
+              "ToolTip": "C:\\Users\\omark\\Desktop\\info\\vs code\\ExpenseTracker\\ExpenseTrackerWasmWebApp\\_Imports.razor",
+              "RelativeToolTip": "ExpenseTrackerWasmWebApp\\_Imports.razor",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2025-12-15T13:35:21.882Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 8,
+              "Title": "Dashboard.razor",
+              "DocumentMoniker": "C:\\Users\\omark\\Desktop\\info\\vs code\\ExpenseTracker\\ExpenseTrackerWasmWebApp\\Features\\Dashboard\\Components\\Dashboard.razor",
+              "RelativeDocumentMoniker": "ExpenseTrackerWasmWebApp\\Features\\Dashboard\\Components\\Dashboard.razor",
+              "ToolTip": "C:\\Users\\omark\\Desktop\\info\\vs code\\ExpenseTracker\\ExpenseTrackerWasmWebApp\\Features\\Dashboard\\Components\\Dashboard.razor",
+              "RelativeToolTip": "ExpenseTrackerWasmWebApp\\Features\\Dashboard\\Components\\Dashboard.razor",
+              "ViewState": "AgIAAAMAAAAAAAAAAAAAABQAAAAkAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2025-12-15T15:11:02.381Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 10,
+              "Title": "_Imports.razor",
+              "DocumentMoniker": "C:\\Users\\omark\\Desktop\\info\\vs code\\ExpenseTracker\\ExpenseTrackerWebApi\\_Imports.razor",
+              "RelativeDocumentMoniker": "ExpenseTrackerWebApi\\_Imports.razor",
+              "ToolTip": "C:\\Users\\omark\\Desktop\\info\\vs code\\ExpenseTracker\\ExpenseTrackerWebApi\\_Imports.razor",
+              "RelativeToolTip": "ExpenseTrackerWebApi\\_Imports.razor",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAUAAAAqAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2025-12-15T13:38:11.357Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 13,
+              "Title": "App.razor",
+              "DocumentMoniker": "C:\\Users\\omark\\Desktop\\info\\vs code\\ExpenseTracker\\ExpenseTrackerWebApi\\App.razor",
+              "RelativeDocumentMoniker": "ExpenseTrackerWebApi\\App.razor",
+              "ToolTip": "C:\\Users\\omark\\Desktop\\info\\vs code\\ExpenseTracker\\ExpenseTrackerWebApi\\App.razor",
+              "RelativeToolTip": "ExpenseTrackerWebApi\\App.razor",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAcAAAA3AAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2025-12-15T14:17:14.796Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 11,
+              "Title": "Error.razor",
+              "DocumentMoniker": "C:\\Users\\omark\\Desktop\\info\\vs code\\ExpenseTracker\\ExpenseTrackerWebApi\\Features\\SharedKernel\\Components\\Error.razor",
+              "RelativeDocumentMoniker": "ExpenseTrackerWebApi\\Features\\SharedKernel\\Components\\Error.razor",
+              "ToolTip": "C:\\Users\\omark\\Desktop\\info\\vs code\\ExpenseTracker\\ExpenseTrackerWebApi\\Features\\SharedKernel\\Components\\Error.razor",
+              "RelativeToolTip": "ExpenseTrackerWebApi\\Features\\SharedKernel\\Components\\Error.razor",
+              "ViewState": "AgIAAA8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2025-12-15T14:21:38.481Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 9,
+              "Title": "Register.razor",
+              "DocumentMoniker": "C:\\Users\\omark\\Desktop\\info\\vs code\\ExpenseTracker\\ExpenseTrackerWebApi\\Features\\Auth\\Components\\Register.razor",
+              "RelativeDocumentMoniker": "ExpenseTrackerWebApi\\Features\\Auth\\Components\\Register.razor",
+              "ToolTip": "C:\\Users\\omark\\Desktop\\info\\vs code\\ExpenseTracker\\ExpenseTrackerWebApi\\Features\\Auth\\Components\\Register.razor",
+              "RelativeToolTip": "ExpenseTrackerWebApi\\Features\\Auth\\Components\\Register.razor",
+              "ViewState": "AgIAADAAAAAAAAAAAAAAAAEAAAAdAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2025-12-15T14:34:43.413Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 12,
+              "Title": "Home.razor",
+              "DocumentMoniker": "C:\\Users\\omark\\Desktop\\info\\vs code\\ExpenseTracker\\ExpenseTrackerWebApi\\Features\\SharedKernel\\Components\\Home.razor",
+              "RelativeDocumentMoniker": "ExpenseTrackerWebApi\\Features\\SharedKernel\\Components\\Home.razor",
+              "ToolTip": "C:\\Users\\omark\\Desktop\\info\\vs code\\ExpenseTracker\\ExpenseTrackerWebApi\\Features\\SharedKernel\\Components\\Home.razor",
+              "RelativeToolTip": "ExpenseTrackerWebApi\\Features\\SharedKernel\\Components\\Home.razor",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2025-12-15T13:33:18.63Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 14,
+              "Title": "Routes.razor",
+              "DocumentMoniker": "C:\\Users\\omark\\Desktop\\info\\vs code\\ExpenseTracker\\ExpenseTrackerWebApi\\Routes.razor",
+              "RelativeDocumentMoniker": "ExpenseTrackerWebApi\\Routes.razor",
+              "ToolTip": "C:\\Users\\omark\\Desktop\\info\\vs code\\ExpenseTracker\\ExpenseTrackerWebApi\\Routes.razor",
+              "RelativeToolTip": "ExpenseTrackerWebApi\\Routes.razor",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAIAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2025-12-15T13:52:54.07Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 15,
+              "Title": "MainLayout.razor",
+              "DocumentMoniker": "C:\\Users\\omark\\Desktop\\info\\vs code\\ExpenseTracker\\ExpenseTrackerWebApi\\Features\\SharedKernel\\Layout\\MainLayout.razor",
+              "RelativeDocumentMoniker": "ExpenseTrackerWebApi\\Features\\SharedKernel\\Layout\\MainLayout.razor",
+              "ToolTip": "C:\\Users\\omark\\Desktop\\info\\vs code\\ExpenseTracker\\ExpenseTrackerWebApi\\Features\\SharedKernel\\Layout\\MainLayout.razor",
+              "RelativeToolTip": "ExpenseTrackerWebApi\\Features\\SharedKernel\\Layout\\MainLayout.razor",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAUAAAAVAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2025-12-15T13:37:56.862Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 16,
+              "Title": "launchSettings.json",
+              "DocumentMoniker": "C:\\Users\\omark\\Desktop\\info\\vs code\\ExpenseTracker\\ExpenseTrackerWebApi\\Properties\\launchSettings.json",
+              "RelativeDocumentMoniker": "ExpenseTrackerWebApi\\Properties\\launchSettings.json",
+              "ToolTip": "C:\\Users\\omark\\Desktop\\info\\vs code\\ExpenseTracker\\ExpenseTrackerWebApi\\Properties\\launchSettings.json",
+              "RelativeToolTip": "ExpenseTrackerWebApi\\Properties\\launchSettings.json",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAEAAAAiAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
+              "WhenOpened": "2025-12-15T13:32:26.848Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 17,
+              "Title": "DataSeedDialog.razor",
+              "DocumentMoniker": "C:\\Users\\omark\\Desktop\\info\\vs code\\ExpenseTracker\\ExpenseTrackerWasmWebApp\\Features\\DataSeeding\\Components\\DataSeedDialog.razor",
+              "RelativeDocumentMoniker": "ExpenseTrackerWasmWebApp\\Features\\DataSeeding\\Components\\DataSeedDialog.razor",
+              "ToolTip": "C:\\Users\\omark\\Desktop\\info\\vs code\\ExpenseTracker\\ExpenseTrackerWasmWebApp\\Features\\DataSeeding\\Components\\DataSeedDialog.razor",
+              "RelativeToolTip": "ExpenseTrackerWasmWebApp\\Features\\DataSeeding\\Components\\DataSeedDialog.razor",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAcAAAArAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2025-12-15T13:29:38.621Z",
+              "EditorCaption": ""
+            }
+          ]
+        },
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": -1,
+          "Children": [
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{d78612c7-9962-4b83-95d9-268046dad23a}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{34e76e81-ee4a-11d0-ae2e-00a0c90fffc3}"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,21 +1,97 @@
-using System.Globalization;
-using FluentValidation;
-using Microsoft.EntityFrameworkCore;
+using ApexCharts;
+using ExpenseTrackerWasmWebApp;
+using ExpenseTrackerWasmWebApp.Features.Accounts.Services;
+using ExpenseTrackerWasmWebApp.Features.Budgets.Services;
+using ExpenseTrackerWasmWebApp.Features.Categories.Services;
+using ExpenseTrackerWasmWebApp.Features.Dashboard.Services;
+using ExpenseTrackerWasmWebApp.Features.DataSeeding.Services;
+using ExpenseTrackerWasmWebApp.Features.Tags.Services;
+using ExpenseTrackerWasmWebApp.Features.Transactions.Services;
+using ExpenseTrackerWebApi;
 using ExpenseTrackerWebApi.Database;
+using ExpenseTrackerWebApi.Features.Auth;
 using ExpenseTrackerWebApi.Features.SharedKernel.Behaviors;
+using ExpenseTrackerWebApi.Features.SharedKernel.Components;
+using FluentValidation;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.IdentityModel.Tokens;
-using System.Text;
+using Microsoft.AspNetCore.Components.WebAssembly.Authentication;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using MudBlazor.Services;
+using System.Globalization;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddControllers();
+builder.Services.AddRazorComponents()
+    .AddInteractiveWebAssemblyComponents()
+    .AddAuthenticationStateSerialization();
+
+
+builder.Services.AddCascadingAuthenticationState();
+builder.Services.AddMudServices();
+builder.Services.AddScoped<IdentityRedirectManager>();
+builder.Services.AddTransient<AccountService>();
+builder.Services.AddTransient<CategoryService>();
+builder.Services.AddTransient<BudgetService>();
+builder.Services.AddTransient<DashboardService>();
+builder.Services.AddTransient<TagService>();
+builder.Services.AddTransient<DataSeedService>();
+builder.Services.AddTransient<TransactionService>();
+
+
+builder.Services.AddHttpClient("WebAPI", client =>
+{
+    var apiUrl = builder.Configuration["ApiSettings:BaseUrl"];
+    client.BaseAddress = new Uri(apiUrl);
+});
+
+builder.Services.AddAuthentication(options =>
+    {
+        options.DefaultScheme = IdentityConstants.ApplicationScheme;
+        options.DefaultSignInScheme = IdentityConstants.ExternalScheme;
+    })
+    .AddIdentityCookies();
+builder.Services.AddAuthorization();
+
 ConfigureDatabase(builder.Services, builder.Environment);
-ConfigureAuthentication(builder.Services);
+
+builder.Services.AddIdentityCore<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = false)
+    .AddEntityFrameworkStores<AppDbContext>()
+    .AddSignInManager()
+    .AddDefaultTokenProviders();
+
+builder.Services.AddControllers();
 ConfigureMediatR(builder.Services);
+builder.Services.ConfigureApplicationCookie(options =>
+{
+    options.LoginPath = "/login";
+});
 
 var app = builder.Build();
+
+if (app.Environment.IsDevelopment())
+{
+    app.UseWebAssemblyDebugging();
+}
+else
+{
+    app.UseExceptionHandler("/Error", createScopeForErrors: true);
+    app.UseHsts();
+}
+app.UseHttpsRedirection();
+
+
+app.UseAntiforgery();
+
+app.MapStaticAssets();
+app.MapRazorComponents<App>()
+    .AddInteractiveWebAssemblyRenderMode()
+    .AddAdditionalAssemblies(typeof(ExpenseTrackerWasmWebApp._Imports).Assembly);
+
+app.Run();
+
 
 InitializeDatabase(app);
 
@@ -27,6 +103,7 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.UseBlazorFrameworkFiles();
 app.UseStaticFiles();
+app.MapStaticAssets();
 
 app.UseRouting();
 app.UseAuthentication();
@@ -47,6 +124,8 @@ void ConfigureDatabase(IServiceCollection services, IWebHostEnvironment env)
     else
         services.AddDbContext<AppDbContext>(options =>
             options.UseSqlite("Data Source=/home/app.db"));
+            
+        
 }
 
 void ConfigureAuthentication(IServiceCollection services)

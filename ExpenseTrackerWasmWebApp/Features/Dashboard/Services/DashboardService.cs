@@ -13,7 +13,7 @@ namespace ExpenseTrackerWasmWebApp.Features.Dashboard.Services
             try
             {
                 var http = _httpClientFactory.CreateClient("WebAPI");
-                var response = await http.GetAsync("api/dashboard");
+               var response = await http.GetAsync("api/dashboard");
                 if (response.IsSuccessStatusCode)
                 {
                     var stats = await response.Content.ReadFromJsonAsync<DashboardSummaryDto>() ?? new DashboardSummaryDto();

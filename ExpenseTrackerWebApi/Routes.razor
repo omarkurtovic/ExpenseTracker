@@ -1,0 +1,13 @@
+@using ExpenseTrackerWasmWebApp.Features.SharedKernel
+@using ExpenseTrackerWebApi.Features.SharedKernel.Layout
+
+<Router AppAssembly="typeof(Program).Assembly" AdditionalAssemblies="new[] { typeof(ExpenseTrackerWasmWebApp._Imports).Assembly }">
+    <Found Context="routeData">
+        <AuthorizeRouteView RouteData="routeData" DefaultLayout="typeof(MainLayout)">
+            <NotAuthorized>
+                <RedirectToLogin />
+            </NotAuthorized>
+        </AuthorizeRouteView>
+        <FocusOnNavigate RouteData="routeData" Selector="h1" />
+    </Found>
+</Router>
