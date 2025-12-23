@@ -5,18 +5,17 @@ using ExpenseTrackerWasmWebApp.Services;
 
 namespace ExpenseTrackerWasmWebApp.Features.Accounts.Services
 {
-    public class AccountService(IHttpClientFactory httpClientFactory)
+    public class AccountService(HttpClient httpClient)
     {
-        private readonly IHttpClientFactory _httpClientFactory = httpClientFactory;
+        private readonly HttpClient _httpClient = httpClient;
 
         public async Task<Result<List<AccountDto>>> GetAccountsAsync()
         {
             try
             {
-                var http = _httpClientFactory.CreateClient("WebAPI");
                 string url = $"api/accounts";
                 var request = new HttpRequestMessage(HttpMethod.Get, url);
-                var response = await http.SendAsync(request);
+                var response = await _httpClient.SendAsync(request);
                 var accounts = new List<AccountDto>();
                 if (response.IsSuccessStatusCode)
                 {
@@ -44,10 +43,9 @@ namespace ExpenseTrackerWasmWebApp.Features.Accounts.Services
         {
             try
             {
-                var http = _httpClientFactory.CreateClient("WebAPI");
                 string url = $"api/accounts/with-balances";
                 var request = new HttpRequestMessage(HttpMethod.Get, url);
-                var response = await http.SendAsync(request);
+                var response = await _httpClient.SendAsync(request);
                 var accounts = new List<AccountWithBalanceDto>();
                 if (response.IsSuccessStatusCode)
                 {
@@ -75,10 +73,9 @@ namespace ExpenseTrackerWasmWebApp.Features.Accounts.Services
         {
             try
             {
-                var http = _httpClientFactory.CreateClient("WebAPI");
                 string url = $"api/accounts/{accountId}";
                 var request = new HttpRequestMessage(HttpMethod.Get, url);
-                var response = await http.SendAsync(request);
+                var response = await _httpClient.SendAsync(request);
                 if (response.IsSuccessStatusCode)
                 {
                     var account = await response.Content.ReadFromJsonAsync<AccountDto>();
@@ -106,12 +103,11 @@ namespace ExpenseTrackerWasmWebApp.Features.Accounts.Services
         {
             try
             {
-                var http = _httpClientFactory.CreateClient("WebAPI");
                 string url = $"api/accounts";
                 var request = new HttpRequestMessage(HttpMethod.Post, url);
                 request.Content = JsonContent.Create(accountDto);
                 request.Content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
-                var response = await http.SendAsync(request);
+                var response = await _httpClient.SendAsync(request);
                 if (response.IsSuccessStatusCode)
                 {
                     return Result.Success();
@@ -138,12 +134,11 @@ namespace ExpenseTrackerWasmWebApp.Features.Accounts.Services
         {
             try
             {
-                var http = _httpClientFactory.CreateClient("WebAPI");
                 string url = $"api/accounts/{accountDto.Id}";
                 var request = new HttpRequestMessage(HttpMethod.Put, url);
                 request.Content = JsonContent.Create(accountDto);
                 request.Content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
-                var response = await http.SendAsync(request);
+                var response = await _httpClient.SendAsync(request);
                 if (response.IsSuccessStatusCode)
                 {
                     return Result.Success();
@@ -169,10 +164,9 @@ namespace ExpenseTrackerWasmWebApp.Features.Accounts.Services
         {
             try
             {
-                var http = _httpClientFactory.CreateClient("WebAPI");
                 string url = $"api/accounts/{accountId}";
                 var request = new HttpRequestMessage(HttpMethod.Delete, url);
-                var response = await http.SendAsync(request);
+                var response = await _httpClient.SendAsync(request);
                 if (response.IsSuccessStatusCode)
                 {
                     return Result.Success();

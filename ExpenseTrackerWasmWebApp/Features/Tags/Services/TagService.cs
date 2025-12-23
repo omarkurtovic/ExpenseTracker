@@ -1,20 +1,20 @@
-using System.Net.Http.Headers;
-using System.Net.Http.Json;
 using ExpenseTrackerSharedCL.Features.Tags.Dtos;
 using ExpenseTrackerWasmWebApp.Services;
+using System.Net.Http;
+using System.Net.Http.Headers;
+using System.Net.Http.Json;
 
 namespace ExpenseTrackerWasmWebApp.Features.Tags.Services;
 
-public class TagService(IHttpClientFactory httpClientFactory)
+public class TagService(HttpClient httpClient)
 {
-    private readonly IHttpClientFactory _httpClientFactory = httpClientFactory;
+    private readonly HttpClient _httpClient = httpClient;
 
     public async Task<Result<List<TagDto>>> GetTagsAsync()
     {
         try
         {
-            var http = _httpClientFactory.CreateClient("WebAPI");
-            var response = await http.GetAsync("api/tags");
+            var response = await _httpClient.GetAsync("api/tags");
             if (response.IsSuccessStatusCode)
             {
                 var tags = await response.Content.ReadFromJsonAsync<List<TagDto>>() ?? new();
@@ -39,11 +39,10 @@ public class TagService(IHttpClientFactory httpClientFactory)
     {
         try
         {
-            var http = _httpClientFactory.CreateClient("WebAPI");
             var request = new HttpRequestMessage(HttpMethod.Post, $"api/tags");
             request.Content = JsonContent.Create(tagDto);
             request.Content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
-            var response = await http.SendAsync(request);
+            var response = await _httpClient.SendAsync(request);
             if (response.IsSuccessStatusCode)
             {
                 var created = await response.Content.ReadFromJsonAsync<TagDto>();
@@ -68,8 +67,7 @@ public class TagService(IHttpClientFactory httpClientFactory)
     {
         try
         {
-            var http = _httpClientFactory.CreateClient("WebAPI");
-            var response = await http.DeleteAsync($"api/tags/{tagId}");
+            var response = await _httpClient.DeleteAsync($"api/tags/{tagId}");
             if (response.IsSuccessStatusCode)
             {
                 return Result.Success();

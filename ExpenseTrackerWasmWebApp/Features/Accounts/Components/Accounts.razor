@@ -1,7 +1,10 @@
 @page "/accounts"
 @attribute [Authorize]
+@layout Layout
+@rendermode InteractiveWebAssembly
 @using ExpenseTrackerSharedCL.Features.Accounts.Dtos
 @using ExpenseTrackerWasmWebApp.Features.Accounts.Services
+@using ExpenseTrackerWasmWebApp.Features.SharedKernel
 @using ExpenseTrackerWasmWebApp.Services
 @using Microsoft.AspNetCore.Authorization
 @using MudBlazor

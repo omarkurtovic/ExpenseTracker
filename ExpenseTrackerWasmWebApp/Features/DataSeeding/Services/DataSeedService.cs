@@ -5,19 +5,18 @@ using ExpenseTrackerWasmWebApp.Services;
 
 namespace ExpenseTrackerWasmWebApp.Features.DataSeeding.Services
 {
-    public class DataSeedService(IHttpClientFactory httpClientFactory)
+    public class DataSeedService(HttpClient httpClient)
     {
-        private readonly IHttpClientFactory _httpClientFactory = httpClientFactory;
+        private readonly HttpClient _httpClient = httpClient;
 
         public async Task<Result> SeedDataAsync(DataSeedOptionsDto dataSeedOptionsDto)
         {
             try
             {
-                var http = _httpClientFactory.CreateClient("WebAPI");
                 var request = new HttpRequestMessage(HttpMethod.Post, $"api/userpreferences");
                 request.Content = JsonContent.Create(dataSeedOptionsDto);
                 request.Content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
-                var response = await http.SendAsync(request);
+                var response = await _httpClient.SendAsync(request);
                 if (response.IsSuccessStatusCode)
                 {
                     return Result.Success();

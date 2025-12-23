@@ -5,16 +5,15 @@ using ExpenseTrackerWasmWebApp.Services;
 
 namespace ExpenseTrackerWasmWebApp.Features.UserPreferences.Services
 {
-    public class UserPreferenceService(IHttpClientFactory httpClientFactory)
+    public class UserPreferenceService(HttpClient httpClient)
     {
-        private readonly IHttpClientFactory _httpClientFactory = httpClientFactory;
+        private readonly HttpClient _httpClient = httpClient;
 
         public async Task<Result<UserPreferenceDto>> GetUserPreferencesAsync()
         {
             try
             {
-                var http = _httpClientFactory.CreateClient("WebAPI");
-                var response = await http.GetAsync("api/userpreferences");
+                var response = await _httpClient.GetAsync("api/userpreferences");
                 if (response.IsSuccessStatusCode)
                 {
                     var preferences = await response.Content.ReadFromJsonAsync<UserPreferenceDto>() ?? new();
@@ -41,11 +40,10 @@ namespace ExpenseTrackerWasmWebApp.Features.UserPreferences.Services
         {
             try
             {
-                var http = _httpClientFactory.CreateClient("WebAPI");
                 var request = new HttpRequestMessage(HttpMethod.Put, $"api/userpreferences");
                 request.Content = JsonContent.Create(preferenceDto);
                 request.Content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
-                var response = await http.SendAsync(request);
+                var response = await _httpClient.SendAsync(request);
                 if (response.IsSuccessStatusCode)
                 {
                     return Result.Success();

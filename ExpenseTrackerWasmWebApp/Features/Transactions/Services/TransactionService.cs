@@ -6,16 +6,15 @@ using ExpenseTrackerWasmWebApp.Services;
 
 namespace ExpenseTrackerWasmWebApp.Features.Transactions.Services;
 
-public class TransactionService(IHttpClientFactory httpClientFactory)
+public class TransactionService(HttpClient httpClient)
 {
-    private readonly IHttpClientFactory _httpClientFactory = httpClientFactory;
+    private readonly HttpClient _httpClient = httpClient;
 
     public async Task<Result<TransactionsPageDataDto>> GetTransactionsAsync(TransactionsGridOptionsDto options)
     {
         try
         {
-            var http = _httpClientFactory.CreateClient("WebAPI");
-            var response = await http.PostAsJsonAsync("api/transactions/search", options);
+            var response = await _httpClient.PostAsJsonAsync("api/transactions/search", options);
             if (response.IsSuccessStatusCode)
             {
                 var transactions = await response.Content.ReadFromJsonAsync<TransactionsPageDataDto>() ?? new();
@@ -40,8 +39,7 @@ public class TransactionService(IHttpClientFactory httpClientFactory)
     {
         try
         {
-            var http = _httpClientFactory.CreateClient("WebAPI");
-            var response = await http.DeleteAsync($"api/transactions/{transactionId}");
+            var response = await _httpClient.DeleteAsync($"api/transactions/{transactionId}");
             if (response.IsSuccessStatusCode)
             {
                 return Result.Success();
@@ -68,11 +66,10 @@ public class TransactionService(IHttpClientFactory httpClientFactory)
         transactionDto.TransactionTags = [];
         try
         {
-            var http = _httpClientFactory.CreateClient("WebAPI");
             var request = new HttpRequestMessage(HttpMethod.Post, $"api/transactions");
             request.Content = JsonContent.Create(transactionDto);
             request.Content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
-            var response = await http.SendAsync(request);
+            var response = await _httpClient.SendAsync(request);
             if (response.IsSuccessStatusCode)
             {
                 return Result.Success();
@@ -99,11 +96,10 @@ public class TransactionService(IHttpClientFactory httpClientFactory)
         transactionDto.TransactionTags = [];
         try
         {
-            var http = _httpClientFactory.CreateClient("WebAPI");
             var request = new HttpRequestMessage(HttpMethod.Put, $"api/transactions");
             request.Content = JsonContent.Create(transactionDto);
             request.Content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
-            var response = await http.SendAsync(request);
+            var response = await _httpClient.SendAsync(request);
             if (response.IsSuccessStatusCode)
             {
                 return Result.Success();

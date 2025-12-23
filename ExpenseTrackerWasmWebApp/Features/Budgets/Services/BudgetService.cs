@@ -5,16 +5,15 @@ using ExpenseTrackerWasmWebApp.Services;
 
 namespace ExpenseTrackerWasmWebApp.Features.Budgets.Services
 {
-    public class BudgetService(IHttpClientFactory httpClientFactory)
+    public class BudgetService(HttpClient httpClient)
     {
-        private readonly IHttpClientFactory _httpClientFactory = httpClientFactory;
+        private readonly HttpClient _httpClient = httpClient;
 
         public async Task<Result<List<BudgetWithProgressDto>>> GetBudgetsAsync()
         {
             try
             {
-                var http = _httpClientFactory.CreateClient("WebAPI");
-                var response = await http.GetAsync("api/budgets");
+                var response = await _httpClient.GetAsync("api/budgets");
                 if (response.IsSuccessStatusCode)
                 {
                     var budgets = await response.Content.ReadFromJsonAsync<List<BudgetWithProgressDto>>() ?? new();
@@ -41,11 +40,10 @@ namespace ExpenseTrackerWasmWebApp.Features.Budgets.Services
         {
             try
             {
-                var http = _httpClientFactory.CreateClient("WebAPI");
                 var request = new HttpRequestMessage(HttpMethod.Post, "api/budgets");
                 request.Content = JsonContent.Create(budgetDto);
                 request.Content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
-                var response = await http.SendAsync(request);
+                var response = await _httpClient.SendAsync(request);
                 if (response.IsSuccessStatusCode)
                 {
                     return Result.Success();
@@ -71,11 +69,10 @@ namespace ExpenseTrackerWasmWebApp.Features.Budgets.Services
         {
             try
             {
-                var http = _httpClientFactory.CreateClient("WebAPI");
                 var request = new HttpRequestMessage(HttpMethod.Put, $"api/budgets/{budgetDto.Id}");
                 request.Content = JsonContent.Create(budgetDto);
                 request.Content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
-                var response = await http.SendAsync(request);
+                var response = await _httpClient.SendAsync(request);
                 if (response.IsSuccessStatusCode)
                 {
                     return Result.Success();
@@ -101,8 +98,7 @@ namespace ExpenseTrackerWasmWebApp.Features.Budgets.Services
         {
             try
             {
-                var http = _httpClientFactory.CreateClient("WebAPI");
-                var response = await http.DeleteAsync($"api/budgets/{budgetId}");
+                var response = await _httpClient.DeleteAsync($"api/budgets/{budgetId}");
                 if (response.IsSuccessStatusCode)
                 {
                     return Result.Success();

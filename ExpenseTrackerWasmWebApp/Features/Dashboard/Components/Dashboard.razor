@@ -1,9 +1,11 @@
 @page "/"
 @attribute [Authorize]
+@layout Layout
 @rendermode InteractiveWebAssembly
 @using ExpenseTrackerSharedCL.Features.Dashboard.Dtos
 @using ExpenseTrackerSharedCL.Features.Transactions.Dtos
 @using ExpenseTrackerWasmWebApp.Features.Dashboard.Services
+@using ExpenseTrackerWasmWebApp.Features.SharedKernel
 @using Microsoft.AspNetCore.Authorization
 @using Microsoft.AspNetCore.Components.Web
 @using MudBlazor
@@ -12,6 +14,7 @@
 @inject DashboardService DashboardService
 @inject ISnackbar Snackbar
 @inject NavigationManager NavigationManager
+
 
 <PageTitle>Dashboard</PageTitle>
 

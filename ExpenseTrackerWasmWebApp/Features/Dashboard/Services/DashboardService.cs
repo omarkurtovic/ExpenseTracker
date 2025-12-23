@@ -4,16 +4,15 @@ using ExpenseTrackerWasmWebApp.Services;
 
 namespace ExpenseTrackerWasmWebApp.Features.Dashboard.Services
 {
-    public class DashboardService(IHttpClientFactory httpClientFactory)
+    public class DashboardService(HttpClient httpClient)
     {
-        private readonly IHttpClientFactory _httpClientFactory = httpClientFactory;
+        private readonly HttpClient _httpClient = httpClient;
 
         public async Task<Result<DashboardSummaryDto>> GetDashboardSummaryAsync()
         {
             try
             {
-                var http = _httpClientFactory.CreateClient("WebAPI");
-               var response = await http.GetAsync("api/dashboard");
+                var response = await _httpClient.GetAsync("api/dashboard");
                 if (response.IsSuccessStatusCode)
                 {
                     var stats = await response.Content.ReadFromJsonAsync<DashboardSummaryDto>() ?? new DashboardSummaryDto();

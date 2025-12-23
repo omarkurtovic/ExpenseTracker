@@ -5,16 +5,15 @@ using ExpenseTrackerWasmWebApp.Services;
 
 namespace ExpenseTrackerWasmWebApp.Features.Categories.Services
 {
-    public class CategoryService(IHttpClientFactory httpClientFactory)
+    public class CategoryService(HttpClient httpClient)
     {
-        private readonly IHttpClientFactory _httpClientFactory = httpClientFactory;
+        private readonly HttpClient _httpClient = httpClient;
 
         public async Task<Result<List<CategoryDto>>> GetCategoriesAsync()
         {
             try
             {
-                var http = _httpClientFactory.CreateClient("WebAPI");
-                var response = await http.GetAsync("api/categories");
+                var response = await _httpClient.GetAsync("api/categories");
                 if (response.IsSuccessStatusCode)
                 {
                     var categories = await response.Content.ReadFromJsonAsync<List<CategoryDto>>() ?? new();
@@ -41,8 +40,7 @@ namespace ExpenseTrackerWasmWebApp.Features.Categories.Services
         {
             try
             {
-                var http = _httpClientFactory.CreateClient("WebAPI");
-                var response = await http.GetAsync("api/categories/with-stats");
+                var response = await _httpClient.GetAsync("api/categories/with-stats");
                 if (response.IsSuccessStatusCode)
                 {
                     var categories = await response.Content.ReadFromJsonAsync<List<CategoryWithStatsDto>>() ?? new();
@@ -69,11 +67,10 @@ namespace ExpenseTrackerWasmWebApp.Features.Categories.Services
         {
             try
             {
-                var http = _httpClientFactory.CreateClient("WebAPI");
                 var request = new HttpRequestMessage(HttpMethod.Post, "api/categories");
                 request.Content = JsonContent.Create(categoryDto);
                 request.Content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
-                var response = await http.SendAsync(request);
+                var response = await _httpClient.SendAsync(request);
                 if (response.IsSuccessStatusCode)
                 {
                     return Result.Success();
@@ -99,11 +96,10 @@ namespace ExpenseTrackerWasmWebApp.Features.Categories.Services
         {
             try
             {
-                var http = _httpClientFactory.CreateClient("WebAPI");
                 var request = new HttpRequestMessage(HttpMethod.Put, $"api/categories/{categoryDto.Id}");
                 request.Content = JsonContent.Create(categoryDto);
                 request.Content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
-                var response = await http.SendAsync(request);
+                var response = await _httpClient.SendAsync(request);
                 if (response.IsSuccessStatusCode)
                 {
                     return Result.Success();
@@ -129,8 +125,7 @@ namespace ExpenseTrackerWasmWebApp.Features.Categories.Services
         {
             try
             {
-                var http = _httpClientFactory.CreateClient("WebAPI");
-                var response = await http.DeleteAsync($"api/categories/{categoryId}");
+                var response = await _httpClient.DeleteAsync($"api/categories/{categoryId}");
                 if (response.IsSuccessStatusCode)
                 {
                     return Result.Success();

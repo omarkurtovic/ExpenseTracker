@@ -1,8 +1,10 @@
-
 @page "/categories"
+@layout Layout
 @attribute [Authorize]
+@rendermode InteractiveWebAssembly
 @using ExpenseTrackerSharedCL.Features.Categories.Dtos
 @using ExpenseTrackerWasmWebApp.Features.Categories.Services
+@using ExpenseTrackerWasmWebApp.Features.SharedKernel
 @using ExpenseTrackerWasmWebApp.Services
 @using Microsoft.AspNetCore.Authorization
 @using MudBlazor

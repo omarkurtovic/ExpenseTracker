@@ -13,9 +13,16 @@ using MudBlazor.Services;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 
+
+builder.Services.AddScoped(sp => new HttpClient
+{
+    BaseAddress = new Uri(builder.HostEnvironment.BaseAddress)
+});
+
 builder.Services.AddAuthorizationCore();
 builder.Services.AddCascadingAuthenticationState();
 builder.Services.AddAuthenticationStateDeserialization();
+
 
 ConfigureApexCharts(builder.Services);
 ConfigureMudBlazor(builder.Services);
@@ -56,12 +63,13 @@ void ConfigureMudBlazor(IServiceCollection services)
 
 void ConfigureCustomServices(IServiceCollection services)
 {
-    services.AddTransient<AccountService>();
-    services.AddTransient<CategoryService>();
-    services.AddTransient<BudgetService>();
-    services.AddTransient<DashboardService>();
-    services.AddTransient<TagService>();
-    services.AddTransient<DataSeedService>();
-    services.AddTransient<TransactionService>();
+    services.AddScoped<AccountService>();
+    services.AddScoped<CategoryService>();
+    services.AddScoped<BudgetService>();
+    services.AddScoped<DashboardService>();
+    services.AddScoped<TagService>();
+    services.AddScoped<DataSeedService>();
+    services.AddScoped<TransactionService>();
+
 }
 

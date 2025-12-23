@@ -32,20 +32,18 @@ builder.Services.AddRazorComponents()
 builder.Services.AddCascadingAuthenticationState();
 builder.Services.AddMudServices();
 builder.Services.AddScoped<IdentityRedirectManager>();
-builder.Services.AddTransient<AccountService>();
-builder.Services.AddTransient<CategoryService>();
-builder.Services.AddTransient<BudgetService>();
-builder.Services.AddTransient<DashboardService>();
-builder.Services.AddTransient<TagService>();
-builder.Services.AddTransient<DataSeedService>();
-builder.Services.AddTransient<TransactionService>();
 
+// potrebni su nam ovi ovdje zbog preloading
+builder.Services.AddHttpClient();
 
-builder.Services.AddHttpClient("WebAPI", client =>
-{
-    var apiUrl = builder.Configuration["ApiSettings:BaseUrl"];
-    client.BaseAddress = new Uri(apiUrl);
-});
+builder.Services.AddScoped<AccountService>();
+builder.Services.AddScoped<CategoryService>();
+builder.Services.AddScoped<BudgetService>();
+builder.Services.AddScoped<DashboardService>();
+builder.Services.AddScoped<TagService>();
+builder.Services.AddScoped<DataSeedService>();
+builder.Services.AddScoped<TransactionService>();
+
 
 builder.Services.AddAuthentication(options =>
     {
@@ -71,6 +69,8 @@ builder.Services.ConfigureApplicationCookie(options =>
 
 var app = builder.Build();
 
+// 1. Exception handling
+
 if (app.Environment.IsDevelopment())
 {
     app.UseWebAssemblyDebugging();
@@ -80,36 +80,37 @@ else
     app.UseExceptionHandler("/Error", createScopeForErrors: true);
     app.UseHsts();
 }
+
+// 2. HTTPS redirection
 app.UseHttpsRedirection();
 
-
-app.UseAntiforgery();
-
-app.MapStaticAssets();
-app.MapRazorComponents<App>()
-    .AddInteractiveWebAssemblyRenderMode()
-    .AddAdditionalAssemblies(typeof(ExpenseTrackerWasmWebApp._Imports).Assembly);
-
-app.Run();
-
-
-InitializeDatabase(app);
-
-if (app.Environment.IsDevelopment())
-{
-    app.UseWebAssemblyDebugging();
-}
-
-app.UseHttpsRedirection();
+// 3. Static files
 app.UseBlazorFrameworkFiles();
 app.UseStaticFiles();
 app.MapStaticAssets();
 
+// 4. Routing
 app.UseRouting();
+
+// 5. Authentication
 app.UseAuthentication();
+
+// 6. Authorization
 app.UseAuthorization();
 
+// 7. Antiforgery
+app.UseAntiforgery();
+
+// 8. ENDPOINTS
 app.MapControllers();
+app.MapRazorComponents<App>()
+    .AddInteractiveWebAssemblyRenderMode()
+    .AddAdditionalAssemblies(typeof(ExpenseTrackerWasmWebApp._Imports).Assembly);
+
+// 9. Database initialization
+InitializeDatabase(app);
+
+// 10. FALLBACK
 app.MapFallbackToFile("index.html");
 
 app.Run();
