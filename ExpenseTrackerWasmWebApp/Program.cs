@@ -1,5 +1,7 @@
 
 using ApexCharts;
+using ExpenseTrackerSharedCL.Features.Accounts.Services;
+using ExpenseTrackerSharedCL.Features.Dashboard;
 using ExpenseTrackerWasmWebApp.Features.Accounts.Services;
 using ExpenseTrackerWasmWebApp.Features.Budgets.Services;
 using ExpenseTrackerWasmWebApp.Features.Categories.Services;
@@ -63,10 +65,10 @@ void ConfigureMudBlazor(IServiceCollection services)
 
 void ConfigureCustomServices(IServiceCollection services)
 {
-    services.AddScoped<AccountService>();
+    services.AddScoped<IAccountService, AccountService>();
     services.AddScoped<CategoryService>();
     services.AddScoped<BudgetService>();
-    services.AddScoped<DashboardService>();
+    services.AddScoped<IDashboardService, DashboardService>();
     services.AddScoped<TagService>();
     services.AddScoped<DataSeedService>();
     services.AddScoped<TransactionService>();

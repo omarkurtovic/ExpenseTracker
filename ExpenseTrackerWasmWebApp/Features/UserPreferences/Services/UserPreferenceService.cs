@@ -1,7 +1,7 @@
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
+using ExpenseTrackerSharedCL.Features.SharedKernel;
 using ExpenseTrackerSharedCL.Features.UserPreferences.Dtos;
-using ExpenseTrackerWasmWebApp.Services;
 
 namespace ExpenseTrackerWasmWebApp.Features.UserPreferences.Services
 {

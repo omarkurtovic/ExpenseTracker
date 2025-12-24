@@ -1,5 +1,7 @@
+@rendermode InteractiveWebAssembly
+@using ExpenseTrackerSharedCL.Features.Accounts.Services
+@using ExpenseTrackerSharedCL.Features.SharedKernel
 @using ExpenseTrackerWasmWebApp.Features.Accounts.Services
-@using ExpenseTrackerWasmWebApp.Services
 @using Microsoft.AspNetCore.Authorization
 @using MudBlazor
 @using ExpenseTrackerSharedCL.Features.Accounts.Dtos
@@ -7,7 +9,7 @@
 @using System.Net.Http.Headers
 @using global::ExpenseTrackerWasmWebApp.Features.Accounts
 @inject ISnackbar Snackbar
-@inject AccountService AccountService
+@inject IAccountService AccountService
 @inject NavigationManager NavigationManager
 
 @if (AccountDto is not null)

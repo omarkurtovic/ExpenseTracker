@@ -1,7 +1,7 @@
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using ExpenseTrackerSharedCL.Features.DataSeeding.Dtos;
-using ExpenseTrackerWasmWebApp.Services;
+using ExpenseTrackerSharedCL.Features.SharedKernel;
 
 namespace ExpenseTrackerWasmWebApp.Features.DataSeeding.Services
 {

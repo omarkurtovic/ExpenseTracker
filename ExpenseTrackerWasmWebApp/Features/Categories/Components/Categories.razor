@@ -1,11 +1,10 @@
 @page "/categories"
-@layout Layout
 @attribute [Authorize]
 @rendermode InteractiveWebAssembly
+
 @using ExpenseTrackerSharedCL.Features.Categories.Dtos
 @using ExpenseTrackerWasmWebApp.Features.Categories.Services
 @using ExpenseTrackerWasmWebApp.Features.SharedKernel
-@using ExpenseTrackerWasmWebApp.Services
 @using Microsoft.AspNetCore.Authorization
 @using MudBlazor
 @using Microsoft.AspNetCore.Components.Web
@@ -14,6 +13,11 @@
 @inject ISnackbar Snackbar
 @inject CategoryService CategoryService
 @inject NavigationManager NavigationManager
+
+<MudPopoverProvider />
+<MudThemeProvider />
+<MudDialogProvider />
+<MudSnackbarProvider />
 
 <PageTitle>Categories</PageTitle>
 
@@ -85,6 +89,10 @@ else
     bool loading = true;
     protected override async Task OnInitializedAsync()
     {
+        if (!OperatingSystem.IsBrowser())
+        {
+            return;
+        }
         await base.OnInitializedAsync();
         await RefreshPage();
         loading = false;

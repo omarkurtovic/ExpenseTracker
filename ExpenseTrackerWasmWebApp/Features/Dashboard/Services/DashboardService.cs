@@ -1,14 +1,15 @@
-using System.Net.Http.Json;
+using ExpenseTrackerSharedCL.Features.Dashboard;
 using ExpenseTrackerSharedCL.Features.Dashboard.Dtos;
-using ExpenseTrackerWasmWebApp.Services;
+using ExpenseTrackerSharedCL.Features.SharedKernel;
+using System.Net.Http.Json;
 
 namespace ExpenseTrackerWasmWebApp.Features.Dashboard.Services
 {
-    public class DashboardService(HttpClient httpClient)
+    public class DashboardService(HttpClient httpClient) : IDashboardService
     {
         private readonly HttpClient _httpClient = httpClient;
 
-        public async Task<Result<DashboardSummaryDto>> GetDashboardSummaryAsync()
+        public async Task<Result<DashboardSummaryDto>> GetDashboardSummaryAsync(int monthsBehindToConsider = 5, int maxCategoriesToShow = 6)
         {
             try
             {

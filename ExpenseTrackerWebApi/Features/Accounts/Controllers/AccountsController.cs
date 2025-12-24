@@ -23,6 +23,7 @@ namespace ExpenseTrackerWebApi.Features.Accounts.Controllers
         }
 
         [HttpGet]
+        [IgnoreAntiforgeryToken]
         public async Task<IActionResult> GetAccounts()
         {
             try
@@ -41,6 +42,7 @@ namespace ExpenseTrackerWebApi.Features.Accounts.Controllers
 
         [HttpGet]
         [Route("with-balances")]
+        [IgnoreAntiforgeryToken]
         public async Task<IActionResult> GetAccountsWithBalance()
         {
             try

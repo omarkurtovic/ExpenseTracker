@@ -1,5 +1,6 @@
 @page "/budgets"
 @attribute [Authorize]
+@rendermode InteractiveWebAssembly
 
 @using ExpenseTrackerSharedCL.Features.Accounts.Dtos
 @using ExpenseTrackerSharedCL.Features.Budgets.Dtos
@@ -9,11 +10,15 @@
 @using Microsoft.AspNetCore.Components.Web
 @using ExpenseTrackerWasmWebApp.Features.SharedKernel.Components
 @using ExpenseTrackerWasmWebApp.Features.Budgets.Services
-@using ExpenseTrackerWasmWebApp.Services
 @inject IDialogService DialogService
 @inject ISnackbar Snackbar
 @inject BudgetService BudgetService
 @inject NavigationManager NavigationManager
+
+<MudPopoverProvider />
+<MudThemeProvider />
+<MudDialogProvider />
+<MudSnackbarProvider />
 
 <PageTitle>Budgets</PageTitle>
 
@@ -77,6 +82,10 @@ else
     private bool loading = true;
     protected override async Task OnInitializedAsync()
     {
+        if (!OperatingSystem.IsBrowser())
+        {
+            return;
+        }
         await RefreshPage();
         loading = false;
     }

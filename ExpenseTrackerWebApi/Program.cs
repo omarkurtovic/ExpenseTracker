@@ -1,4 +1,6 @@
 using ApexCharts;
+using ExpenseTrackerSharedCL.Features.Accounts.Services;
+using ExpenseTrackerSharedCL.Features.Dashboard;
 using ExpenseTrackerWasmWebApp;
 using ExpenseTrackerWasmWebApp.Features.Accounts.Services;
 using ExpenseTrackerWasmWebApp.Features.Budgets.Services;
@@ -9,7 +11,9 @@ using ExpenseTrackerWasmWebApp.Features.Tags.Services;
 using ExpenseTrackerWasmWebApp.Features.Transactions.Services;
 using ExpenseTrackerWebApi;
 using ExpenseTrackerWebApi.Database;
+using ExpenseTrackerWebApi.Features.Accounts.Services;
 using ExpenseTrackerWebApi.Features.Auth;
+using ExpenseTrackerWebApi.Features.Dashboard;
 using ExpenseTrackerWebApi.Features.SharedKernel.Behaviors;
 using ExpenseTrackerWebApi.Features.SharedKernel.Components;
 using FluentValidation;
@@ -34,15 +38,39 @@ builder.Services.AddMudServices();
 builder.Services.AddScoped<IdentityRedirectManager>();
 
 // potrebni su nam ovi ovdje zbog preloading
-builder.Services.AddHttpClient();
+builder.Services.AddScoped<IDashboardService, DashboardServiceServer>();
+builder.Services.AddScoped<IAccountService, AccountServiceServer>();
 
-builder.Services.AddScoped<AccountService>();
-builder.Services.AddScoped<CategoryService>();
-builder.Services.AddScoped<BudgetService>();
-builder.Services.AddScoped<DashboardService>();
-builder.Services.AddScoped<TagService>();
-builder.Services.AddScoped<DataSeedService>();
-builder.Services.AddScoped<TransactionService>();
+var url = "https://localhost:7014/";
+
+builder.Services.AddHttpClient<CategoryService>(client =>
+{
+    client.BaseAddress = new Uri(url);
+});
+
+builder.Services.AddHttpClient<BudgetService>(client =>
+{
+    client.BaseAddress = new Uri(url);
+});
+
+builder.Services.AddHttpClient<TagService>(client =>
+{
+    client.BaseAddress = new Uri(url);
+});
+
+builder.Services.AddHttpClient<DataSeedService>(client =>
+{
+    client.BaseAddress = new Uri(url);
+});
+
+builder.Services.AddHttpClient<TransactionService>(client =>
+{
+    client.BaseAddress = new Uri(url);
+});
+
+
+// Also register IHttpContextAccessor
+builder.Services.AddHttpContextAccessor();
 
 
 builder.Services.AddAuthentication(options =>
@@ -81,36 +109,20 @@ else
     app.UseHsts();
 }
 
-// 2. HTTPS redirection
 app.UseHttpsRedirection();
-
-// 3. Static files
-app.UseBlazorFrameworkFiles();
-app.UseStaticFiles();
-app.MapStaticAssets();
-
-// 4. Routing
-app.UseRouting();
-
-// 5. Authentication
-app.UseAuthentication();
-
-// 6. Authorization
-app.UseAuthorization();
-
-// 7. Antiforgery
 app.UseAntiforgery();
 
-// 8. ENDPOINTS
+app.UseAuthentication();
+app.UseAuthorization();
+
+app.MapStaticAssets();
 app.MapControllers();
 app.MapRazorComponents<App>()
     .AddInteractiveWebAssemblyRenderMode()
     .AddAdditionalAssemblies(typeof(ExpenseTrackerWasmWebApp._Imports).Assembly);
 
-// 9. Database initialization
 InitializeDatabase(app);
 
-// 10. FALLBACK
 app.MapFallbackToFile("index.html");
 
 app.Run();

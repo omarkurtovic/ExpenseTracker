@@ -1,11 +1,12 @@
+using ExpenseTrackerSharedCL.Features.Accounts.Dtos;
+using ExpenseTrackerSharedCL.Features.Accounts.Services;
+using ExpenseTrackerSharedCL.Features.SharedKernel;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
-using ExpenseTrackerSharedCL.Features.Accounts.Dtos;
-using ExpenseTrackerWasmWebApp.Services;
 
 namespace ExpenseTrackerWasmWebApp.Features.Accounts.Services
 {
-    public class AccountService(HttpClient httpClient)
+    public class AccountService(HttpClient httpClient) : IAccountService
     {
         private readonly HttpClient _httpClient = httpClient;
 

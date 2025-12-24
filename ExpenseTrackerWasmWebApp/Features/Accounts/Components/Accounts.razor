@@ -1,11 +1,10 @@
 @page "/accounts"
 @attribute [Authorize]
-@layout Layout
 @rendermode InteractiveWebAssembly
 @using ExpenseTrackerSharedCL.Features.Accounts.Dtos
+@using ExpenseTrackerSharedCL.Features.Accounts.Services
 @using ExpenseTrackerWasmWebApp.Features.Accounts.Services
 @using ExpenseTrackerWasmWebApp.Features.SharedKernel
-@using ExpenseTrackerWasmWebApp.Services
 @using Microsoft.AspNetCore.Authorization
 @using MudBlazor
 @using Microsoft.AspNetCore.Components.Web
@@ -14,12 +13,18 @@
 @inject IDialogService DialogService
 @inject ISnackbar Snackbar
 @inject IJSRuntime JSRuntime
-@inject AccountService AccountService
+@inject IAccountService AccountService
 @inject NavigationManager NavigationManager
+
+
+<MudPopoverProvider />
+<MudThemeProvider />
+<MudDialogProvider />
+<MudSnackbarProvider />
 
 <PageTitle>Accounts</PageTitle>
 
-@if (loading)
+@if (Loading)
 {
     <div class="d-flex justify-center align-center" style="height: 80vh;">
         <MudProgressCircular Indeterminate="true" Size="Size.Large" />
@@ -67,15 +72,23 @@ else
 }
 
 @code {
-    private List<AccountWithBalanceDto> MyAccounts = new();
 
-    bool loading = true;
+    [PersistentState]
+    public List<AccountWithBalanceDto> MyAccounts { get; set; } = new List<AccountWithBalanceDto>();
+
+
+    [PersistentState]
+    public bool Loading{ get; set; } = true;
 
     protected override async Task OnInitializedAsync()
     {
         await base.OnInitializedAsync();
-        await UpdatePage();
-        loading = false;
+
+        if (!OperatingSystem.IsBrowser())
+        {
+            await UpdatePage();
+            Loading = false;
+        }
     }
 
     private async Task OpenAccountDialogAsync(AccountWithBalanceDto? accountWithBalance)

@@ -1,7 +1,7 @@
 @page "/"
 @attribute [Authorize]
-@layout Layout
 @rendermode InteractiveWebAssembly
+@using ExpenseTrackerSharedCL.Features.Dashboard
 @using ExpenseTrackerSharedCL.Features.Dashboard.Dtos
 @using ExpenseTrackerSharedCL.Features.Transactions.Dtos
 @using ExpenseTrackerWasmWebApp.Features.Dashboard.Services
@@ -11,14 +11,18 @@
 @using MudBlazor
 @using ExpenseTrackerWasmWebApp.Features.SharedKernel.Components
 @using ApexCharts
-@inject DashboardService DashboardService
+@inject IDashboardService DashboardService
 @inject ISnackbar Snackbar
 @inject NavigationManager NavigationManager
 
+<MudPopoverProvider />
+<MudThemeProvider />
+<MudDialogProvider />
+<MudSnackbarProvider />
 
 <PageTitle>Dashboard</PageTitle>
 
-@if (loading)
+@if (Loading)
 {
     <div class="d-flex justify-center align-center" style="height: 80vh;">
         <MudProgressCircular Indeterminate="true" Size="MudBlazor.Size.Large" />
@@ -123,12 +127,20 @@ else
 }
 @code {
 
-    bool loading = true;
-    private DashboardSummaryDto DashboardSummary = new DashboardSummaryDto();
+    [PersistentState]
+    public bool Loading{ get; set; }
+
+    [PersistentState]
+    public DashboardSummaryDto DashboardSummary { get; set; }
+
+    
     protected override async Task OnInitializedAsync()
     {
-        await RefreshPage();
-        loading = false;
+        if (!OperatingSystem.IsBrowser())
+        {
+            await RefreshPage();
+            Loading = false;
+        }
     }
 
     private async Task RefreshPage(bool showMessage = false)

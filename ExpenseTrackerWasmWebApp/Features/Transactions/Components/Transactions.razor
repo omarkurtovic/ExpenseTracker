@@ -1,5 +1,7 @@
 @page "/transactions"
 @attribute [Authorize]
+@rendermode InteractiveWebAssembly
+
 @using ExpenseTrackerSharedCL.Features.Categories.Dtos
 @using ExpenseTrackerSharedCL.Features.Tags.Dtos
 @using ExpenseTrackerSharedCL.Features.Transactions.Dtos
@@ -17,6 +19,10 @@
 @inject TransactionService TransactionService
 @inject NavigationManager NavigationManager
 
+<MudPopoverProvider />
+<MudThemeProvider />
+<MudDialogProvider />
+<MudSnackbarProvider />
 
 <PageTitle>@(IsReoccuring ? "Reoccuring Transactions" : "Transactions")</PageTitle>
 

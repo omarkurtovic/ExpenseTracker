@@ -1,4 +1,4 @@
-namespace ExpenseTrackerWasmWebApp.Services
+namespace ExpenseTrackerSharedCL.Features.SharedKernel
 {
     public class Result
     {
