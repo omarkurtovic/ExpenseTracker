@@ -1,11 +1,12 @@
+using ExpenseTrackerSharedCL.Features.Budgets.Dtos;
+using ExpenseTrackerSharedCL.Features.Budgets.Services;
+using ExpenseTrackerSharedCL.Features.SharedKernel;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
-using ExpenseTrackerSharedCL.Features.Budgets.Dtos;
-using ExpenseTrackerSharedCL.Features.SharedKernel;
 
 namespace ExpenseTrackerWasmWebApp.Features.Budgets.Services
 {
-    public class BudgetService(HttpClient httpClient)
+    public class BudgetService(HttpClient httpClient) : IBudgetService
     {
         private readonly HttpClient _httpClient = httpClient;
 

@@ -1,5 +1,7 @@
 using ApexCharts;
 using ExpenseTrackerSharedCL.Features.Accounts.Services;
+using ExpenseTrackerSharedCL.Features.Budgets.Services;
+using ExpenseTrackerSharedCL.Features.Categories;
 using ExpenseTrackerSharedCL.Features.Dashboard;
 using ExpenseTrackerWasmWebApp;
 using ExpenseTrackerWasmWebApp.Features.Accounts.Services;
@@ -13,6 +15,8 @@ using ExpenseTrackerWebApi;
 using ExpenseTrackerWebApi.Database;
 using ExpenseTrackerWebApi.Features.Accounts.Services;
 using ExpenseTrackerWebApi.Features.Auth;
+using ExpenseTrackerWebApi.Features.Budgets.Services;
+using ExpenseTrackerWebApi.Features.Categories.Services;
 using ExpenseTrackerWebApi.Features.Dashboard;
 using ExpenseTrackerWebApi.Features.SharedKernel.Behaviors;
 using ExpenseTrackerWebApi.Features.SharedKernel.Components;
@@ -40,18 +44,11 @@ builder.Services.AddScoped<IdentityRedirectManager>();
 // potrebni su nam ovi ovdje zbog preloading
 builder.Services.AddScoped<IDashboardService, DashboardServiceServer>();
 builder.Services.AddScoped<IAccountService, AccountServiceServer>();
+builder.Services.AddScoped<ICategoryService, CategoryServiceServer>();
+builder.Services.AddScoped<IBudgetService, BudgetServiceServer>();
 
 var url = "https://localhost:7014/";
 
-builder.Services.AddHttpClient<CategoryService>(client =>
-{
-    client.BaseAddress = new Uri(url);
-});
-
-builder.Services.AddHttpClient<BudgetService>(client =>
-{
-    client.BaseAddress = new Uri(url);
-});
 
 builder.Services.AddHttpClient<TagService>(client =>
 {

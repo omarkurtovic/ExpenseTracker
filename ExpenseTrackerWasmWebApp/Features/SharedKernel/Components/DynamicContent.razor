@@ -1,12 +1,13 @@
 @rendermode InteractiveWebAssembly
 @using MudBlazor
 
-<MudHidden Breakpoint="Breakpoint.SmAndDown">
+<div class="d-none d-md-flex">
     @DesktopContent
-</MudHidden>
-<MudHidden Breakpoint="Breakpoint.MdAndUp">
+</div>
+<div class="d-flex d-md-none">
     @MobileContent
-</MudHidden>
+</div>
+
 @code
 {
     [Parameter]

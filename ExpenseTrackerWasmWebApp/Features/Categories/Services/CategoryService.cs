@@ -1,11 +1,12 @@
-using System.Net.Http.Headers;
-using System.Net.Http.Json;
+using ExpenseTrackerSharedCL.Features.Categories;
 using ExpenseTrackerSharedCL.Features.Categories.Dtos;
 using ExpenseTrackerSharedCL.Features.SharedKernel;
+using System.Net.Http.Headers;
+using System.Net.Http.Json;
 
 namespace ExpenseTrackerWasmWebApp.Features.Categories.Services
 {
-    public class CategoryService(HttpClient httpClient)
+    public class CategoryService(HttpClient httpClient) : ICategoryService
     {
         private readonly HttpClient _httpClient = httpClient;
 

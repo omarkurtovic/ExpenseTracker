@@ -1,6 +1,7 @@
 @page "/accounts"
 @attribute [Authorize]
 @rendermode InteractiveWebAssembly
+
 @using ExpenseTrackerSharedCL.Features.Accounts.Dtos
 @using ExpenseTrackerSharedCL.Features.Accounts.Services
 @using ExpenseTrackerWasmWebApp.Features.Accounts.Services
@@ -38,18 +39,13 @@ else
                 <MudItem xs="12" Class="d-flex justify-center">
                     <MudText Typo="Typo.h4">Accounts</MudText>
                 </MudItem>
-                <DynamicContent>
-                    <DesktopContent>
-                    <MudItem xs="12" Class="mb-4 d-flex justify-center">
-                        <MudButton Variant="Variant.Filled" Color="Color.Primary"
-                            OnClick="@(() => OpenAccountDialogAsync(null))" StartIcon="@Icons.Material.Filled.Add">Add
-                        </MudButton>
-                    </MudItem>
-                    </DesktopContent>
-                    <MobileContent>
-                        <FabButton Text="Add" IconClass="@Icons.Material.Filled.Add" OnClick="@(() => OpenAccountDialogAsync(null))" />
-                    </MobileContent>
-                </DynamicContent>
+                <MudItem xs="12" Class="mb-4 d-none d-md-flex justify-center">
+                    <MudButton Variant="Variant.Filled" Color="Color.Primary"
+                        OnClick="@(() => OpenAccountDialogAsync(null))" StartIcon="@Icons.Material.Filled.Add">Add
+                    </MudButton>
+                </MudItem>
+                <FabButton Class="d-flex d-md-none" Text="Add" IconClass="@Icons.Material.Filled.Add" OnClick="@(() => OpenAccountDialogAsync(null))" />
+                    
                 
                 @if (MyAccounts == null || MyAccounts.Count == 0)
                 {

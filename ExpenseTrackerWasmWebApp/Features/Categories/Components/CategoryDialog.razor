@@ -1,4 +1,5 @@
 @rendermode InteractiveWebAssembly
+@using ExpenseTrackerSharedCL.Features.Categories
 @using ExpenseTrackerSharedCL.Features.SharedKernel
 @using Microsoft.AspNetCore.Authorization
 @using MudBlazor
@@ -7,7 +8,7 @@
 @using ExpenseTrackerWasmWebApp.Features.Categories.Services
 @using global::ExpenseTrackerWasmWebApp.Features.Categories
 @inject ISnackbar Snackbar
-@inject CategoryService CategoryService
+@inject ICategoryService CategoryService
 @inject NavigationManager NavigationManager
 
 @if (CategoryDto is not null)

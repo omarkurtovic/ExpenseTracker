@@ -1,6 +1,9 @@
 @rendermode InteractiveWebAssembly
 @using ExpenseTrackerSharedCL.Features.Accounts.Dtos
+@using ExpenseTrackerSharedCL.Features.Accounts.Services
 @using ExpenseTrackerSharedCL.Features.Budgets.Dtos
+@using ExpenseTrackerSharedCL.Features.Budgets.Services
+@using ExpenseTrackerSharedCL.Features.Categories
 @using ExpenseTrackerSharedCL.Features.SharedKernel
 @using Microsoft.AspNetCore.Authorization
 @using MudBlazor
@@ -11,9 +14,9 @@
 @using ExpenseTrackerWasmWebApp.Features.Budgets.Services
 @inject ISnackbar Snackbar
 @inject NavigationManager NavigationManager
-@inject AccountService AccountService
-@inject CategoryService CategoryService
-@inject BudgetService BudgetService
+@inject IAccountService AccountService
+@inject ICategoryService CategoryService
+@inject IBudgetService BudgetService
 
 @if (BudgetDto is not null)
 {

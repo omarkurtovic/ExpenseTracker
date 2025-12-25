@@ -4,6 +4,7 @@
 
 @using ExpenseTrackerSharedCL.Features.Accounts.Dtos
 @using ExpenseTrackerSharedCL.Features.Budgets.Dtos
+@using ExpenseTrackerSharedCL.Features.Budgets.Services
 @using ExpenseTrackerSharedCL.Features.Categories.Dtos
 @using Microsoft.AspNetCore.Authorization
 @using MudBlazor
@@ -12,7 +13,7 @@
 @using ExpenseTrackerWasmWebApp.Features.Budgets.Services
 @inject IDialogService DialogService
 @inject ISnackbar Snackbar
-@inject BudgetService BudgetService
+@inject IBudgetService BudgetService
 @inject NavigationManager NavigationManager
 
 <MudPopoverProvider />
@@ -22,7 +23,7 @@
 
 <PageTitle>Budgets</PageTitle>
 
-@if (loading)
+@if (Loading)
 {
     <div class="d-flex justify-center align-center" style="height: 80vh;">
         <MudProgressCircular Indeterminate="true" Size="Size.Large" />
@@ -37,16 +38,11 @@ else
                     <MudItem xs="12" Class="d-flex justify-center">
                         <MudText Typo="Typo.h4">Budgets</MudText>
                     </MudItem>
-                    <DynamicContent>
-                        <DesktopContent>
-                            <MudItem xs="12" Class="d-flex justify-center gap-5 mb-4">
-                                <MudButton Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Add" OnClick="@(() => OpenBudgetDialogAsync(null))">Add</MudButton>
-                            </MudItem>
-                        </DesktopContent>
-                        <MobileContent>
-                            <FabButton Text="Add" IconClass="@Icons.Material.Filled.Add" OnClick="@(() => OpenBudgetDialogAsync(null))" />
-                        </MobileContent>
-                    </DynamicContent>
+                    <MudItem xs="12" Class="d-none d-md-flex justify-center gap-5 mb-4">
+                        <MudButton Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Add" OnClick="@(() => OpenBudgetDialogAsync(null))">Add</MudButton>
+                    </MudItem>
+                    <FabButton Class="d-flex d-md-none" Text="Add" IconClass="@Icons.Material.Filled.Add" OnClick="@(() => OpenBudgetDialogAsync(null))" />
+
                     @if(MyBudgets == null || MyBudgets.Count == 0)
                     {
                         <MudItem xs="12" Class="d-flex justify-center mt-4">
@@ -77,17 +73,23 @@ else
 }
 
 
-@code {    
-    private List<BudgetWithProgressDto>? MyBudgets { get; set; }
-    private bool loading = true;
+@code {
+
+    [PersistentState]
+    public List<BudgetWithProgressDto>? MyBudgets { get; set; }
+
+    [PersistentState]
+    public bool Loading { get; set; } = true;
+
     protected override async Task OnInitializedAsync()
     {
+        await base.OnInitializedAsync();
+
         if (!OperatingSystem.IsBrowser())
         {
-            return;
+            await RefreshPage();
+            Loading = false;
         }
-        await RefreshPage();
-        loading = false;
     }
 
     private async Task OpenBudgetDialogAsync(BudgetWithProgressDto? budget)
