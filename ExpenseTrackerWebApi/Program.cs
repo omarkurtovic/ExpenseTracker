@@ -1,8 +1,9 @@
-using ApexCharts;
 using ExpenseTrackerSharedCL.Features.Accounts.Services;
 using ExpenseTrackerSharedCL.Features.Budgets.Services;
 using ExpenseTrackerSharedCL.Features.Categories;
 using ExpenseTrackerSharedCL.Features.Dashboard;
+using ExpenseTrackerSharedCL.Features.Tags.Service;
+using ExpenseTrackerSharedCL.Features.Transactions.Services;
 using ExpenseTrackerWasmWebApp;
 using ExpenseTrackerWasmWebApp.Features.Accounts.Services;
 using ExpenseTrackerWasmWebApp.Features.Budgets.Services;
@@ -20,6 +21,8 @@ using ExpenseTrackerWebApi.Features.Categories.Services;
 using ExpenseTrackerWebApi.Features.Dashboard;
 using ExpenseTrackerWebApi.Features.SharedKernel.Behaviors;
 using ExpenseTrackerWebApi.Features.SharedKernel.Components;
+using ExpenseTrackerWebApi.Features.Tags.Services;
+using ExpenseTrackerWebApi.Features.Transactions.Services;
 using FluentValidation;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Components.WebAssembly.Authentication;
@@ -34,6 +37,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddRazorComponents()
     .AddInteractiveWebAssemblyComponents()
+    .AddInteractiveServerComponents()
     .AddAuthenticationStateSerialization();
 
 
@@ -46,24 +50,8 @@ builder.Services.AddScoped<IDashboardService, DashboardServiceServer>();
 builder.Services.AddScoped<IAccountService, AccountServiceServer>();
 builder.Services.AddScoped<ICategoryService, CategoryServiceServer>();
 builder.Services.AddScoped<IBudgetService, BudgetServiceServer>();
-
-var url = "https://localhost:7014/";
-
-
-builder.Services.AddHttpClient<TagService>(client =>
-{
-    client.BaseAddress = new Uri(url);
-});
-
-builder.Services.AddHttpClient<DataSeedService>(client =>
-{
-    client.BaseAddress = new Uri(url);
-});
-
-builder.Services.AddHttpClient<TransactionService>(client =>
-{
-    client.BaseAddress = new Uri(url);
-});
+builder.Services.AddScoped<ITransactionService, TransactionServiceServer>();
+builder.Services.AddScoped<ITagService, TagServiceServer>();
 
 
 // Also register IHttpContextAccessor
@@ -116,6 +104,7 @@ app.MapStaticAssets();
 app.MapControllers();
 app.MapRazorComponents<App>()
     .AddInteractiveWebAssemblyRenderMode()
+    .AddInteractiveServerRenderMode()
     .AddAdditionalAssemblies(typeof(ExpenseTrackerWasmWebApp._Imports).Assembly);
 
 InitializeDatabase(app);

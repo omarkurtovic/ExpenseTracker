@@ -1,12 +1,13 @@
 using ExpenseTrackerSharedCL.Features.SharedKernel;
 using ExpenseTrackerSharedCL.Features.Tags.Dtos;
+using ExpenseTrackerSharedCL.Features.Tags.Service;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
 
 namespace ExpenseTrackerWasmWebApp.Features.Tags.Services;
 
-public class TagService(HttpClient httpClient)
+public class TagService(HttpClient httpClient) : ITagService
 {
     private readonly HttpClient _httpClient = httpClient;
 

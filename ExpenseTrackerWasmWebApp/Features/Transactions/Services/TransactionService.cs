@@ -1,12 +1,13 @@
+using ExpenseTrackerSharedCL.Features.SharedKernel;
+using ExpenseTrackerSharedCL.Features.Transactions.Dtos;
+using ExpenseTrackerSharedCL.Features.Transactions.Services;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Transactions;
-using ExpenseTrackerSharedCL.Features.SharedKernel;
-using ExpenseTrackerSharedCL.Features.Transactions.Dtos;
 
 namespace ExpenseTrackerWasmWebApp.Features.Transactions.Services;
 
-public class TransactionService(HttpClient httpClient)
+public class TransactionService(HttpClient httpClient) : ITransactionService
 {
     private readonly HttpClient _httpClient = httpClient;
 

@@ -5,16 +5,19 @@
 @inject ISnackbar Snackbar
 @inject IDialogService DialogService
 
-<FabButton Text="Add" IconClass="@Icons.Material.Filled.Add" OnClick="() => OpenTransactionDialogAsync()" />
+<FabButton Class="@Class" Text="Add" IconClass="@Icons.Material.Filled.Add" OnClick="() => OpenTransactionDialogAsync()" />
     
 @code{
-    
+
     [CascadingParameter]
     public bool IsReoccuring{get; set;} = false;
-    
+
     [Parameter]
     public EventCallback<bool> OnClose { get; set; }
-    
+
+    [Parameter]
+    public string Class { get; set; } = null!;
+
     private async Task OpenTransactionDialogAsync()
     {
         var options = new DialogOptions

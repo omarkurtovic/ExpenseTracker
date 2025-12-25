@@ -1,0 +1,138 @@
+﻿@rendermode InteractiveWebAssembly
+@using ApexCharts
+@using Microsoft.AspNetCore.Components.Routing
+@using MudBlazor
+@using Microsoft.AspNetCore.Components.Authorization
+@inject NavigationManager NavigationManager
+@inject IServiceProvider ServiceProvider
+
+<MudPopoverProvider />
+<MudDialogProvider />
+<MudSnackbarProvider />
+<MudThemeProvider @bind-IsDarkMode="@_isDarkMode" Theme="_theme" />
+
+<MudAppBar Elevation="1">
+    <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="MudBlazor.Color.Inherit" Edge="Edge.Start"
+                    OnClick="@((e) => DrawerToggle())" />
+    <MudSpacer />
+    <MudSwitch @bind-Value="_isDarkMode" Color="MudBlazor.Color.Primary" Class="ma-4" T="bool" Label="Dark Mode"
+                @bind-Value:after="this.ThemeChanged" />
+    <MudMenu AnchorOrigin="Origin.BottomLeft" Icon="@Icons.Material.Filled.AccountCircle">
+        <ActivatorContent>
+            <MudAvatar Color="MudBlazor.Color.Primary">
+                <MudIcon Icon="@Icons.Material.Filled.Person" />
+            </MudAvatar>
+        </ActivatorContent>
+        <ChildContent>
+            <div class="px-4 py-4">
+                <MudText Typo="Typo.body2">@email</MudText>
+            </div>
+            <MudDivider />
+            <MudMenuItem Icon="@Icons.Material.Filled.Logout" OnClick="Logout" Color="MudBlazor.Color.Error">Logout</MudMenuItem>
+        </ChildContent>
+    </MudMenu>
+</MudAppBar>
+<MudDrawer @bind-Open="_drawerOpen" Elevation="2">
+    <MudDrawerHeader>
+        <MudText Typo="Typo.h5" Class="mt-1">Expense Tracker</MudText>
+    </MudDrawerHeader>
+    <MudNavMenu>
+        <MudNavLink Href="" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Dashboard">Dashboard</MudNavLink>
+        <MudNavLink Href="transactions?isReoccuring=false" Icon="@Icons.Material.Filled.CompareArrows">
+            Transactions
+        </MudNavLink>
+        <MudNavLink Href="accounts" Icon="@Icons.Material.Filled.AccountBalance">
+            Accounts
+        </MudNavLink>
+        <MudNavLink Href="categories" Icon="@Icons.Material.Filled.Category">
+            Categories
+        </MudNavLink>
+        <MudNavLink Href="transactions?isReoccuring=true" Icon="@Icons.Material.Filled.Category">
+            Reoccuring transactions
+        </MudNavLink>
+        <MudNavLink Href="budgets" Icon="@Icons.Material.Filled.Money">
+            Budgets
+        </MudNavLink>
+    </MudNavMenu>
+</MudDrawer>
+@code {
+
+    private IApexChartService? apexChartService;
+
+    protected override Task OnInitializedAsync()
+    {
+        apexChartService = ServiceProvider.GetService<IApexChartService>();
+        return base.OnInitializedAsync();
+    }
+
+
+
+    bool _drawerOpen = true;
+
+    void DrawerToggle()
+    {
+        _drawerOpen = !_drawerOpen;
+    }
+
+
+    private string email = "";
+
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await RefreshGraphs();
+        }
+    }
+
+    private void Logout()
+    {
+        var theme = _isDarkMode ? "dark" : "light";
+        NavigationManager.NavigateTo($"/api/auth/logout", forceLoad: true);
+    }
+
+
+    private bool _isDarkMode;
+    private MudTheme _theme = new();
+
+    private async Task ThemeChanged()
+    {
+        // if (IsLoggedIn)
+        // {
+        //     await Mediator.Send(new EditUserPreferencesCommand { DarkMode = _isDarkMode, UserId = CurrentUserService.GetUserId() });
+        // }
+
+        // await RefreshGraphs();
+        // StateHasChanged();
+    }
+
+    private async Task RefreshGraphs()
+    {
+        if(apexChartService == null)
+        {
+            return;
+        }
+
+        await apexChartService.SetGlobalOptionsAsync(new ApexChartBaseOptions
+        {
+            Debug = false,
+            Theme = new Theme
+            {
+                Mode = _isDarkMode ? Mode.Dark : Mode.Light,
+                Palette = PaletteType.Palette6
+            },
+            Chart = new Chart
+            {
+                Background = "transparent"
+            }
+        }, true);
+    }
+
+    
+    private void RedirectToTransctions(bool reoccuring)
+    {
+        NavigationManager.NavigateTo($"/transactions?isreoccuring={reoccuring}", forceLoad: true);
+    }
+
+}

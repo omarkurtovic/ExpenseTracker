@@ -15,11 +15,6 @@
 @inject ICategoryService CategoryService
 @inject NavigationManager NavigationManager
 
-<MudPopoverProvider />
-<MudThemeProvider />
-<MudDialogProvider />
-<MudSnackbarProvider />
-
 <PageTitle>Categories</PageTitle>
 
 @if (Loading)
@@ -92,7 +87,6 @@ else
     protected override async Task OnInitializedAsync()
     {
         await base.OnInitializedAsync();
-
         if (!OperatingSystem.IsBrowser())
         {
             await RefreshPage();

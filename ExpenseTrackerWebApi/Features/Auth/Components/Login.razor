@@ -1,5 +1,7 @@
 @page "/login"
+@layout AuthLayout
 @attribute [ExcludeFromInteractiveRouting]
+
 @using System.ComponentModel.DataAnnotations
 @using ExpenseTrackerWebApi.Features.Auth.Dtos
 @using Microsoft.AspNetCore.Authentication
@@ -11,7 +13,6 @@
 @inject NavigationManager NavigationManager
 @inject ISnackbar Snackbar
 @inject IdentityRedirectManager RedirectManager
-<MudThemeProvider />
 
 <PageTitle>Login</PageTitle>
 

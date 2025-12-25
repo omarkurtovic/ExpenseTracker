@@ -2,6 +2,7 @@
 
 @using CsvHelper
 @using ExpenseTrackerSharedCL.Features.Transactions.Dtos
+@using ExpenseTrackerSharedCL.Features.Transactions.Services
 @using ExpenseTrackerWasmWebApp.Features.Transactions.Services
 @using Microsoft.AspNetCore.Authorization
 @using System.Text
@@ -12,7 +13,7 @@
 @using System.Transactions
 @inject ISnackbar Snackbar
 @inject IJSRuntime JSRuntime
-@inject TransactionService TransactionService
+@inject ITransactionService TransactionService
 @inject NavigationManager NavigationManager
 
     <MudDialog>

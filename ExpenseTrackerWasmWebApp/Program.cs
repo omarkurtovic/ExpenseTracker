@@ -4,11 +4,14 @@ using ExpenseTrackerSharedCL.Features.Accounts.Services;
 using ExpenseTrackerSharedCL.Features.Budgets.Services;
 using ExpenseTrackerSharedCL.Features.Categories;
 using ExpenseTrackerSharedCL.Features.Dashboard;
+using ExpenseTrackerSharedCL.Features.Tags.Service;
+using ExpenseTrackerSharedCL.Features.Transactions.Services;
 using ExpenseTrackerWasmWebApp.Features.Accounts.Services;
 using ExpenseTrackerWasmWebApp.Features.Budgets.Services;
 using ExpenseTrackerWasmWebApp.Features.Categories.Services;
 using ExpenseTrackerWasmWebApp.Features.Dashboard.Services;
 using ExpenseTrackerWasmWebApp.Features.DataSeeding.Services;
+using ExpenseTrackerWasmWebApp.Features.SharedKernel.Services;
 using ExpenseTrackerWasmWebApp.Features.Tags.Services;
 using ExpenseTrackerWasmWebApp.Features.Transactions.Services;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
@@ -71,9 +74,10 @@ void ConfigureCustomServices(IServiceCollection services)
     services.AddScoped<ICategoryService, CategoryService>();
     services.AddScoped<IBudgetService, BudgetService>();
     services.AddScoped<IDashboardService, DashboardService>();
-    services.AddScoped<TagService>();
+    services.AddScoped<ITransactionService, TransactionService>();
+    services.AddScoped<ITagService, TagService>();
     services.AddScoped<DataSeedService>();
-    services.AddScoped<TransactionService>();
+    builder.Services.AddScoped<LayoutStateService>();
 
 }
 

@@ -5,6 +5,7 @@
 @using ExpenseTrackerSharedCL.Features.Categories.Dtos
 @using ExpenseTrackerSharedCL.Features.Tags.Dtos
 @using ExpenseTrackerSharedCL.Features.Transactions.Dtos
+@using ExpenseTrackerSharedCL.Features.Transactions.Services
 @using ExpenseTrackerWasmWebApp.Features.Transactions.Services
 @using Microsoft.AspNetCore.Authorization
 @using MudBlazor
@@ -16,13 +17,8 @@
 @inject IDialogService DialogService
 @inject ISnackbar Snackbar
 @inject IJSRuntime JSRuntime
-@inject TransactionService TransactionService
+@inject ITransactionService TransactionService
 @inject NavigationManager NavigationManager
-
-<MudPopoverProvider />
-<MudThemeProvider />
-<MudDialogProvider />
-<MudSnackbarProvider />
 
 <PageTitle>@(IsReoccuring ? "Reoccuring Transactions" : "Transactions")</PageTitle>
 
@@ -33,61 +29,58 @@
             <MudItem xs="12" Class="d-flex justify-center">
                 <MudText Typo="Typo.h4">@(IsReoccuring ? "Reoccuring Transactions" : "Transactions")</MudText>
             </MudItem>
-            <DynamicContent>
-                <DesktopContent>
-                    <MudItem xs="12">
-                        <MudPaper Elevation="0" Class="d-flex flex-grow-1 justify-space-between gap-2">
-                            <MudPaper Elevation="0" Class="d-flex gap-2">
-                                <MudButton Variant="Variant.Filled" Color="Color.Primary"
-                                    OnClick="@(() => OpenTransactionDialogAsync(null))"
-                                    StartIcon="@Icons.Material.Filled.Add">Add
-                                </MudButton>
-                                <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="ReloadGrid"
-                                    StartIcon="@Icons.Material.Filled.Refresh">Refresh
-                                </MudButton>
-                            </MudPaper>
-                            <MudPaper Elevation="0" Class="d-flex gap-2">
-                                <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="@OpenExportDialog"
-                                    StartIcon="@Icons.Material.Filled.ImportExport">Export</MudButton>
-                                @{
-                                    // todo
-                                    //
-                                    var email = "sa";
-                                    if (!string.IsNullOrWhiteSpace(email) && email.ToLower() == "sa")
-                                    {
-                                        <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="@AddTestData"
-                                            StartIcon="@Icons.Material.Filled.Add">Add Test Data
-                                        </MudButton>
-                                    }
-                                }
-
-                            </MudPaper>
-                        </MudPaper>
-                    </MudItem>
-                    <MudItem xs="12">
-                        <MudButton OnClick="OnExpandCollapseClick" Variant="Variant.Outlined">Filters</MudButton>
-                    </MudItem>
-                    <MudItem xs="12" Style="padding-top: 0px;">
-                        <MudCollapse Expanded="IsFiltersCollapsed">
-                            <TransactionsFilter Filters="Filters" RefreshDataGridAction="ReloadGrid" />
-                        </MudCollapse>
-                    </MudItem>
-                </DesktopContent>
-                <MobileContent>
-                    <MudItem xs="12" Class="d-flex justify-center gap-3">
+            @* desktop *@
+            <MudItem xs="12" Class="d-none d-md-block">
+                <MudPaper Elevation="0" Class="d-flex flex-grow-1 justify-space-between gap-2">
+                    <MudPaper Elevation="0" Class="d-flex gap-2">
+                        <MudButton Variant="Variant.Filled" Color="Color.Primary"
+                            OnClick="@(() => OpenTransactionDialogAsync(null))"
+                            StartIcon="@Icons.Material.Filled.Add">Add
+                        </MudButton>
+                        <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="ReloadGrid"
+                            StartIcon="@Icons.Material.Filled.Refresh">Refresh
+                        </MudButton>
+                    </MudPaper>
+                    <MudPaper Elevation="0" Class="d-flex gap-2">
                         <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="@OpenExportDialog"
                             StartIcon="@Icons.Material.Filled.ImportExport">Export</MudButton>
-                        <MudButton OnClick="OnClickShowFilterDialog" Variant="Variant.Outlined">Filters</MudButton>
-                    </MudItem>
-                    <AddTransactionFab OnClose="ReloadGrid" />
-                    <MudDialog @ref="_filterDialog">
-                        <TitleContent>Filters</TitleContent>
-                        <DialogContent>
-                            <TransactionsFilter Filters="Filters" RefreshDataGridAction="ReloadGrid" />
-                        </DialogContent>
-                    </MudDialog>
-                </MobileContent>
-            </DynamicContent>
+                        @{
+                            // todo
+                            //
+                            var email = "sa";
+                            if (!string.IsNullOrWhiteSpace(email) && email.ToLower() == "sa")
+                            {
+                                <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="@AddTestData"
+                                    StartIcon="@Icons.Material.Filled.Add">Add Test Data
+                                </MudButton>
+                            }
+                        }
+
+                    </MudPaper>
+                </MudPaper>
+            </MudItem>
+            <MudItem xs="12" Class="d-none d-md-block">
+                <MudButton OnClick="OnExpandCollapseClick" Variant="Variant.Outlined">Filters</MudButton>
+            </MudItem>
+            <MudItem xs="12" Class="d-none d-md-block" Style="padding-top: 0px;">
+                <MudCollapse Expanded="IsFiltersCollapsed">
+                    <TransactionsFilter Filters="Filters" RefreshDataGridAction="ReloadGrid" />
+                </MudCollapse>
+            </MudItem>
+            @* mobile *@
+            <MudItem xs="12" Class="d-flex d-md-none justify-center gap-3">
+                <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="@OpenExportDialog"
+                    StartIcon="@Icons.Material.Filled.ImportExport">Export</MudButton>
+                <MudButton OnClick="OnClickShowFilterDialog" Variant="Variant.Outlined">Filters</MudButton>
+            </MudItem>
+            <AddTransactionFab Class="d-flex d-md-none" OnClose="ReloadGrid" />
+            <MudDialog @ref="_filterDialog">
+                <TitleContent>Filters</TitleContent>
+                <DialogContent>
+                    <TransactionsFilter Filters="Filters" RefreshDataGridAction="ReloadGrid" />
+                </DialogContent>
+            </MudDialog>
+
             <MudItem xs="12" Style="height: 100%;">
                 <MudPaper Outlined="true" Elevation="1" Class="border-2">
                     <MudDataGrid @ref="@dataGrid" T="TransactionDto" Hover Groupable Height="45vh" ItemSize="30f"
@@ -185,10 +178,20 @@
 
     [Parameter]
     [SupplyParameterFromQuery(Name = "isreoccuring")]
+
     public bool IsReoccuring { get; set; } = false;
+
     private MudDataGrid<TransactionDto> dataGrid = null!;
+
     private int NumberOfTransactions = -1;
+
     private SortDefinition<TransactionDto>? _currentSort;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+    }
+
     private async Task<GridData<TransactionDto>> ServerReload(GridState<TransactionDto> state)
     {
         TransactionsGridOptionsDto options = new TransactionsGridOptionsDto();

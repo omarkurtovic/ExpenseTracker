@@ -1,8 +1,12 @@
 @rendermode InteractiveWebAssembly
 @using ExpenseTrackerSharedCL.Features.Accounts.Dtos
+@using ExpenseTrackerSharedCL.Features.Accounts.Services
+@using ExpenseTrackerSharedCL.Features.Categories
 @using ExpenseTrackerSharedCL.Features.Categories.Dtos
 @using ExpenseTrackerSharedCL.Features.Tags.Dtos
+@using ExpenseTrackerSharedCL.Features.Tags.Service
 @using ExpenseTrackerSharedCL.Features.Transactions.Dtos
+@using ExpenseTrackerSharedCL.Features.Transactions.Services
 @using ExpenseTrackerWasmWebApp.Features.Accounts.Services
 @using ExpenseTrackerWasmWebApp.Features.Categories.Services
 @using ExpenseTrackerWasmWebApp.Features.Tags.Services
@@ -13,10 +17,10 @@
 
 @inject IDialogService DialogService
 @inject ISnackbar Snackbar
-@inject AccountService AccountService
-@inject CategoryService CategoryService
-@inject TagService TagService
-@inject TransactionService TransactionService
+@inject IAccountService AccountService
+@inject ICategoryService CategoryService
+@inject ITagService TagService
+@inject ITransactionService TransactionService
 @inject NavigationManager NavigationManager
 
 @if (TransactionDto is not null)
