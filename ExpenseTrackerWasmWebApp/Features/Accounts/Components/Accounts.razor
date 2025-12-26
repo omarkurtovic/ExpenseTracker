@@ -2,6 +2,7 @@
 @attribute [Authorize]
 @rendermode InteractiveWebAssembly
 
+@implements IDisposable
 @using ExpenseTrackerSharedCL.Features.Accounts.Dtos
 @using ExpenseTrackerSharedCL.Features.Accounts.Services
 @using ExpenseTrackerWasmWebApp.Features.Accounts.Services
@@ -16,70 +17,72 @@
 @inject IJSRuntime JSRuntime
 @inject IAccountService AccountService
 @inject NavigationManager NavigationManager
+@inject PersistentComponentState ApplicationState
 
 
 <PageTitle>Accounts</PageTitle>
 
-@if (Loading)
-{
-    <div class="d-flex justify-center align-center" style="height: 80vh;">
-        <MudProgressCircular Indeterminate="true" Size="Size.Large" />
-    </div>
-}
-else
-{
-    <MudContainer MaxWidth="MaxWidth.Medium">
-        <MudPaper Class="pa-6 mt-6" Elevation="15">
-            <MudGrid>
-                <MudItem xs="12" Class="d-flex justify-center">
-                    <MudText Typo="Typo.h4">Accounts</MudText>
-                </MudItem>
-                <MudItem xs="12" Class="mb-4 d-none d-md-flex justify-center">
-                    <MudButton Variant="Variant.Filled" Color="Color.Primary"
-                        OnClick="@(() => OpenAccountDialogAsync(null))" StartIcon="@Icons.Material.Filled.Add">Add
-                    </MudButton>
-                </MudItem>
-                <FabButton Class="d-flex d-md-none" Text="Add" IconClass="@Icons.Material.Filled.Add" OnClick="@(() => OpenAccountDialogAsync(null))" />
+<MudContainer MaxWidth="MaxWidth.Medium">
+    <MudPaper Class="pa-6 mt-6" Elevation="15">
+        <MudGrid>
+            <MudItem xs="12" Class="d-flex justify-center">
+                <MudText Typo="Typo.h4">Accounts</MudText>
+            </MudItem>
+            <MudItem xs="12" Class="mb-4 d-none d-md-flex justify-center">
+                <MudButton Variant="Variant.Filled" Color="Color.Primary"
+                    OnClick="@(() => OpenAccountDialogAsync(null))" StartIcon="@Icons.Material.Filled.Add">Add
+                </MudButton>
+            </MudItem>
+            <FabButton Class="d-flex d-md-none" Text="Add" IconClass="@Icons.Material.Filled.Add" OnClick="@(() => OpenAccountDialogAsync(null))" />
                     
                 
-                @if (MyAccounts == null || MyAccounts.Count == 0)
+            @if (MyAccounts == null || MyAccounts.Count == 0)
+            {
+                <MudItem xs="12" Class="d-flex justify-center">
+                    <MudText Typo="Typo.h5">No accounts created yet!</MudText>
+                </MudItem>
+            }
+            else
+            {
+                @foreach (var account in MyAccounts)
                 {
-                    <MudItem xs="12" Class="d-flex justify-center">
-                        <MudText Typo="Typo.h5">No accounts created yet!</MudText>
+                    <MudItem xs="12" md="6">
+                        <AccountCard Account="@account" OnEdit="@(() => OpenAccountDialogAsync(account))" OnDelete="@(() => ConfirmDelete((int)account.Id!))"></AccountCard>
                     </MudItem>
                 }
-                else
-                {
-                    @foreach (var account in MyAccounts)
-                    {
-                        <MudItem xs="12" md="6">
-                            <AccountCard Account="@account" OnEdit="@(() => OpenAccountDialogAsync(account))" OnDelete="@(() => ConfirmDelete((int)account.Id!))"></AccountCard>
-                        </MudItem>
-                    }
-                }
-            </MudGrid>
-        </MudPaper>
-    </MudContainer>
-}
+            }
+        </MudGrid>
+    </MudPaper>
+</MudContainer>
 
 @code {
 
-    [PersistentState]
     public List<AccountWithBalanceDto> MyAccounts { get; set; } = new List<AccountWithBalanceDto>();
+    private PersistingComponentStateSubscription persistingSubscription;
 
-
-    [PersistentState]
-    public bool Loading{ get; set; } = true;
 
     protected override async Task OnInitializedAsync()
     {
-        await base.OnInitializedAsync();
-
-        if (!OperatingSystem.IsBrowser())
+        if (!ApplicationState.TryTakeFromJson<List<AccountWithBalanceDto>>(nameof(MyAccounts), out var accounts))
         {
             await UpdatePage();
-            Loading = false;
         }
+        else
+        {
+            MyAccounts = accounts;
+        }
+
+        persistingSubscription = ApplicationState.RegisterOnPersisting(PersistAccounts);
+    }
+
+    private Task PersistAccounts()
+    {
+        ApplicationState.PersistAsJson(nameof(MyAccounts), MyAccounts);
+        return Task.CompletedTask;
+    }
+    public void Dispose()
+    {
+        persistingSubscription.Dispose();
     }
 
     private async Task OpenAccountDialogAsync(AccountWithBalanceDto? accountWithBalance)

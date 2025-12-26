@@ -4,6 +4,7 @@ using ExpenseTrackerSharedCL.Features.Categories;
 using ExpenseTrackerSharedCL.Features.Dashboard;
 using ExpenseTrackerSharedCL.Features.Tags.Service;
 using ExpenseTrackerSharedCL.Features.Transactions.Services;
+using ExpenseTrackerSharedCL.Features.UserPreferences.Services;
 using ExpenseTrackerWasmWebApp;
 using ExpenseTrackerWasmWebApp.Features.Accounts.Services;
 using ExpenseTrackerWasmWebApp.Features.Budgets.Services;
@@ -23,6 +24,7 @@ using ExpenseTrackerWebApi.Features.SharedKernel.Behaviors;
 using ExpenseTrackerWebApi.Features.SharedKernel.Components;
 using ExpenseTrackerWebApi.Features.Tags.Services;
 using ExpenseTrackerWebApi.Features.Transactions.Services;
+using ExpenseTrackerWebApi.Features.UserPreferences.Services;
 using FluentValidation;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Components.WebAssembly.Authentication;
@@ -52,6 +54,7 @@ builder.Services.AddScoped<ICategoryService, CategoryServiceServer>();
 builder.Services.AddScoped<IBudgetService, BudgetServiceServer>();
 builder.Services.AddScoped<ITransactionService, TransactionServiceServer>();
 builder.Services.AddScoped<ITagService, TagServiceServer>();
+builder.Services.AddScoped<IUserPreferenceService, UserPreferenceServiceServer>();
 
 
 // Also register IHttpContextAccessor

@@ -1,21 +1,25 @@
 ﻿@rendermode InteractiveWebAssembly
 @using ApexCharts
+@using ExpenseTrackerSharedCL.Features.UserPreferences.Dtos
+@using ExpenseTrackerSharedCL.Features.UserPreferences.Services
 @using Microsoft.AspNetCore.Components.Routing
 @using MudBlazor
 @using Microsoft.AspNetCore.Components.Authorization
 @inject NavigationManager NavigationManager
 @inject IServiceProvider ServiceProvider
+@inject IUserPreferenceService UserPreferenceService
+@inject ISnackbar Snackbar
 
 <MudPopoverProvider />
 <MudDialogProvider />
 <MudSnackbarProvider />
-<MudThemeProvider @bind-IsDarkMode="@_isDarkMode" Theme="_theme" />
+<MudThemeProvider @bind-IsDarkMode="@UserPreference.DarkMode" Theme="_theme" />
 
 <MudAppBar Elevation="1">
     <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="MudBlazor.Color.Inherit" Edge="Edge.Start"
                     OnClick="@((e) => DrawerToggle())" />
     <MudSpacer />
-    <MudSwitch @bind-Value="_isDarkMode" Color="MudBlazor.Color.Primary" Class="ma-4" T="bool" Label="Dark Mode"
+    <MudSwitch @bind-Value="UserPreference.DarkMode" Color="MudBlazor.Color.Primary" Class="ma-4" T="bool" Label="Dark Mode"
                 @bind-Value:after="this.ThemeChanged" />
     <MudMenu AnchorOrigin="Origin.BottomLeft" Icon="@Icons.Material.Filled.AccountCircle">
         <ActivatorContent>
@@ -37,17 +41,19 @@
         <MudText Typo="Typo.h5" Class="mt-1">Expense Tracker</MudText>
     </MudDrawerHeader>
     <MudNavMenu>
-        <MudNavLink Href="" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Dashboard">Dashboard</MudNavLink>
-        <MudNavLink Href="transactions?isReoccuring=false" Icon="@Icons.Material.Filled.CompareArrows">
+        <MudNavLink Href="" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Dashboard">
+            Dashboard
+        </MudNavLink>
+        <MudNavLink Href="transactions?isReoccuring=false" Icon="@Icons.Material.Filled.CompareArrows" ForceLoad="true">
             Transactions
         </MudNavLink>
-        <MudNavLink Href="accounts" Icon="@Icons.Material.Filled.AccountBalance">
+        <MudNavLink Href="accounts" Icon="@Icons.Material.Filled.AccountBalance" ForceLoad="true">
             Accounts
         </MudNavLink>
         <MudNavLink Href="categories" Icon="@Icons.Material.Filled.Category">
             Categories
         </MudNavLink>
-        <MudNavLink Href="transactions?isReoccuring=true" Icon="@Icons.Material.Filled.Category">
+        <MudNavLink Href="transactions?isReoccuring=true" Icon="@Icons.Material.Filled.Category" ForceLoad="true">
             Reoccuring transactions
         </MudNavLink>
         <MudNavLink Href="budgets" Icon="@Icons.Material.Filled.Money">
@@ -57,26 +63,61 @@
 </MudDrawer>
 @code {
 
+    private bool _drawerOpen = true;
     private IApexChartService? apexChartService;
+    private string email = "";
 
-    protected override Task OnInitializedAsync()
+    [PersistentState]
+    public UserPreferenceDto UserPreference{ get; set; } = new();
+
+    private MudTheme _theme = new();
+
+    protected override async Task OnInitializedAsync()
     {
         apexChartService = ServiceProvider.GetService<IApexChartService>();
-        return base.OnInitializedAsync();
+        if (OperatingSystem.IsBrowser())
+        {
+            return;
+        }
+        UserPreference = new UserPreferenceDto()
+        {
+            DarkMode = false
+        };
+
+        var userPreferencesResult = await UserPreferenceService.GetUserPreferencesAsync();
+        if (!userPreferencesResult.IsSuccess)
+        {
+            Snackbar.Add("Failed to retrive user preferences! ", Severity.Error);
+            return;
+        }
+
+        if (userPreferencesResult.Data != null)
+        {
+            UserPreference = userPreferencesResult.Data;
+            return;
+        }
+
+        var setDefaultResult = await UserPreferenceService.CreateDefaultUsrPreferencesAsync();
+        if (!setDefaultResult.IsSuccess)
+        {
+            Snackbar.Add("Failed to set default user preferences! ", Severity.Error);
+            return;
+        }
+
+        userPreferencesResult = await UserPreferenceService.GetUserPreferencesAsync();
+        if (!userPreferencesResult.IsSuccess)
+        {
+            Snackbar.Add("Failed to retrive user preferences! ", Severity.Error);
+            return;
+        }
+
+        UserPreference = userPreferencesResult.Data!;
     }
-
-
-
-    bool _drawerOpen = true;
 
     void DrawerToggle()
     {
         _drawerOpen = !_drawerOpen;
     }
-
-
-    private string email = "";
-
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -88,23 +129,16 @@
 
     private void Logout()
     {
-        var theme = _isDarkMode ? "dark" : "light";
+        var theme = UserPreference.DarkMode ? "dark" : "light";
         NavigationManager.NavigateTo($"/api/auth/logout", forceLoad: true);
     }
 
 
-    private bool _isDarkMode;
-    private MudTheme _theme = new();
-
     private async Task ThemeChanged()
     {
-        // if (IsLoggedIn)
-        // {
-        //     await Mediator.Send(new EditUserPreferencesCommand { DarkMode = _isDarkMode, UserId = CurrentUserService.GetUserId() });
-        // }
-
-        // await RefreshGraphs();
-        // StateHasChanged();
+        var result = await UserPreferenceService.UpdateUserPreferencesAsync(UserPreference);
+        await RefreshGraphs();
+        StateHasChanged();
     }
 
     private async Task RefreshGraphs()
@@ -119,7 +153,7 @@
             Debug = false,
             Theme = new Theme
             {
-                Mode = _isDarkMode ? Mode.Dark : Mode.Light,
+                Mode = UserPreference.DarkMode ? Mode.Dark : Mode.Light,
                 Palette = PaletteType.Palette6
             },
             Chart = new Chart
@@ -129,10 +163,5 @@
         }, true);
     }
 
-    
-    private void RedirectToTransctions(bool reoccuring)
-    {
-        NavigationManager.NavigateTo($"/transactions?isreoccuring={reoccuring}", forceLoad: true);
-    }
 
 }

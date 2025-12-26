@@ -2,6 +2,7 @@
 @attribute [Authorize]
 @rendermode InteractiveWebAssembly
 
+@implements IDisposable
 @using ExpenseTrackerSharedCL.Features.Accounts.Dtos
 @using ExpenseTrackerSharedCL.Features.Budgets.Dtos
 @using ExpenseTrackerSharedCL.Features.Budgets.Services
@@ -15,77 +16,83 @@
 @inject ISnackbar Snackbar
 @inject IBudgetService BudgetService
 @inject NavigationManager NavigationManager
+@inject PersistentComponentState ApplicationState
 
 <PageTitle>Budgets</PageTitle>
 
-@if (Loading)
-{
-    <div class="d-flex justify-center align-center" style="height: 80vh;">
-        <MudProgressCircular Indeterminate="true" Size="Size.Large" />
-    </div>
-}
-else
-{
-    @if(MyBudgets != null){
-        <MudContainer MaxWidth="MaxWidth.Medium">
-            <MudPaper Class="pa-6 mt-6" Elevation="15">
-                <MudGrid>
-                    <MudItem xs="12" Class="d-flex justify-center">
-                        <MudText Typo="Typo.h4">Budgets</MudText>
-                    </MudItem>
-                    <MudItem xs="12" Class="d-none d-md-flex justify-center gap-5 mb-4">
-                        <MudButton Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Add" OnClick="@(() => OpenBudgetDialogAsync(null))">Add</MudButton>
-                    </MudItem>
-                    <FabButton Class="d-flex d-md-none" Text="Add" IconClass="@Icons.Material.Filled.Add" OnClick="@(() => OpenBudgetDialogAsync(null))" />
+@if(MyBudgets != null){
+    <MudContainer MaxWidth="MaxWidth.Medium">
+        <MudPaper Class="pa-6 mt-6" Elevation="15">
+            <MudGrid>
+                <MudItem xs="12" Class="d-flex justify-center">
+                    <MudText Typo="Typo.h4">Budgets</MudText>
+                </MudItem>
+                <MudItem xs="12" Class="d-none d-md-flex justify-center gap-5 mb-4">
+                    <MudButton Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Add" OnClick="@(() => OpenBudgetDialogAsync(null))">Add</MudButton>
+                </MudItem>
+                <FabButton Class="d-flex d-md-none" Text="Add" IconClass="@Icons.Material.Filled.Add" OnClick="@(() => OpenBudgetDialogAsync(null))" />
 
-                    @if(MyBudgets == null || MyBudgets.Count == 0)
+                @if(MyBudgets == null || MyBudgets.Count == 0)
+                {
+                    <MudItem xs="12" Class="d-flex justify-center mt-4">
+                        <MudText Typo="Typo.h5">No budgets found!</MudText>
+                    </MudItem>
+                }
+                else
+                {
+                    @foreach(var budget in MyBudgets)
                     {
-                        <MudItem xs="12" Class="d-flex justify-center mt-4">
-                            <MudText Typo="Typo.h5">No budgets found!</MudText>
+                        <MudItem xs="12" md="6">
+                            <BudgetCard 
+                                Budget="@budget"
+                                OnEdit="OpenBudgetDialogAsync"
+                                OnDelete="ConfirmDelete">
+                                <Content>
+                                    <MudProgressLinear Value="@(budget.Progress)" Color="@budget.ProgressColor"></MudProgressLinear>
+                                    <MudText Typo="Typo.body2">Spent: $@budget.Spent.ToString("F2") / $@budget.Amount?.ToString("F2")</MudText>
+                                </Content>
+                            </BudgetCard>
                         </MudItem>
                     }
-                    else
-                    {
-                        @foreach(var budget in MyBudgets)
-                        {
-                            <MudItem xs="12" md="6">
-                                <BudgetCard 
-                                    Budget="@budget"
-                                    OnEdit="OpenBudgetDialogAsync"
-                                    OnDelete="ConfirmDelete">
-                                    <Content>
-                                        <MudProgressLinear Value="@(budget.Progress)" Color="@budget.ProgressColor"></MudProgressLinear>
-                                        <MudText Typo="Typo.body2">Spent: $@budget.Spent.ToString("F2") / $@budget.Amount?.ToString("F2")</MudText>
-                                    </Content>
-                                </BudgetCard>
-                            </MudItem>
-                        }
-                    }
-                </MudGrid>
-            </MudPaper>
-        </MudContainer>
-    }
+                }
+            </MudGrid>
+        </MudPaper>
+    </MudContainer>
 }
 
 
 @code {
 
-    [PersistentState]
-    public List<BudgetWithProgressDto>? MyBudgets { get; set; }
+public List<BudgetWithProgressDto>? MyBudgets { get; set; }
 
-    [PersistentState]
-    public bool Loading { get; set; } = true;
+private PersistingComponentStateSubscription persistingSubscription;
 
-    protected override async Task OnInitializedAsync()
+protected override async Task OnInitializedAsync()
+{
+    await base.OnInitializedAsync();
+
+    if (!ApplicationState.TryTakeFromJson<List<BudgetWithProgressDto>>(nameof(MyBudgets), out var budgets))
     {
-        await base.OnInitializedAsync();
-
-        if (!OperatingSystem.IsBrowser())
-        {
-            await RefreshPage();
-            Loading = false;
-        }
+        await RefreshPage();
     }
+    else
+    {
+        MyBudgets = budgets;
+    }
+
+    persistingSubscription = ApplicationState.RegisterOnPersisting(PersistBudgets);
+}
+
+private Task PersistBudgets()
+{
+    ApplicationState.PersistAsJson(nameof(MyBudgets), MyBudgets);
+    return Task.CompletedTask;
+}
+
+public void Dispose()
+{
+    persistingSubscription.Dispose();
+}
 
     private async Task OpenBudgetDialogAsync(BudgetWithProgressDto? budget)
     {

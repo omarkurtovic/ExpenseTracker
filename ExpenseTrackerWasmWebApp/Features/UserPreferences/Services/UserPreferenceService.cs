@@ -1,11 +1,12 @@
-using System.Net.Http.Headers;
-using System.Net.Http.Json;
 using ExpenseTrackerSharedCL.Features.SharedKernel;
 using ExpenseTrackerSharedCL.Features.UserPreferences.Dtos;
+using ExpenseTrackerSharedCL.Features.UserPreferences.Services;
+using System.Net.Http.Headers;
+using System.Net.Http.Json;
 
 namespace ExpenseTrackerWasmWebApp.Features.UserPreferences.Services
 {
-    public class UserPreferenceService(HttpClient httpClient)
+    public class UserPreferenceService(HttpClient httpClient) : IUserPreferenceService
     {
         private readonly HttpClient _httpClient = httpClient;
 
@@ -62,6 +63,33 @@ namespace ExpenseTrackerWasmWebApp.Features.UserPreferences.Services
             {
                 Console.WriteLine(ex.Message);
                 return Result.Failure("An error occurred while updating user preferences.");
+            }
+        }
+
+        public async Task<Result> CreateDefaultUsrPreferencesAsync()
+        {
+            try
+            {
+                var request = new HttpRequestMessage(HttpMethod.Post, $"api/userpreferences/default");
+                var response = await _httpClient.SendAsync(request);
+                if (response.IsSuccessStatusCode)
+                {
+                    return Result.Success();
+                }
+                else if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+                {
+                    return Result.Failure("Unauthorized access.", FailureReason.Unauthorized);
+                }
+                else
+                {
+                    Console.WriteLine($"Error setting default user preferences! Status Code: {response.StatusCode}!");
+                    return Result.Failure("Failed to set default user preferences.");
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                return Result.Failure("An error occurred while setting default user preferences.");
             }
         }
     }

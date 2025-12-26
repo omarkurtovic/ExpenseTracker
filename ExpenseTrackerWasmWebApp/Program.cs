@@ -6,14 +6,15 @@ using ExpenseTrackerSharedCL.Features.Categories;
 using ExpenseTrackerSharedCL.Features.Dashboard;
 using ExpenseTrackerSharedCL.Features.Tags.Service;
 using ExpenseTrackerSharedCL.Features.Transactions.Services;
+using ExpenseTrackerSharedCL.Features.UserPreferences.Services;
 using ExpenseTrackerWasmWebApp.Features.Accounts.Services;
 using ExpenseTrackerWasmWebApp.Features.Budgets.Services;
 using ExpenseTrackerWasmWebApp.Features.Categories.Services;
 using ExpenseTrackerWasmWebApp.Features.Dashboard.Services;
 using ExpenseTrackerWasmWebApp.Features.DataSeeding.Services;
-using ExpenseTrackerWasmWebApp.Features.SharedKernel.Services;
 using ExpenseTrackerWasmWebApp.Features.Tags.Services;
 using ExpenseTrackerWasmWebApp.Features.Transactions.Services;
+using ExpenseTrackerWasmWebApp.Features.UserPreferences.Services;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using MudBlazor;
 using MudBlazor.Services;
@@ -76,8 +77,8 @@ void ConfigureCustomServices(IServiceCollection services)
     services.AddScoped<IDashboardService, DashboardService>();
     services.AddScoped<ITransactionService, TransactionService>();
     services.AddScoped<ITagService, TagService>();
+    services.AddScoped<IUserPreferenceService, UserPreferenceService>();
     services.AddScoped<DataSeedService>();
-    builder.Services.AddScoped<LayoutStateService>();
 
 }
 
