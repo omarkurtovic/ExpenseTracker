@@ -13,7 +13,7 @@ namespace ExpenseTrackerWasmWebApp.Features.DataSeeding.Services
         {
             try
             {
-                var request = new HttpRequestMessage(HttpMethod.Post, $"api/userpreferences");
+                var request = new HttpRequestMessage(HttpMethod.Post, $"api/dataSeeding");
                 request.Content = JsonContent.Create(dataSeedOptionsDto);
                 request.Content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
                 var response = await _httpClient.SendAsync(request);
