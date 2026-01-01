@@ -33,7 +33,7 @@ namespace ExpenseTrackerWebApi.Features.Transactions.Services
             {
                 var httpContext = _httpContextAccessor.HttpContext;
                 var userId = httpContext?.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-                var transactions = await _mediator.Send(new GetTransactionsQuery() { UserId = userId, TransactionOptions = options });
+                var transactions = await _mediator.Send(new GetTransactionsPageDataQuery() { UserId = userId, TransactionOptions = options });
                 return Result<TransactionsPageDataDto>.Success(transactions);
             }
             catch (Exception ex)

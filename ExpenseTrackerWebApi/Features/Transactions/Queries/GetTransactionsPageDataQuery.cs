@@ -4,7 +4,7 @@ using ExpenseTrackerSharedCL.Features.Transactions.Dtos;
 
 namespace ExpenseTrackerWebApi.Features.Transactions.Queries
 {
-    public class GetTransactionsQuery : IRequest<TransactionsPageDataDto>
+    public class GetTransactionsPageDataQuery : IRequest<TransactionsPageDataDto>
     {
         public required string UserId{get; set; }
         public required TransactionsGridOptionsDto TransactionOptions{get; set;} 
@@ -12,9 +12,9 @@ namespace ExpenseTrackerWebApi.Features.Transactions.Queries
 
 
     
-    public class GetTransactionsQueryValidator : AbstractValidator<GetTransactionsQuery>
+    public class GetTransactionsPageDataQueryValidator : AbstractValidator<GetTransactionsPageDataQuery>
     {
-        public GetTransactionsQueryValidator()
+        public GetTransactionsPageDataQueryValidator()
         {
             RuleFor(x => x.UserId)
                 .NotEmpty().WithMessage("User ID is required!");

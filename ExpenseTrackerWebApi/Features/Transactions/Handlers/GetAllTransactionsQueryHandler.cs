@@ -23,7 +23,7 @@ namespace ExpenseTrackerWebApi.Features.Transactions.Handlers
         }
         public async Task<List<TransactionDto>> Handle(GetAllTransactionsQuery request, CancellationToken cancellationToken)
         {
-            var result = _context.Transactions
+            var transactionsQuery = _context.Transactions
             .Include(t => t.Account)
             .Include(t => t.Category)
             .Include(t => t.TransactionTags)
@@ -31,14 +31,15 @@ namespace ExpenseTrackerWebApi.Features.Transactions.Handlers
             .Where(t => t.Account.IdentityUserId == request.UserId);
             if(request.IsReoccuring)
             {
-                result = result.Where(t => t.IsReoccuring == true);
+                transactionsQuery = transactionsQuery.Where(t => t.IsReoccuring == true);
             }
             else
             {
-                result = result.Where(t => t.IsReoccuring == false);
+                transactionsQuery = transactionsQuery.Where(t => t.IsReoccuring == null || t.IsReoccuring == false);
             }
+            transactionsQuery = transactionsQuery.OrderByDescending(t => t.Date);
             
-            return [.. (await result.ToListAsync(cancellationToken: cancellationToken)).Select(transaction => new TransactionDto()
+            return [.. (await transactionsQuery.ToListAsync(cancellationToken)).Select(transaction => new TransactionDto()
             {
                 Id = transaction.Id,
                 Amount = transaction.Amount,

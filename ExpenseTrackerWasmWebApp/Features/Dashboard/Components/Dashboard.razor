@@ -110,11 +110,7 @@
     </MudPaper>
 </MudContainer>
 
-@* <DynamicContent>
-    <MobileContent>
-        <AddTransactionFab OnClose="@(() => RefreshPage(false))" />
-    </MobileContent>
-</DynamicContent> *@
+<AddTransactionFab Class="d-flex d-md-none" OnClose="@(() => RefreshPage(false))" />
 
 @code {
 

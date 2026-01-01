@@ -25,7 +25,7 @@ namespace ExpenseTrackerWebApp.Features.SharedKernel.Transactions.Handlers
             .Include(t => t.Account)
             .Include(t => t.TransactionTags)
                 .ThenInclude(tt => tt.Tag)
-            .Where(b => b.Id == request.Id).FirstOrDefaultAsync();
+            .Where(b => b.Id == request.Id).FirstOrDefaultAsync(cancellationToken);
             
 
             if(transaction == null)

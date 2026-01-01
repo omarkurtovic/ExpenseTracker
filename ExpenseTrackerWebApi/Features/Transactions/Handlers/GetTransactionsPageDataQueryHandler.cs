@@ -13,15 +13,15 @@ using MudBlazor.Extensions;
 
 namespace ExpenseTrackerWebApi.Features.Transactions.Handlers
 {
-    public class GetTransactionsQueryHandler : IRequestHandler<GetTransactionsQuery, TransactionsPageDataDto>
+    public class GetTransactionsPageDataQueryHandler : IRequestHandler<GetTransactionsPageDataQuery, TransactionsPageDataDto>
     {
         private readonly AppDbContext _context;
 
-        public GetTransactionsQueryHandler(AppDbContext context)
+        public GetTransactionsPageDataQueryHandler(AppDbContext context)
         {
             _context = context;
         }
-        public async Task<TransactionsPageDataDto> Handle(GetTransactionsQuery request, CancellationToken cancellationToken)
+        public async Task<TransactionsPageDataDto> Handle(GetTransactionsPageDataQuery request, CancellationToken cancellationToken)
         {
             var transctionsQuery = _context.Transactions
             .Include(t => t.Account)
