@@ -5,10 +5,12 @@
 @using Microsoft.AspNetCore.Components.Routing
 @using MudBlazor
 @using Microsoft.AspNetCore.Components.Authorization
+@using System.Threading.Tasks
 @inject NavigationManager NavigationManager
 @inject IServiceProvider ServiceProvider
 @inject IUserPreferenceService UserPreferenceService
 @inject ISnackbar Snackbar
+@inject IJSRuntime JSRuntime
 
 <MudPopoverProvider />
 <MudDialogProvider />
@@ -61,6 +63,27 @@
         </MudNavLink>
     </MudNavMenu>
 </MudDrawer>
+
+<script>
+
+    function syncDrawer(drawerOpen){
+        console.log('sync drawer called');
+        console.log(`drawerOpen: ${drawerOpen}`);
+        const mainContent = document.querySelector('.mud-main-content');
+        const appBar = document.querySelector('.mud-appbar');
+
+        if(drawerOpen){
+            mainContent.style.marginLeft = '';
+            appBar.style.marginLeft = '';
+            appBar.style.width = '';
+        }
+        else{
+            mainContent.style.marginLeft = '0';
+            appBar.style.marginLeft = '0';
+            appBar.style.width = '100%';
+        }
+    }
+</script>
 @code {
 
     private bool _drawerOpen = true;
@@ -114,9 +137,12 @@
         UserPreference = userPreferencesResult.Data!;
     }
 
-    void DrawerToggle()
+
+    async Task DrawerToggle()
     {
         _drawerOpen = !_drawerOpen;
+        await JSRuntime.InvokeVoidAsync("syncDrawer", _drawerOpen);
+
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
