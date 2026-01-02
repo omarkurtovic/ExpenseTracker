@@ -1,7 +1,7 @@
 using ExpenseTrackerSharedCL.Features.Budgets.Dtos;
 using ExpenseTrackerWebApi.Database;
-using ExpenseTrackerWebApi.Database.Models;
 using ExpenseTrackerWebApi.Features.Budgets.Commands;
+using ExpenseTrackerWebApi.Features.Budgets.Models;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
@@ -37,7 +37,7 @@ namespace ExpenseTrackerWebApi.Features.Budgets.Handlers
             var budget = new Budget()
             {
                 Name = request.BudgetDto.Name!,
-                BudgetType = (Database.Models.BudgetType)request.BudgetDto.BudgetType!,
+                BudgetType = (Models.BudgetType)request.BudgetDto.BudgetType!,
                 Amount = (decimal)request.BudgetDto.Amount!,
                 IdentityUserId = request.UserId,
                 Description = request.BudgetDto.Description

@@ -3,7 +3,7 @@ using ExpenseTrackerSharedCL.Features.Categories.Dtos;
 using ExpenseTrackerWebApi.Features.Categories.Queries;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
-using DbTransactionType = ExpenseTrackerWebApi.Database.Models.TransactionType;
+using DbTransactionType = ExpenseTrackerWebApi.Features.Transactions.Models.TransactionType;
 
 namespace ExpenseTrackerWebApi.Features.Categories.Handlers
 {

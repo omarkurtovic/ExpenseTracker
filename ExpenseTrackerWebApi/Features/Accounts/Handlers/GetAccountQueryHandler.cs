@@ -1,11 +1,11 @@
 
 
 using ExpenseTrackerWebApi.Database;
-using ExpenseTrackerWebApi.Database.Models;
 using ExpenseTrackerSharedCL.Features.Accounts.Dtos;
 using ExpenseTrackerWebApi.Features.Accounts.Queries;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
+using ExpenseTrackerWebApi.Features.Accounts.Models;
 
 namespace ExpenseTrackerWebApi.Features.Accounts.Handlers
 {

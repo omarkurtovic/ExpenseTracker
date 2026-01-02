@@ -1,5 +1,4 @@
 using ExpenseTrackerSharedCL.Features.UserPreferences.Dtos;
-using ExpenseTrackerWebApi.Database.Models;
 using FluentValidation;
 using MediatR;
 

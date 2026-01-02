@@ -1,8 +1,8 @@
 
 
 using ExpenseTrackerWebApi.Database;
-using ExpenseTrackerWebApi.Database.Models;
 using ExpenseTrackerWebApi.Features.UserPreferences.Commands;
+using ExpenseTrackerWebApi.Features.UserPreferences.Models;
 using MediatR;
 
 namespace ExpenseTrackerWebApi.Features.UserPreferences.Handlers

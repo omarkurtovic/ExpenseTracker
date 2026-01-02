@@ -1,6 +1,8 @@
+using ExpenseTrackerWebApi.Features.Accounts.Models;
+using ExpenseTrackerWebApi.Features.Categories.Models;
 using Microsoft.AspNetCore.Identity;
 
-namespace ExpenseTrackerWebApi.Database.Models
+namespace ExpenseTrackerWebApi.Features.Budgets.Models
 {
     public class Budget{
         public int Id{get; set;}

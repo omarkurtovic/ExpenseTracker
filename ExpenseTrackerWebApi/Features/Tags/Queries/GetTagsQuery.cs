@@ -1,6 +1,5 @@
 using MediatR;
 using FluentValidation;
-using ExpenseTrackerWebApi.Database.Models;
 using ExpenseTrackerSharedCL.Features.Tags.Dtos;
 
 namespace ExpenseTrackerWebApi.Features.Tags.Queries

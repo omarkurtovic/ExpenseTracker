@@ -5,57 +5,56 @@
 @using System.ComponentModel.DataAnnotations
 @using System.Text
 @using System.Text.Encodings.Web
+@using ExpenseTrackerWebApi.Features.Accounts.Commands
+@using ExpenseTrackerWebApi.Features.Auth.Dtos
+@using ExpenseTrackerWebApi.Features.Categories.Commands
+@using ExpenseTrackerWebApi.Features.UserPreferences.Commands
+@using MediatR
 @using Microsoft.AspNetCore.Identity
 @using Microsoft.AspNetCore.WebUtilities
 @using MudBlazor
-@using ExpenseTrackerWebApi.Features.Auth.Dtos
-@using ExpenseTrackerSharedCL.Features.Auth.Dtos
+@using MudBlazor.StaticInput
 
 @inject UserManager<IdentityUser> UserManager
 @inject IUserStore<IdentityUser> UserStore
 @inject SignInManager<IdentityUser> SignInManager
-@inject IEmailSender<IdentityUser> EmailSender
-@inject ILogger<Register> Logger
 @inject NavigationManager NavigationManager
 @inject ISnackbar Snackbar
+@inject IdentityRedirectManager RedirectManager
+@inject IMediator Mediator
+
 
 <PageTitle>Registration</PageTitle>
 
 <MudContainer MaxWidth="MaxWidth.Small" >
     <MudPaper Class="pa-6 mt-6" Elevation="15">
-        <MudForm @ref="form">
+        <StatusMessage Message="@Message" />
+        <EditForm Model="@Input" method="post" OnValidSubmit="RegisterUser" FormName="register">
+            <DataAnnotationsValidator />
             <MudGrid>
                 <MudItem xs="12" Class="d-flex justify-center">
                     <MudText Typo="Typo.h4">Create an Account</MudText>
                 </MudItem>
                 <MudItem xs="12">
-                    <MudTextField T="string" @bind-Value="RegisterData.Email" Label="E-Mail" Variant="Variant.Text" Required="true"
-                        RequiredError="Email is required!"
-                        Validation="@(new EmailAddressAttribute() {ErrorMessage = "The email address is invalid"})">
-                    </MudTextField>
+                    <MudStaticTextField T="string" @bind-Value="Input.Email" Label="E-Mail" InputType="InputType.Text" Variant="Variant.Text"></MudStaticTextField>
+                    <ValidationMessage For="() => Input.Email" class=""></ValidationMessage>
                 </MudItem>
                 <MudItem xs="12">
-                    <MudTextField @bind-Value="RegisterData.Password" Label="Password"
-                        Required="true" RequiredError="Password is required!"
-                        Variant="Variant.Text" InputType="@PasswordInput"
-                        Adornment="Adornment.End" AdornmentIcon="@PasswordInputIcon"
-                        OnAdornmentClick="ShowPasswordClick"/>
+                    <MudStaticTextField T="string" @bind-Value="Input.Password" Label="Password" InputType="InputType.Password"></MudStaticTextField>
+                    <ValidationMessage For="() => Input.Password" class=""></ValidationMessage>
                 </MudItem>
                 <MudItem xs="12">
-                    <MudTextField @bind-Value="RegisterData.PasswordConfirm" Label="Confirm password"
-                        Required="true" RequiredError="Confirm Password is required!"
-                        Variant="Variant.Text" InputType="@ConfirmPasswordInput"
-                        Adornment="Adornment.End" AdornmentIcon="@ConfirmPasswordInputIcon"
-                        OnAdornmentClick="ShowConfirmPasswordClick"/>
+                    <MudStaticTextField T="string" @bind-Value="Input.PasswordConfirm" Label="Confirm password" InputType="InputType.Password"></MudStaticTextField>
+                    <ValidationMessage For="() => Input.PasswordConfirm" class=""></ValidationMessage>
                 </MudItem>
                 <MudItem xs="12" Class="d-flex justify-center">
-                    <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="@BtnRegister_Click"  Class="px-20 py-1">Register</MudButton>
+                    <MudStaticButton Variant="Variant.Filled" Color="Color.Primary" Class="px-20 py-1" FormAction="FormAction.Submit">Register</MudStaticButton>
                 </MudItem>
                 <MudItem xs="12" Class="d-flex justify-center mt-10">
-                    <MudText Typo="Typo.body1">Already have an account? <MudButton Variant="Variant.Text" Color="Color.Secondary" OnClick="BtnLogin_Click">Login</MudButton></MudText>
+                    <MudText Typo="Typo.body1">Already have an account? <a href="@(NavigationManager.GetUriWithQueryParameters("login", new Dictionary<string, object?> { ["ReturnUrl"] = ReturnUrl }))">Login</a></MudText>
                 </MudItem>
             </MudGrid>
-        </MudForm>
+        </EditForm>
     </MudPaper>
 </MudContainer>
 
@@ -65,79 +64,62 @@
 @code {
     [SupplyParameterFromQuery]
     private string? ReturnUrl { get; set; }
-    private MudForm form = null!;
-    private RegisterDataDto RegisterData = new RegisterDataDto();
 
-    private bool isPasswordShow;
-    private InputType PasswordInput = InputType.Password;
-    private string PasswordInputIcon = Icons.Material.Filled.VisibilityOff;
+    [SupplyParameterFromForm]
+    private RegisterDataDto Input { get; set; } = new();
 
-    
-    private bool isConfirmPasswordShow;
-    private InputType ConfirmPasswordInput = InputType.Password;
-    private string ConfirmPasswordInputIcon = Icons.Material.Filled.VisibilityOff;
+    private IEnumerable<IdentityError>? identityErrors;
+    private string? Message => identityErrors is null ? null : $"Error: {string.Join(", ", identityErrors.Select(error => error.Description))}";
 
-    private async Task BtnRegister_Click()
+
+    private async Task RegisterUser(EditContext editContext)
     {
-        await form.Validate();
-        if (!form.IsValid)
-        {
-            return;
-        }
+        var user = CreateUser();
 
-        var user = new IdentityUser();
-
-        await UserStore.SetUserNameAsync(user, RegisterData.Email, CancellationToken.None);
-        var emailStore = (IUserEmailStore<IdentityUser>)UserStore;
-        await emailStore.SetEmailAsync(user, RegisterData.Email, CancellationToken.None);
-        var result = await UserManager.CreateAsync(user, RegisterData.Password);
+        await UserStore.SetUserNameAsync(user, Input.Email, CancellationToken.None);
+        var emailStore = GetEmailStore();
+        await emailStore.SetEmailAsync(user, Input.Email, CancellationToken.None);
+        var result = await UserManager.CreateAsync(user, Input.Password);
 
         if (!result.Succeeded)
         {
-            Snackbar.Add("Registration failed. Please check your information and try again.", Severity.Error);
-            Snackbar.Add("Errors: " + string.Join(", ", result.Errors.Select(e => e.Description)), Severity.Error);
+            identityErrors = result.Errors;
             return;
         }
-        else{
-            Snackbar.Add("Registration successful, redirecting to login!", Severity.Success);
-        }
 
 
+        await SignInManager.SignInAsync(user, isPersistent: false);
+        await Mediator.Send(new ResetToDefaultCategoriesCommand { UserId = user.Id });
+        await Mediator.Send(new AddDefaultUserPreferencesCommand { UserId = user.Id });
+        await Mediator.Send(new ResetToDefaultAccountsCommand { UserId = user.Id });
         NavigationManager.NavigateTo(ReturnUrl ?? "/");
-
-    }
-    private void BtnLogin_Click(){
-        NavigationManager.NavigateTo("Login");
     }
 
-    private void ShowPasswordClick()
+
+    private IdentityUser CreateUser()
     {
-        @if (isPasswordShow)
+        try
         {
-            isPasswordShow = false;
-            PasswordInputIcon = Icons.Material.Filled.VisibilityOff;
-            PasswordInput = InputType.Password;
+            return Activator.CreateInstance<IdentityUser>();
         }
-        else {
-            isPasswordShow = true;
-            PasswordInputIcon = Icons.Material.Filled.Visibility;
-            PasswordInput = InputType.Text;
+        catch
+        {
+            throw new InvalidOperationException($"Can't create an instance of '{nameof(IdentityUser)}'. " +
+                $"Ensure that '{nameof(IdentityUser)}' is not an abstract class and has a parameterless constructor.");
         }
     }
 
-
-    private void ShowConfirmPasswordClick()
+    private IUserEmailStore<IdentityUser> GetEmailStore()
     {
-        @if (isConfirmPasswordShow)
+        if (!UserManager.SupportsUserEmail)
         {
-            isConfirmPasswordShow = false;
-            ConfirmPasswordInputIcon = Icons.Material.Filled.VisibilityOff;
-            ConfirmPasswordInput = InputType.Password;
+            throw new NotSupportedException("The default UI requires a user store with email support.");
         }
-        else {
-            isConfirmPasswordShow = true;
-            ConfirmPasswordInputIcon = Icons.Material.Filled.Visibility;
-            ConfirmPasswordInput = InputType.Text;
-        }
+        return (IUserEmailStore<IdentityUser>)UserStore;
+    }
+
+    private void BtnLogin_Click()
+    {
+        NavigationManager.NavigateTo("/Login");
     }
 }

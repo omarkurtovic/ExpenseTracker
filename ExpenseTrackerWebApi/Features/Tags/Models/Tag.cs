@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Identity;
 
-namespace ExpenseTrackerWebApi.Database.Models
+namespace ExpenseTrackerWebApi.Features.Tags.Models
 {
     public class Tag : IEquatable<Tag>
     {

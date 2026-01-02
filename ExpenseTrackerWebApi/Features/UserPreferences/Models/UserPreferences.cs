@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Identity;
 
-namespace ExpenseTrackerWebApi.Database.Models
+namespace ExpenseTrackerWebApi.Features.UserPreferences.Models
 {
     public class UserPreference{
         public string UserId{get; set;} = string.Empty;

@@ -1,8 +1,8 @@
 using System.Globalization;
 using ExpenseTrackerSharedCL.Features.Budgets.Dtos;
 using ExpenseTrackerWebApi.Database;
-using ExpenseTrackerWebApi.Database.Models;
 using ExpenseTrackerWebApi.Features.Budgets.Queries;
+using ExpenseTrackerWebApi.Features.Transactions.Models;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using MudBlazor.Extensions;

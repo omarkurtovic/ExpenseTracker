@@ -1,8 +1,9 @@
 
 using ExpenseTrackerSharedCL.Features.Transactions.Dtos;
 using ExpenseTrackerWebApi.Database;
-using ExpenseTrackerWebApi.Database.Models;
 using ExpenseTrackerWebApi.Features.Auth.Commands;
+using ExpenseTrackerWebApi.Features.Tags.Models;
+using ExpenseTrackerWebApi.Features.Transactions.Models;
 using ExpenseTrackerWebApi.Features.Transactions.Queries;
 using MediatR;
 

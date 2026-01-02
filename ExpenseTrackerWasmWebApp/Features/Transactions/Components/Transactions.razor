@@ -20,6 +20,7 @@
 @inject IJSRuntime JSRuntime
 @inject ITransactionService TransactionService
 @inject NavigationManager NavigationManager
+@inject AuthenticationStateProvider AuthenticationStateProvider
 
 <PageTitle>@(IsReoccuring ? "Reoccuring Transactions" : "Transactions")</PageTitle>
 
@@ -46,9 +47,6 @@
                         <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="@OpenExportDialog"
                             StartIcon="@Icons.Material.Filled.ImportExport">Export</MudButton>
                         @{
-                            // todo
-                            //
-                            var email = "sa";
                             if (!string.IsNullOrWhiteSpace(email) && email.ToLower() == "sa")
                             {
                                 <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="@AddTestData"
@@ -187,9 +185,18 @@
     private int NumberOfTransactions = -1;
 
     private SortDefinition<TransactionDto>? _currentSort;
+    private string email = "";
 
     protected override async Task OnInitializedAsync()
     {
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+
+        if (user.Identity?.IsAuthenticated ?? false)
+        {
+            email = user.Identity.Name ?? "";
+        }
+
         await base.OnInitializedAsync();
     }
 

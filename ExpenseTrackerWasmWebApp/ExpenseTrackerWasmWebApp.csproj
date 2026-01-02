@@ -8,6 +8,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Services\**" />
+    <Content Remove="Services\**" />
+    <EmbeddedResource Remove="Services\**" />
+    <None Remove="Services\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Blazor-ApexCharts" Version="6.0.2" />
     <PackageReference Include="Blazor.LocalStorage" Version="9.0.1" />
     <PackageReference Include="Blazored.LocalStorage" Version="4.5.0" />
@@ -21,10 +28,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\ExpenseTrackerSharedCL\ExpenseTrackerSharedCL.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Services\" />
   </ItemGroup>
 
 </Project>

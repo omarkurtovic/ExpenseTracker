@@ -1,8 +1,10 @@
-
+using ExpenseTrackerWebApi.Features.Accounts.Models;
+using ExpenseTrackerWebApi.Features.Categories.Models;
+using ExpenseTrackerWebApi.Features.Tags.Models;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Globalization;
 
-namespace ExpenseTrackerWebApi.Database.Models
+namespace ExpenseTrackerWebApi.Features.Transactions.Models
 {
     public class Transaction
     {

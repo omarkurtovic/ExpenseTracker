@@ -1,6 +1,6 @@
 using ExpenseTrackerWebApi.Database;
-using ExpenseTrackerWebApi.Database.Models;
 using ExpenseTrackerWebApi.Features.Tags.Commands;
+using ExpenseTrackerWebApi.Features.Tags.Models;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 

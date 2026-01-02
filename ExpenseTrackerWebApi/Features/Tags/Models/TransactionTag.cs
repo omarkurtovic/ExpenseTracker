@@ -1,4 +1,6 @@
-namespace ExpenseTrackerWebApi.Database.Models
+using ExpenseTrackerWebApi.Features.Transactions.Models;
+
+namespace ExpenseTrackerWebApi.Features.Tags.Models
 {
     public class TransactionTag
     {

@@ -29,4 +29,8 @@
     <ProjectReference Include="..\ExpenseTrackerWasmWebApp\ExpenseTrackerWasmWebApp.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Database\Models\" />
+  </ItemGroup>
+
 </Project>

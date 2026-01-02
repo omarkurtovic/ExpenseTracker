@@ -11,6 +11,8 @@
 @inject IUserPreferenceService UserPreferenceService
 @inject ISnackbar Snackbar
 @inject IJSRuntime JSRuntime
+@inject AuthenticationStateProvider AuthenticationStateProvider
+
 
 <MudPopoverProvider />
 <MudDialogProvider />
@@ -97,6 +99,14 @@
 
     protected override async Task OnInitializedAsync()
     {
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+
+        if (user.Identity?.IsAuthenticated ?? false)
+        {
+            email = user.Identity.Name ?? "";
+        }
+
         apexChartService = ServiceProvider.GetService<IApexChartService>();
         if (OperatingSystem.IsBrowser())
         {
@@ -156,7 +166,7 @@
     private void Logout()
     {
         var theme = UserPreference.DarkMode ? "dark" : "light";
-        NavigationManager.NavigateTo($"/api/auth/logout", forceLoad: true);
+        NavigationManager.NavigateTo($"/logout", forceLoad: true);
     }
 
 

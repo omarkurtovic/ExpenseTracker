@@ -1,6 +1,5 @@
 using ExpenseTrackerSharedCL.Features.UserPreferences.Dtos;
 using ExpenseTrackerWebApi.Database;
-using ExpenseTrackerWebApi.Database.Models;
 using ExpenseTrackerWebApi.Features.Features.UserPreferences.Queries;
 using MediatR;
 using Microsoft.EntityFrameworkCore;

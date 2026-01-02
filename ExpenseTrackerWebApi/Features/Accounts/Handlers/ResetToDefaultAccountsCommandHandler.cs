@@ -1,6 +1,6 @@
 using ExpenseTrackerWebApi.Database;
-using ExpenseTrackerWebApi.Database.Models;
 using ExpenseTrackerWebApi.Features.Accounts.Commands;
+using ExpenseTrackerWebApi.Features.Accounts.Models;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using MudBlazor;

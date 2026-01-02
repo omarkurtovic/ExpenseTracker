@@ -1,4 +1,4 @@
-namespace ExpenseTrackerWebApi.Database.Models
+namespace ExpenseTrackerWebApi.Features.Transactions.Models
 {
     public enum TransactionType
     {

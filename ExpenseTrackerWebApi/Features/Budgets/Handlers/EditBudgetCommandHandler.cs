@@ -1,9 +1,9 @@
 using ExpenseTrackerWebApi.Database;
 using ExpenseTrackerWebApi.Features.Budgets.Commands;
-using ExpenseTrackerWebApi.Database.Models;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using MudBlazor;
+using ExpenseTrackerWebApi.Features.Budgets.Models;
 
 namespace ExpenseTrackerWebApi.Features.Budgets.Handlers
 {

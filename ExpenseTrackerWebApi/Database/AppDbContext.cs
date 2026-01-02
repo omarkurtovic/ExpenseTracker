@@ -1,4 +1,9 @@
-using ExpenseTrackerWebApi.Database.Models;
+using ExpenseTrackerWebApi.Features.Accounts.Models;
+using ExpenseTrackerWebApi.Features.Budgets.Models;
+using ExpenseTrackerWebApi.Features.Categories.Models;
+using ExpenseTrackerWebApi.Features.Tags.Models;
+using ExpenseTrackerWebApi.Features.Transactions.Models;
+using ExpenseTrackerWebApi.Features.UserPreferences.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;

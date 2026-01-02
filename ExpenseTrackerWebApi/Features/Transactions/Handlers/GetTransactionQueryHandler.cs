@@ -3,7 +3,7 @@ using ExpenseTrackerSharedCL.Features.Categories.Dtos;
 using ExpenseTrackerSharedCL.Features.Tags.Dtos;
 using ExpenseTrackerSharedCL.Features.Transactions.Dtos;
 using ExpenseTrackerWebApi.Database;
-using ExpenseTrackerWebApi.Database.Models;
+using ExpenseTrackerWebApi.Features.Transactions.Models;
 using ExpenseTrackerWebApi.Features.Transactions.Queries;
 using MediatR;
 using Microsoft.EntityFrameworkCore;

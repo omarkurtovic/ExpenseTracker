@@ -1,6 +1,8 @@
+using ExpenseTrackerWebApi.Features.Budgets.Models;
+using ExpenseTrackerWebApi.Features.Transactions.Models;
 using Microsoft.AspNetCore.Identity;
 
-namespace ExpenseTrackerWebApi.Database.Models
+namespace ExpenseTrackerWebApi.Features.Accounts.Models
 {
     public class Account : IEquatable<Account>
     {

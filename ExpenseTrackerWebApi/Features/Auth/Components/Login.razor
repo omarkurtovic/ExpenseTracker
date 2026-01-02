@@ -3,7 +3,9 @@
 @attribute [ExcludeFromInteractiveRouting]
 
 @using System.ComponentModel.DataAnnotations
+@using ExpenseTrackerWebApi.Features.Auth.Commands
 @using ExpenseTrackerWebApi.Features.Auth.Dtos
+@using MediatR
 @using Microsoft.AspNetCore.Authentication
 @using Microsoft.AspNetCore.Identity
 @using MudBlazor
@@ -13,37 +15,37 @@
 @inject SignInManager<IdentityUser> SignInManager
 @inject NavigationManager NavigationManager
 @inject IdentityRedirectManager RedirectManager
+@inject IMediator Mediator
 
 <PageTitle>Login</PageTitle>
 
 <MudContainer MaxWidth="MaxWidth.Small" >
     <MudPaper Class="pa-6 mt-6" Elevation="15">
-        
+
+        <StatusMessage Message="@errorMessage" />
         <EditForm Model="Input" method="post" OnValidSubmit="LoginUser" FormName="login">
+            <DataAnnotationsValidator />
             <MudGrid>
                 <MudItem xs="12" Class="d-flex justify-center">
                     <MudText Typo="Typo.h4">Welcome back!</MudText>
                 </MudItem>
                 <MudItem xs="12">
-                    <MudStaticTextField @bind-Value="Input.Email" Label="Email" InputType="InputType.Text" Variant="Variant.Text" 
-                    Required="true" RequiredError="Email is required!"></MudStaticTextField>
+                    <MudStaticTextField @bind-Value="Input.Email" Label="Email" InputType="InputType.Text" Variant="Variant.Text"></MudStaticTextField>
+                    <ValidationMessage For="() => Input.Email" class="" />
                 </MudItem>
                 <MudItem xs="12">
-                    <MudStaticTextField @bind-Value="@Input.Password" Label="Password" Required="true" RequiredError="Password is required!" Variant="Variant.Text"
-                                        InputType="InputType.Password" Adornment="Adornment.End" AdornmentIcon="@Icons.Material.Outlined.VisibilityOff"
-                                        AdornmentClickFunction="showPassword" />
+                    <MudStaticTextField @bind-Value="@Input.Password" Label="Password" Variant="Variant.Text"
+                                        InputType="InputType.Password" />
+                    <ValidationMessage For="() => Input.Password" class="" />
                 </MudItem>
                 <MudItem xs="12" Class="d-flex justify-center">
                     <MudStaticButton Variant="Variant.Filled" Color="Color.Primary" FormAction="FormAction.Submit">Login</MudStaticButton>
                 </MudItem>
-@if (!string.IsNullOrWhiteSpace(errorMessage))
-                {
-                    <MudItem xs="12">
-                        
-                    </MudItem>
-                }
                 <MudItem xs="12" Class="d-flex justify-center mt-10">
-                    <a href="@(NavigationManager.GetUriWithQueryParameters("register", new Dictionary<string, object?> { ["ReturnUrl"] = ReturnUrl }))">Register as a new user</a>
+                    <MudText Typo="Typo.body1">Dont't have an account? <a href="@(NavigationManager.GetUriWithQueryParameters("register", new Dictionary<string, object?> { ["ReturnUrl"] = ReturnUrl }))">Register</a></MudText>
+                </MudItem>
+                <MudItem xs="12" Class="d-flex justify-center mt-10">
+                    
                 </MudItem>
             </MudGrid>
         </EditForm>
@@ -74,13 +76,12 @@
     private HttpContext HttpContext { get; set; } = default!;
 
     [SupplyParameterFromForm]
-    private InputModel Input { get; set; } = new();
+    private LoginDataDto Input { get; set; } = new();
 
     [SupplyParameterFromQuery]
     private string? ReturnUrl { get; set; }
 
-    private string errorMessage { get; set; } = null!;
-
+    private string? errorMessage;
 
     protected override async Task OnInitializedAsync()
     {
@@ -96,6 +97,11 @@
         var result = await SignInManager.PasswordSignInAsync(Input.Email, Input.Password, Input.RememberMe, lockoutOnFailure: false);
         if (result.Succeeded)
         {
+            // todo
+            // await Mediator.Send(new CheckForReoccuringTransactionsCommand
+            // {
+                
+            // });
             RedirectManager.RedirectTo(ReturnUrl ?? "/");
         }
         else if (result.IsLockedOut)
@@ -112,9 +118,5 @@
 
     private class InputModel
     {
-        public string Email { get; set; } = "";
-        public string Password { get; set; } = "";
-        public bool RememberMe { get; set; }
     }
-
 }

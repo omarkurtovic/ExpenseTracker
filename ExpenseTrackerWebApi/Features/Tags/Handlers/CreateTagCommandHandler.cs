@@ -1,7 +1,7 @@
 using ExpenseTrackerWebApi.Database;
-using ExpenseTrackerWebApi.Database.Models;
 using ExpenseTrackerWebApi.Features.Categories.Commands;
 using ExpenseTrackerWebApi.Features.Tags.Commands;
+using ExpenseTrackerWebApi.Features.Tags.Models;
 using MediatR;
 
 namespace ExpenseTrackerWebApi.Features.Tags.Handlers

@@ -1,6 +1,7 @@
 using ExpenseTrackerWebApi.Database;
-using ExpenseTrackerWebApi.Database.Models;
 using ExpenseTrackerWebApi.Features.Categories.Commands;
+using ExpenseTrackerWebApi.Features.Categories.Models;
+using ExpenseTrackerWebApi.Features.Transactions.Models;
 using MediatR;
 
 namespace ExpenseTrackerWebApi.Features.Categories.Handlers

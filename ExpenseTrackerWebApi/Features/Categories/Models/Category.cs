@@ -1,6 +1,8 @@
+using ExpenseTrackerWebApi.Features.Budgets.Models;
+using ExpenseTrackerWebApi.Features.Transactions.Models;
 using Microsoft.AspNetCore.Identity;
 
-namespace ExpenseTrackerWebApi.Database.Models
+namespace ExpenseTrackerWebApi.Features.Categories.Models
 {
     public class Category : IEquatable<Category>
     {

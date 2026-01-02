@@ -37,6 +37,8 @@ using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// AddAuthenticationStateSerialization is neccessary if we want to have access to
+// user claims on the client - it seralizes the claims and makes them avaliable like username
 builder.Services.AddRazorComponents()
     .AddInteractiveWebAssemblyComponents()
     .AddInteractiveServerComponents()
@@ -57,10 +59,12 @@ builder.Services.AddScoped<ITagService, TagServiceServer>();
 builder.Services.AddScoped<IUserPreferenceService, UserPreferenceServiceServer>();
 
 
-// Also register IHttpContextAccessor
+// this is needed for code outside of controllers
+// so we can access the current logged in user
 builder.Services.AddHttpContextAccessor();
 
 
+// cookie based authenfication
 builder.Services.AddAuthentication(options =>
     {
         options.DefaultScheme = IdentityConstants.ApplicationScheme;

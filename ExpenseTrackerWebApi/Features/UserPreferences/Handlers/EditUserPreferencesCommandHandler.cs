@@ -1,10 +1,10 @@
 using ExpenseTrackerWebApi.Database;
 using ExpenseTrackerWebApi.Features.Budgets.Commands;
-using ExpenseTrackerWebApi.Database.Models;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using MudBlazor;
 using ExpenseTrackerWebApi.Features.UserPreferences.Commands;
+using ExpenseTrackerWebApi.Features.UserPreferences.Models;
 
 namespace ExpenseTrackerWebApi.Features.UserPreferences.Handlers
 {
