@@ -24,16 +24,16 @@ jobs:
           dotnet-version: '9.x'
 
       - name: Build with dotnet
-        run: dotnet build ExpenseTrackerWebApp/ExpenseTrackerWebApp.csproj --configuration Release
+        run: dotnet build --configuration Release
 
       - name: dotnet publish
-        run: dotnet publish ExpenseTrackerWebApp/ExpenseTrackerWebApp.csproj  -c Release -o ./publish
+        run: dotnet publish -c Release -o ${{env.DOTNET_ROOT}}/myapp
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
         with:
           name: .net-app
-          path: ./publish
+          path: ${{env.DOTNET_ROOT}}/myapp
 
   deploy:
     runs-on: ubuntu-latest
@@ -51,9 +51,9 @@ jobs:
       - name: Login to Azure
         uses: azure/login@v2
         with:
-          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_C066DB5AEF9B465487A8A42F2AC5A19D }}
-          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_D02110363778471D8CB3116162206EAE }}
-          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_E34542C74D7D496084C321990DD0B0B6 }}
+          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_23DFE70A81164BD193AFF9DD53634F20 }}
+          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_6F860243825048DBB1D60AA17276D632 }}
+          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_8BED64F37FA64793BB1E24B97CE8BA23 }}
 
       - name: Deploy to Azure Web App
         id: deploy-to-webapp
@@ -62,6 +62,4 @@ jobs:
           app-name: 'ExpenseTracker-PersonalFinance'
           slot-name: 'Production'
           package: .
-          clean: true
-
           
