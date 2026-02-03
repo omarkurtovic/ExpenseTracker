@@ -18,7 +18,7 @@
 @inject ICategoryService CategoryService
 @inject IBudgetService BudgetService
 
-@if (BudgetDto is not null)
+@if (!Loading)
 {
     <MudDialog>
         <TitleContent>
@@ -96,7 +96,8 @@
 
     public List<CategoryDto> Categories{get; set;} = new();
     public List<AccountDto> Accounts{get; set;} = new();
-    
+
+    private bool Loading = true;
     protected override async Task OnInitializedAsync()
     {
         var categoriesResult = await CategoryService.GetCategoriesAsync();
@@ -123,6 +124,7 @@
             return;
         }
 
+        Loading = false;
         await base.OnInitializedAsync();
     }
 

@@ -23,7 +23,7 @@
 @inject ITransactionService TransactionService
 @inject NavigationManager NavigationManager
 
-@if (TransactionDto is not null)
+@if (!Loading)
 {
     <MudDialog>
         <TitleContent>
@@ -41,7 +41,6 @@
                                 You are adding a reoccuring transaction. This transaction will be repeated based on the
                                 reoccuring settings.
                             </MudAlert>
-
 
                             <MudSelect @bind-Value="TransactionDto.ReoccuranceFrequency" Label="Reoccurance type"
                                 Variant="Variant.Outlined" Required="true" RequiredError="Reoccurance type is required!"
@@ -171,7 +170,7 @@
 
 @code {
     [Parameter]
-    public TransactionDto TransactionDto{get; set;} = new();
+    public TransactionDto TransactionDto{get; set;} = null!;
 
     [Parameter]
     public bool IsReoccuring { get; set; } = false;
@@ -190,6 +189,7 @@
     private List<CategoryDto> AllCategories = new();
     private List<AccountDto> AllAccounts = new();
 
+    private bool Loading = true;
     protected override async Task OnInitializedAsync()
     {
         var lookupsLoaded = await LoadLookupsAsync();
@@ -200,6 +200,7 @@
         }
 
         InitializeTransactionModel();
+        Loading = false;
     }
 
     private async Task<bool> LoadLookupsAsync()
