@@ -13,6 +13,7 @@
 -- should probably design a single query that retrives accounts, categories
 and tags immediately not all three seperately
 -- need to fix tags filter after user creates new tags
+-- error message on login page
 
 ## Potential Features
 

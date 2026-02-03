@@ -5,12 +5,12 @@ A simple expense tracking app with dashboard, transactions, accounts, categories
 #### Features
 - Dashboard with quick stats and graphs
 - Transaction list with filtering, editing, and CSV export
-- Customizable accounts and categories
+- Customizable accounts, categories and budgets
 - Dark mode
 
 
 #### Live Demo
-Check out the live demo here: [expensetracker.net](https://expensetracker-personalfinance-hbgeczh8ayhaapeg.germanywestcentral-01.azurewebsites.net/login?ReturnUrl=%2F)
+Check out the live demo here: [expensetracker.net](https://omarexpensetracker-b6ddhsg2atczgche.italynorth-01.azurewebsites.net/)
 
 **Demo Login (no registration needed)**  
 Email: `sa`  
@@ -25,9 +25,10 @@ Password: `Secret1!`
 
 
 #### Tech Stack
-- Blazor Server
+- Blazor WebAssembly (with prerendering)
+- ASP.NET Core Web API
 - SQLite + EF Core
-- ASP.NET Identity
+- ASP.NET Identity + JWT Authentication
 - MudBlazor
 - ApexCharts
 
