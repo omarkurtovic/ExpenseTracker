@@ -38,9 +38,9 @@
             <MudDivider />
             <MudMenuItem Icon="@Icons.Material.Filled.Logout" OnClick="Logout" Color="MudBlazor.Color.Error">Logout</MudMenuItem>
         </ChildContent>
-    </MudMenu>
+        </MudMenu>
 </MudAppBar>
-<MudDrawer @bind-Open="_drawerOpen" Elevation="2">
+<MudDrawer @bind-Open="_drawerOpen" Elevation="2" Fixed="true">
     <MudDrawerHeader>
         <MudText Typo="Typo.h5" Class="mt-1">Expense Tracker</MudText>
     </MudDrawerHeader>
