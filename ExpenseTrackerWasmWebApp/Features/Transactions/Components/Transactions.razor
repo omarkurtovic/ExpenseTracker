@@ -108,7 +108,7 @@
                             else
                             {
                                 <PropertyColumn Property="t => t.DateStr" Title="Time" Grouping="true" GroupExpanded="true"
-                                    Sortable="true">
+                                    Sortable="true" HeaderClass="d-none d-md-table-cell" CellClass="d-none d-md-table-cell">
                                     <GroupTemplate>
                                         @if (@context.Grouping.Key!.ToString() == DateTime.Now.ToString("yyyy-MM-dd"))
                                         {
@@ -134,7 +134,7 @@
                                     <AmountDisplay Amount="(decimal)context.Item.Amount!" />
                                 </CellTemplate>
                             </PropertyColumn>
-                            <TemplateColumn Title="Tags" Filterable="false" Sortable="false">
+                            <TemplateColumn Title="Tags" Filterable="false" Sortable="false" HeaderClass="d-none d-md-table-cell" CellClass="d-none d-md-table-cell">
                                 <CellTemplate>
                                     <MudPaper Elevation="0" Class="d-flex gap-1 flex-wrap"
                                         Style="background-color:transparent;">
