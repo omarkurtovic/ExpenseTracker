@@ -47,7 +47,8 @@ public class TagService(HttpClient httpClient) : ITagService
             if (response.IsSuccessStatusCode)
             {
                 var created = await response.Content.ReadFromJsonAsync<TagDto>();
-                return Result<TagDto>.Success(created!);
+                tagDto.Id = created!.Id;
+                return Result<TagDto>.Success(tagDto!);
             }
             if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
             {

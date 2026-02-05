@@ -1,13 +1,15 @@
 {
-  "profiles": {
-    "ExpenseTrackerWasmWebApp": {
-      "commandName": "Project",
-      "launchBrowser": true,
-      "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "Development"
-      },
-      "applicationUrl": "https://localhost:62956;http://localhost:62957"
+"profiles": {
+  "ExpenseTrackerWasmWebApp": {
+    "commandName": "Project",
+    "launchBrowser": true,
+    "dotnetRunMessages": true,
+    "inspectUri": "{wsProtocol}://{url.hostname}:{url.port}/_framework/debug/ws-proxy?browser={browserInspectUri}",
+    "environmentVariables": {
+      "ASPNETCORE_ENVIRONMENT": "Development"
     },
+    "applicationUrl": "https://localhost:62956;http://localhost:62957"
+  },
     "IIS Express": {
       "commandName": "IISExpress",
       "launchBrowser": true,

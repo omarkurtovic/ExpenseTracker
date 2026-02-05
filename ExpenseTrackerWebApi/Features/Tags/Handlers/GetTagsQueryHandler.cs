@@ -24,7 +24,7 @@ namespace ExpenseTrackerWebApp.Features.SharedKernel.Handlers
                 Name = t.Name,
                 Color = t.Color
             })
-            .ToListAsync();
+            .ToListAsync(cancellationToken: cancellationToken);
         }
     }
 }

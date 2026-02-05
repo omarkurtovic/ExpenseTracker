@@ -96,7 +96,7 @@
                         <MudPaper Elevation="0" Class="d-flex gap-2 mt-4">
                             <MudAutocomplete T="TagDto" @ref="tagAutocomplete" SearchFunc="@TagSearchFunc"
                                 ToStringFunc="@(e => e == null ? null : e.Name)" Label="Add Tags" Variant="Variant.Outlined"
-                                ValueChanged="@OnTagSelected" Clearable="true" Class="flex-grow-1">
+                                ValueChanged="@OnTagSelected" Clearable="true" Class="flex-grow-1" MaxItems="null">
                                 <ItemTemplate>
                                     <MudPaper Elevation="0" Class="d-flex gap-2" Style="background-color:transparent;">
                                         @if (!string.IsNullOrEmpty(context?.Color))
@@ -343,10 +343,15 @@
 
     private async Task DeleteTag(TagDto tag)
     {
+        if (tagAutocomplete != null)
+        {
+            await tagAutocomplete.CloseMenuAsync();
+        }
+
         var options = new DialogOptions { CloseOnEscapeKey = true };
         var parameters = new DialogParameters<ConfirmDialog>
         {
-            { x => x.Message, "Are you sure you want to delete the tag? " }
+            { x => x.Message, @$"Are you sure you want to delete the ""{tag.Name}"" tag? " }
         };
 
         var dialog = await DialogService.ShowAsync<ConfirmDialog>(title: "Warning", parameters, options);

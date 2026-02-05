@@ -12,8 +12,8 @@
 -- why isn't the caching working properly?
 -- should probably design a single query that retrives accounts, categories
 and tags immediately not all three seperately
--- need to fix tags filter after user creates new tags
 -- error message on login page
+-- transactions look bad on mobile
 
 ## Potential Features
 
