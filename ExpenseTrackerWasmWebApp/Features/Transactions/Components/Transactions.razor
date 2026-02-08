@@ -75,7 +75,7 @@
                            StartIcon="@Icons.Material.Filled.ImportExport">Export</MudButton>
                 <MudButton OnClick="OnClickShowFilterDialog" Variant="Variant.Outlined">Filters</MudButton>
             </MudItem>
-            <AddTransactionFab Class="d-flex d-md-none" OnClose="ReloadGrid" />
+            <AddTransactionFab Class="d-flex d-md-none" OnClose="ReloadGrid" IsReoccuring="@IsReoccuring" />
             <MudDialog @ref="_filterDialog">
                 <TitleContent>Filters</TitleContent>
                 <DialogContent>
@@ -88,14 +88,14 @@
                     <MudDataGrid @ref="@dataGrid" T="TransactionDto" Hover Groupable Height="45vh" ItemSize="30f"
                                  SortMode="SortMode.Single" ServerData="ServerReload" FixedHeader FixedFooter>
                         <Columns>
-                            <PropertyColumn Property="t => t.AccountDto!.Name" Title="Account" Sortable="true">
+                            <PropertyColumn Property="t => t.AccountDto!.Name" Title="Account" Sortable="true" Groupable="false">
                                 <CellTemplate>
                                     <TextWithIcon Text="@context.Item.AccountDto!.Name"
                                                   Icon="@context.Item.AccountDto.Icon" IconColor="@context.Item.AccountDto.Color"
                                                   IconSize="Size.Small" TextTypo="Typo.body2"></TextWithIcon>
                                 </CellTemplate>
                             </PropertyColumn>
-                            <PropertyColumn Property="t => t.CategoryDto!.Name" Title="Category" Sortable="true">
+                            <PropertyColumn Property="t => t.CategoryDto!.Name" Title="Category" Sortable="true" Groupable="false">
                                 <CellTemplate>
                                     <TextWithIcon Text="@context.Item.CategoryDto!.Name"
                                                   Icon="@context.Item.CategoryDto.Icon"
@@ -132,12 +132,12 @@
                                     </CellTemplate>
                                 </PropertyColumn>
                             }
-                            <PropertyColumn Property="t => t.Amount" Title="Amount" Sortable="true">
+                            <PropertyColumn Property="t => t.Amount" Title="Amount" Sortable="true" Groupable="false">
                                 <CellTemplate>
                                     <AmountDisplay Amount="(decimal)context.Item.Amount!" />
                                 </CellTemplate>
                             </PropertyColumn>
-                            <TemplateColumn Title="Tags" Filterable="false" Sortable="false" HeaderClass="d-none d-md-table-cell" CellClass="d-none d-md-table-cell">
+                            <TemplateColumn Title="Tags" Filterable="false" Sortable="false" HeaderClass="d-none d-md-table-cell" CellClass="d-none d-md-table-cell" Groupable="false">
                                 <CellTemplate>
                                     <MudPaper Elevation="0" Class="d-flex gap-1 flex-wrap"
                                               Style="background-color:transparent;">

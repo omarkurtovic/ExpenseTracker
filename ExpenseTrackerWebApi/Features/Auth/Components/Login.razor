@@ -35,8 +35,15 @@
                     <ValidationMessage For="() => Input.Email" class="" />
                 </MudItem>
                 <MudItem xs="12">
-                    <MudStaticTextField @bind-Value="@Input.Password" Label="Password" Variant="Variant.Text"
-                                        InputType="InputType.Password" />
+                    <div style="position: relative;">
+                        <MudStaticTextField @bind-Value="@Input.Password" Label="Password" Variant="Variant.Text"
+                                            InputType="InputType.Password" id="passwordInput">
+                                        </MudStaticTextField>
+                        <button type="button" onclick="togglePasswordVisibility()" 
+                                style="position: absolute; right: 0; top: 65%; transform: translateY(-50%); background: none; border: none; cursor: pointer; padding: 8px;">
+                            <MudIcon Icon="@Icons.Material.Filled.Visibility" Size="Size.Small" id="visibilityIcon" />
+                        </button>
+                    </div>
                     <ValidationMessage For="() => Input.Password" class="" />
                 </MudItem>
                 <MudItem xs="12" Class="d-flex justify-center">
@@ -53,6 +60,24 @@
     </MudPaper>
 </MudContainer>
 
+<script>
+    function togglePasswordVisibility() {
+        var input = document.getElementById('passwordInput');
+        var icon = document.getElementById('visibilityIcon');
+        if (input.type === 'password') {
+            input.type = 'text';
+            icon.classList.add('password-visible');
+        } else {
+            input.type = 'password';
+            icon.classList.remove('password-visible');
+        }
+    }
+</script>
+<style>
+    #visibilityIcon { opacity: 0.5; }
+    #visibilityIcon.password-visible { opacity: 1; }
+
+</style>
 <script src="_content/Extensions.MudBlazor.StaticInput/NavigationObserver.js"></script>
 
 @code{
