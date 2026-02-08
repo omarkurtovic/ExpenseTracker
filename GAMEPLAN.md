@@ -13,7 +13,6 @@
 -- should probably design a single query that retrives accounts, categories
 and tags immediately not all three seperately
 -- error message on login page
--- transactions look bad on mobile
 
 ## Potential Features
 

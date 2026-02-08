@@ -43,8 +43,8 @@
                             </MudAlert>
 
                             <MudSelect @bind-Value="TransactionDto.ReoccuranceFrequency" Label="Reoccurance type"
-                                Variant="Variant.Outlined" Required="true" RequiredError="Reoccurance type is required!"
-                                @bind-Value:after="this.TransactionTypeChanged">
+                                       Variant="Variant.Outlined" Required="true" RequiredError="Reoccurance type is required!"
+                                       @bind-Value:after="this.TransactionTypeChanged">
                                 @foreach (ReoccuranceFrequencyDto? item in Enum.GetValues(typeof(ReoccuranceFrequencyDto)))
                                 {
                                     <MudSelectItem Value="@((ReoccuranceFrequencyDto?)item)">@item</MudSelectItem>
@@ -52,7 +52,7 @@
                             </MudSelect>
                         }
                         <MudSelect @bind-Value="TransactionDto.AccountId" Label="Account" Variant="Variant.Outlined"
-                            Required="true" RequiredError="Account is required!">
+                                   Required="true" RequiredError="Account is required!">
                             @foreach (var account in AllAccounts)
                             {
                                 <MudSelectItem Value="@((int?)account.Id)">
@@ -61,15 +61,15 @@
                             }
                         </MudSelect>
                         <MudSelect @bind-Value="TransactionDto.TransactionType" Label="Type" Variant="Variant.Outlined"
-                            Required="true" RequiredError="Type of transaction is required!"
-                            @bind-Value:after="this.TransactionTypeChanged">
+                                   Required="true" RequiredError="Type of transaction is required!"
+                                   @bind-Value:after="this.TransactionTypeChanged">
                             @foreach (TransactionTypeDto? item in Enum.GetValues(typeof(TransactionTypeDto)))
                             {
                                 <MudSelectItem Value="@((TransactionTypeDto?)item)">@item</MudSelectItem>
                             }
                         </MudSelect>
                         <MudSelect @bind-Value="TransactionDto.CategoryId" Label="Category" Variant="Variant.Outlined"
-                            Required="true" RequiredError="Category is required!">
+                                   Required="true" RequiredError="Category is required!">
                             @foreach (var category in AllCategories)
                             {
                                 <MudSelectItem Value="@((int?)category.Id)">
@@ -79,77 +79,78 @@
                         </MudSelect>
 
                         <MudNumericField @bind-Value="TransactionDto.Amount" Label="Amount" Variant="Variant.Outlined"
-                            Required="true" RequiredError="Amount is required!" Format="F2">
+                                         Required="true" RequiredError="Amount is required!" Format="F2">
                         </MudNumericField>
-                        <MudPaper Elevation="0" Class="d-flex gap-2">
-                            <MudDatePicker @bind-Date="TransactionDto.Date" Label="Date" Variant="Variant.Outlined"
-                                Required="true" RequiredError="Date is required!" />
+                        <MudPaper Elevation="0" Class="@MoreOptionsClass">
+                            <MudPaper Elevation="0" Class="d-flex gap-2">
+                                <MudDatePicker @bind-Date="TransactionDto.Date" Label="Date" Variant="Variant.Outlined"
+                                               Required="true" RequiredError="Date is required!" />
 
-                            <MudTimePicker @bind-Time="TransactionDto.Time" Label="Time" Variant="Variant.Outlined"
-                                AmPm="true" Required="true" RequiredError="Time is required!" />
-                        </MudPaper>
+                                <MudTimePicker @bind-Time="TransactionDto.Time" Label="Time" Variant="Variant.Outlined"
+                                               AmPm="true" Required="true" RequiredError="Time is required!" />
+                            </MudPaper>
 
-                        <MudTextField @bind-Value="TransactionDto.Description" Label="Description"
-                            Variant="Variant.Outlined">
-                        </MudTextField>
+                            <MudTextField @bind-Value="TransactionDto.Description" Label="Description"
+                                          Variant="Variant.Outlined" Class="d-none d-md-block">
+                            </MudTextField>
 
-                        <MudPaper Elevation="0" Class="d-flex gap-2 mt-4">
-                            <MudAutocomplete T="TagDto" @ref="tagAutocomplete" SearchFunc="@TagSearchFunc"
-                                ToStringFunc="@(e => e == null ? null : e.Name)" Label="Add Tags" Variant="Variant.Outlined"
-                                ValueChanged="@OnTagSelected" Clearable="true" Class="flex-grow-1" MaxItems="null">
-                                <ItemTemplate>
-                                    <MudPaper Elevation="0" Class="d-flex gap-2" Style="background-color:transparent;">
-                                        @if (!string.IsNullOrEmpty(context?.Color))
-                                        {
-                                            <MudPaper Elevation="0" Class="d-flex gap-2" Style="background-color:transparent;">
+                            <MudPaper Elevation="0" Class="d-flex gap-2 mt-4">
+                                <MudAutocomplete T="TagDto" @ref="tagAutocomplete" SearchFunc="@TagSearchFunc"
+                                                 ToStringFunc="@(e => e == null ? null : e.Name)" Label="Add Tags" Variant="Variant.Outlined"
+                                                 ValueChanged="@OnTagSelected" Clearable="true" Class="flex-grow-1" MaxItems="null">
+                                    <ItemTemplate>
+                                        <MudPaper Elevation="0" Class="d-flex gap-2" Style="background-color:transparent;">
+                                            @if (!string.IsNullOrEmpty(context?.Color))
+                                            {
+                                                <MudPaper Elevation="0" Class="d-flex gap-2" Style="background-color:transparent;">
 
-                                                <MudChip T="TagDto" Style="@($"background-color:{context.Color}; color:white;")"
-                                                    Size="Size.Small">@context.Name</MudChip>
+                                                    <MudChip T="TagDto" Style="@($"background-color:{context.Color}; color:white;")"
+                                                             Size="Size.Small">@context.Name</MudChip>
 
-                                                <MudIconButton Icon="@Icons.Material.Filled.Close" Size="Size.Small"
-                                                    Color="Color.Inherit" Style="color:white;"
-                                                    OnClick="@(() => DeleteTag(context))"></MudIconButton>
-                                            </MudPaper>
-                                        }
-                                        else
-                                        {
-                                            <MudText>@context?.Name</MudText>
-                                        }
+                                                    <MudIconButton Icon="@Icons.Material.Filled.Close" Size="Size.Small"
+                                                                   Color="Color.Inherit" Style="color:white;"
+                                                                   OnClick="@(() => DeleteTag(context))"></MudIconButton>
+                                                </MudPaper>
+                                            }
+                                            else
+                                            {
+                                                <MudText>@context?.Name</MudText>
+                                            }
+                                        </MudPaper>
+                                    </ItemTemplate>
+                                    <NoItemsTemplate>
+                                        <MudText Align="Align.Center" Class="px-4 py-1">
+                                            <span>No tags found </span>
+                                            @if (!string.IsNullOrWhiteSpace(tagAutocomplete?.Text))
+                                            {
+                                                <MudPaper Elevation="0" Class="d-flex justify-center mt-2" Style="background-color:transparent;">
+                                                    <MudButton Variant="Variant.Outlined" OnClick="@CreateNewTag"
+                                                               StartIcon="@Icons.Material.Filled.Add">
+                                                        Create new tag: @tagAutocomplete.Text
+                                                    </MudButton>
+                                                </MudPaper>
+                                            }
+
+                                        </MudText>
+                                    </NoItemsTemplate>
+                                </MudAutocomplete>
+                            </MudPaper>
+                            <MudPaper Elevation="0" Class="d-flex gap-2 mt-2 flex-wrap">
+                                @foreach (var tag in SelectedTags)
+                                {
+                                    <MudPaper Elevation="0" Class="flex gap-2">
+                                        <MudChip T="TagDto" Style="@($"background-color:{tag.Color}; color:white;")"
+                                                 Size="Size.Medium">
+                                            <MudText Typo="Typo.body2">@tag.Name</MudText>
+                                            <MudIconButton Icon="@Icons.Material.Filled.Close" Size="Size.Small"
+                                                           Color="Color.Inherit" Style="color:white;" OnClick="@(() => RemoveTag(tag))">
+                                            </MudIconButton>
+                                        </MudChip>
                                     </MudPaper>
-                                </ItemTemplate>
-                                <NoItemsTemplate>
-                                    <MudText Align="Align.Center" Class="px-4 py-1">
-                                        <span>No tags found </span>
-                                        @if (!string.IsNullOrWhiteSpace(tagAutocomplete?.Text))
-                                        {
-                                            <MudPaper Elevation="0" Class="d-flex justify-center mt-2" Style="background-color:transparent;">
-                                                <MudButton Variant="Variant.Outlined" OnClick="@CreateNewTag"
-                                                    StartIcon="@Icons.Material.Filled.Add">
-                                                    Create new tag: @tagAutocomplete.Text
-                                                </MudButton>
-                                            </MudPaper>
-                                        }
-
-                                    </MudText>
-                                </NoItemsTemplate>
-                            </MudAutocomplete>
+                                }
+                            </MudPaper>
                         </MudPaper>
-                        <MudPaper Elevation="0" Class="d-flex gap-2 mt-2 flex-wrap">
-                            @foreach (var tag in SelectedTags)
-                            {
-                                <MudPaper Elevation="0" Class="flex gap-2">
-                                    <MudChip T="TagDto" Style="@($"background-color:{tag.Color}; color:white;")"
-                                        Size="Size.Medium">
-                                        <MudText Typo="Typo.body2">@tag.Name</MudText>
-                                        <MudIconButton Icon="@Icons.Material.Filled.Close" Size="Size.Small"
-                                            Color="Color.Inherit" Style="color:white;" OnClick="@(() => RemoveTag(tag))">
-                                        </MudIconButton>
-                                    </MudChip>
-                                </MudPaper>
-                            }
-                        </MudPaper>
-                        
-
+                        <MudButton OnClick="ToggleMoreOptions" Variant="Variant.Outlined" Class="d-md-none">@(_showMoreOptions ? "Less" : "More")</MudButton>
                     </MudForm>
                 </MudItem>
                 <MudItem xs="12" Class="d-flex justify-end gap-2 mt-6">
@@ -170,7 +171,7 @@
 
 @code {
     [Parameter]
-    public TransactionDto TransactionDto{get; set;} = null!;
+    public TransactionDto TransactionDto { get; set; } = null!;
 
     [Parameter]
     public bool IsReoccuring { get; set; } = false;
@@ -359,7 +360,7 @@
         if (!result!.Canceled)
         {
             var deleteResult = await TagService.DeleteTagAsync((int)tag.Id!);
-            if(!deleteResult.IsSuccess)
+            if (!deleteResult.IsSuccess)
             {
                 HandleFailure(deleteResult.ErrorMessage, deleteResult.Reason);
                 return;
@@ -385,8 +386,9 @@
         }
         TransactionDto.TagIds = SelectedTags.Select(t => (int)t.Id!).ToList();
 
-        if(TransactionDto.Date != null){
-            TransactionDto.Date = new DateTime(TransactionDto.Date.Value.Year, TransactionDto.Date.Value.Month, TransactionDto.Date.Value.Day,0, 0, 0);
+        if (TransactionDto.Date != null)
+        {
+            TransactionDto.Date = new DateTime(TransactionDto.Date.Value.Year, TransactionDto.Date.Value.Month, TransactionDto.Date.Value.Day, 0, 0, 0);
         }
 
         Result response;
@@ -400,7 +402,8 @@
             response = await TransactionService.UpdateTransactionAsync(TransactionDto);
         }
 
-        if(!response.IsSuccess){
+        if (!response.IsSuccess)
+        {
             HandleFailure(response.ErrorMessage, response.Reason);
             return;
         }
@@ -421,7 +424,8 @@
             TransactionDto.CategoryId = AllCategories.First().Id;
             TransactionDto.CategoryDto = AllCategories.First();
         }
-        else{
+        else
+        {
             TransactionDto.CategoryId = null;
         }
 
@@ -439,6 +443,18 @@
         {
             Snackbar.Add(errorMessage ?? "An error occurred.", Severity.Error);
         }
+    }
+
+
+
+    private bool _showMoreOptions = false;
+
+    private string MoreOptionsClass =>
+        _showMoreOptions ? "" : "d-none d-md-block";
+
+    private void ToggleMoreOptions()
+    {
+        _showMoreOptions = !_showMoreOptions;
     }
 
 }
