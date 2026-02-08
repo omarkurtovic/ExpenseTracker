@@ -36,21 +36,24 @@
                 <MudPaper Elevation="0" Class="d-flex flex-grow-1 justify-space-between gap-2">
                     <MudPaper Elevation="0" Class="d-flex gap-2">
                         <MudButton Variant="Variant.Filled" Color="Color.Primary"
-                            OnClick="@(() => OpenTransactionDialogAsync(null))"
-                            StartIcon="@Icons.Material.Filled.Add">Add
+                                   OnClick="@(() => OpenTransactionDialogAsync(null))"
+                                   StartIcon="@Icons.Material.Filled.Add">
+                            Add
                         </MudButton>
                         <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="ReloadGrid"
-                            StartIcon="@Icons.Material.Filled.Refresh">Refresh
+                                   StartIcon="@Icons.Material.Filled.Refresh">
+                            Refresh
                         </MudButton>
                     </MudPaper>
                     <MudPaper Elevation="0" Class="d-flex gap-2">
                         <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="@OpenExportDialog"
-                            StartIcon="@Icons.Material.Filled.ImportExport">Export</MudButton>
+                                   StartIcon="@Icons.Material.Filled.ImportExport">Export</MudButton>
                         @{
                             if (!string.IsNullOrWhiteSpace(email) && email.ToLower() == "sa")
                             {
                                 <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="@AddTestData"
-                                    StartIcon="@Icons.Material.Filled.Add">Add Test Data
+                                           StartIcon="@Icons.Material.Filled.Add">
+                                    Add Test Data
                                 </MudButton>
                             }
                         }
@@ -69,7 +72,7 @@
             @* mobile *@
             <MudItem xs="12" Class="d-flex d-md-none justify-center gap-3">
                 <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="@OpenExportDialog"
-                    StartIcon="@Icons.Material.Filled.ImportExport">Export</MudButton>
+                           StartIcon="@Icons.Material.Filled.ImportExport">Export</MudButton>
                 <MudButton OnClick="OnClickShowFilterDialog" Variant="Variant.Outlined">Filters</MudButton>
             </MudItem>
             <AddTransactionFab Class="d-flex d-md-none" OnClose="ReloadGrid" />
@@ -83,32 +86,32 @@
             <MudItem xs="12" Style="height: 100%;">
                 <MudPaper Outlined="true" Elevation="1" Class="border-2">
                     <MudDataGrid @ref="@dataGrid" T="TransactionDto" Hover Groupable Height="45vh" ItemSize="30f"
-                        SortMode="SortMode.Single" ServerData="ServerReload" FixedHeader FixedFooter>
+                                 SortMode="SortMode.Single" ServerData="ServerReload" FixedHeader FixedFooter>
                         <Columns>
                             <PropertyColumn Property="t => t.AccountDto!.Name" Title="Account" Sortable="true">
                                 <CellTemplate>
                                     <TextWithIcon Text="@context.Item.AccountDto!.Name"
-                                        Icon="@context.Item.AccountDto.Icon" IconColor="@context.Item.AccountDto.Color"
-                                        IconSize="Size.Small" TextTypo="Typo.body2"></TextWithIcon>
+                                                  Icon="@context.Item.AccountDto.Icon" IconColor="@context.Item.AccountDto.Color"
+                                                  IconSize="Size.Small" TextTypo="Typo.body2"></TextWithIcon>
                                 </CellTemplate>
                             </PropertyColumn>
                             <PropertyColumn Property="t => t.CategoryDto!.Name" Title="Category" Sortable="true">
                                 <CellTemplate>
                                     <TextWithIcon Text="@context.Item.CategoryDto!.Name"
-                                        Icon="@context.Item.CategoryDto.Icon"
-                                        IconColor="@context.Item.CategoryDto.Color" IconSize="Size.Small"
-                                        TextTypo="Typo.body2"></TextWithIcon>
+                                                  Icon="@context.Item.CategoryDto.Icon"
+                                                  IconColor="@context.Item.CategoryDto.Color" IconSize="Size.Small"
+                                                  TextTypo="Typo.body2"></TextWithIcon>
                                 </CellTemplate>
                             </PropertyColumn>
                             @if (IsReoccuring)
                             {
                                 <PropertyColumn Sortable="true" Property="t => t.NextReoccuranceDate"
-                                    Title="Next reoccurance" Format="dd/MM/yyyy"></PropertyColumn>
+                                                Title="Next reoccurance" Format="dd/MM/yyyy"></PropertyColumn>
                             }
                             else
                             {
                                 <PropertyColumn Property="t => t.DateStr" Title="Time" Grouping="true" GroupExpanded="true"
-                                    Sortable="true" HeaderClass="d-none d-md-table-cell" CellClass="d-none d-md-table-cell">
+                                                Sortable="true" HeaderClass="d-none d-md-table-cell" CellClass="d-none d-md-table-cell">
                                     <GroupTemplate>
                                         @if (@context.Grouping.Key!.ToString() == DateTime.Now.ToString("yyyy-MM-dd"))
                                         {
@@ -137,11 +140,11 @@
                             <TemplateColumn Title="Tags" Filterable="false" Sortable="false" HeaderClass="d-none d-md-table-cell" CellClass="d-none d-md-table-cell">
                                 <CellTemplate>
                                     <MudPaper Elevation="0" Class="d-flex gap-1 flex-wrap"
-                                        Style="background-color:transparent;">
+                                              Style="background-color:transparent;">
                                         @foreach (var tag in context.Item.TransactionTags)
                                         {
                                             <MudChip T="string" Style="@($"background-color:{tag.Tag.Color}; color:white;")"
-                                                Size="Size.Small" Variant="Variant.Filled">
+                                                     Size="Size.Small" Variant="Variant.Filled">
                                                 @tag.Tag.Name
                                             </MudChip>
                                         }
@@ -152,10 +155,10 @@
                                 <CellTemplate>
                                     <MudPaper Elevation="0" Class="d-flex gap-4" Style="background-color:transparent;">
                                         <MudIconButton Icon="@Icons.Material.Filled.Edit" Color="Color.Primary"
-                                            OnClick="@(() => OpenTransactionDialogAsync(context.Item))">
+                                                       OnClick="@(() => OpenTransactionDialogAsync(context.Item))">
                                         </MudIconButton>
                                         <MudIconButton Icon="@Icons.Material.Filled.Delete" Color="Color.Error"
-                                            OnClick="@(() => ConfirmDelete((int)context.Item.Id!))"></MudIconButton>
+                                                       OnClick="@(() => ConfirmDelete((int)context.Item.Id!))"></MudIconButton>
                                     </MudPaper>
                                 </CellTemplate>
                             </TemplateColumn>
@@ -200,6 +203,12 @@
         await base.OnInitializedAsync();
     }
 
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        await dataGrid.ReloadServerData();
+        await base.OnAfterRenderAsync(firstRender);
+    }
+
     private async Task<GridData<TransactionDto>> ServerReload(GridState<TransactionDto> state)
     {
         TransactionsGridOptionsDto options = new TransactionsGridOptionsDto();
@@ -209,7 +218,7 @@
         {
             options.SortBy = sortDefintion.SortBy;
             options.SortDescending = sortDefintion.Descending;
-            _currentSort = sortDefintion; 
+            _currentSort = sortDefintion;
         }
         options.PageSize = state.PageSize;
         options.CurrentPage = state.Page;
@@ -241,7 +250,7 @@
             TotalItems = 0
         };
     }
-    
+
     private async Task ReloadGrid()
     {
         if (dataGrid != null)
@@ -288,16 +297,18 @@
         if (result is not null && !result.Canceled)
         {
             var deleteResult = await TransactionService.DeleteTransactionAsync(transactionId);
-            if(deleteResult.IsSuccess){
+            if (deleteResult.IsSuccess)
+            {
                 Snackbar.Add("Transaction succesfully deleted! ", Severity.Success);
                 await ReloadGrid();
             }
-            else if(deleteResult.Reason == FailureReason.Unauthorized)
+            else if (deleteResult.Reason == FailureReason.Unauthorized)
             {
                 Snackbar.Add("Session expired. Please log in again.", Severity.Error);
                 NavigationManager.NavigateTo("/login");
             }
-            else{
+            else
+            {
                 Snackbar.Add(deleteResult.ErrorMessage ?? "Error deleting transaction!", Severity.Error);
             }
         }
@@ -343,14 +354,14 @@
         options.IsReoccuring = IsReoccuring;
         options.PageSize = int.MaxValue;
         options.CurrentPage = 0;
-        
+
         if (_currentSort != null)
         {
             options.SortBy = _currentSort.SortBy;
             options.SortDescending = _currentSort.Descending;
         }
-        
-        var parameters = new DialogParameters<ExportDialog> 
+
+        var parameters = new DialogParameters<ExportDialog>
         {
              {x => x.ExportOptions, options}
         };
@@ -365,7 +376,7 @@
     {
         IsFiltersCollapsed = !IsFiltersCollapsed;
     }
-    private TransactionsFiltersDto Filters{get; set;} = new TransactionsFiltersDto();
+    private TransactionsFiltersDto Filters { get; set; } = new TransactionsFiltersDto();
 
 
     public TransactionsFilter FiltersPopup { get; set; } = null!;

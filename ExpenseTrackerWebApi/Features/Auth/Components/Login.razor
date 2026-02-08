@@ -16,13 +16,14 @@
 @inject NavigationManager NavigationManager
 @inject IdentityRedirectManager RedirectManager
 @inject IMediator Mediator
+@inject UserManager<IdentityUser> UserManager
+
 
 <PageTitle>Login</PageTitle>
 
 <MudContainer MaxWidth="MaxWidth.Small" >
     <MudPaper Class="pa-6 mt-6" Elevation="15">
 
-        <StatusMessage Message="@errorMessage" />
         <EditForm Model="Input" method="post" OnValidSubmit="LoginUser" FormName="login">
             <DataAnnotationsValidator />
             <MudGrid>
@@ -42,32 +43,16 @@
                     <MudStaticButton Variant="Variant.Filled" Color="Color.Primary" FormAction="FormAction.Submit">Login</MudStaticButton>
                 </MudItem>
                 <MudItem xs="12" Class="d-flex justify-center mt-10">
-                    <MudText Typo="Typo.body1">Dont't have an account? <a href="@(NavigationManager.GetUriWithQueryParameters("register", new Dictionary<string, object?> { ["ReturnUrl"] = ReturnUrl }))">Register</a></MudText>
+                    <MudText Typo="Typo.body1">Don't have an account? <a href="@(NavigationManager.GetUriWithQueryParameters("register", new Dictionary<string, object?> { ["ReturnUrl"] = ReturnUrl }))">Register</a></MudText>
                 </MudItem>
                 <MudItem xs="12" Class="d-flex justify-center mt-10">
-                    
+                    <StatusMessage Message="@errorMessage" />
                 </MudItem>
             </MudGrid>
         </EditForm>
     </MudPaper>
 </MudContainer>
 
-<script>
-    let timeoutId;
-
-    function showPassword(inputElement, button) {
-        if (inputElement.type === 'password') {
-            inputElement.type = 'text';
-            clearTimeout(timeoutId);
-            timeoutId = setTimeout(function () {
-                inputElement.type = 'password';
-            }, 5000);
-        } else {
-            inputElement.type = 'password';
-            clearTimeout(timeoutId);
-        }
-    }
-</script>
 <script src="_content/Extensions.MudBlazor.StaticInput/NavigationObserver.js"></script>
 
 @code{
@@ -93,15 +78,14 @@
 
     public async Task LoginUser()
     {
-
         var result = await SignInManager.PasswordSignInAsync(Input.Email, Input.Password, Input.RememberMe, lockoutOnFailure: false);
         if (result.Succeeded)
         {
-            // todo
-            // await Mediator.Send(new CheckForReoccuringTransactionsCommand
-            // {
-                
-            // });
+            var user = await UserManager.FindByEmailAsync(Input.Email);
+            if (user is not null)
+            {
+                await Mediator.Send(new CheckForReoccuringTransactionsCommand { UserId = user.Id });
+            }
             RedirectManager.RedirectTo(ReturnUrl ?? "/");
         }
         else if (result.IsLockedOut)
@@ -112,11 +96,5 @@
         {
             errorMessage = "Login failed. Please check your credentials and try again.";
         }
-    }
-
-    
-
-    private class InputModel
-    {
     }
 }

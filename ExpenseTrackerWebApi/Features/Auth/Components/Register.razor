@@ -28,7 +28,6 @@
 
 <MudContainer MaxWidth="MaxWidth.Small" >
     <MudPaper Class="pa-6 mt-6" Elevation="15">
-        <StatusMessage Message="@Message" />
         <EditForm Model="@Input" method="post" OnValidSubmit="RegisterUser" FormName="register">
             <DataAnnotationsValidator />
             <MudGrid>
@@ -52,6 +51,9 @@
                 </MudItem>
                 <MudItem xs="12" Class="d-flex justify-center mt-10">
                     <MudText Typo="Typo.body1">Already have an account? <a href="@(NavigationManager.GetUriWithQueryParameters("login", new Dictionary<string, object?> { ["ReturnUrl"] = ReturnUrl }))">Login</a></MudText>
+                </MudItem>
+                <MudItem xs="12" Class="d-flex justify-center mt-10">
+                    <StatusMessage Message="@Message" />
                 </MudItem>
             </MudGrid>
         </EditForm>
