@@ -1,37 +1,6 @@
 # Expense Tracker - Development Roadmap
 
-## Known Issues to Fix
-
-- [ ] Enter key to submit forms (use Tab+Click instead)
-
 -- loading?? 
--- scroll na trasactions
--- bit weird when have more than 2 accounts on page
--- budget dialog width change on type
--- need to fix the sorting for transcctions
 -- why isn't the caching working properly?
 -- should probably design a single query that retrives accounts, categories
 and tags immediately not all three seperately
-
-## Potential Features
-
-### Quick Wins (3-5 hours)
-- **Transfer between accounts** - Move money between your own accounts
-- **Import transactions** - CSV/bank data import with categorization
-- **Better date range filtering** - Filter transactions by custom date ranges
-
-### Medium Features (1-2 weeks)
-- **Budget system** - Set budgets per category, track spending with alerts
-- **Better recurring transactions** - UI to pause/edit/view recurring txns
-- **Advanced dashboard** - Trends, month-over-month comparisons, forecasts
-- **Transaction search** - Full-text search on descriptions, tags
-
-### Larger Features
-- **Background jobs** - Auto-run recurring transactions on schedule (not just on login)
-- **Email reports** - Monthly spending digest emailed to user
-- **Multi-currency** - Support multiple currencies with conversion rates
-- **Bill splitting** - Split transactions between multiple people
-
-Performance optimization (4-6 hours) - Shows you can think about scale
-Transfers (3.5 hours) - Quick win, feels complete
-Background jobs for recurring (8 hours) - Shows scheduler knowledge - hangfire
