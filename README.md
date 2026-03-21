@@ -10,7 +10,7 @@ A simple expense tracking app with dashboard, transactions, accounts, categories
 
 
 #### Live Demo
-Check out the live demo here: [expensetracker.net](https://omarexpensetracker-b6ddhsg2atczgche.italynorth-01.azurewebsites.net/)
+Check out the live demo here: [expensetracker.net](https://github.com/omarkurtovic/ExpenseTracker/tree/main/ExpenseTrackerWebApi)
 
 **Demo Login (no registration needed)**  
 Email: `sa`  
