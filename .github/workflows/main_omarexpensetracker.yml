@@ -11,7 +11,7 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
     permissions:
       contents: read #This is required for actions/checkout
 
@@ -24,19 +24,19 @@ jobs:
           dotnet-version: '10.x'
 
       - name: Build with dotnet
-        run: dotnet build ExpenseTrackerWebApi/ExpenseTrackerWebApi.csproj --configuration Release
+        run: dotnet build --configuration Release
 
       - name: dotnet publish
-        run: dotnet publish ExpenseTrackerWebApi/ExpenseTrackerWebApi.csproj  -c Release -o ./publish
+        run: dotnet publish -c Release -o "${{env.DOTNET_ROOT}}/myapp"
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
         with:
           name: .net-app
-          path: ./publish
+          path: ${{env.DOTNET_ROOT}}/myapp
 
   deploy:
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
     needs: build
     permissions:
       id-token: write #This is required for requesting the JWT
@@ -51,9 +51,9 @@ jobs:
       - name: Login to Azure
         uses: azure/login@v2
         with:
-          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_772C27EC02B94F9891F766143307F36E }}
-          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_0195E66D72554E2D833A7B5734F1CFDF }}
-          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_BBD0549F6A664590AE9A5DCD0BEB565D }}
+          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_3260C5DAF0FD4FCD98CE0403BDF8BA6F }}
+          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_9F04C11DA6A94157A73A368368FDCD35 }}
+          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_F02A19AE650245479E8A91A707AF1128 }}
 
       - name: Deploy to Azure Web App
         id: deploy-to-webapp
@@ -62,5 +62,4 @@ jobs:
           app-name: 'OmarExpenseTracker'
           slot-name: 'Production'
           package: .
-          clean: true
           
