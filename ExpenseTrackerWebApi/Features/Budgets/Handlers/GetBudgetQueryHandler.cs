@@ -21,12 +21,12 @@ namespace ExpenseTrackerWebApi.Features.Budgets.Handlers
             .Include(b => b.BudgetAccounts).ThenInclude(ba => ba.Account)
             .FirstOrDefaultAsync(cancellationToken);
 
-            if(budget == null)
+            if (budget == null)
             {
                 throw new ArgumentException("Budget not found!");
             }
 
-            if(budget.IdentityUserId != request.UserId)
+            if (budget.IdentityUserId != request.UserId)
             {
                 throw new UnauthorizedAccessException("Budget does not belong to user!");
             }

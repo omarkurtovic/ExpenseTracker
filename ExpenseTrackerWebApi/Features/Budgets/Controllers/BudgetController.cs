@@ -15,7 +15,7 @@ namespace ExpenseTrackerWebApi.Features.Budgets.Controllers
     [Route("api/budgets")]
     public class BudgetController : ControllerBase
     {
-        private readonly ISender _mediator;   
+        private readonly ISender _mediator;
         private readonly UserManager<IdentityUser> _userManager;
 
         public BudgetController(ISender mediator, UserManager<IdentityUser> userManager)
@@ -49,7 +49,7 @@ namespace ExpenseTrackerWebApi.Features.Budgets.Controllers
             {
                 var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value!;
                 var budgetDto = await _mediator.Send(new GetBudgetQuery() { UserId = userId, Id = id });
-                if(budgetDto == null)
+                if (budgetDto == null)
                 {
                     return NotFound();
                 }

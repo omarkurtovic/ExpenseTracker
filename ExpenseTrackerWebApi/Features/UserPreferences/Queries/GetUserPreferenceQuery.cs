@@ -6,10 +6,10 @@ namespace ExpenseTrackerWebApi.Features.Features.UserPreferences.Queries
 {
     public class GetUserPreferencesQuery : IRequest<UserPreferenceDto?>
     {
-        public required string UserId{get; set;}
+        public required string UserId { get; set; }
     }
 
-    
+
     public class GetUserPreferencesQueryValidator : AbstractValidator<GetUserPreferencesQuery>
     {
         public GetUserPreferencesQueryValidator()

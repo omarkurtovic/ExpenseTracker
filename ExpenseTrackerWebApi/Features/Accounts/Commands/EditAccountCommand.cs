@@ -6,11 +6,11 @@ namespace ExpenseTrackerWebApi.Features.Accounts.Commands
 {
     public class EditAccountCommand : IRequest<int>
     {
-        public required int Id{get; set;}
-        public required string UserId{get; set;}
-        public required AccountDto AccountDto{get; set;}
+        public required int Id { get; set; }
+        public required string UserId { get; set; }
+        public required AccountDto AccountDto { get; set; }
     }
-    
+
     public class EditAccountCommandValidator : AbstractValidator<EditAccountCommand>
     {
         public EditAccountCommandValidator()

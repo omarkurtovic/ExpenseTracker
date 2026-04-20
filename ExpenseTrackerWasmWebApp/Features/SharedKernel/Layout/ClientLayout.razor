@@ -19,12 +19,12 @@
 <MudSnackbarProvider />
 <MudThemeProvider @bind-IsDarkMode="@UserPreference.DarkMode" Theme="_theme" />
 
-<MudAppBar Elevation="1">
+<MudAppBar Elevation="0" Color="MudBlazor.Color.Surface">
     <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="MudBlazor.Color.Inherit" Edge="Edge.Start"
-                    OnClick="@((e) => DrawerToggle())" />
+                   OnClick="@((e) => DrawerToggle())" />
     <MudSpacer />
     <MudSwitch @bind-Value="UserPreference.DarkMode" Color="MudBlazor.Color.Primary" Class="ma-4" T="bool" Label="Dark Mode"
-                @bind-Value:after="this.ThemeChanged" />
+               @bind-Value:after="this.ThemeChanged" />
     <MudMenu AnchorOrigin="Origin.BottomLeft" Icon="@Icons.Material.Filled.AccountCircle">
         <ActivatorContent>
             <MudAvatar Color="MudBlazor.Color.Primary">
@@ -38,7 +38,7 @@
             <MudDivider />
             <MudMenuItem Icon="@Icons.Material.Filled.Logout" OnClick="Logout" Color="MudBlazor.Color.Error">Logout</MudMenuItem>
         </ChildContent>
-        </MudMenu>
+    </MudMenu>
 </MudAppBar>
 <MudDrawer @bind-Open="_drawerOpen" Elevation="2" Fixed="true">
     <MudDrawerHeader>
@@ -93,7 +93,7 @@
     private string email = "";
 
     [PersistentState]
-    public UserPreferenceDto UserPreference{ get; set; } = new();
+    public UserPreferenceDto UserPreference { get; set; } = new();
 
     private MudTheme _theme = new MudTheme()
     {
@@ -191,7 +191,7 @@
 
     private async Task RefreshGraphs()
     {
-        if(apexChartService == null)
+        if (apexChartService == null)
         {
             return;
         }

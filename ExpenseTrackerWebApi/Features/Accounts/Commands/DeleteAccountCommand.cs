@@ -5,8 +5,8 @@ namespace ExpenseTrackerWebApi.Features.Accounts.Commands
 {
     public class DeleteAccountCommand : IRequest
     {
-        public required string UserId{get; set;}
-        public required int Id{get; set;}
+        public required string UserId { get; set; }
+        public required int Id { get; set; }
     }
 
     public class DeleteAccountCommandValidator : AbstractValidator<DeleteAccountCommand>

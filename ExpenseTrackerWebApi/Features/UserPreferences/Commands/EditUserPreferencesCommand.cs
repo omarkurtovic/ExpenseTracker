@@ -6,10 +6,10 @@ namespace ExpenseTrackerWebApi.Features.UserPreferences.Commands
 {
     public class EditUserPreferencesCommand : IRequest<Unit>
     {
-        public required string UserId{get; set;}
-        public required UserPreferenceDto UserPreferencesDto{get; set;}
+        public required string UserId { get; set; }
+        public required UserPreferenceDto UserPreferencesDto { get; set; }
     }
-    
+
     public class EditUserPreferencesCommandValidator : AbstractValidator<EditUserPreferencesCommand>
     {
         public EditUserPreferencesCommandValidator()

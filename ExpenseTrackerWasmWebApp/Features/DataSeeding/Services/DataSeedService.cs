@@ -37,6 +37,6 @@ namespace ExpenseTrackerWasmWebApp.Features.DataSeeding.Services
                 return Result.Failure("An error occurred while seeding data.");
             }
         }
-        
+
     }
 }

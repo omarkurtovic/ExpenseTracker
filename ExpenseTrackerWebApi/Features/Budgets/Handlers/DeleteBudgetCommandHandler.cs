@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 namespace ExpenseTrackerWebApi.Features.Budgets.Handlers
 {
     public class DeleteBudgetCommandHandler : IRequestHandler<DeleteBudgetCommand>
-    {        
+    {
         private readonly AppDbContext _context;
 
         public DeleteBudgetCommandHandler(AppDbContext context)
@@ -18,14 +18,14 @@ namespace ExpenseTrackerWebApi.Features.Budgets.Handlers
         {
             var budget = await _context.Budgets
             .Where(b => b.Id == request.Id)
-            .SingleOrDefaultAsync(cancellationToken); 
+            .SingleOrDefaultAsync(cancellationToken);
 
-            if(budget == null)
+            if (budget == null)
             {
                 throw new ArgumentException("Budget not found!");
             }
 
-            if(budget.IdentityUserId != request.UserId)
+            if (budget.IdentityUserId != request.UserId)
             {
                 throw new UnauthorizedAccessException("Budget does not belong to user!");
             }

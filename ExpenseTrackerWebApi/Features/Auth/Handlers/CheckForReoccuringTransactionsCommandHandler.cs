@@ -7,7 +7,7 @@ using ExpenseTrackerWebApi.Features.Transactions.Models;
 using ExpenseTrackerWebApi.Features.Transactions.Queries;
 using MediatR;
 
-namespace  ExpenseTrackerWebApi.Features.Auth.Handlers
+namespace ExpenseTrackerWebApi.Features.Auth.Handlers
 {
     public class CheckForReoccuringTransactionsCommandHandler : IRequestHandler<CheckForReoccuringTransactionsCommand>
     {
@@ -22,20 +22,26 @@ namespace  ExpenseTrackerWebApi.Features.Auth.Handlers
 
         public async Task Handle(CheckForReoccuringTransactionsCommand request, CancellationToken cancellationToken)
         {
-            var reoccuringTransactions = await _mediator.Send(new GetAllTransactionsQuery(){
+            var reoccuringTransactions = await _mediator.Send(new GetAllTransactionsQuery()
+            {
                 UserId = request.UserId,
                 IsReoccuring = true
             });
-            
-            if(reoccuringTransactions.Count == 0){
+
+            if (reoccuringTransactions.Count == 0)
+            {
                 return;
             }
 
-            foreach(var transaction in reoccuringTransactions){
-                if(transaction.NextReoccuranceDate != null && transaction.NextReoccuranceDate <= DateTime.Today){
+            foreach (var transaction in reoccuringTransactions)
+            {
+                if (transaction.NextReoccuranceDate != null && transaction.NextReoccuranceDate <= DateTime.Today)
+                {
 
-                    while(transaction.NextReoccuranceDate <= DateTime.Today){
-                        var newTransaction = new Transaction(){
+                    while (transaction.NextReoccuranceDate <= DateTime.Today)
+                    {
+                        var newTransaction = new Transaction()
+                        {
                             Amount = (decimal)transaction.Amount!,
                             AccountId = (int)transaction.AccountId!,
                             CategoryId = (int)transaction.CategoryId!,
@@ -46,7 +52,8 @@ namespace  ExpenseTrackerWebApi.Features.Auth.Handlers
                             NextReoccuranceDate = null
                         };
 
-                        switch(transaction.ReoccuranceFrequency){
+                        switch (transaction.ReoccuranceFrequency)
+                        {
                             case ReoccuranceFrequencyDto.Daily:
                                 transaction.NextReoccuranceDate = transaction.NextReoccuranceDate!.Value.AddDays(1);
                                 break;
@@ -64,8 +71,10 @@ namespace  ExpenseTrackerWebApi.Features.Auth.Handlers
                         _context.Transactions.Add(newTransaction);
                         await _context.SaveChangesAsync();
                         var newTags = new List<TransactionTag>();
-                        foreach(var tag in transaction.TransactionTags){
-                            var newTag = new TransactionTag(){
+                        foreach (var tag in transaction.TransactionTags)
+                        {
+                            var newTag = new TransactionTag()
+                            {
                                 TransactionId = newTransaction.Id,
                                 TagId = tag.TagId
                             };

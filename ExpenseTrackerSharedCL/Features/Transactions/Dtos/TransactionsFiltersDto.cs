@@ -7,11 +7,11 @@ namespace ExpenseTrackerSharedCL.Features.Transactions.Dtos
 {
     public class TransactionsFiltersDto
     {
-        public TransactionTypeDto? TypeFilter{get; set;}
-        public DateFilterPreset? DateFilter{get; set;}
-        public IEnumerable<AccountDto> AccountsFilter{get; set;} = [];
-        public IEnumerable<CategoryDto> CategoriesFilter{get; set;} = [];
-        public IEnumerable<TagDto> TagsFilter{get; set;} = [];
+        public TransactionTypeDto? TypeFilter { get; set; }
+        public DateFilterPreset? DateFilter { get; set; }
+        public IEnumerable<AccountDto> AccountsFilter { get; set; } = [];
+        public IEnumerable<CategoryDto> CategoriesFilter { get; set; } = [];
+        public IEnumerable<TagDto> TagsFilter { get; set; } = [];
 
         public void ClearFilters()
         {
@@ -31,6 +31,6 @@ namespace ExpenseTrackerSharedCL.Features.Transactions.Dtos
                    TagsFilter.Any();
         }
 
-        
+
     }
 }

@@ -17,7 +17,7 @@ namespace ExpenseTrackerWebApi.Features.Transactions.Controllers
     [Authorize]
     public class TransactionsController : ControllerBase
     {
-        private readonly ISender _mediator;   
+        private readonly ISender _mediator;
         private readonly UserManager<IdentityUser> _userManager;
 
         public TransactionsController(ISender mediator, UserManager<IdentityUser> userManager)
@@ -51,7 +51,7 @@ namespace ExpenseTrackerWebApi.Features.Transactions.Controllers
             {
                 var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value!;
                 var transactionDto = await _mediator.Send(new GetTransactionQuery() { UserId = userId, Id = id });
-                if(transactionDto == null)
+                if (transactionDto == null)
                 {
                     return NotFound();
                 }

@@ -7,7 +7,7 @@ namespace ExpenseTrackerSharedCL.Features.Tags.Dtos
         public string? Name { get; set; }
         public string? Color { get; set; }
         public string? IdentityUserId { get; set; }
-        
+
 
         public bool Equals(TagDto? other)
         {

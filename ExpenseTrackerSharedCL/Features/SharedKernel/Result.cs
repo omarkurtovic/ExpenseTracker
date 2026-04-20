@@ -14,8 +14,9 @@ namespace ExpenseTrackerSharedCL.Features.SharedKernel
 
         public static Result Failure(string errorMessage, FailureReason reason = FailureReason.UnknownError)
         {
-            return new Result { 
-                IsSuccess = false, 
+            return new Result
+            {
+                IsSuccess = false,
                 ErrorMessage = errorMessage,
                 Reason = reason
             };
@@ -33,10 +34,12 @@ namespace ExpenseTrackerSharedCL.Features.SharedKernel
 
         public new static Result<T> Failure(string errorMessage, FailureReason reason = FailureReason.UnknownError)
         {
-            return new Result<T> { 
+            return new Result<T>
+            {
                 IsSuccess = false,
                 ErrorMessage = errorMessage,
-                Reason = reason };
+                Reason = reason
+            };
         }
     }
 }

@@ -16,11 +16,11 @@ namespace ExpenseTrackerWebApi.Features.SharedKernel.Behaviors
         public PerformanceBehaviour(
             ILogger<TRequest> logger,
             IHttpContextAccessor httpContextAccessor)
-            {
-                _timer = new Stopwatch();
+        {
+            _timer = new Stopwatch();
 
-                _logger = logger;
-                _httpContextAccessor = httpContextAccessor;
+            _logger = logger;
+            _httpContextAccessor = httpContextAccessor;
         }
 
         public async Task<TResponse> Handle(TRequest request, RequestHandlerDelegate<TResponse> next, CancellationToken cancellationToken)

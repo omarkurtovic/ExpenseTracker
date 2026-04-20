@@ -29,11 +29,13 @@ namespace ExpenseTrackerWebApi.Features.Budgets.Handlers
                 BudgetType = (ExpenseTrackerSharedCL.Features.Budgets.Dtos.BudgetType?)b.BudgetType,
                 Description = b.Description,
                 IdentityUserId = b.IdentityUserId,
-                BudgetCategories = b.BudgetCategories.Select(bc => new BudgetCategoryDto(){
+                BudgetCategories = b.BudgetCategories.Select(bc => new BudgetCategoryDto()
+                {
                     BudgetId = bc.BudgetId,
                     CategoryId = bc.CategoryId,
                 }).ToList(),
-                BudgetAccounts = b.BudgetAccounts.Select(ba => new BudgetAccountDto(){
+                BudgetAccounts = b.BudgetAccounts.Select(ba => new BudgetAccountDto()
+                {
                     BudgetId = ba.BudgetId,
                     AccountId = ba.AccountId,
                 }).ToList(),
@@ -49,7 +51,7 @@ namespace ExpenseTrackerWebApi.Features.Budgets.Handlers
 
 
             var result = new List<BudgetWithProgressDto>();
-            foreach(var budgetDto in budgetDtos)
+            foreach (var budgetDto in budgetDtos)
             {
                 budgetDto.Spent = GetBudgetSpent(budgetDto, allTransactions);
                 result.Add(budgetDto);
@@ -58,7 +60,8 @@ namespace ExpenseTrackerWebApi.Features.Budgets.Handlers
             return result;
         }
 
-        private decimal GetBudgetSpent(BudgetWithProgressDto budget, List<Transaction> transactions){
+        private decimal GetBudgetSpent(BudgetWithProgressDto budget, List<Transaction> transactions)
+        {
 
             var filteredTransctions = new List<Transaction>();
             var categories = budget.BudgetCategories.Select(bc => bc.CategoryId).ToList().ToHashSet();
@@ -67,7 +70,8 @@ namespace ExpenseTrackerWebApi.Features.Budgets.Handlers
             filteredTransctions = [.. transactions.Where(t => t.IsReoccuring == null || !(bool)t.IsReoccuring)
             .Where(t => categories.ToHashSet().Contains(t.CategoryId))
             .Where(t => accounts.ToHashSet().Contains(t.AccountId))];
-            switch(budget.BudgetType){
+            switch (budget.BudgetType)
+            {
                 case ExpenseTrackerSharedCL.Features.Budgets.Dtos.BudgetType.Weekly:
                     var weekStart = DateTime.Now.StartOfWeek(DayOfWeek.Monday);
                     var weekEnd = weekStart.AddDays(7).AddSeconds(-1);
@@ -90,6 +94,6 @@ namespace ExpenseTrackerWebApi.Features.Budgets.Handlers
             return Math.Abs(filteredTransctions.Sum(t => t.Amount));
         }
 
-        
+
     }
 }

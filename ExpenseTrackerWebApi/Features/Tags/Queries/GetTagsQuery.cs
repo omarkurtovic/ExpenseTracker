@@ -6,10 +6,10 @@ namespace ExpenseTrackerWebApi.Features.Tags.Queries
 {
     public class GetTagsQuery : IRequest<List<TagDto>>
     {
-        public required string UserId{get; set; }
+        public required string UserId { get; set; }
     }
 
-    
+
     public class GetTagsQueryValidator : AbstractValidator<GetTagsQuery>
     {
         public GetTagsQueryValidator()

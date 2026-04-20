@@ -21,14 +21,14 @@ namespace ExpenseTrackerWebApi.Features.UserPreferences.Handlers
         {
             var oldUserPreference = await _context.UserPreferences
                 .Where(up => up.UserId == request.UserId)
-                .FirstOrDefaultAsync(cancellationToken); 
+                .FirstOrDefaultAsync(cancellationToken);
 
-            if(oldUserPreference == null)
+            if (oldUserPreference == null)
             {
                 throw new ArgumentException("User preferences not found!");
             }
 
-            if(oldUserPreference.UserId != request.UserId)
+            if (oldUserPreference.UserId != request.UserId)
             {
                 throw new UnauthorizedAccessException("User preferences do not belong to user!");
             }

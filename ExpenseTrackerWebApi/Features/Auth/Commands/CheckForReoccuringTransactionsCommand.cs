@@ -5,7 +5,7 @@ namespace ExpenseTrackerWebApi.Features.Auth.Commands
 {
     public class CheckForReoccuringTransactionsCommand : IRequest
     {
-        public required string UserId{get; set;}
+        public required string UserId { get; set; }
     }
 
     public class CheckForReoccuringTransactionsCommandValidator : AbstractValidator<CheckForReoccuringTransactionsCommand>

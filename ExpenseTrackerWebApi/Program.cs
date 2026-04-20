@@ -131,8 +131,8 @@ void ConfigureDatabase(IServiceCollection services, IWebHostEnvironment env)
     else
         services.AddDbContext<AppDbContext>(options =>
             options.UseSqlite("Data Source=/home/app.db"));
-            
-        
+
+
 }
 
 void ConfigureAuthentication(IServiceCollection services)
@@ -140,7 +140,7 @@ void ConfigureAuthentication(IServiceCollection services)
     services.AddIdentity<IdentityUser, IdentityRole>()
         .AddEntityFrameworkStores<AppDbContext>()
         .AddDefaultTokenProviders();
-        
+
     services.AddAuthentication(options =>
     {
         options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -163,7 +163,7 @@ void ConfigureAuthentication(IServiceCollection services)
     });
     services.AddAuthorization();
 
-    
+
 }
 
 void ConfigureMediatR(IServiceCollection services)

@@ -21,7 +21,7 @@ namespace ExpenseTrackerWebApi.Features.Categories.Handlers
         {
             await _context.Categories.Where(c => c.IdentityUserId == request.UserId)
                 .ExecuteDeleteAsync(cancellationToken);
-            
+
             _context.ChangeTracker.Clear();
             var categories = new List<Category>
             {
@@ -40,7 +40,7 @@ namespace ExpenseTrackerWebApi.Features.Categories.Handlers
                 new() {  Name = "Income", Type=TransactionType.Income, Icon=Icons.Material.Filled.AttachMoney, Color="#33FF57" },
             };
 
-            for(int i = 1; i <= categories.Count; i++)
+            for (int i = 1; i <= categories.Count; i++)
             {
                 categories[i - 1].IdentityUserId = request.UserId;
             }

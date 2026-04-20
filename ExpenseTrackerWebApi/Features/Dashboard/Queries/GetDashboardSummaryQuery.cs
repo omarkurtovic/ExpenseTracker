@@ -6,9 +6,9 @@ namespace ExpenseTrackerWebApi.Features.Dashboard.Queries
 {
     public class GetDashboardSummaryQuery : IRequest<DashboardSummaryDto>
     {
-        public required string UserId{get; set;}
-        public int MonthsBehindToConsider{get; set;} = 5;
-        public int MaxCategoriesToShow {get; set;} = 6;
+        public required string UserId { get; set; }
+        public int MonthsBehindToConsider { get; set; } = 5;
+        public int MaxCategoriesToShow { get; set; } = 6;
     }
     public class GetDashboardSummaryQueryValidator : AbstractValidator<GetDashboardSummaryQuery>
     {

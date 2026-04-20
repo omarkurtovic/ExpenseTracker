@@ -13,7 +13,7 @@ namespace ExpenseTrackerWebApi.Features.UserPreferences.Controllers
     [Authorize]
     public class UserPreferencesController : ControllerBase
     {
-        private readonly ISender _mediator;   
+        private readonly ISender _mediator;
         private readonly UserManager<IdentityUser> _userManager;
 
         public UserPreferencesController(ISender mediator, UserManager<IdentityUser> userManager)

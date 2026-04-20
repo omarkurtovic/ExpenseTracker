@@ -1,6 +1,7 @@
 using MudBlazor;
 
-namespace ExpenseTrackerWasmWebApp.Features.Accounts{
+namespace ExpenseTrackerWasmWebApp.Features.Accounts
+{
     public class AccountsHelper
     {
         public static List<string> GetDefaultAccountIcons()

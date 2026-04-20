@@ -1,13 +1,13 @@
 using ExpenseTrackerSharedCL.Features.DataSeeding.Dtos;
 using FluentValidation;
 using MediatR;
-    
+
 namespace ExpenseTrackerWebApi.Features.DataSeeding.Commands
 {
     public class SeedUserCommand : IRequest
     {
-        public required string UserId {get; set;}
-        public required DataSeedOptionsDto Options {get; set;}
+        public required string UserId { get; set; }
+        public required DataSeedOptionsDto Options { get; set; }
     }
 
 
@@ -31,7 +31,7 @@ namespace ExpenseTrackerWebApi.Features.DataSeeding.Commands
 
             RuleFor(x => x.Options.NumberOfTransaction)
                 .LessThan(10000).WithMessage("Number of transactions must be less than 10000!")
-                .When(x => x.Options != null && x.Options.NumberOfTransaction.HasValue); 
+                .When(x => x.Options != null && x.Options.NumberOfTransaction.HasValue);
 
             RuleFor(x => x.Options.TransactionMinAmount)
                 .NotNull().WithMessage("Transaction minimum amount is required!")
@@ -52,11 +52,11 @@ namespace ExpenseTrackerWebApi.Features.DataSeeding.Commands
             RuleFor(x => x.Options.TransactionMaxAmount)
                 .LessThan(1000000).WithMessage("Transaction maximum amount must be less than 1,000,000!")
                 .When(x => x.Options != null && x.Options.TransactionMaxAmount.HasValue);
-            
+
             RuleFor(x => x.Options.TransactionStartDate)
                 .NotNull().WithMessage("Transaction start date is required!")
                 .When(x => x.Options != null);
-            
+
             RuleFor(x => x.Options.TransactionEndDate)
                 .NotNull().WithMessage("Transaction end date is required!")
                 .When(x => x.Options != null);

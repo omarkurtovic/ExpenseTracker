@@ -6,8 +6,8 @@ namespace ExpenseTrackerWebApi.Features.Budgets.Commands
 {
     public class CreateBudgetCommand : IRequest<int>
     {
-        public required string UserId{get; set;}
-        public required BudgetDto BudgetDto{get; set;}
+        public required string UserId { get; set; }
+        public required BudgetDto BudgetDto { get; set; }
     }
 
     public class CreateBudgetCommandValidator : AbstractValidator<CreateBudgetCommand>

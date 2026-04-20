@@ -3,7 +3,8 @@ using ExpenseTrackerWebApi.Features.Accounts.Commands;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
-namespace ExpenseTrackerWebApi.Features.Accounts.Handlers{
+namespace ExpenseTrackerWebApi.Features.Accounts.Handlers
+{
     public class EditAccountCommandHandler : IRequestHandler<EditAccountCommand, int>
     {
         private readonly AppDbContext _context;
@@ -16,12 +17,12 @@ namespace ExpenseTrackerWebApi.Features.Accounts.Handlers{
             var oldAccount = await _context.Accounts
                 .Where(b => b.Id == request.Id).FirstOrDefaultAsync(cancellationToken);
 
-            if(oldAccount == null)
+            if (oldAccount == null)
             {
                 throw new ArgumentException("Account not found!");
             }
 
-            if(oldAccount.IdentityUserId != request.UserId)
+            if (oldAccount.IdentityUserId != request.UserId)
             {
                 throw new UnauthorizedAccessException("Account does not belong to user!");
             }

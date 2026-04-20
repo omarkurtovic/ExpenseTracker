@@ -20,84 +20,91 @@
 
 <PageTitle>Budgets</PageTitle>
 
-@if(MyBudgets != null){
+@if (MyBudgets != null)
+{
     <MudContainer MaxWidth="MaxWidth.Medium">
-        <MudPaper Class="pa-6 mt-6" Elevation="15">
-            <MudGrid>
-                <MudItem xs="12" Class="d-flex justify-center">
-                    <MudText Typo="Typo.h4">Budgets</MudText>
-                </MudItem>
-                <MudItem xs="12" Class="d-none d-md-flex justify-center gap-5 mb-4">
-                    <MudButton Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Add" OnClick="@(() => OpenBudgetDialogAsync(null))">Add</MudButton>
-                </MudItem>
-                <FabButton Class="d-flex d-md-none" Text="Add" IconClass="@Icons.Material.Filled.Add" OnClick="@(() => OpenBudgetDialogAsync(null))" />
+        <MudStack Row Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center" Class="my-6">
+            <MudText Typo="Typo.h4">Budgets</MudText>
+            <MudButton Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Add" OnClick="@(() => OpenBudgetDialogAsync(null))">Add</MudButton>
+            <FabButton Class="d-flex d-md-none" Text="Add" IconClass="@Icons.Material.Filled.Add" OnClick="@(() => OpenBudgetDialogAsync(null))" />
+        </MudStack>
 
-                @if(MyBudgets == null || MyBudgets.Count == 0)
+        @if (MyBudgets == null || MyBudgets.Count == 0)
+        {
+            <MudText Typo="Typo.h5">No budgets found!</MudText>
+        }
+        else
+        {
+            <MudGrid>
+                @foreach (var budget in MyBudgets)
                 {
-                    <MudItem xs="12" Class="d-flex justify-center mt-4">
-                        <MudText Typo="Typo.h5">No budgets found!</MudText>
-                    </MudItem>
-                }
-                else
-                {
-                    @foreach(var budget in MyBudgets)
-                    {
-                        <MudItem xs="12" md="6">
-                            <BudgetCard 
-                                Budget="@budget"
-                                OnEdit="OpenBudgetDialogAsync"
-                                OnDelete="ConfirmDelete">
-                                <Content>
+                    <MudItem xs="12" md="6">
+                        <MudCard Elevation="1">
+                            <MudCardHeader>
+                                <CardHeaderContent>
+                                    <MudText Typo="Typo.h6">@budget.Name</MudText>
+                                </CardHeaderContent>
+                                <CardHeaderActions>
+                                </CardHeaderActions>
+                            </MudCardHeader>
+                            <MudCardContent>
+                                <MudStack>
                                     <MudProgressLinear Value="@(budget.Progress)" Color="@budget.ProgressColor"></MudProgressLinear>
                                     <MudText Typo="Typo.body2">Spent: $@budget.Spent.ToString("F2") / $@budget.Amount?.ToString("F2")</MudText>
-                                </Content>
-                            </BudgetCard>
-                        </MudItem>
-                    }
+                                </MudStack>
+                            </MudCardContent>
+                            <MudCardActions>
+                                <MudStack Row Justify="Justify.FlexEnd" Style="width: 100%;">
+                                    <MudButton StartIcon="@Icons.Material.Filled.Delete" Variant="Variant.Outlined" Color="Color.Error" OnClick="@(() => ConfirmDelete((int)budget.Id!))">Delete</MudButton>
+                                    <MudButton StartIcon="@Icons.Material.Filled.Edit" Variant="Variant.Filled" Color="Color.Primary" OnClick="@(() => OpenBudgetDialogAsync(budget))">Edit</MudButton>
+                                </MudStack>
+                            </MudCardActions>
+                        </MudCard>
+                    </MudItem>
                 }
             </MudGrid>
-        </MudPaper>
+        }
     </MudContainer>
 }
 
 
 @code {
 
-public List<BudgetWithProgressDto>? MyBudgets { get; set; }
+    public List<BudgetWithProgressDto>? MyBudgets { get; set; }
 
-private PersistingComponentStateSubscription persistingSubscription;
+    private PersistingComponentStateSubscription persistingSubscription;
 
-protected override async Task OnInitializedAsync()
-{
-    await base.OnInitializedAsync();
-
-    if (!ApplicationState.TryTakeFromJson<List<BudgetWithProgressDto>>(nameof(MyBudgets), out var budgets))
+    protected override async Task OnInitializedAsync()
     {
-        await RefreshPage();
+        await base.OnInitializedAsync();
+
+        if (!ApplicationState.TryTakeFromJson<List<BudgetWithProgressDto>>(nameof(MyBudgets), out var budgets))
+        {
+            await RefreshPage();
+        }
+        else
+        {
+            MyBudgets = budgets;
+        }
+
+        persistingSubscription = ApplicationState.RegisterOnPersisting(PersistBudgets);
     }
-    else
+
+    private Task PersistBudgets()
     {
-        MyBudgets = budgets;
+        ApplicationState.PersistAsJson(nameof(MyBudgets), MyBudgets);
+        return Task.CompletedTask;
     }
 
-    persistingSubscription = ApplicationState.RegisterOnPersisting(PersistBudgets);
-}
-
-private Task PersistBudgets()
-{
-    ApplicationState.PersistAsJson(nameof(MyBudgets), MyBudgets);
-    return Task.CompletedTask;
-}
-
-public void Dispose()
-{
-    persistingSubscription.Dispose();
-}
+    public void Dispose()
+    {
+        persistingSubscription.Dispose();
+    }
 
     private async Task OpenBudgetDialogAsync(BudgetWithProgressDto? budget)
     {
         var budgetDto = new BudgetDto();
-        if(budget != null)
+        if (budget != null)
         {
             budgetDto = new BudgetDto
             {
@@ -111,11 +118,12 @@ public void Dispose()
             };
         }
 
-        var options = new DialogOptions { 
-            CloseOnEscapeKey = true, 
-            NoHeader=false, 
-            CloseButton=true, 
-            MaxWidth=MaxWidth.Medium  
+        var options = new DialogOptions
+        {
+            CloseOnEscapeKey = true,
+            NoHeader = false,
+            CloseButton = true,
+            MaxWidth = MaxWidth.Medium
         };
 
         var parameters = new DialogParameters<BudgetDialog>
@@ -133,8 +141,9 @@ public void Dispose()
 
     private async Task ConfirmDelete(int budget_id)
     {
-        var options = new DialogOptions { 
-            CloseOnEscapeKey = true, 
+        var options = new DialogOptions
+        {
+            CloseOnEscapeKey = true,
         };
         var parameters = new DialogParameters<ConfirmDialog>
         {

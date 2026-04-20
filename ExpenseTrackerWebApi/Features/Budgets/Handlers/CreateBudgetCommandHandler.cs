@@ -28,11 +28,11 @@ namespace ExpenseTrackerWebApi.Features.Budgets.Handlers
                 .Select(a => a.Id)
                 .ToListAsync(cancellationToken);
 
-        if (!request.BudgetDto.Categories!.All(id => userCategoryIds.Contains(id)))
-            throw new UnauthorizedAccessException("Category does not belong to user");
+            if (!request.BudgetDto.Categories!.All(id => userCategoryIds.Contains(id)))
+                throw new UnauthorizedAccessException("Category does not belong to user");
 
-        if (!request.BudgetDto.Accounts!.All(id => userAccountIds.Contains(id)))
-            throw new UnauthorizedAccessException("Account does not belong to user");
+            if (!request.BudgetDto.Accounts!.All(id => userAccountIds.Contains(id)))
+                throw new UnauthorizedAccessException("Account does not belong to user");
 
             var budget = new Budget()
             {
@@ -48,7 +48,7 @@ namespace ExpenseTrackerWebApi.Features.Budgets.Handlers
             await _context.SaveChangesAsync(cancellationToken);
 
             var budgetCategories = new List<BudgetCategory>();
-            foreach(var categoryId in request.BudgetDto.Categories!)
+            foreach (var categoryId in request.BudgetDto.Categories!)
             {
                 var bc = new BudgetCategory()
                 {
@@ -58,7 +58,7 @@ namespace ExpenseTrackerWebApi.Features.Budgets.Handlers
                 budgetCategories.Add(bc);
             }
             var budgetAccounts = new List<BudgetAccount>();
-            foreach(var accountId in request.BudgetDto.Accounts!)
+            foreach (var accountId in request.BudgetDto.Accounts!)
             {
                 var ba = new BudgetAccount()
                 {

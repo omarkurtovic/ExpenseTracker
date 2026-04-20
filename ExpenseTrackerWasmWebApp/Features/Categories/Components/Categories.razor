@@ -19,113 +19,121 @@
 
 <PageTitle>Categories</PageTitle>
 
-@if(FilteredCategories != null){
+@if (AllCategories != null)
+{
     <MudContainer MaxWidth="MaxWidth.Medium">
-        <MudPaper Class="pa-6 mt-6" Elevation="15">
-            <MudGrid>
-                <MudItem xs="12" Class="d-flex justify-center">
-                    <MudText Typo="Typo.h4">Categories</MudText>
-                </MudItem>
-                <MudItem xs="12" Class="d-none d-md-flex justify-center gap-5 mb-4">
-                    <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="@(() => OpenCategoryDialogAsync(null))" StartIcon="@Icons.Material.Filled.Add">Add</MudButton>
-                </MudItem>
-                <FabButton Class="d-flex d-md-none" Text="Add" IconClass="@Icons.Material.Filled.Add" OnClick="@(() => OpenCategoryDialogAsync(null))" />
+        <MudStack Row Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center" Class="my-6">
+            <MudText Typo="Typo.h4">Categories</MudText>
+            <MudButton Class="d-none d-md-flex" Variant="Variant.Filled" Color="Color.Primary" OnClick="@(() => OpenCategoryDialogAsync(null))" StartIcon="@Icons.Material.Filled.Add">Add</MudButton>
+            <FabButton Class="d-flex d-md-none" Text="Add" IconClass="@Icons.Material.Filled.Add" OnClick="@(() => OpenCategoryDialogAsync(null))" />
+        </MudStack>
 
-                <MudItem xs="12" Class="d-none d-md-block">
-                    <MudTabs Elevation="0" ApplyEffectsToContainer="true" PanelClass="pa-6" Centered="true" ActivePanelIndexChanged="PanelChanged" >
-                        <MudTabPanel Text= "Expense" Icon="@Icons.Material.Filled.TrendingDown">
-                            @RenderCategoryContent()
-                        </MudTabPanel>
-                        <MudTabPanel Text="Income" Icon="@Icons.Material.Filled.TrendingUp">
-                            @RenderCategoryContent()
-                        </MudTabPanel>
-                    </MudTabs>
+        <MudSelect T="TransactionTypeDto" @bind-Value="transactionType" Class="my-6">
+            <MudSelectItem Value="TransactionTypeDto.Expense">Expenses</MudSelectItem>
+            <MudSelectItem Value="TransactionTypeDto.Income">Incomes</MudSelectItem>
+        </MudSelect>
+
+        <MudGrid>
+            @foreach (var category in AllCategories.Where(c => c.Type == transactionType).ToList())
+            {
+                <MudItem xs="12" md="6">
+                    <MudCard Elevation="1">
+                        <MudCardHeader>
+                            <CardHeaderAvatar>
+                                <MudIcon Icon="@category.Icon" Size="Size.Large" Style="@($"color:{category.Color};")"></MudIcon>
+                            </CardHeaderAvatar>
+                            <CardHeaderContent>
+                                <MudText Typo="Typo.h6">@category.Name</MudText>
+                            </CardHeaderContent>
+                            <CardHeaderActions>
+                            </CardHeaderActions>
+                        </MudCardHeader>
+                        <MudCardContent>
+                            <MudText Typo="Typo.body1">Total transactions: @category.TransactionsCount</MudText>
+                            <MudPaper Elevation="0" Class="d-flex gap-2 mb-3">
+                                <MudText Typo="Typo.body1">@(category.Type == TransactionTypeDto.Income ? "Total income: " : "Total expenses: ")</MudText>
+                                <AmountDisplay Amount="@category.TotalAmount" FontSize="Typo.body1" />
+                            </MudPaper>
+                            <MudPaper Elevation="0" Class="d-flex gap-2 align-center">
+                                <MudText Typo="Typo.body1" Class="flex-grow-1">vs Last Month:</MudText>
+                                <MudText Typo="Typo.body1" Color="@category.ComparisonColor" Class="month-comparison">
+                                    @category.ComparisonDisplay
+                                </MudText>
+                            </MudPaper>
+                        </MudCardContent>
+                        <MudCardActions>
+                            <MudStack Row Justify="Justify.FlexEnd" Style="width: 100%;">
+                                <MudButton StartIcon="@Icons.Material.Filled.Delete" Variant="Variant.Outlined" Color="Color.Error" OnClick="@(() => ConfirmDelete((int)category.Id!))">Delete</MudButton>
+                                <MudButton StartIcon="@Icons.Material.Filled.Edit" Variant="Variant.Filled" Color="Color.Primary" OnClick="@(() => OpenCategoryDialogAsync(category))">Edit</MudButton>
+                            </MudStack>
+                        </MudCardActions>
+                    </MudCard>
                 </MudItem>
-                <MudItem xs="12" Class="d-block d-md-none">
-                    <MudTabs Elevation="0" ApplyEffectsToContainer="true" PanelClass="pa-6" Centered="true" ActivePanelIndexChanged="PanelChanged">
-                        <MudTabPanel Text="" Icon="@Icons.Material.Filled.TrendingDown">
-                            @RenderCategoryContent()
-                        </MudTabPanel>
-                        <MudTabPanel Text="" Icon="@Icons.Material.Filled.TrendingUp">
-                            @RenderCategoryContent()
-                        </MudTabPanel>
-                    </MudTabs>
-                </MudItem>
-                    <style>
-                        .mud-tab {
-                            display: flex;
-                            min-width: 100px !important;
-                            flex-direction: column-reverse;
-                        }
-                    </style>
-            </MudGrid>
-        </MudPaper>
+            }
+        </MudGrid>
     </MudContainer>
 }
 
 
 @code {
-public List<CategoryWithStatsDto> AllCategories { get; set; } = new();
-public List<CategoryWithStatsDto> FilteredCategories { get; set; } = new();
+    public List<CategoryWithStatsDto> AllCategories { get; set; } = new();
 
-private int activePanelIndex = 0;
-private TransactionTypeDto transactionType = TransactionTypeDto.Expense;
-private PersistingComponentStateSubscription persistingSubscription;
+    private TransactionTypeDto transactionType = TransactionTypeDto.Expense;
+    private PersistingComponentStateSubscription persistingSubscription;
 
-protected override async Task OnInitializedAsync()
-{
-    await base.OnInitializedAsync();
 
-    if (!ApplicationState.TryTakeFromJson<List<CategoryWithStatsDto>>(nameof(AllCategories), out var allCategories) ||
-        !ApplicationState.TryTakeFromJson<List<CategoryWithStatsDto>>(nameof(FilteredCategories), out var filteredCategories))
+    protected override async Task OnInitializedAsync()
     {
-        await RefreshPage();
+        await base.OnInitializedAsync();
+
+        if (!ApplicationState.TryTakeFromJson<List<CategoryWithStatsDto>>(nameof(AllCategories), out var allCategories))
+        {
+            await RefreshPage();
+        }
+        else
+        {
+            AllCategories = allCategories;
+        }
+        persistingSubscription = ApplicationState.RegisterOnPersisting(PersistCategories);
     }
-    else
+
+    private Task PersistCategories()
     {
-        AllCategories = allCategories;
-        FilteredCategories = filteredCategories;
+        ApplicationState.PersistAsJson(nameof(AllCategories), AllCategories);
+        return Task.CompletedTask;
     }
-    persistingSubscription = ApplicationState.RegisterOnPersisting(PersistCategories);
-}
 
-private Task PersistCategories()
-{
-    ApplicationState.PersistAsJson(nameof(AllCategories), AllCategories);
-    ApplicationState.PersistAsJson(nameof(FilteredCategories), FilteredCategories);
-    return Task.CompletedTask;
-}
-
-public void Dispose()
-{
-    persistingSubscription.Dispose();
-}
+    public void Dispose()
+    {
+        persistingSubscription.Dispose();
+    }
 
     private async Task OpenCategoryDialogAsync(CategoryWithStatsDto? category)
     {
         var categoryDto = new CategoryDto();
-        if(category == null)
+        if (category == null)
         {
             categoryDto.Color = "#1976d2";
-            categoryDto.Type = activePanelIndex == 0 ? TransactionTypeDto.Expense : TransactionTypeDto.Income;
+            categoryDto.Type = transactionType;
         }
         else
         {
             categoryDto = new CategoryDto
             {
                 Id = category.Id,
-                Name =  category.Name,
+                Name = category.Name,
                 Color = category.Color,
                 Icon = category.Icon,
                 Type = category.Type
             };
         }
 
-        var options = new DialogOptions { 
-            CloseOnEscapeKey = true, 
-            NoHeader=false, 
-            CloseButton=true, 
-            MaxWidth=MaxWidth.Medium  
+        var options = new DialogOptions
+        {
+            CloseOnEscapeKey = true,
+            NoHeader = false,
+            CloseButton = true,
+            MaxWidth = MaxWidth.Medium
         };
         var parameters = new DialogParameters<CategoryDialog>
         {
@@ -142,8 +150,9 @@ public void Dispose()
 
     private async Task ConfirmDelete(int category_id)
     {
-        var options = new DialogOptions { 
-            CloseOnEscapeKey = true, 
+        var options = new DialogOptions
+        {
+            CloseOnEscapeKey = true,
         };
         var parameters = new DialogParameters<ConfirmDialog>
         {
@@ -156,12 +165,12 @@ public void Dispose()
         if (result is not null && !result.Canceled)
         {
             var res = await CategoryService.DeleteCategoryAsync(category_id);
-            if(res.IsSuccess)
+            if (res.IsSuccess)
             {
                 Snackbar.Add("Category succesfully deleted! ", Severity.Success);
                 await RefreshPage();
             }
-            else if(res.Reason == FailureReason.Unauthorized)
+            else if (res.Reason == FailureReason.Unauthorized)
             {
                 Snackbar.Add("Session expired. Please log in again.", Severity.Error);
                 NavigationManager.NavigateTo("/login");
@@ -173,11 +182,6 @@ public void Dispose()
         }
     }
 
-    private async Task PanelChanged(int index){
-        activePanelIndex = index;
-        transactionType = index == 0 ? TransactionTypeDto.Expense : TransactionTypeDto.Income;
-        FilteredCategories = AllCategories.Where(c => c.Type == transactionType).ToList();
-    }
 
     private async Task RefreshPage()
     {
@@ -185,9 +189,8 @@ public void Dispose()
         if (result.IsSuccess)
         {
             AllCategories = result.Data ?? new();
-            FilteredCategories = AllCategories.Where(c => c.Type == transactionType).ToList();
         }
-        else if(result.Reason == FailureReason.Unauthorized)
+        else if (result.Reason == FailureReason.Unauthorized)
         {
             Snackbar.Add("Session expired. Please log in again.", Severity.Error);
             NavigationManager.NavigateTo("/login");
@@ -197,26 +200,4 @@ public void Dispose()
             Snackbar.Add(result.ErrorMessage ?? "Error loading categories!", Severity.Error);
         }
     }
-
-    private RenderFragment RenderCategoryContent() => @<text>
-        @if(FilteredCategories == null || FilteredCategories.Count == 0)
-        {
-            <MudItem xs="12" Class="d-flex justify-center mt-4">
-                <MudText Typo="Typo.h5">No @(transactionType == TransactionTypeDto.Expense ? "expense" : "income") categories found!</MudText>
-            </MudItem>
-        }
-        else
-        {
-            <MudPaper Elevation="0">
-                <MudGrid>
-                    @foreach(var category in FilteredCategories)
-                    {
-                        <MudItem xs="12" md="6">
-                            <CategoryCard CategoryDto="@category" OpenCategoryDialogAsync="OpenCategoryDialogAsync" ConfirmDelete="ConfirmDelete"></CategoryCard>
-                        </MudItem>
-                    }
-                </MudGrid>
-            </MudPaper>
-        }
-    </text>;
 }

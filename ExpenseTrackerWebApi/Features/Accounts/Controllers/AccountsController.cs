@@ -13,7 +13,7 @@ namespace ExpenseTrackerWebApi.Features.Accounts.Controllers
     [Authorize]
     public class AccountsController : ControllerBase
     {
-        private readonly ISender _mediator;   
+        private readonly ISender _mediator;
         private readonly UserManager<IdentityUser> _userManager;
 
         public AccountsController(ISender mediator, UserManager<IdentityUser> userManager)
@@ -65,7 +65,7 @@ namespace ExpenseTrackerWebApi.Features.Accounts.Controllers
             {
                 var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value!;
                 var accountDto = await _mediator.Send(new GetAccountQuery() { UserId = userId, Id = id });
-                if(accountDto == null)
+                if (accountDto == null)
                 {
                     return NotFound();
                 }

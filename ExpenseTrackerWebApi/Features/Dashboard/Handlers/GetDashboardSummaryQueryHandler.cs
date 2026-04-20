@@ -22,27 +22,27 @@ namespace ExpenseTrackerWebApi.Features.Dashboard.Handlers
         public async Task<DashboardSummaryDto> Handle(GetDashboardSummaryQuery request, CancellationToken cancellationToken)
         {
             var result = new DashboardSummaryDto();
-            result.Transactions = await _mediator.Send(new GetAllTransactionsQuery { UserId = request.UserId, IsReoccuring=false }, cancellationToken);
+            result.Transactions = await _mediator.Send(new GetAllTransactionsQuery { UserId = request.UserId, IsReoccuring = false }, cancellationToken);
             var accounts = await _mediator.Send(new GetAccountsQuery { UserId = request.UserId }, cancellationToken);
-            
+
             result.Balance += accounts.Sum(a => (decimal)a.InitialBalance!);
             result.Balance += result.Transactions.Sum(t => (decimal)t.Amount!);
-            
+
             var transactionsThisMonth = result.Transactions
                 .Where(t => t.Date >= DateTime.Now.StartOfMonth(CultureInfo.CurrentCulture))
                 .ToList();
-                
-                foreach (var transaction in transactionsThisMonth)
+
+            foreach (var transaction in transactionsThisMonth)
+            {
+                if (transaction.CategoryDto!.Type == TransactionTypeDto.Expense)
                 {
-                    if (transaction.CategoryDto!.Type == TransactionTypeDto.Expense)
-                    {
-                        result.ExpensesThisMonth += (decimal)transaction.Amount!;
-                    }
-                    else if (transaction.CategoryDto!.Type == TransactionTypeDto.Income)
-                    {
-                        result.IncomeThisMonth += (decimal)transaction.Amount!;
-                    }
+                    result.ExpensesThisMonth += (decimal)transaction.Amount!;
                 }
+                else if (transaction.CategoryDto!.Type == TransactionTypeDto.Income)
+                {
+                    result.IncomeThisMonth += (decimal)transaction.Amount!;
+                }
+            }
 
             result.TopExpenseCategories = GetTopExpenseCategories(result.Transactions, request.MonthsBehindToConsider, request.MaxCategoriesToShow);
             result.CumulativeExpensesPerMonth = GetCumulativePerMonth(result.Transactions, TransactionTypeDto.Expense, request.MonthsBehindToConsider);
@@ -82,13 +82,13 @@ namespace ExpenseTrackerWebApi.Features.Dashboard.Handlers
 
             return result;
         }
-    
+
         private List<CumulativeData> GetCumulativePerMonth(List<TransactionDto> transactions, TransactionTypeDto type, int monthsBehindToConsider = 5)
         {
             var result = new List<CumulativeData>();
 
             var dateStart = DateTime.Now.AddMonths(-monthsBehindToConsider).StartOfMonth(CultureInfo.CurrentCulture);
-            for(int i = 0; i <= monthsBehindToConsider; ++i)
+            for (int i = 0; i <= monthsBehindToConsider; ++i)
             {
                 var date = dateStart.AddMonths(i);
                 result.Add(new CumulativeData()
@@ -113,7 +113,7 @@ namespace ExpenseTrackerWebApi.Features.Dashboard.Handlers
 
             foreach (var monthData in monthlyExpenses)
             {
-                foreach(var data in result)
+                foreach (var data in result)
                 {
                     if (data.TimePeriod == new DateTime(monthData.Year, monthData.Month, 1).ToString("MMM"))
                     {

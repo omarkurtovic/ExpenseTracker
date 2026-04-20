@@ -23,7 +23,7 @@ namespace ExpenseTrackerWasmWebApp.Features.Accounts.Services
                     accounts = await response.Content.ReadFromJsonAsync<List<AccountDto>>() ?? new();
                     return Result<List<AccountDto>>.Success(accounts);
                 }
-                else if(response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+                else if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
                 {
                     return Result<List<AccountDto>>.Failure("Unauthorized access.", FailureReason.Unauthorized);
                 }
@@ -53,7 +53,7 @@ namespace ExpenseTrackerWasmWebApp.Features.Accounts.Services
                     accounts = await response.Content.ReadFromJsonAsync<List<AccountWithBalanceDto>>() ?? new();
                     return Result<List<AccountWithBalanceDto>>.Success(accounts);
                 }
-                else if(response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+                else if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
                 {
                     return Result<List<AccountWithBalanceDto>>.Failure("Unauthorized access.", FailureReason.Unauthorized);
                 }
@@ -82,7 +82,7 @@ namespace ExpenseTrackerWasmWebApp.Features.Accounts.Services
                     var account = await response.Content.ReadFromJsonAsync<AccountDto>();
                     return Result<AccountDto>.Success(account!);
                 }
-                else if(response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+                else if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
                 {
                     return Result<AccountDto>.Failure("Unauthorized access.", FailureReason.Unauthorized);
                 }
@@ -113,7 +113,7 @@ namespace ExpenseTrackerWasmWebApp.Features.Accounts.Services
                 {
                     return Result.Success();
                 }
-                else if(response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+                else if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
                 {
                     return Result.Failure("Unauthorized access.", FailureReason.Unauthorized);
                 }
@@ -129,8 +129,8 @@ namespace ExpenseTrackerWasmWebApp.Features.Accounts.Services
                 return Result.Failure("An error occurred while creating the account.");
             }
         }
-    
-    
+
+
         public async Task<Result> EditAccountAsync(AccountDto accountDto)
         {
             try
@@ -144,7 +144,7 @@ namespace ExpenseTrackerWasmWebApp.Features.Accounts.Services
                 {
                     return Result.Success();
                 }
-                else if(response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+                else if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
                 {
                     return Result.Failure("Unauthorized access.", FailureReason.Unauthorized);
                 }
@@ -172,7 +172,7 @@ namespace ExpenseTrackerWasmWebApp.Features.Accounts.Services
                 {
                     return Result.Success();
                 }
-                else if(response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+                else if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
                 {
                     return Result.Failure("Unauthorized access.", FailureReason.Unauthorized);
                 }

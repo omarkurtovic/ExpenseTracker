@@ -59,10 +59,21 @@ h1:focus {
     text-align: start;
 }
 
-.m3-card {
+.mud-card {
     transition: box-shadow 0.2s ease-in-out !important;
 }
 
-.m3-card:hover {
+.mud-card:hover {
     box-shadow: var(--mud-elevation-3) !important;
+}
+
+.mud-dialog {
+    border-radius: 28px !important;
+    padding: 8px;
+}
+
+.mud-button-filled,
+.mud-button-outlined,
+.mud-button-text {
+    border-radius: 9999px !important;
 }

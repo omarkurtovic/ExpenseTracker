@@ -35,6 +35,6 @@ namespace ExpenseTrackerWasmWebApp.Features.Dashboard.Services
                 return Result<DashboardSummaryDto>.Failure("An error occurred while fetching dashboard stats.");
             }
         }
-        
+
     }
 }

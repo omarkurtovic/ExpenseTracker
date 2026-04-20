@@ -6,12 +6,12 @@ namespace ExpenseTrackerWebApi.Features.Transactions.Queries
 {
     public class GetTransactionsPageDataQuery : IRequest<TransactionsPageDataDto>
     {
-        public required string UserId{get; set; }
-        public required TransactionsGridOptionsDto TransactionOptions{get; set;} 
+        public required string UserId { get; set; }
+        public required TransactionsGridOptionsDto TransactionOptions { get; set; }
     }
 
 
-    
+
     public class GetTransactionsPageDataQueryValidator : AbstractValidator<GetTransactionsPageDataQuery>
     {
         public GetTransactionsPageDataQueryValidator()

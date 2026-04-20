@@ -52,8 +52,10 @@ namespace ExpenseTrackerWebApp.SharedKernel.Transactions.Handlers
                 ReoccuranceFrequency = (ReoccuranceFrequency?)request.TransactionDto.ReoccuranceFrequency
             };
 
-            if(transaction.IsReoccuring!= null && transaction.IsReoccuring == true && transaction.ReoccuranceFrequency != null){
-                switch(transaction.ReoccuranceFrequency){
+            if (transaction.IsReoccuring != null && transaction.IsReoccuring == true && transaction.ReoccuranceFrequency != null)
+            {
+                switch (transaction.ReoccuranceFrequency)
+                {
                     case ReoccuranceFrequency.Daily:
                         transaction.NextReoccuranceDate = transaction.Date.AddDays(1);
                         break;
@@ -68,7 +70,7 @@ namespace ExpenseTrackerWebApp.SharedKernel.Transactions.Handlers
                         break;
                 }
             }
-            
+
             transaction.Amount = Math.Abs(transaction.Amount);
             if ((TransactionType)request.TransactionDto.TransactionType! == TransactionType.Expense)
             {
