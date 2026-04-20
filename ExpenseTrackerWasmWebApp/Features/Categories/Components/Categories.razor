@@ -28,13 +28,26 @@
             <FabButton Class="d-flex d-md-none" Text="Add" IconClass="@Icons.Material.Filled.Add" OnClick="@(() => OpenCategoryDialogAsync(null))" />
         </MudStack>
 
-        <MudSelect T="TransactionTypeDto" @bind-Value="transactionType" Class="my-6">
-            <MudSelectItem Value="TransactionTypeDto.Expense">Expenses</MudSelectItem>
-            <MudSelectItem Value="TransactionTypeDto.Income">Incomes</MudSelectItem>
-        </MudSelect>
+        <MudGrid Class="my-6">
+            <MudItem xs="12" md="6">
+                <MudTextField @bind-Value="searchString"
+                              Placeholder="Search categories..."
+                              Adornment="Adornment.Start"
+                              AdornmentIcon="@Icons.Material.Filled.Search"
+                              IconSize="Size.Medium"
+                              Variant="Variant.Outlined"
+                              Immediate="true" />
+            </MudItem>
+            <MudItem xs="12" md="6">
+                <MudSelect T="TransactionTypeDto" @bind-Value="transactionType" Variant="Variant.Outlined">
+                    <MudSelectItem Value="TransactionTypeDto.Expense">Expenses</MudSelectItem>
+                    <MudSelectItem Value="TransactionTypeDto.Income">Incomes</MudSelectItem>
+                </MudSelect>
+            </MudItem>
+        </MudGrid>
 
         <MudGrid>
-            @foreach (var category in AllCategories.Where(c => c.Type == transactionType).ToList())
+            @foreach (var category in FilteredTransactions)
             {
                 <MudItem xs="12" md="6">
                     <MudCard Elevation="1">
@@ -46,6 +59,14 @@
                                 <MudText Typo="Typo.h6">@category.Name</MudText>
                             </CardHeaderContent>
                             <CardHeaderActions>
+                                <MudMenu Icon="@Icons.Material.Filled.MoreVert" AnchorOrigin="Origin.BottomRight" TransformOrigin="Origin.TopRight" Dense="false">
+                                    <MudMenuItem Icon="@Icons.Material.Filled.Edit" OnClick="@(() => OpenCategoryDialogAsync(category))">
+                                        Edit
+                                    </MudMenuItem>
+                                    <MudMenuItem Icon="@Icons.Material.Filled.Delete" IconColor="Color.Error" OnClick="@(() => ConfirmDelete((int)category.Id!))">
+                                        <MudText Color="Color.Error">Delete</MudText>
+                                    </MudMenuItem>
+                                </MudMenu>
                             </CardHeaderActions>
                         </MudCardHeader>
                         <MudCardContent>
@@ -61,12 +82,6 @@
                                 </MudText>
                             </MudPaper>
                         </MudCardContent>
-                        <MudCardActions>
-                            <MudStack Row Justify="Justify.FlexEnd" Style="width: 100%;">
-                                <MudButton StartIcon="@Icons.Material.Filled.Delete" Variant="Variant.Outlined" Color="Color.Error" OnClick="@(() => ConfirmDelete((int)category.Id!))">Delete</MudButton>
-                                <MudButton StartIcon="@Icons.Material.Filled.Edit" Variant="Variant.Filled" Color="Color.Primary" OnClick="@(() => OpenCategoryDialogAsync(category))">Edit</MudButton>
-                            </MudStack>
-                        </MudCardActions>
                     </MudCard>
                 </MudItem>
             }
@@ -79,8 +94,18 @@
     public List<CategoryWithStatsDto> AllCategories { get; set; } = new();
 
     private TransactionTypeDto transactionType = TransactionTypeDto.Expense;
+    private string searchString = "";
     private PersistingComponentStateSubscription persistingSubscription;
 
+    private List<CategoryWithStatsDto> FilteredTransactions
+    {
+        get
+        {
+            return AllCategories
+            .Where(c => (string.IsNullOrWhiteSpace(searchString) || c.Name.Contains(searchString, StringComparison.OrdinalIgnoreCase)) && c.Type == transactionType)
+            .ToList();
+        }
+    }
 
     protected override async Task OnInitializedAsync()
     {
