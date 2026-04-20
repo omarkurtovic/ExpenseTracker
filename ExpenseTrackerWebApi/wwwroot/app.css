@@ -58,3 +58,11 @@ h1:focus {
 .form-floating > .form-control-plaintext:focus::placeholder, .form-floating > .form-control:focus::placeholder {
     text-align: start;
 }
+
+.m3-card {
+    transition: box-shadow 0.2s ease-in-out !important;
+}
+
+.m3-card:hover {
+    box-shadow: var(--mud-elevation-3) !important;
+}

@@ -95,7 +95,19 @@
     [PersistentState]
     public UserPreferenceDto UserPreference{ get; set; } = new();
 
-    private MudTheme _theme = new();
+    private MudTheme _theme = new MudTheme()
+    {
+        LayoutProperties = new LayoutProperties()
+        {
+            DefaultBorderRadius = "12px"
+        },
+        PaletteLight = new PaletteLight()
+        {
+            Primary = "#6750A4",
+            Background = "#FEF7FF",
+            Surface = "#F3EDF7"
+        }
+    };
 
     protected override async Task OnInitializedAsync()
     {
