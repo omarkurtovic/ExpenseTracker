@@ -23,22 +23,39 @@
 
 <PageTitle>Accounts</PageTitle>
 
-<MudContainer MaxWidth="MaxWidth.Medium">
-    <MudStack Row Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center" Class="my-6">
+<MudContainer MaxWidth="MaxWidth.Medium" Class="d-flex flex-column gap-5 mt-6">
+
+    <MudStack Row Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center">
         <MudText Typo="Typo.h4">Accounts</MudText>
         <MudButton Class="d-none d-md-flex" Variant="Variant.Filled" Color="Color.Primary" OnClick="@(() => OpenAccountDialogAsync(null))" StartIcon="@Icons.Material.Filled.Add">Add</MudButton>
         <FabButton Class="d-flex d-md-none" Text="Add" IconClass="@Icons.Material.Filled.Add" OnClick="@(() => OpenAccountDialogAsync(null))" />
     </MudStack>
-                    
-    @if (MyAccounts == null || MyAccounts.Count == 0)
+
+    <MudGrid>
+        <MudItem xs="12">
+            <MudTextField @bind-Value="searchString"
+                          Placeholder="Search accounts..."
+                          Adornment="Adornment.Start"
+                          AdornmentIcon="@Icons.Material.Filled.Search"
+                          IconSize="Size.Medium"
+                          Variant="Variant.Outlined"
+                          Immediate="true" />
+        </MudItem>
+    </MudGrid>
+              
+    @if (AllAccounts == null || AllAccounts.Count == 0)
     {
         <MudText Typo="Typo.h5">No accounts created yet!</MudText>
+    }
+    else if (FilteredAccounts == null || FilteredAccounts.Count == 0)
+    {
+        <MudText Typo="Typo.h5">No accounts found!</MudText>
     }
     else
     {
 
         <MudGrid>
-            @foreach (var account in MyAccounts)
+            @foreach (var account in FilteredAccounts)
             {
                 <MudItem xs="12" md="6">
                     <MudCard Elevation="1">
@@ -50,6 +67,14 @@
                                 <MudText Typo="Typo.h6">@account.Name</MudText>
                             </CardHeaderContent>
                             <CardHeaderActions>
+                                <MudMenu Icon="@Icons.Material.Filled.MoreVert" AnchorOrigin="Origin.BottomRight" TransformOrigin="Origin.TopRight" Dense="false">
+                                    <MudMenuItem Icon="@Icons.Material.Filled.Edit" OnClick="@(() => OpenAccountDialogAsync(account))">
+                                        Edit
+                                    </MudMenuItem>
+                                    <MudMenuItem Icon="@Icons.Material.Filled.Delete" IconColor="Color.Error" OnClick="@(() => ConfirmDelete((int)account.Id!))">
+                                        <MudText Color="Color.Error">Delete</MudText>
+                                    </MudMenuItem>
+                                </MudMenu>
                             </CardHeaderActions>
                         </MudCardHeader>
                         <MudCardContent>
@@ -58,34 +83,41 @@
                                 <AmountDisplay Amount="@account!.CurrentBalance" FontSize="Typo.body1" />
                             </MudStack>
                         </MudCardContent>
-                        <MudCardActions>
-                            <MudStack Row Justify="Justify.FlexEnd" Style="width: 100%;">
-                                <MudButton StartIcon="@Icons.Material.Filled.Delete" Variant="Variant.Outlined" Color="Color.Error" OnClick="@(() => ConfirmDelete((int)account.Id!))">Delete</MudButton>
-                                <MudButton StartIcon="@Icons.Material.Filled.Edit" Variant="Variant.Filled" Color="Color.Primary" OnClick="@(() => OpenAccountDialogAsync(account))">Edit</MudButton>
-                            </MudStack>
-                        </MudCardActions>
                     </MudCard>
                 </MudItem>
             }
         </MudGrid>
     }
+
 </MudContainer>
 
 @code {
 
-    public List<AccountWithBalanceDto> MyAccounts { get; set; } = new List<AccountWithBalanceDto>();
-    private PersistingComponentStateSubscription persistingSubscription;
+    public List<AccountWithBalanceDto> AllAccounts { get; set; } = [];
 
+    public List<AccountWithBalanceDto> FilteredAccounts
+    {
+        get
+        {
+            return AllAccounts
+            .Where(c => (string.IsNullOrWhiteSpace(searchString) || c.Name!.Contains(searchString, StringComparison.OrdinalIgnoreCase)))
+            .ToList();
+        }
+    }
+    private string searchString = "";
+
+
+    private PersistingComponentStateSubscription persistingSubscription;
 
     protected override async Task OnInitializedAsync()
     {
-        if (!ApplicationState.TryTakeFromJson<List<AccountWithBalanceDto>>(nameof(MyAccounts), out var accounts))
+        if (!ApplicationState.TryTakeFromJson<List<AccountWithBalanceDto>>(nameof(AllAccounts), out var accounts))
         {
             await UpdatePage();
         }
         else
         {
-            MyAccounts = accounts;
+            AllAccounts = accounts!;
         }
 
         persistingSubscription = ApplicationState.RegisterOnPersisting(PersistAccounts);
@@ -93,7 +125,7 @@
 
     private Task PersistAccounts()
     {
-        ApplicationState.PersistAsJson(nameof(MyAccounts), MyAccounts);
+        ApplicationState.PersistAsJson(nameof(AllAccounts), AllAccounts);
         return Task.CompletedTask;
     }
     public void Dispose()
@@ -124,10 +156,8 @@
             MaxWidth = MaxWidth.Medium
         };
 
-        var parameters = new DialogParameters<AccountDialog>
-        {
-            { x => x.AccountDto, accountDto }
-        };
+        var parameters = new DialogParameters<AccountDialog>();
+        parameters.Add(d => d.AccountDto, accountDto);
 
         var dialog = await DialogService.ShowAsync<AccountDialog>(title: "", parameters, options);
         var result = await dialog.Result;
@@ -174,7 +204,7 @@
         var result = await AccountService.GetAccountsWithBalanceAsync();
         if (result.IsSuccess)
         {
-            MyAccounts = result.Data!;
+            AllAccounts = result.Data!;
         }
         else if (result.Reason == FailureReason.Unauthorized)
         {

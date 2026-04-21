@@ -20,71 +20,97 @@
 
 <PageTitle>Budgets</PageTitle>
 
-@if (MyBudgets != null)
-{
-    <MudContainer MaxWidth="MaxWidth.Medium">
-        <MudStack Row Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center" Class="my-6">
-            <MudText Typo="Typo.h4">Budgets</MudText>
-            <MudButton Class="d-none d-md-flex" Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Add" OnClick="@(() => OpenBudgetDialogAsync(null))">Add</MudButton>
-            <FabButton Class="d-flex d-md-none" Text="Add" IconClass="@Icons.Material.Filled.Add" OnClick="@(() => OpenBudgetDialogAsync(null))" />
-        </MudStack>
+<MudContainer MaxWidth="MaxWidth.Medium" Class="d-flex flex-column gap-5 mt-6">
 
-        @if (MyBudgets == null || MyBudgets.Count == 0)
+    <MudStack Row Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center">
+        <MudText Typo="Typo.h4">Budgets</MudText>
+        <MudButton Class="d-none d-md-flex" Variant="Variant.Filled" Color="Color.Primary" OnClick="@(() => OpenBudgetDialogAsync(null))" StartIcon="@Icons.Material.Filled.Add">Add</MudButton>
+        <FabButton Class="d-flex d-md-none" Text="Add" IconClass="@Icons.Material.Filled.Add" OnClick="@(() => OpenBudgetDialogAsync(null))" />
+    </MudStack>
+    <MudGrid>
+        <MudItem xs="12">
+            <MudTextField @bind-Value="searchString"
+                          Placeholder="Search budgets..."
+                          Adornment="Adornment.Start"
+                          AdornmentIcon="@Icons.Material.Filled.Search"
+                          IconSize="Size.Medium"
+                          Variant="Variant.Outlined"
+                          Immediate="true" />
+        </MudItem>
+    </MudGrid>
+
+    @if (AllBudgets == null || AllBudgets.Count == 0)
+    {
+        <MudText Typo="Typo.h5">No budgets created yet!</MudText>
+    }
+    else if (FilteredBudgets == null || FilteredBudgets.Count == 0)
+    {
+        <MudText Typo="Typo.h5">No budgets found!</MudText>
+    }
+    else
+    {
+
+        <MudGrid>
+            @foreach (var budget in FilteredBudgets)
+            {
+                <MudItem xs="12" md="6">
+                    <MudCard Elevation="1">
+                        <MudCardHeader>
+                            <CardHeaderContent>
+                                <MudText Typo="Typo.h6">@budget.Name</MudText>
+                            </CardHeaderContent>
+                            <CardHeaderActions>
+                                <MudMenu Icon="@Icons.Material.Filled.MoreVert" AnchorOrigin="Origin.BottomRight" TransformOrigin="Origin.TopRight" Dense="false">
+                                    <MudMenuItem Icon="@Icons.Material.Filled.Edit" OnClick="@(() => OpenBudgetDialogAsync(budget))">
+                                        Edit
+                                    </MudMenuItem>
+                                    <MudMenuItem Icon="@Icons.Material.Filled.Delete" IconColor="Color.Error" OnClick="@(() => ConfirmDelete((int)budget.Id!))">
+                                        <MudText Color="Color.Error">Delete</MudText>
+                                    </MudMenuItem>
+                                </MudMenu>
+                            </CardHeaderActions>
+                        </MudCardHeader>
+                        <MudCardContent>
+                            <MudStack>
+                                <MudProgressLinear Value="@(budget.Progress)" Color="@budget.ProgressColor"></MudProgressLinear>
+                                <MudText Typo="Typo.body2">Spent: $@budget.Spent.ToString("F2") / $@budget.Amount?.ToString("F2")</MudText>
+                            </MudStack>
+                        </MudCardContent>
+                    </MudCard>
+                </MudItem>
+            }
+        </MudGrid>
+    }
+</MudContainer>
+
+
+    @code {
+
+    public List<BudgetWithProgressDto> AllBudgets { get; set; } = [];
+    public List<BudgetWithProgressDto> FilteredBudgets
+    {
+        get
         {
-            <MudText Typo="Typo.h5">No budgets found!</MudText>
+            return AllBudgets
+            .Where(c => (string.IsNullOrWhiteSpace(searchString) || c.Name!.Contains(searchString, StringComparison.OrdinalIgnoreCase)))
+            .ToList();
         }
-        else
-        {
-            <MudGrid>
-                @foreach (var budget in MyBudgets)
-                {
-                    <MudItem xs="12" md="6">
-                        <MudCard Elevation="1">
-                            <MudCardHeader>
-                                <CardHeaderContent>
-                                    <MudText Typo="Typo.h6">@budget.Name</MudText>
-                                </CardHeaderContent>
-                                <CardHeaderActions>
-                                </CardHeaderActions>
-                            </MudCardHeader>
-                            <MudCardContent>
-                                <MudStack>
-                                    <MudProgressLinear Value="@(budget.Progress)" Color="@budget.ProgressColor"></MudProgressLinear>
-                                    <MudText Typo="Typo.body2">Spent: $@budget.Spent.ToString("F2") / $@budget.Amount?.ToString("F2")</MudText>
-                                </MudStack>
-                            </MudCardContent>
-                            <MudCardActions>
-                                <MudStack Row Justify="Justify.FlexEnd" Style="width: 100%;">
-                                    <MudButton StartIcon="@Icons.Material.Filled.Delete" Variant="Variant.Outlined" Color="Color.Error" OnClick="@(() => ConfirmDelete((int)budget.Id!))">Delete</MudButton>
-                                    <MudButton StartIcon="@Icons.Material.Filled.Edit" Variant="Variant.Filled" Color="Color.Primary" OnClick="@(() => OpenBudgetDialogAsync(budget))">Edit</MudButton>
-                                </MudStack>
-                            </MudCardActions>
-                        </MudCard>
-                    </MudItem>
-                }
-            </MudGrid>
-        }
-    </MudContainer>
-}
+    }
+    public string searchString = "";
 
-
-@code {
-
-    public List<BudgetWithProgressDto>? MyBudgets { get; set; }
-
-    private PersistingComponentStateSubscription persistingSubscription;
+    public PersistingComponentStateSubscription persistingSubscription;
 
     protected override async Task OnInitializedAsync()
     {
         await base.OnInitializedAsync();
 
-        if (!ApplicationState.TryTakeFromJson<List<BudgetWithProgressDto>>(nameof(MyBudgets), out var budgets))
+        if (!ApplicationState.TryTakeFromJson<List<BudgetWithProgressDto>>(nameof(AllBudgets), out var budgets))
         {
             await RefreshPage();
         }
         else
         {
-            MyBudgets = budgets;
+            AllBudgets = budgets!;
         }
 
         persistingSubscription = ApplicationState.RegisterOnPersisting(PersistBudgets);
@@ -92,7 +118,7 @@
 
     private Task PersistBudgets()
     {
-        ApplicationState.PersistAsJson(nameof(MyBudgets), MyBudgets);
+        ApplicationState.PersistAsJson(nameof(AllBudgets), AllBudgets);
         return Task.CompletedTask;
     }
 
@@ -177,7 +203,7 @@
         var result = await BudgetService.GetBudgetsAsync();
         if (result.IsSuccess)
         {
-            MyBudgets = result.Data;
+            AllBudgets = result.Data;
         }
         else if (result.Reason == FailureReason.Unauthorized)
         {

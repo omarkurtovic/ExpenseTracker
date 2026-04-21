@@ -19,35 +19,44 @@
 
 <PageTitle>Categories</PageTitle>
 
-@if (AllCategories != null)
-{
-    <MudContainer MaxWidth="MaxWidth.Medium">
-        <MudStack Row Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center" Class="my-6">
-            <MudText Typo="Typo.h4">Categories</MudText>
-            <MudButton Class="d-none d-md-flex" Variant="Variant.Filled" Color="Color.Primary" OnClick="@(() => OpenCategoryDialogAsync(null))" StartIcon="@Icons.Material.Filled.Add">Add</MudButton>
-            <FabButton Class="d-flex d-md-none" Text="Add" IconClass="@Icons.Material.Filled.Add" OnClick="@(() => OpenCategoryDialogAsync(null))" />
-        </MudStack>
+<MudContainer MaxWidth="MaxWidth.Medium" Class="d-flex flex-column gap-5 mt-6">
 
-        <MudGrid Class="my-6">
-            <MudItem xs="12" md="6">
-                <MudTextField @bind-Value="searchString"
-                              Placeholder="Search categories..."
-                              Adornment="Adornment.Start"
-                              AdornmentIcon="@Icons.Material.Filled.Search"
-                              IconSize="Size.Medium"
-                              Variant="Variant.Outlined"
-                              Immediate="true" />
-            </MudItem>
-            <MudItem xs="12" md="6">
-                <MudSelect T="TransactionTypeDto" @bind-Value="transactionType" Variant="Variant.Outlined">
-                    <MudSelectItem Value="TransactionTypeDto.Expense">Expenses</MudSelectItem>
-                    <MudSelectItem Value="TransactionTypeDto.Income">Incomes</MudSelectItem>
-                </MudSelect>
-            </MudItem>
-        </MudGrid>
+    <MudStack Row Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center">
+        <MudText Typo="Typo.h4">Categories</MudText>
+        <MudButton Class="d-none d-md-flex" Variant="Variant.Filled" Color="Color.Primary" OnClick="@(() => OpenCategoryDialogAsync(null))" StartIcon="@Icons.Material.Filled.Add">Add</MudButton>
+        <FabButton Class="d-flex d-md-none" Text="Add" IconClass="@Icons.Material.Filled.Add" OnClick="@(() => OpenCategoryDialogAsync(null))" />
+    </MudStack>
 
+    <MudGrid>
+        <MudItem xs="12" md="6">
+            <MudTextField @bind-Value="searchString"
+                          Placeholder="Search categories..."
+                          Adornment="Adornment.Start"
+                          AdornmentIcon="@Icons.Material.Filled.Search"
+                          IconSize="Size.Medium"
+                          Variant="Variant.Outlined"
+                          Immediate="true" />
+        </MudItem>
+        <MudItem xs="12" md="6">
+            <MudSelect T="TransactionTypeDto" @bind-Value="transactionType" Variant="Variant.Outlined">
+                <MudSelectItem Value="TransactionTypeDto.Expense">Expenses</MudSelectItem>
+                <MudSelectItem Value="TransactionTypeDto.Income">Incomes</MudSelectItem>
+            </MudSelect>
+        </MudItem>
+    </MudGrid>
+
+    @if (AllCategories == null || AllCategories.Count == 0)
+    {
+        <MudText Typo="Typo.h5">No categories created yet!</MudText>
+    }
+    else if (FilteredCategories == null || FilteredCategories.Count == 0)
+    {
+        <MudText Typo="Typo.h5">No categories found!</MudText>
+    }
+    else
+    {
         <MudGrid>
-            @foreach (var category in FilteredTransactions)
+            @foreach (var category in FilteredCategories)
             {
                 <MudItem xs="12" md="6">
                     <MudCard Elevation="1">
@@ -86,26 +95,31 @@
                 </MudItem>
             }
         </MudGrid>
-    </MudContainer>
+    }
+
+    
+
+</MudContainer>
 }
 
 
 @code {
-    public List<CategoryWithStatsDto> AllCategories { get; set; } = new();
-
-    private TransactionTypeDto transactionType = TransactionTypeDto.Expense;
-    private string searchString = "";
-    private PersistingComponentStateSubscription persistingSubscription;
-
-    private List<CategoryWithStatsDto> FilteredTransactions
+    public List<CategoryWithStatsDto> AllCategories { get; set; } = [];
+    public List<CategoryWithStatsDto> FilteredCategories
     {
         get
         {
             return AllCategories
-            .Where(c => (string.IsNullOrWhiteSpace(searchString) || c.Name.Contains(searchString, StringComparison.OrdinalIgnoreCase)) && c.Type == transactionType)
+            .Where(c => (string.IsNullOrWhiteSpace(searchString) || c.Name!.Contains(searchString, StringComparison.OrdinalIgnoreCase)) && c.Type == transactionType)
             .ToList();
         }
     }
+    public string searchString = "";
+    public TransactionTypeDto transactionType = TransactionTypeDto.Expense;
+
+
+
+    public PersistingComponentStateSubscription persistingSubscription;
 
     protected override async Task OnInitializedAsync()
     {
