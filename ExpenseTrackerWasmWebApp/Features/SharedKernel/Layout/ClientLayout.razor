@@ -20,14 +20,15 @@
 <MudThemeProvider @bind-IsDarkMode="@UserPreference.DarkMode" Theme="_theme" />
 
 <MudAppBar Elevation="0">
-    <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="MudBlazor.Color.Inherit" Edge="Edge.Start"
+    <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="MudBlazor.Color.Default" Edge="Edge.Start"
                    OnClick="@((e) => DrawerToggle())" />
     <MudSpacer />
-    <MudSwitch @bind-Value="UserPreference.DarkMode" Color="MudBlazor.Color.Primary" Class="ma-4" T="bool" Label="Dark Mode"
-               @bind-Value:after="this.ThemeChanged" />
+    <MudIconButton Icon="@(UserPreference.DarkMode ? Icons.Material.Filled.LightMode : Icons.Material.Filled.DarkMode)"
+                   Color="MudBlazor.Color.Default"
+                   OnClick="ThemeChanged" />
     <MudMenu AnchorOrigin="Origin.BottomLeft" Icon="@Icons.Material.Filled.AccountCircle">
         <ActivatorContent>
-            <MudAvatar Color="MudBlazor.Color.Primary">
+            <MudAvatar Color="MudBlazor.Color.Secondary">
                 <MudIcon Icon="@Icons.Material.Filled.Person" />
             </MudAvatar>
         </ActivatorContent>
@@ -110,16 +111,34 @@
             // 2. The Soft Backgrounds (Sidebar active pill)
             Secondary = "#DBEAFE", // Very light blue tint
             SecondaryContrastText = "#1E3A8A", // Deep, dark blue for readability
-        
+
             // 3. The Canvas (The layered look)
             Background = "#F8FAFC", // A super faint, frosty blue-gray for the main wall
             Surface = "#FFFFFF", // Pure white for the cards to pop
             AppbarBackground = "#F8FAFC", // Matching the background so the header breathes
-        
+
             // Optional: Standard text colors for the rest of the app
             TextPrimary = "#0F172A", // Very dark slate for standard reading text
             TextSecondary = "#475569",  // Muted slate for subheaders 
+        },
+        PaletteDark = new PaletteDark()
+        {
+            // 1. The Main Cast (Desaturated for Dark Mode)
+            Primary = "#60A5FA", // A softer, lighter, readable blue
+            PrimaryContrastText = "#0F172A", // Dark text on the light blue button for high contrast
 
+            // 2. The Muted Supporting Cast (Lower Contrast)
+            Secondary = "#1E293B", // Matches your Surface color exactly for a subtle "sunken" feel
+            SecondaryContrastText = "#94A3B8", // Muted slate text instead of bright glowing blue
+
+            // 3. The Canvas (No pitch black)
+            Background = "#0F172A", // Deep dark slate with a subtle blue undertone
+            Surface = "#1E293B", // Slightly lighter slate so the cards naturally pop
+            AppbarBackground = "#0F172A", // Matches the background for that breathable header
+    
+            // 4. Standard Text
+            TextPrimary = "#F8FAFC", // Off-white for standard reading text
+            TextSecondary = "#94A3B8" // Muted slate for subheaders
         }
     };
 
@@ -198,6 +217,7 @@
 
     private async Task ThemeChanged()
     {
+        UserPreference.DarkMode = !UserPreference.DarkMode;
         var result = await UserPreferenceService.UpdateUserPreferencesAsync(UserPreference);
         await RefreshGraphs();
         StateHasChanged();
