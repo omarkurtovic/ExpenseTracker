@@ -27,7 +27,7 @@
 <MudContainer MaxWidth="MaxWidth.Large" Class="d-flex flex-column gap-5 mt-6">
 
     <MudStack Row Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center">
-        <MudText Typo="Typo.h4">@(IsReoccuring ? "Reoccuring Transactions" : "Transactions")</MudText>
+        <MudText Typo="Typo.h5">@(IsReoccuring ? "Reoccuring Transactions" : "Transactions")</MudText>
         <MudStack Row>
             <MudButton Class="d-none d-md-flex" Variant="Variant.Filled" Color="Color.Primary" OnClick="@(() => OpenTransactionDialogAsync(null))" StartIcon="@Icons.Material.Filled.Add">Add</MudButton>
             <MudMenu Icon="@Icons.Material.Filled.MoreVert" AnchorOrigin="Origin.BottomRight" TransformOrigin="Origin.TopRight" Dense="false">
@@ -119,13 +119,14 @@
             </TemplateColumn>
             <TemplateColumn>
                 <CellTemplate>
-                    <MudPaper Elevation="0" Class="d-flex gap-4" Style="background-color:transparent;">
-                        <MudIconButton Icon="@Icons.Material.Filled.Edit" Color="Color.Primary"
-                                       OnClick="@(() => OpenTransactionDialogAsync(context.Item))">
-                        </MudIconButton>
-                        <MudIconButton Icon="@Icons.Material.Filled.Delete" Color="Color.Error"
-                                       OnClick="@(() => ConfirmDelete((int)context.Item.Id!))"></MudIconButton>
-                    </MudPaper>
+                    <MudMenu Icon="@Icons.Material.Filled.MoreVert" AnchorOrigin="Origin.BottomRight" TransformOrigin="Origin.TopRight" Dense="false">
+                        <MudMenuItem Icon="@Icons.Material.Filled.Edit" OnClick="@(() => OpenTransactionDialogAsync(context.Item))">
+                            Edit
+                        </MudMenuItem>
+                        <MudMenuItem Icon="@Icons.Material.Filled.Delete" IconColor="Color.Error" OnClick="@(() => ConfirmDelete((int)context.Item.Id!))">
+                            <MudText Color="Color.Error">Delete</MudText>
+                        </MudMenuItem>
+                    </MudMenu>
                 </CellTemplate>
             </TemplateColumn>
         </Columns>

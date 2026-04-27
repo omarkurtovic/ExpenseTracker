@@ -15,7 +15,7 @@
 {
     <MudDialog>
         <TitleContent>
-            <MudText Typo="Typo.h5">
+            <MudText Typo="Typo.subtitle1">
                 @(CategoryDto.Id == null ? "Add Category" : "Edit Category")
             </MudText>
         </TitleContent>
@@ -23,10 +23,10 @@
             <MudGrid>
                 <MudItem xs="12">
                     <MudForm @ref="form">
-                        <MudTextField @bind-Value="CategoryDto.Name" Label="Name" Variant="Variant.Outlined" Required="true"
+                        <MudTextField @bind-Value="CategoryDto.Name" Label="Name" Variant="Variant.Outlined" Required="true" Typo="Typo.body1"
                             RequiredError="Name is required!">
                         </MudTextField>
-                        <MudSelect @bind-Value="CategoryDto.Type" Label="Type" Variant="Variant.Outlined" Required="true"
+                        <MudSelect @bind-Value="CategoryDto.Type" Label="Type" Variant="Variant.Outlined" Required="true" Typo="Typo.body1"
                             RequiredError="Type is required!" Class="mt-4">
                             @foreach (TransactionTypeDto? item in Enum.GetValues(typeof(TransactionTypeDto)))
                             {
@@ -34,7 +34,7 @@
                             }
                         </MudSelect>
                         <MudPaper Elevation="0" Style="display: grid; grid-template-columns: 1fr 2fr; gap: 1rem;">
-                            <MudSelect @bind-Value="CategoryDto.Icon" Label="Icon" Variant="Variant.Outlined" Required="true"
+                            <MudSelect @bind-Value="CategoryDto.Icon" Label="Icon" Variant="Variant.Outlined" Required="true" Typo="Typo.body1"
                                 RequiredError="Icon is required!" Class="flex-grow-1" Style="width: 100%;" FullWidth="true">
                                 @foreach (string? item in CategoriesHelper.GetDefaultCategoryIcons())
                                 {
@@ -44,7 +44,7 @@
                                 }
                             </MudSelect>
                             <MudColorPicker @bind-Text="CategoryDto.Color" Label="Color" Variant="Variant.Outlined" Required="true"
-                                RequiredError="Color is required!" Style="flex-shrink: 0;">
+                                RequiredError="Color is required!" Style="flex-shrink: 0;" >
                             </MudColorPicker>
                         </MudPaper>
                     </MudForm>

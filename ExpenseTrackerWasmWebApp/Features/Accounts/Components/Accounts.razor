@@ -26,7 +26,7 @@
 <MudContainer MaxWidth="MaxWidth.Medium" Class="d-flex flex-column gap-5 mt-6">
 
     <MudStack Row Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center">
-        <MudText Typo="Typo.h4">Accounts</MudText>
+        <MudText Typo="Typo.h5">Accounts</MudText>
         <MudButton Class="d-none d-md-flex" Variant="Variant.Filled" Color="Color.Primary" OnClick="@(() => OpenAccountDialogAsync(null))" StartIcon="@Icons.Material.Filled.Add">Add</MudButton>
         <FabButton Class="d-flex d-md-none" Text="Add" IconClass="@Icons.Material.Filled.Add" OnClick="@(() => OpenAccountDialogAsync(null))" />
     </MudStack>
@@ -64,7 +64,7 @@
                                 <MudIcon Icon="@account.Icon" Size="Size.Large" Style="@($"color:{account.Color};")"></MudIcon>
                             </CardHeaderAvatar>
                             <CardHeaderContent>
-                                <MudText Typo="Typo.h6">@account.Name</MudText>
+                                <MudText Typo="Typo.subtitle1">@account.Name</MudText>
                             </CardHeaderContent>
                             <CardHeaderActions>
                                 <MudMenu Icon="@Icons.Material.Filled.MoreVert" AnchorOrigin="Origin.BottomRight" TransformOrigin="Origin.TopRight" Dense="false">
@@ -80,7 +80,7 @@
                         <MudCardContent>
                             <MudStack Row>
                                 <MudText Typo="Typo.body1">Balance: </MudText>
-                                <AmountDisplay Amount="@account!.CurrentBalance" FontSize="Typo.body1" />
+                                <AmountDisplay Amount="@account!.CurrentBalance" FontSize="Typo.subtitle1" />
                             </MudStack>
                         </MudCardContent>
                     </MudCard>

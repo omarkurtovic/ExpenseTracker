@@ -22,7 +22,7 @@
 <MudContainer MaxWidth="MaxWidth.Medium" Class="d-flex flex-column gap-5 mt-6">
 
     <MudStack Row Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center">
-        <MudText Typo="Typo.h4">Categories</MudText>
+        <MudText Typo="Typo.h5">Categories</MudText>
         <MudButton Class="d-none d-md-flex" Variant="Variant.Filled" Color="Color.Primary" OnClick="@(() => OpenCategoryDialogAsync(null))" StartIcon="@Icons.Material.Filled.Add">Add</MudButton>
         <FabButton Class="d-flex d-md-none" Text="Add" IconClass="@Icons.Material.Filled.Add" OnClick="@(() => OpenCategoryDialogAsync(null))" />
     </MudStack>
@@ -35,10 +35,10 @@
                           AdornmentIcon="@Icons.Material.Filled.Search"
                           IconSize="Size.Medium"
                           Variant="Variant.Outlined"
-                          Immediate="true" />
+                          Immediate="true" Typo="Typo.body1" />
         </MudItem>
         <MudItem xs="12" md="6">
-            <MudSelect T="TransactionTypeDto" @bind-Value="transactionType" Variant="Variant.Outlined">
+            <MudSelect T="TransactionTypeDto" @bind-Value="transactionType" Variant="Variant.Outlined" Typo="Typo.body1">
                 <MudSelectItem Value="TransactionTypeDto.Expense">Expenses</MudSelectItem>
                 <MudSelectItem Value="TransactionTypeDto.Income">Incomes</MudSelectItem>
             </MudSelect>
@@ -47,11 +47,11 @@
 
     @if (AllCategories == null || AllCategories.Count == 0)
     {
-        <MudText Typo="Typo.h5">No categories created yet!</MudText>
+        <MudText Typo="Typo.subtitle1">No categories created yet!</MudText>
     }
     else if (FilteredCategories == null || FilteredCategories.Count == 0)
     {
-        <MudText Typo="Typo.h5">No categories found!</MudText>
+        <MudText Typo="Typo.subtitle1">No categories found!</MudText>
     }
     else
     {
@@ -65,7 +65,7 @@
                                 <MudIcon Icon="@category.Icon" Size="Size.Large" Style="@($"color:{category.Color};")"></MudIcon>
                             </CardHeaderAvatar>
                             <CardHeaderContent>
-                                <MudText Typo="Typo.h6">@category.Name</MudText>
+                                <MudText Typo="Typo.subtitle1">@category.Name</MudText>
                             </CardHeaderContent>
                             <CardHeaderActions>
                                 <MudMenu Icon="@Icons.Material.Filled.MoreVert" AnchorOrigin="Origin.BottomRight" TransformOrigin="Origin.TopRight" Dense="false">
@@ -79,17 +79,19 @@
                             </CardHeaderActions>
                         </MudCardHeader>
                         <MudCardContent>
-                            <MudText Typo="Typo.body1">Total transactions: @category.TransactionsCount</MudText>
-                            <MudPaper Elevation="0" Class="d-flex gap-2 mb-3">
+                            <div style="display: grid; grid-template-rows: repeat(3, min-content); grid-template-columns: 150px 1fr; gap:1rem; align-items: center; justify-content: center;">
+                                
+                                <MudText Typo="Typo.body1">Total transactions:</MudText>
+                                <MudText Typo="Typo.subtitle1">@category.TransactionsCount</MudText>
+
                                 <MudText Typo="Typo.body1">@(category.Type == TransactionTypeDto.Income ? "Total income: " : "Total expenses: ")</MudText>
-                                <AmountDisplay Amount="@category.TotalAmount" FontSize="Typo.body1" />
-                            </MudPaper>
-                            <MudPaper Elevation="0" Class="d-flex gap-2 align-center">
+                                <AmountDisplay Amount="@category.TotalAmount" FontSize="Typo.subtitle1" />
+
                                 <MudText Typo="Typo.body1" Class="flex-grow-1">vs Last Month:</MudText>
-                                <MudText Typo="Typo.body1" Color="@category.ComparisonColor" Class="month-comparison">
+                                <MudText Typo="Typo.subtitle1" Color="@category.ComparisonColor" Class="month-comparison">
                                     @category.ComparisonDisplay
                                 </MudText>
-                            </MudPaper>
+                            </div>
                         </MudCardContent>
                     </MudCard>
                 </MudItem>
