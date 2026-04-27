@@ -19,7 +19,7 @@
 <MudSnackbarProvider />
 <MudThemeProvider @bind-IsDarkMode="@UserPreference.DarkMode" Theme="_theme" />
 
-<MudAppBar Elevation="0" Color="MudBlazor.Color.Surface">
+<MudAppBar Elevation="0">
     <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="MudBlazor.Color.Inherit" Edge="Edge.Start"
                    OnClick="@((e) => DrawerToggle())" />
     <MudSpacer />
@@ -40,7 +40,7 @@
         </ChildContent>
     </MudMenu>
 </MudAppBar>
-<MudDrawer @bind-Open="_drawerOpen" Elevation="2" Fixed="true">
+<MudDrawer @bind-Open="_drawerOpen" Elevation="2" Fixed="true" >
     <MudDrawerHeader>
         <MudText Typo="Typo.h5" Class="mt-1">Expense Tracker</MudText>
     </MudDrawerHeader>
@@ -103,9 +103,23 @@
         },
         PaletteLight = new PaletteLight()
         {
-            Primary = "#6750A4",
-            Background = "#FEF7FF",
-            Surface = "#F3EDF7"
+            // 1. The Main Cast (Buttons, primary actions)
+            Primary = "#2563EB",
+            PrimaryContrastText = "#FFFFFF",
+
+            // 2. The Soft Backgrounds (Sidebar active pill)
+            Secondary = "#DBEAFE", // Very light blue tint
+            SecondaryContrastText = "#1E3A8A", // Deep, dark blue for readability
+        
+            // 3. The Canvas (The layered look)
+            Background = "#F8FAFC", // A super faint, frosty blue-gray for the main wall
+            Surface = "#FFFFFF", // Pure white for the cards to pop
+            AppbarBackground = "#F8FAFC", // Matching the background so the header breathes
+        
+            // Optional: Standard text colors for the rest of the app
+            TextPrimary = "#0F172A", // Very dark slate for standard reading text
+            TextSecondary = "#475569",  // Muted slate for subheaders 
+
         }
     };
 

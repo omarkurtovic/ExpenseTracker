@@ -77,3 +77,17 @@ h1:focus {
 .mud-button-text {
     border-radius: 9999px !important;
 }
+
+.mud-nav-link{
+    border-radius: 9999px !important;
+    margin-inline: 10px;
+    margin-bottom: 5px;
+}
+
+.mud-navmenu.mud-navmenu-default .mud-nav-link.active:not(.mud-nav-link-disabled) {
+    background-color: var(--mud-palette-secondary) !important; 
+    color: var(--mud-palette-secondary-text) !important; 
+}
+    .mud-navmenu.mud-navmenu-default .mud-nav-link.active:not(.mud-nav-link-disabled) svg {
+        color: var(--mud-palette-secondary-text) !important;
+    }
