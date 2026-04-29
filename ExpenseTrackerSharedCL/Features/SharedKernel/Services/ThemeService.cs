@@ -61,7 +61,14 @@ namespace ExpenseTrackerSharedCL.Features.SharedKernel.Services
                     LineHeight = "1.5",
                     LetterSpacing = "-.01em"
                 },
-                H4 = new H5Typography()
+                H3 = new H3Typography()
+                {
+                    FontSize = "3rem",
+                    FontWeight = "800",
+                    LineHeight = "1.2",
+                    LetterSpacing = "-.02em"
+                },
+                H4 = new H4Typography()
                 {
                     FontSize = "2rem",
                     FontWeight = "750",

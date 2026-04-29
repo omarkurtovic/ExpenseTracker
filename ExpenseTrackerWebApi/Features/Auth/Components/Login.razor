@@ -18,51 +18,51 @@
 @inject IMediator Mediator
 @inject UserManager<IdentityUser> UserManager
 
-
 <PageTitle>Login</PageTitle>
 
-<MudContainer MaxWidth="MaxWidth.Small" >
-    <MudCard>
-        <MudCardHeader>
-
-        </MudCardHeader>
-        <MudCardContent>
-            <EditForm Model="Input" method="post" OnValidSubmit="LoginUser" FormName="login">
-            <DataAnnotationsValidator />
-            <MudGrid>
-                <MudItem xs="12" Class="d-flex justify-center">
-                    <MudText Typo="Typo.h4">Welcome back!</MudText>
-                </MudItem>
-                <MudItem xs="12">
-                    <MudStaticTextField @bind-Value="Input.Email" Label="Email" InputType="InputType.Text" Variant="Variant.Text"></MudStaticTextField>
-                    <ValidationMessage For="() => Input.Email" class="" />
-                </MudItem>
-                <MudItem xs="12">
-                    <div style="position: relative;">
-                        <MudStaticTextField @bind-Value="@Input.Password" Label="Password" Variant="Variant.Text"
-                                            InputType="InputType.Password" id="passwordInput">
-                                        </MudStaticTextField>
-                        <button type="button" onclick="togglePasswordVisibility()" 
-                                style="position: absolute; right: 0; top: 65%; transform: translateY(-50%); background: none; border: none; cursor: pointer; padding: 8px;">
-                            <MudIcon Icon="@Icons.Material.Filled.Visibility" Size="Size.Small" id="visibilityIcon" />
-                        </button>
-                    </div>
-                    <ValidationMessage For="() => Input.Password" class="" />
-                </MudItem>
-                <MudItem xs="12" Class="d-flex justify-center">
-                    <MudStaticButton Variant="Variant.Filled" Color="Color.Primary" FormAction="FormAction.Submit">Login</MudStaticButton>
-                </MudItem>
-                <MudItem xs="12" Class="d-flex justify-center mt-10">
-                    <MudText Typo="Typo.body1">Don't have an account? <a href="@(NavigationManager.GetUriWithQueryParameters("register", new Dictionary<string, object?> { ["ReturnUrl"] = ReturnUrl }))">Register</a></MudText>
-                </MudItem>
-                <MudItem xs="12" Class="d-flex justify-center mt-10">
-                    <StatusMessage Message="@errorMessage" />
-                </MudItem>
-            </MudGrid>
-        </EditForm>
-        </MudCardContent>
-    </MudCard>
-</MudContainer>
+<MudCard>
+    <MudCardHeader >
+        <CardHeaderContent>
+            <MudStack Row Justify="Justify.Center">
+                <MudText Typo="Typo.h4" Class="">Welcome back!</MudText>
+            </MudStack>
+        </CardHeaderContent>
+    </MudCardHeader>
+    <MudCardContent>
+        <EditForm Model="Input" method="post" OnValidSubmit="LoginUser" FormName="login">
+        <DataAnnotationsValidator />
+        <MudGrid>
+            <MudItem xs="12" Class="d-flex justify-center">
+            </MudItem>
+            <MudItem xs="12">
+                <MudStaticTextField @bind-Value="Input.Email" Label="Email" InputType="InputType.Text" Variant="Variant.Text"></MudStaticTextField>
+                <ValidationMessage For="() => Input.Email" class="" />
+            </MudItem>
+            <MudItem xs="12">
+                <div style="position: relative;">
+                    <MudStaticTextField @bind-Value="@Input.Password" Label="Password" Variant="Variant.Text"
+                                        InputType="InputType.Password" id="passwordInput">
+                                    </MudStaticTextField>
+                    <button type="button" onclick="togglePasswordVisibility()" 
+                            style="position: absolute; right: 0; top: 65%; transform: translateY(-50%); background: none; border: none; cursor: pointer; padding: 8px;">
+                        <MudIcon Icon="@Icons.Material.Filled.Visibility" Size="Size.Small" id="visibilityIcon" />
+                    </button>
+                </div>
+                <ValidationMessage For="() => Input.Password" class="" />
+            </MudItem>
+            <MudItem xs="12" Class="d-flex justify-center">
+                <MudStaticButton Variant="Variant.Filled" Color="Color.Primary" FormAction="FormAction.Submit">Login</MudStaticButton>
+            </MudItem>
+            <MudItem xs="12" Class="d-flex justify-center mt-10">
+                <MudText Typo="Typo.body1">Don't have an account? <a href="@(NavigationManager.GetUriWithQueryParameters("register", new Dictionary<string, object?> { ["ReturnUrl"] = ReturnUrl }))">Register</a></MudText>
+            </MudItem>
+            <MudItem xs="12" Class="d-flex justify-center mt-10">
+                <StatusMessage Message="@errorMessage" />
+            </MudItem>
+        </MudGrid>
+    </EditForm>
+    </MudCardContent>
+</MudCard>
 
 <script>
     function togglePasswordVisibility() {
