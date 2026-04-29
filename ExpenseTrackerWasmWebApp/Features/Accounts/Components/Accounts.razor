@@ -51,7 +51,7 @@
     }
     else if (FilteredAccounts == null || FilteredAccounts.Count == 0)
     {
-        <MudText >No accounts found!</MudText>
+        <MudText>No accounts found!</MudText>
     }
     else
     {
@@ -60,7 +60,7 @@
             @foreach (var account in FilteredAccounts)
             {
                 <MudItem xs="12" md="6">
-                    <MudCard Elevation="1" >
+                    <MudCard Elevation="1">
                         <MudCardHeader>
                             <CardHeaderAvatar>
                                 <MudIcon Icon="@account.Icon" Size="Size.Large" Style="@($"color:{account.Color};")"></MudIcon>
@@ -93,19 +93,26 @@
 
 </MudContainer>
 
-<MudDrawer @bind-Open="@_isSideSheetOpen" 
-            Fixed="true"
-            Anchor="Anchor.End" 
-            Variant="@DrawerVariant.Temporary" 
-            Width="400px"
-            Elevation="2">
+<MudDrawer @bind-Open="@_isSideSheetOpen"
+           Fixed="true"
+           Anchor="Anchor.End"
+           Variant="@DrawerVariant.Temporary"
+           Width="min(100vw, 400px)"
+           Elevation="2">
     
-    <div class="pa-6">
-        <AccountEditor OnAccountSaved="CloseDrawerRefresh" AccountDto="@AccountToEdit"></AccountEditor>
+    <div class="px-6 mt-6">
+        <MudStack Row AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween">
+            <EditorTitle Title="@(AccountToEdit.Id == null ? "Add Account" : "Edit Account")"></EditorTitle>
+            <MudIconButton Icon="@Icons.Material.Filled.Close"
+                           Color="Color.Default"
+                           OnClick="@(() => _isSideSheetOpen = false)" />
+        </MudStack>
+        <AccountEditor OnAccountSaved="CloseDrawerRefresh" AccountDto="@AccountToEdit" />
     </div>
 
+   
 </MudDrawer>
-
+    
 @code {
 
     public List<AccountWithBalanceDto> AllAccounts { get; set; } = [];

@@ -13,8 +13,8 @@
 @using Microsoft.AspNetCore.Components.Web
 @using ExpenseTrackerWasmWebApp.Features.SharedKernel.Components.Dialogs
 @using ExpenseTrackerWasmWebApp.Features.SharedKernel.Components.Titles
-@inject IDialogService DialogService
 @inject ISnackbar Snackbar
+@inject IDialogService DialogService
 @inject ICategoryService CategoryService
 @inject NavigationManager NavigationManager
 @inject PersistentComponentState ApplicationState
@@ -25,8 +25,8 @@
 
     <MudStack Row Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center">
         <MainPageTitle Title="Categories"></MainPageTitle>
-        <MudButton Class="d-none d-md-flex" Variant="Variant.Filled" Color="Color.Primary" OnClick="@(() => OpenCategoryDialogAsync(null))" StartIcon="@Icons.Material.Filled.Add">Add</MudButton>
-        <FabButton Class="d-flex d-md-none" Text="Add" IconClass="@Icons.Material.Filled.Add" OnClick="@(() => OpenCategoryDialogAsync(null))" />
+        <MudButton Class="d-none d-md-flex" Variant="Variant.Filled" Color="Color.Primary" OnClick="@(() => OpenCategorySheetAsync(null))" StartIcon="@Icons.Material.Filled.Add">Add</MudButton>
+        <FabButton Class="d-flex d-md-none" Text="Add" IconClass="@Icons.Material.Filled.Add" OnClick="@(() => OpenCategorySheetAsync(null))" />
     </MudStack>
 
     <MudGrid>
@@ -71,7 +71,7 @@
                             </CardHeaderContent>
                             <CardHeaderActions>
                                 <MudMenu Icon="@Icons.Material.Filled.MoreVert" AnchorOrigin="Origin.BottomRight" TransformOrigin="Origin.TopRight" Dense="false">
-                                    <MudMenuItem Icon="@Icons.Material.Filled.Edit" OnClick="@(() => OpenCategoryDialogAsync(category))">
+                                    <MudMenuItem Icon="@Icons.Material.Filled.Edit" OnClick="@(() => OpenCategorySheetAsync(category))">
                                         Edit
                                     </MudMenuItem>
                                     <MudMenuItem Icon="@Icons.Material.Filled.Delete" IconColor="Color.Error" OnClick="@(() => ConfirmDelete((int)category.Id!))">
@@ -98,11 +98,29 @@
         </MudGrid>
     }
 
-    
+
 
 </MudContainer>
-}
 
+<MudDrawer @bind-Open="@_isSideSheetOpen"
+           Fixed="true"
+           Anchor="Anchor.End"
+           Variant="@DrawerVariant.Temporary"
+           Width="min(100vw, 400px)"
+           Elevation="2">
+
+    <div class="px-6 mt-6">
+        <MudStack Row AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween">
+            <EditorTitle Title="@(CategoryToEdit.Id == null ? "Add Category" : "Edit Category")"></EditorTitle>
+            <MudIconButton Icon="@Icons.Material.Filled.Close"
+                           Color="Color.Default"
+                           OnClick="@(() => _isSideSheetOpen = false)" />
+        </MudStack>
+        <CategoryEditor OnCategorySaved="CloseDrawerRefresh" CategoryDto="@CategoryToEdit" />
+    </div>
+
+
+</MudDrawer>
 
 @code {
     public List<CategoryWithStatsDto> AllCategories { get; set; } = [];
@@ -148,7 +166,10 @@
         persistingSubscription.Dispose();
     }
 
-    private async Task OpenCategoryDialogAsync(CategoryWithStatsDto? category)
+    private bool _isSideSheetOpen = false;
+    private CategoryDto CategoryToEdit = new CategoryDto();
+
+    private async Task OpenCategorySheetAsync(CategoryWithStatsDto? category)
     {
         var categoryDto = new CategoryDto();
         if (category == null)
@@ -168,24 +189,14 @@
             };
         }
 
-        var options = new DialogOptions
-        {
-            CloseOnEscapeKey = true,
-            NoHeader = false,
-            CloseButton = true,
-            MaxWidth = MaxWidth.Medium
-        };
-        var parameters = new DialogParameters<CategoryDialog>
-        {
-            { x => x.CategoryDto, categoryDto }
-        };
+        CategoryToEdit = categoryDto;
+        _isSideSheetOpen = true;
+    }
 
-        var dialog = await DialogService.ShowAsync<CategoryDialog>(title: "", parameters, options);
-        var result = await dialog.Result;
-        if (result != null && !result.Canceled)
-        {
-            await RefreshPage();
-        }
+    private async Task CloseDrawerRefresh()
+    {
+        _isSideSheetOpen = false;
+        await RefreshPage();
     }
 
     private async Task ConfirmDelete(int category_id)
