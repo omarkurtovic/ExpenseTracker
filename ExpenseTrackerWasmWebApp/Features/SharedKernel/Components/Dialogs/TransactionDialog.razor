@@ -9,6 +9,7 @@
 @using ExpenseTrackerSharedCL.Features.Transactions.Services
 @using ExpenseTrackerWasmWebApp.Features.Accounts.Services
 @using ExpenseTrackerWasmWebApp.Features.Categories.Services
+@using ExpenseTrackerWasmWebApp.Features.SharedKernel.Components.Titles
 @using ExpenseTrackerWasmWebApp.Features.Tags.Services
 @using ExpenseTrackerWasmWebApp.Features.Transactions.Services
 @using MudBlazor
@@ -27,9 +28,7 @@
 {
     <MudDialog>
         <TitleContent>
-            <MudText Typo="Typo.h5">
-                @(TransactionDto.Id == null ? "Add Transaction" : "Edit Transaction")
-            </MudText>
+            <DialogTitle Title="@(TransactionDto.Id == null ? "Add Transaction" : "Edit Transaction")"></DialogTitle>
         </TitleContent>
         <DialogContent>
             <MudGrid>
@@ -56,7 +55,7 @@
                             @foreach (var account in AllAccounts)
                             {
                                 <MudSelectItem Value="@((int?)account.Id)">
-                                    <TextWithIcon Text="@account.Name" Icon="@account.Icon" IconColor="@account.Color" IconSize="Size.Small" TextTypo="Typo.body2"></TextWithIcon>
+                                    <TextWithIcon Text="@account.Name" Icon="@account.Icon" IconColor="@account.Color" IconSize="Size.Small"></TextWithIcon>
                                 </MudSelectItem>
                             }
                         </MudSelect>
@@ -73,7 +72,7 @@
                             @foreach (var category in AllCategories)
                             {
                                 <MudSelectItem Value="@((int?)category.Id)">
-                                    <TextWithIcon Text="@category.Name" Icon="@category.Icon" IconColor="@category.Color" IconSize="Size.Small" TextTypo="Typo.body2"></TextWithIcon>
+                                    <TextWithIcon Text="@category.Name" Icon="@category.Icon" IconColor="@category.Color" IconSize="Size.Small"></TextWithIcon>
                                 </MudSelectItem>
                             }
                         </MudSelect>
@@ -91,7 +90,7 @@
                             </MudPaper>
 
                             <MudTextField @bind-Value="TransactionDto.Description" Label="Description"
-                                          Variant="Variant.Outlined" Class="d-none d-md-block">
+                                          Variant="Variant.Outlined" Class="d-none d-md-block" >
                             </MudTextField>
 
                             <MudPaper Elevation="0" Class="d-flex gap-2 mt-4">
@@ -141,7 +140,7 @@
                                     <MudPaper Elevation="0" Class="flex gap-2">
                                         <MudChip T="TagDto" Style="@($"background-color:{tag.Color}; color:white;")"
                                                  Size="Size.Medium">
-                                            <MudText Typo="Typo.body2">@tag.Name</MudText>
+                                            <MudText>@tag.Name</MudText>
                                             <MudIconButton Icon="@Icons.Material.Filled.Close" Size="Size.Small"
                                                            Color="Color.Inherit" Style="color:white;" OnClick="@(() => RemoveTag(tag))">
                                             </MudIconButton>

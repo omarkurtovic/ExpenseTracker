@@ -7,10 +7,12 @@
 @using ExpenseTrackerSharedCL.Features.Accounts.Services
 @using ExpenseTrackerWasmWebApp.Features.Accounts.Services
 @using ExpenseTrackerWasmWebApp.Features.SharedKernel
+@using ExpenseTrackerWasmWebApp.Features.SharedKernel.Components
 @using Microsoft.AspNetCore.Authorization
 @using MudBlazor
 @using Microsoft.AspNetCore.Components.Web
-@using ExpenseTrackerWasmWebApp.Features.SharedKernel.Components
+@using ExpenseTrackerWasmWebApp.Features.SharedKernel.Components.Dialogs
+@using ExpenseTrackerWasmWebApp.Features.SharedKernel.Components.Titles
 @using System.Net.Http.Headers
 @using MudBlazor.Utilities
 @inject IDialogService DialogService
@@ -26,7 +28,7 @@
 <MudContainer MaxWidth="MaxWidth.Medium" Class="d-flex flex-column gap-5 mt-6">
 
     <MudStack Row Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center">
-        <MudText Typo="Typo.h5">Accounts</MudText>
+        <MainPageTitle Title="Accounts"></MainPageTitle>
         <MudButton Class="d-none d-md-flex" Variant="Variant.Filled" Color="Color.Primary" OnClick="@(() => OpenAccountDialogAsync(null))" StartIcon="@Icons.Material.Filled.Add">Add</MudButton>
         <FabButton Class="d-flex d-md-none" Text="Add" IconClass="@Icons.Material.Filled.Add" OnClick="@(() => OpenAccountDialogAsync(null))" />
     </MudStack>
@@ -45,11 +47,11 @@
               
     @if (AllAccounts == null || AllAccounts.Count == 0)
     {
-        <MudText Typo="Typo.h5">No accounts created yet!</MudText>
+        <MudText>No accounts created yet!</MudText>
     }
     else if (FilteredAccounts == null || FilteredAccounts.Count == 0)
     {
-        <MudText Typo="Typo.h5">No accounts found!</MudText>
+        <MudText >No accounts found!</MudText>
     }
     else
     {
@@ -64,7 +66,7 @@
                                 <MudIcon Icon="@account.Icon" Size="Size.Large" Style="@($"color:{account.Color};")"></MudIcon>
                             </CardHeaderAvatar>
                             <CardHeaderContent>
-                                <MudText Typo="Typo.subtitle1">@account.Name</MudText>
+                                <MudText Typo="Typo.caption">@account.Name</MudText>
                             </CardHeaderContent>
                             <CardHeaderActions>
                                 <MudMenu Icon="@Icons.Material.Filled.MoreVert" AnchorOrigin="Origin.BottomRight" TransformOrigin="Origin.TopRight" Dense="false">
@@ -78,9 +80,9 @@
                             </CardHeaderActions>
                         </MudCardHeader>
                         <MudCardContent>
-                            <MudStack Row>
-                                <MudText Typo="Typo.body1">Balance: </MudText>
-                                <AmountDisplay Amount="@account!.CurrentBalance" FontSize="Typo.subtitle1" />
+                            <MudStack Row AlignItems="AlignItems.Center">
+                                <MudText>Balance: </MudText>
+                                <AmountDisplay Amount="@account!.CurrentBalance" FontSize="Typo.h5" />
                             </MudStack>
                         </MudCardContent>
                     </MudCard>

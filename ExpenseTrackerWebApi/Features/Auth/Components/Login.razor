@@ -22,9 +22,12 @@
 <PageTitle>Login</PageTitle>
 
 <MudContainer MaxWidth="MaxWidth.Small" >
-    <MudPaper Class="pa-6 mt-6" Elevation="15">
+    <MudCard>
+        <MudCardHeader>
 
-        <EditForm Model="Input" method="post" OnValidSubmit="LoginUser" FormName="login">
+        </MudCardHeader>
+        <MudCardContent>
+            <EditForm Model="Input" method="post" OnValidSubmit="LoginUser" FormName="login">
             <DataAnnotationsValidator />
             <MudGrid>
                 <MudItem xs="12" Class="d-flex justify-center">
@@ -57,7 +60,8 @@
                 </MudItem>
             </MudGrid>
         </EditForm>
-    </MudPaper>
+        </MudCardContent>
+    </MudCard>
 </MudContainer>
 
 <script>

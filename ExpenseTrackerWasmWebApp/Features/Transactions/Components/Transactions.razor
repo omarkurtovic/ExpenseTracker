@@ -11,6 +11,8 @@
 @using MudBlazor
 @using Microsoft.AspNetCore.Components.Web
 @using ExpenseTrackerWasmWebApp.Features.SharedKernel.Components
+@using ExpenseTrackerWasmWebApp.Features.SharedKernel.Components.Dialogs
+@using ExpenseTrackerWasmWebApp.Features.SharedKernel.Components.Titles
 @using System.Net.Http.Headers
 @using ExpenseTrackerWasmWebApp.Features.DataSeeding.Components
 @using MudBlazor.Extensions
@@ -27,7 +29,7 @@
 <MudContainer MaxWidth="MaxWidth.Large" Class="d-flex flex-column gap-5 mt-6">
 
     <MudStack Row Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center">
-        <MudText Typo="Typo.h5">@(IsReoccuring ? "Reoccuring Transactions" : "Transactions")</MudText>
+        <MainPageTitle Title="@(IsReoccuring ? "Reoccuring Transactions" : "Transactions")"></MainPageTitle>
         <MudStack Row>
             <MudButton Class="d-none d-md-flex" Variant="Variant.Filled" Color="Color.Primary" OnClick="@(() => OpenTransactionDialogAsync(null))" StartIcon="@Icons.Material.Filled.Add">Add</MudButton>
             <MudMenu Icon="@Icons.Material.Filled.MoreVert" AnchorOrigin="Origin.BottomRight" TransformOrigin="Origin.TopRight" Dense="false">
@@ -57,16 +59,14 @@
             <PropertyColumn Property="t => t.AccountDto!.Name" Title="Account" Sortable="true" Groupable="false">
                 <CellTemplate>
                     <TextWithIcon Text="@context.Item.AccountDto!.Name"
-                                  Icon="@context.Item.AccountDto.Icon" IconColor="@context.Item.AccountDto.Color"
-                                  IconSize="Size.Small" TextTypo="Typo.body2"></TextWithIcon>
+                                  Icon="@context.Item.AccountDto.Icon" IconColor="@context.Item.AccountDto.Color" IconSize="Size.Small"></TextWithIcon>
                 </CellTemplate>
             </PropertyColumn>
             <PropertyColumn Property="t => t.CategoryDto!.Name" Title="Category" Sortable="true" Groupable="false">
                 <CellTemplate>
                     <TextWithIcon Text="@context.Item.CategoryDto!.Name"
                                   Icon="@context.Item.CategoryDto.Icon"
-                                  IconColor="@context.Item.CategoryDto.Color" IconSize="Size.Small"
-                                  TextTypo="Typo.body2"></TextWithIcon>
+                                  IconColor="@context.Item.CategoryDto.Color" IconSize="Size.Small"></TextWithIcon>
                 </CellTemplate>
             </PropertyColumn>
             @if (IsReoccuring)

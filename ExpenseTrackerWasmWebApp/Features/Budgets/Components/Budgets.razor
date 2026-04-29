@@ -10,7 +10,8 @@
 @using Microsoft.AspNetCore.Authorization
 @using MudBlazor
 @using Microsoft.AspNetCore.Components.Web
-@using ExpenseTrackerWasmWebApp.Features.SharedKernel.Components
+@using ExpenseTrackerWasmWebApp.Features.SharedKernel.Components.Dialogs
+@using ExpenseTrackerWasmWebApp.Features.SharedKernel.Components.Titles
 @using ExpenseTrackerWasmWebApp.Features.Budgets.Services
 @inject IDialogService DialogService
 @inject ISnackbar Snackbar
@@ -23,7 +24,7 @@
 <MudContainer MaxWidth="MaxWidth.Medium" Class="d-flex flex-column gap-5 mt-6">
 
     <MudStack Row Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center">
-        <MudText Typo="Typo.h4">Budgets</MudText>
+        <MainPageTitle Title="Budgets"></MainPageTitle>
         <MudButton Class="d-none d-md-flex" Variant="Variant.Filled" Color="Color.Primary" OnClick="@(() => OpenBudgetDialogAsync(null))" StartIcon="@Icons.Material.Filled.Add">Add</MudButton>
         <FabButton Class="d-flex d-md-none" Text="Add" IconClass="@Icons.Material.Filled.Add" OnClick="@(() => OpenBudgetDialogAsync(null))" />
     </MudStack>
@@ -35,17 +36,17 @@
                           AdornmentIcon="@Icons.Material.Filled.Search"
                           IconSize="Size.Medium"
                           Variant="Variant.Outlined"
-                          Immediate="true" />
+                          Immediate="true"/>
         </MudItem>
     </MudGrid>
 
     @if (AllBudgets == null || AllBudgets.Count == 0)
     {
-        <MudText Typo="Typo.h5">No budgets created yet!</MudText>
+        <MudText>No budgets created yet!</MudText>
     }
     else if (FilteredBudgets == null || FilteredBudgets.Count == 0)
     {
-        <MudText Typo="Typo.h5">No budgets found!</MudText>
+        <MudText>No budgets found!</MudText>
     }
     else
     {
@@ -57,7 +58,7 @@
                     <MudCard Elevation="1">
                         <MudCardHeader>
                             <CardHeaderContent>
-                                <MudText Typo="Typo.h6">@budget.Name</MudText>
+                                <MudText Typo="Typo.caption">@budget.Name</MudText>
                             </CardHeaderContent>
                             <CardHeaderActions>
                                 <MudMenu Icon="@Icons.Material.Filled.MoreVert" AnchorOrigin="Origin.BottomRight" TransformOrigin="Origin.TopRight" Dense="false">
@@ -73,7 +74,11 @@
                         <MudCardContent>
                             <MudStack>
                                 <MudProgressLinear Value="@(budget.Progress)" Color="@budget.ProgressColor"></MudProgressLinear>
-                                <MudText Typo="Typo.body2">Spent: $@budget.Spent.ToString("F2") / $@budget.Amount?.ToString("F2")</MudText>
+                                
+                                <MudStack Row AlignItems="AlignItems.Center">
+                                    <MudText >Spent: </MudText>
+                                    <MudText Typo="Typo.caption">$@budget.Spent.ToString("F2") / $@budget.Amount?.ToString("F2")</MudText>
+                                </MudStack>
                             </MudStack>
                         </MudCardContent>
                     </MudCard>

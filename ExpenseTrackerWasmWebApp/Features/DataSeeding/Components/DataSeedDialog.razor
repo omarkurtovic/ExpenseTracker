@@ -1,5 +1,6 @@
 @rendermode InteractiveWebAssembly
 @using ExpenseTrackerWasmWebApp.Features.DataSeeding.Services
+@using ExpenseTrackerWasmWebApp.Features.SharedKernel.Components.Titles
 @using MudBlazor
 @using ExpenseTrackerSharedCL.Features.DataSeeding.Dtos
 @using System.Net.Http.Headers
@@ -13,9 +14,7 @@
 </MudOverlay>
 <MudDialog>
     <TitleContent>
-        <MudText Typo="Typo.h5">
-            Seed data
-        </MudText>
+        <DialogTitle Title="Seed data"></DialogTitle>
     </TitleContent>
         <DialogContent>
                 <MudGrid>

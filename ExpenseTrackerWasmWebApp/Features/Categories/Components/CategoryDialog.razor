@@ -1,6 +1,7 @@
 @rendermode InteractiveWebAssembly
 @using ExpenseTrackerSharedCL.Features.Categories
 @using ExpenseTrackerSharedCL.Features.SharedKernel
+@using ExpenseTrackerWasmWebApp.Features.SharedKernel.Components.Titles
 @using Microsoft.AspNetCore.Authorization
 @using MudBlazor
 @using ExpenseTrackerSharedCL.Features.Categories.Dtos
@@ -15,9 +16,7 @@
 {
     <MudDialog>
         <TitleContent>
-            <MudText Typo="Typo.subtitle1">
-                @(CategoryDto.Id == null ? "Add Category" : "Edit Category")
-            </MudText>
+            <DialogTitle Title="@(CategoryDto.Id == null ? "Add Category" : "Edit Category")"></DialogTitle>
         </TitleContent>
         <DialogContent>
             <MudGrid>

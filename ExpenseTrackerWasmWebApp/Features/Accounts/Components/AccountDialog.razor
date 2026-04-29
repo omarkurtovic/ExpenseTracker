@@ -2,6 +2,7 @@
 @using ExpenseTrackerSharedCL.Features.Accounts.Services
 @using ExpenseTrackerSharedCL.Features.SharedKernel
 @using ExpenseTrackerWasmWebApp.Features.Accounts.Services
+@using ExpenseTrackerWasmWebApp.Features.SharedKernel.Components.Titles
 @using Microsoft.AspNetCore.Authorization
 @using MudBlazor
 @using ExpenseTrackerSharedCL.Features.Accounts.Dtos
@@ -16,9 +17,7 @@
 {
     <MudDialog>
         <TitleContent>
-            <MudText Typo="Typo.subtitle2">
-                @(AccountDto.Id == null ? "Add Account" : "Edit Account")
-            </MudText>
+            <DialogTitle Title="@(AccountDto.Id == null ? "Add Account" : "Edit Account")"></DialogTitle>
         </TitleContent>
         <DialogContent>
             <MudGrid>

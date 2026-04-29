@@ -1,11 +1,12 @@
+@using ExpenseTrackerSharedCL.Features.SharedKernel.Services
 @inherits LayoutComponentBase
 
-<MudThemeProvider />
 <MudSnackbarProvider />
+<MudThemeProvider Theme="ThemeService.Theme" />
 
 <MudLayout>
-    <MudAppBar Elevation="1">
-        <MudText Typo="Typo.h5" Class="mt-1">Expense Tracker</MudText>
+    <MudAppBar Elevation="0">
+        <MudText Typo="Typo.h5" Class="mt-1" Style="color: var(--mud-palette-drawer-text)">Expense Tracker</MudText>
     </MudAppBar>
     <MudMainContent>
         @Body

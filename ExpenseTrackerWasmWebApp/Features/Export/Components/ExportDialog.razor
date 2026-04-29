@@ -3,6 +3,7 @@
 @using CsvHelper
 @using ExpenseTrackerSharedCL.Features.Transactions.Dtos
 @using ExpenseTrackerSharedCL.Features.Transactions.Services
+@using ExpenseTrackerWasmWebApp.Features.SharedKernel.Components.Titles
 @using ExpenseTrackerWasmWebApp.Features.Transactions.Services
 @using Microsoft.AspNetCore.Authorization
 @using System.Text
@@ -18,9 +19,7 @@
 
     <MudDialog>
         <TitleContent>
-            <MudText Typo="Typo.h5">
-                Export Data
-            </MudText>
+            <DialogTitle Title="Export Data"></DialogTitle>
         </TitleContent>
         <DialogContent>
             <MudGrid>

@@ -8,6 +8,7 @@
 @using ExpenseTrackerSharedCL.Features.Tags.Service
 @using ExpenseTrackerWasmWebApp.Features.Accounts.Services
 @using ExpenseTrackerWasmWebApp.Features.Categories.Services
+@using ExpenseTrackerWasmWebApp.Features.SharedKernel.Components.Titles
 @using ExpenseTrackerWasmWebApp.Features.Tags.Services
 @using Microsoft.AspNetCore.Authorization
 @using MudBlazor
@@ -22,7 +23,9 @@
 @inject NavigationManager NavigationManager
 
 <MudDialog>
-    <TitleContent>Filters</TitleContent>
+    <TitleContent>
+        <DialogTitle Title="Filters"></DialogTitle>
+    </TitleContent>
     <DialogContent>
         <MudGrid>
             <MudItem xs="12" md="6">

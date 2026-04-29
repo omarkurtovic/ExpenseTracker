@@ -8,17 +8,12 @@ and tags immediately not all three seperately
 -- probably should add ability for budget to span all accounts
 -- need to revise category card
 -- need to add loading to dashboard graphs
-
+-- no transactions message?
 
 
 gameplan for md3
 
-🔥 High ROI (Quick Wins, Big Impact)
-
-    Clean Up the Data Grid (Your Idea): Implement that ⋮ (more_vert) icon for the edit/delete actions on the transactions table. While you're at it, ensure the table rows have plenty of vertical padding. MD3 loves breathing room.
-
 ⚡ Medium ROI (Noticeable Polish, Moderate Effort)
-
 
     Standardize the Chips (Tags): Your tags ("Work Related", "Emergency") look good, but ensure they follow MD3 chip guidelines. They should have a slightly lower height, rounded corners (often 8px instead of fully pill-shaped in some MD3 contexts, though pill is still acceptable), and a clear distinction between the background color and the text.
 

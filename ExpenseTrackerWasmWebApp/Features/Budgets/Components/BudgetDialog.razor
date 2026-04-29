@@ -5,6 +5,7 @@
 @using ExpenseTrackerSharedCL.Features.Budgets.Services
 @using ExpenseTrackerSharedCL.Features.Categories
 @using ExpenseTrackerSharedCL.Features.SharedKernel
+@using ExpenseTrackerWasmWebApp.Features.SharedKernel.Components.Titles
 @using Microsoft.AspNetCore.Authorization
 @using MudBlazor
 @using ExpenseTrackerSharedCL.Features.Categories.Dtos
@@ -22,9 +23,7 @@
 {
     <MudDialog>
         <TitleContent>
-            <MudText Typo="Typo.h5">
-                @(BudgetDto.Id == null ? "Add Budget" : "Edit Budget")
-            </MudText>
+            <DialogTitle Title="@(BudgetDto.Id == null ? "Add Budget" : "Edit Budget")"></DialogTitle>
         </TitleContent>
         <DialogContent>
             <MudGrid>
@@ -34,7 +33,7 @@
                             RequiredError="Name is required!">
                         </MudTextField>
                         <MudSelect @bind-Value="BudgetDto.BudgetType" Label="Type" Variant="Variant.Outlined"
-                            Required="true" RequiredError="Budget type is required!">
+                                   Required="true" RequiredError="Budget type is required!">
                             @foreach (BudgetType? item in Enum.GetValues(typeof(BudgetType)))
                             {
                                 <MudSelectItem Value="@((BudgetType?)item)">@item</MudSelectItem>
@@ -42,29 +41,29 @@
                         </MudSelect>
                         <MudNumericField @bind-Value="BudgetDto.Amount" Label="Amount"
                             Variant="Variant.Outlined" Required="true" RequiredError="Amount is required!"
-                            Format="C2" Class="mt-4">
+                                         Format="C2" Class="mt-4">
                         </MudNumericField>
                         <MudTextField @bind-Value="BudgetDto.Description" Label="Description" Variant="Variant.Outlined">
                         </MudTextField>
                         <MudSelect T="int" Label="Categories" @bind-SelectedValues="BudgetDto.Categories"
                             MultiSelectionTextFunc="@(new Func<List<string>, string>(GetCategoryMultiSelectionText))"
                             MultiSelection="true" Clearable="true" FullWidth="true" 
-                            Required="true" RequiredError="At least one category is required!">
+                                   Required="true" RequiredError="At least one category is required!">
                             @foreach (var category in Categories)
                             {
                                 <MudSelectItem T="int" Value="@((int)category.Id!)">
-                                    <TextWithIcon Text="@category.Name" Icon="@category.Icon" IconColor="@category.Color" IconSize="Size.Small" TextTypo="Typo.body1"></TextWithIcon>
+                                    <TextWithIcon Text="@category.Name" Icon="@category.Icon" IconColor="@category.Color" IconSize="Size.Small"></TextWithIcon>
                                 </MudSelectItem>
                             }
                         </MudSelect>
                         <MudSelect T="int" Label="Accounts" @bind-SelectedValues="BudgetDto.Accounts"
                             MultiSelectionTextFunc="@(new Func<List<string>, string>(GetAccountMultiSelectionText))"
                             MultiSelection="true" Clearable="true" FullWidth="true" 
-                            Required="true" RequiredError="At least one account is required!">
+                                   Required="true" RequiredError="At least one account is required!">
                             @foreach (var account in Accounts)
                             {
                                 <MudSelectItem T="int" Value="@((int)account.Id!)">
-                                    <TextWithIcon Text="@account.Name" Icon="@account.Icon" IconColor="@account.Color" IconSize="Size.Small" TextTypo="Typo.body1"></TextWithIcon>
+                                    <TextWithIcon Text="@account.Name" Icon="@account.Icon" IconColor="@account.Color" IconSize="Size.Small"></TextWithIcon>
                                 </MudSelectItem>
                             }
                         </MudSelect>
