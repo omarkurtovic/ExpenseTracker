@@ -25,12 +25,12 @@
 
 <PageTitle>Accounts</PageTitle>
 
-<MudContainer MaxWidth="MaxWidth.Medium" Class="d-flex flex-column gap-5 mt-6">
+<MudContainer MaxWidth="MaxWidth.Medium" Class="d-flex flex-column gap-5 mt-6" Style="overflow-x: hidden;">
 
     <MudStack Row Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center">
         <MainPageTitle Title="Accounts"></MainPageTitle>
-        <MudButton Class="d-none d-md-flex" Variant="Variant.Filled" Color="Color.Primary" OnClick="@(() => OpenAccountDialogAsync(null))" StartIcon="@Icons.Material.Filled.Add">Add</MudButton>
-        <FabButton Class="d-flex d-md-none" Text="Add" IconClass="@Icons.Material.Filled.Add" OnClick="@(() => OpenAccountDialogAsync(null))" />
+        <MudButton Class="d-none d-md-flex" Variant="Variant.Filled" Color="Color.Primary" OnClick="@(() => OpenAccountSheetAsync(null))" StartIcon="@Icons.Material.Filled.Add">Add</MudButton>
+        <FabButton Class="d-flex d-md-none" Text="Add" IconClass="@Icons.Material.Filled.Add" OnClick="@(() => OpenAccountSheetAsync(null))" />
     </MudStack>
 
     <MudGrid>
@@ -70,7 +70,7 @@
                             </CardHeaderContent>
                             <CardHeaderActions>
                                 <MudMenu Icon="@Icons.Material.Filled.MoreVert" AnchorOrigin="Origin.BottomRight" TransformOrigin="Origin.TopRight" Dense="false">
-                                    <MudMenuItem Icon="@Icons.Material.Filled.Edit" OnClick="@(() => OpenAccountDialogAsync(account))">
+                                    <MudMenuItem Icon="@Icons.Material.Filled.Edit" OnClick="@(() => OpenAccountSheetAsync(account))">
                                         Edit
                                     </MudMenuItem>
                                     <MudMenuItem Icon="@Icons.Material.Filled.Delete" IconColor="Color.Error" OnClick="@(() => ConfirmDelete((int)account.Id!))">
@@ -93,6 +93,19 @@
 
 </MudContainer>
 
+<MudDrawer @bind-Open="@_isSideSheetOpen" 
+            Fixed="true"
+            Anchor="Anchor.End" 
+            Variant="@DrawerVariant.Temporary" 
+            Width="400px"
+            Elevation="2">
+    
+    <div class="pa-6">
+        <AccountEditor OnAccountSaved="CloseDrawerRefresh" AccountDto="@AccountToEdit"></AccountEditor>
+    </div>
+
+</MudDrawer>
+
 @code {
 
     public List<AccountWithBalanceDto> AllAccounts { get; set; } = [];
@@ -108,8 +121,8 @@
     }
     private string searchString = "";
 
-
     private PersistingComponentStateSubscription persistingSubscription;
+
 
     protected override async Task OnInitializedAsync()
     {
@@ -135,7 +148,12 @@
         persistingSubscription.Dispose();
     }
 
-    private async Task OpenAccountDialogAsync(AccountWithBalanceDto? accountWithBalance)
+
+
+    private bool _isSideSheetOpen = false;
+    private AccountDto AccountToEdit = new AccountDto();
+
+    private async Task OpenAccountSheetAsync(AccountWithBalanceDto? accountWithBalance)
     {
         var accountDto = new AccountDto();
         if (accountWithBalance == null)
@@ -150,25 +168,16 @@
             accountDto.Color = accountWithBalance.Color;
             accountDto.Icon = accountWithBalance.Icon;
         }
-        var options = new DialogOptions
-        {
-            CloseOnEscapeKey = true,
-            NoHeader = false,
-            CloseButton = true,
-            MaxWidth = MaxWidth.Medium
-        };
-
-        var parameters = new DialogParameters<AccountDialog>();
-        parameters.Add(d => d.AccountDto, accountDto);
-
-        var dialog = await DialogService.ShowAsync<AccountDialog>(title: "", parameters, options);
-        var result = await dialog.Result;
-        if (!result!.Canceled)
-        {
-            await UpdatePage();
-        }
+        
+        AccountToEdit = accountDto;
+        _isSideSheetOpen = true;
     }
-
+    
+    private async Task CloseDrawerRefresh()
+    {
+        _isSideSheetOpen = false;
+        await UpdatePage();
+    }
 
     private async Task ConfirmDelete(int accountId)
     {
@@ -199,6 +208,9 @@
             }
         }
     }
+
+
+
 
 
     private async Task UpdatePage()
