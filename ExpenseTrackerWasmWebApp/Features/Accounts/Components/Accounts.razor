@@ -92,7 +92,7 @@
 
 </MudContainer>
 
-<MudDrawer @bind-Open="@_isSideSheetOpen"
+<MudDrawer @bind-Open="@_isSideDrawerOpen"
            Fixed="true"
            Anchor="Anchor.End"
            Variant="@DrawerVariant.Temporary"
@@ -104,7 +104,7 @@
             <EditorTitle Title="@(AccountToEdit.Id == null ? "Add Account" : "Edit Account")"></EditorTitle>
             <MudIconButton Icon="@Icons.Material.Filled.Close"
                            Color="Color.Default"
-                           OnClick="@(() => _isSideSheetOpen = false)" />
+                           OnClick="@(() => _isSideDrawerOpen = false)" />
         </MudStack>
         <AccountEditor OnAccountSaved="CloseDrawerRefresh" AccountDto="@AccountToEdit" />
     </div>
@@ -115,6 +115,14 @@
 @code {
 
     public List<AccountWithBalanceDto> AllAccounts { get; set; } = [];
+    
+    private bool _isSideDrawerOpen = false;
+    
+    private AccountDto AccountToEdit = new AccountDto();
+    
+    private string searchString = "";
+    
+    private PersistingComponentStateSubscription persistingSubscription;
 
     public List<AccountWithBalanceDto> FilteredAccounts
     {
@@ -125,10 +133,6 @@
             .ToList();
         }
     }
-    private string searchString = "";
-
-    private PersistingComponentStateSubscription persistingSubscription;
-
 
     protected override async Task OnInitializedAsync()
     {
@@ -149,15 +153,6 @@
         ApplicationState.PersistAsJson(nameof(AllAccounts), AllAccounts);
         return Task.CompletedTask;
     }
-    public void Dispose()
-    {
-        persistingSubscription.Dispose();
-    }
-
-
-
-    private bool _isSideSheetOpen = false;
-    private AccountDto AccountToEdit = new AccountDto();
 
     private async Task OpenAccountSheetAsync(AccountWithBalanceDto? accountWithBalance)
     {
@@ -176,12 +171,12 @@
         }
         
         AccountToEdit = accountDto;
-        _isSideSheetOpen = true;
+        _isSideDrawerOpen = true;
     }
     
     private async Task CloseDrawerRefresh()
     {
-        _isSideSheetOpen = false;
+        _isSideDrawerOpen = false;
         await UpdatePage();
     }
 
@@ -208,10 +203,6 @@
         }
     }
 
-
-
-
-
     private async Task UpdatePage()
     {
         var result = await AccountService.GetAccountsWithBalanceAsync();
@@ -229,5 +220,10 @@
             Snackbar.Add(result.ErrorMessage!, Severity.Error);
             NavigationManager.NavigateTo("/login");
         }
+    }
+
+    public void Dispose()
+    {
+        persistingSubscription.Dispose();
     }
 }

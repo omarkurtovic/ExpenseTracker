@@ -89,7 +89,7 @@
     }
 </MudContainer>
 
-<MudDrawer @bind-Open="@_isSideSheetOpen"
+<MudDrawer @bind-Open="@_isSideDrawerOpen"
            Fixed="true"
            Anchor="Anchor.End"
            Variant="@DrawerVariant.Temporary"
@@ -101,7 +101,7 @@
             <EditorTitle Title="@(BudgetToEdit.Id == null ? "Add Budget" : "Edit Budget")"></EditorTitle>
             <MudIconButton Icon="@Icons.Material.Filled.Close"
                            Color="Color.Default"
-                           OnClick="@(() => _isSideSheetOpen = false)" />
+                           OnClick="@(() => _isSideDrawerOpen = false)" />
         </MudStack>
         <BudgetEditor OnBudgetSaved="CloseDrawerRefresh" BudgetDto="@BudgetToEdit" />
     </div>
@@ -113,6 +113,16 @@
     @code {
 
     public List<BudgetWithProgressDto> AllBudgets { get; set; } = [];
+
+    private bool _isSideDrawerOpen = false;
+
+    private BudgetDto BudgetToEdit = new BudgetDto();
+
+    public string searchString = "";
+
+    public PersistingComponentStateSubscription persistingSubscription;
+
+
     public List<BudgetWithProgressDto> FilteredBudgets
     {
         get
@@ -122,9 +132,6 @@
             .ToList();
         }
     }
-    public string searchString = "";
-
-    public PersistingComponentStateSubscription persistingSubscription;
 
     protected override async Task OnInitializedAsync()
     {
@@ -147,15 +154,7 @@
         ApplicationState.PersistAsJson(nameof(AllBudgets), AllBudgets);
         return Task.CompletedTask;
     }
-
-    public void Dispose()
-    {
-        persistingSubscription.Dispose();
-    }
-
-    private bool _isSideSheetOpen = false;
-    private BudgetDto BudgetToEdit = new BudgetDto();
-
+    
     private async Task OpenBudgetSheetAsync(BudgetWithProgressDto? budget)
     {
         var budgetDto = new BudgetDto();
@@ -174,12 +173,12 @@
         }
 
         BudgetToEdit = budgetDto;
-        _isSideSheetOpen = true;
+        _isSideDrawerOpen = true;
     }
 
     private async Task CloseDrawerRefresh()
     {
-        _isSideSheetOpen = false;
+        _isSideDrawerOpen = false;
         await RefreshPage();
     }
 
@@ -222,5 +221,10 @@
         {
             Snackbar.Add(result.ErrorMessage ?? "Error fetching budgets!", Severity.Error);
         }
+    }
+
+    public void Dispose()
+    {
+        persistingSubscription.Dispose();
     }
 }

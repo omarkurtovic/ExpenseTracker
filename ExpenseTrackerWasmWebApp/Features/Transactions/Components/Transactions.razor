@@ -31,9 +31,9 @@
     <MudStack Row Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center">
         <MainPageTitle Title="@(IsReoccuring ? "Reoccuring Transactions" : "Transactions")"></MainPageTitle>
         <MudStack Row>
-            <MudButton Class="d-none d-md-flex" Variant="Variant.Filled" Color="Color.Primary" OnClick="@(() => OpenTransactionDialogAsync(null))" StartIcon="@Icons.Material.Filled.Add">Add</MudButton>
+            <MudButton Class="d-none d-md-flex" Variant="Variant.Filled" Color="Color.Primary" OnClick="@(() => OpenTransactionEditorAsync(null))" StartIcon="@Icons.Material.Filled.Add">Add</MudButton>
             <MudMenu Icon="@Icons.Material.Filled.MoreVert" AnchorOrigin="Origin.BottomRight" TransformOrigin="Origin.TopRight" Dense="false">
-                <MudMenuItem Icon="@Icons.Material.Filled.Filter" OnClick="OpenFilterDialog">
+                <MudMenuItem Icon="@Icons.Material.Filled.Filter" OnClick="OpenFiltersAsync">
                     Filters
                 </MudMenuItem>
                 <MudMenuItem Icon="@Icons.Material.Filled.Refresh" OnClick="ReloadGrid">
@@ -50,7 +50,7 @@
                 }
             </MudMenu>
         </MudStack>
-        <FabButton Class="d-flex d-md-none" Text="Add" IconClass="@Icons.Material.Filled.Add" OnClick="@(() => OpenTransactionDialogAsync(null))" />
+        <FabButton Class="d-flex d-md-none" Text="Add" IconClass="@Icons.Material.Filled.Add" OnClick="@(() => OpenTransactionEditorAsync(null))" />
     </MudStack>
 
     <MudDataGrid @ref="@dataGrid" T="TransactionDto" Hover Groupable Height="65vh" ItemSize="30f"
@@ -84,7 +84,7 @@
                             <span>Today</span>
                         }
                         else if (@context.Grouping.Key!.ToString() ==
-                        DateTime.Now.AddDays(-1).ToString("yyyy-MM-dd"))
+                    DateTime.Now.AddDays(-1).ToString("yyyy-MM-dd"))
                         {
                             <span>Yesterday</span>
                         }
@@ -120,7 +120,7 @@
             <TemplateColumn>
                 <CellTemplate>
                     <MudMenu Icon="@Icons.Material.Filled.MoreVert" AnchorOrigin="Origin.BottomRight" TransformOrigin="Origin.TopRight" Dense="false">
-                        <MudMenuItem Icon="@Icons.Material.Filled.Edit" OnClick="@(() => OpenTransactionDialogAsync(context.Item))">
+                        <MudMenuItem Icon="@Icons.Material.Filled.Edit" OnClick="@(() => OpenTransactionEditorAsync(context.Item))">
                             Edit
                         </MudMenuItem>
                         <MudMenuItem Icon="@Icons.Material.Filled.Delete" IconColor="Color.Error" OnClick="@(() => ConfirmDelete((int)context.Item.Id!))">
@@ -136,25 +136,35 @@
     </MudDataGrid>
 </MudContainer>
 
-<MudDrawer @bind-Open="@_isSideSheetOpen"
+<MudDrawer @bind-Open="@_isSideDrawerOpen"
            Fixed="true"
            Anchor="Anchor.End"
            Variant="@DrawerVariant.Temporary"
-           Width="min(100vw, 600px)"
+           Width="min(100vw, 400px)"
            Elevation="2">
-
     <div class="px-6 mt-6">
-        <MudStack Row AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween">
-            <EditorTitle Title="@(TransactionDialog.EditMode ? "Edit Transaction" : "Add Transaction")"></EditorTitle>
-            <MudIconButton Icon="@Icons.Material.Filled.Close"
-                           Color="Color.Default"
-                           OnClick="@(() => _isSideSheetOpen = false)" />
-        </MudStack>
-        <TransactionEditor @ref="TransactionDialog" OnTransactionSaved="CloseDrawerRefresh" IsReoccuring="@IsReoccuring" />
+        @if (_drawerMode == DrawerMode.Filters)
+        {
+            <MudStack Row AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween">
+                <EditorTitle Title="Filters"></EditorTitle>
+                <MudIconButton Icon="@Icons.Material.Filled.Close"
+                               Color="Color.Default"
+                               OnClick="@(() => _isSideDrawerOpen = false)" />
+            </MudStack>
+            <TransactionsFilters Filters="@Filters" RefreshDataGridAction="ReloadGrid"></TransactionsFilters>
+        }
+        else if (_drawerMode == DrawerMode.AddTransaction)
+        {
+            <MudStack Row AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween">
+                <EditorTitle Title="@(TransactionDialog.EditMode ? "Edit Transaction" : "Add Transaction")"></EditorTitle>
+                <MudIconButton Icon="@Icons.Material.Filled.Close"
+                               Color="Color.Default"
+                               OnClick="@(() => _isSideDrawerOpen = false)" />
+            </MudStack>
+            <TransactionEditor @ref="TransactionDialog" OnTransactionSaved="CloseDrawerRefresh" IsReoccuring="@IsReoccuring" />
+        }
     </div>
-
 </MudDrawer>
-
 @code {
 
     [Parameter]
@@ -167,11 +177,18 @@
     private int NumberOfTransactions = -1;
 
     private SortDefinition<TransactionDto>? _currentSort;
+
     private string email = "";
 
-    private bool _isSideSheetOpen = false;
+    private enum DrawerMode { AddTransaction, Filters }
+
+    private DrawerMode _drawerMode;
+
+    private bool _isSideDrawerOpen = false;
 
     private TransactionEditor TransactionDialog = null!;
+
+    private TransactionsFiltersDto Filters { get; set; } = new TransactionsFiltersDto();
 
     protected override async Task OnInitializedAsync()
     {
@@ -246,19 +263,6 @@
         {
             StateHasChanged();
         }
-    }
-
-
-    private async Task OpenTransactionDialogAsync(TransactionDto? transactionDto)
-    {
-        TransactionDialog.SetupTransaction(transactionDto);
-        _isSideSheetOpen = true;
-    }
-
-    private async Task CloseDrawerRefresh()
-    {
-        _isSideSheetOpen = false;
-        await ReloadGrid();
     }
 
     private async Task ConfirmDelete(int transactionId)
@@ -338,25 +342,21 @@
         var dialog = await DialogService.ShowAsync<ExportDialog>(title: "", parameters, dialogOptions);
     }
 
-
-    // filters
-
-    private TransactionsFiltersDto Filters { get; set; } = new TransactionsFiltersDto();
-
-    private async Task OpenFilterDialog()
+    private async Task OpenTransactionEditorAsync(TransactionDto? transactionDto)
     {
-        var dialogOptions = new DialogOptions
-        {
-            CloseOnEscapeKey = true,
-            NoHeader = false,
-            CloseButton = true,
-            MaxWidth = MaxWidth.Medium
-        };
+        _drawerMode = DrawerMode.AddTransaction;
+        TransactionDialog.SetupTransaction(transactionDto);
+        _isSideDrawerOpen = true;
+    }
+    private async Task OpenFiltersAsync()
+    {
+        _drawerMode = DrawerMode.Filters;
+        _isSideDrawerOpen = true;
+    }
 
-        var parameters = new DialogParameters<TransactionsFilterDialog>();
-        parameters.Add(x => x.RefreshDataGridAction, async () => { await ReloadGrid(); });
-        parameters.Add(x => x.Filters, Filters);
-
-        var dialog = await DialogService.ShowAsync<TransactionsFilterDialog>(title: "", parameters, dialogOptions);
+    private async Task CloseDrawerRefresh()
+    {
+        _isSideDrawerOpen = false;
+        await ReloadGrid();
     }
 }

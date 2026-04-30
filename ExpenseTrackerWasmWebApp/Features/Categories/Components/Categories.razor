@@ -101,7 +101,7 @@
 
 </MudContainer>
 
-<MudDrawer @bind-Open="@_isSideSheetOpen"
+<MudDrawer @bind-Open="@_isSideDrawerOpen"
            Fixed="true"
            Anchor="Anchor.End"
            Variant="@DrawerVariant.Temporary"
@@ -113,7 +113,7 @@
             <EditorTitle Title="@(CategoryToEdit.Id == null ? "Add Category" : "Edit Category")"></EditorTitle>
             <MudIconButton Icon="@Icons.Material.Filled.Close"
                            Color="Color.Default"
-                           OnClick="@(() => _isSideSheetOpen = false)" />
+                           OnClick="@(() => _isSideDrawerOpen = false)" />
         </MudStack>
         <CategoryEditor OnCategorySaved="CloseDrawerRefresh" CategoryDto="@CategoryToEdit" />
     </div>
@@ -123,6 +123,17 @@
 
 @code {
     public List<CategoryWithStatsDto> AllCategories { get; set; } = [];
+
+    private bool _isSideDrawerOpen = false;
+
+    private CategoryDto CategoryToEdit = new CategoryDto();
+
+    public string searchString = "";
+
+    public TransactionTypeDto transactionType = TransactionTypeDto.Expense;
+
+    public PersistingComponentStateSubscription persistingSubscription;
+
     public List<CategoryWithStatsDto> FilteredCategories
     {
         get
@@ -132,12 +143,6 @@
             .ToList();
         }
     }
-    public string searchString = "";
-    public TransactionTypeDto transactionType = TransactionTypeDto.Expense;
-
-
-
-    public PersistingComponentStateSubscription persistingSubscription;
 
     protected override async Task OnInitializedAsync()
     {
@@ -160,14 +165,6 @@
         return Task.CompletedTask;
     }
 
-    public void Dispose()
-    {
-        persistingSubscription.Dispose();
-    }
-
-    private bool _isSideSheetOpen = false;
-    private CategoryDto CategoryToEdit = new CategoryDto();
-
     private async Task OpenCategorySheetAsync(CategoryWithStatsDto? category)
     {
         var categoryDto = new CategoryDto();
@@ -189,12 +186,12 @@
         }
 
         CategoryToEdit = categoryDto;
-        _isSideSheetOpen = true;
+        _isSideDrawerOpen = true;
     }
 
     private async Task CloseDrawerRefresh()
     {
-        _isSideSheetOpen = false;
+        _isSideDrawerOpen = false;
         await RefreshPage();
     }
 
@@ -221,7 +218,6 @@
         }
     }
 
-
     private async Task RefreshPage()
     {
         var result = await CategoryService.GetCategoriesWithStatsAsync();
@@ -238,5 +234,10 @@
         {
             Snackbar.Add(result.ErrorMessage ?? "Error loading categories!", Severity.Error);
         }
+    }
+
+    public void Dispose()
+    {
+        persistingSubscription.Dispose();
     }
 }
