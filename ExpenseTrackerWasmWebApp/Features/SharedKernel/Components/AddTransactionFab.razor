@@ -28,13 +28,13 @@
             CloseButton = true,
             MaxWidth = MaxWidth.Medium
         };
-        var parameters = new DialogParameters<TransactionDialog>
+        var parameters = new DialogParameters<TransactionEditor>
             {
                 { x => x.TransactionDto, null },
                 { x => x.IsReoccuring, IsReoccuring }
             };
 
-        var dialog = await DialogService.ShowAsync<TransactionDialog>(title: "Simple Dialog", parameters, options);
+        var dialog = await DialogService.ShowAsync<TransactionEditor>(title: "Simple Dialog", parameters, options);
         var result = await dialog.Result;
         await OnClose.InvokeAsync(false);
     } 

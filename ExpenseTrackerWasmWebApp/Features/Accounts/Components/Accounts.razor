@@ -11,7 +11,6 @@
 @using Microsoft.AspNetCore.Authorization
 @using MudBlazor
 @using Microsoft.AspNetCore.Components.Web
-@using ExpenseTrackerWasmWebApp.Features.SharedKernel.Components.Dialogs
 @using ExpenseTrackerWasmWebApp.Features.SharedKernel.Components.Titles
 @using System.Net.Http.Headers
 @using MudBlazor.Utilities
@@ -188,15 +187,8 @@
 
     private async Task ConfirmDelete(int accountId)
     {
-        var options = new DialogOptions { CloseOnEscapeKey = true };
-        var parameters = new DialogParameters<ConfirmDialog>
-        {
-            { x => x.Message, "Are you sure you want to delete the account and the related transactions? " }
-        };
-
-        var dialog = await DialogService.ShowAsync<ConfirmDialog>(title: "", parameters, options);
-        var result = await dialog.Result;
-        if (!result!.Canceled)
+        bool? result = await DialogService.ShowMessageBox("Warning", "Are you sure you want to delete the account and the related transactions?", "Confirm", "Cancel");
+        if (result == true)
         {
             var res = await AccountService.DeleteAccountAsync(accountId);
             if (res.IsSuccess)

@@ -1,0 +1,169 @@
+@rendermode InteractiveWebAssembly
+@using ExpenseTrackerSharedCL.Features.Accounts.Dtos
+@using ExpenseTrackerSharedCL.Features.Accounts.Services
+@using ExpenseTrackerSharedCL.Features.Budgets.Dtos
+@using ExpenseTrackerSharedCL.Features.Budgets.Services
+@using ExpenseTrackerSharedCL.Features.Categories
+@using ExpenseTrackerSharedCL.Features.SharedKernel
+@using ExpenseTrackerWasmWebApp.Features.SharedKernel.Components.Titles
+@using Microsoft.AspNetCore.Authorization
+@using MudBlazor
+@using ExpenseTrackerSharedCL.Features.Categories.Dtos
+@using ExpenseTrackerWasmWebApp.Features.SharedKernel.Components
+@using ExpenseTrackerWasmWebApp.Features.Accounts.Services
+@using ExpenseTrackerWasmWebApp.Features.Categories.Services
+@using ExpenseTrackerWasmWebApp.Features.Budgets.Services
+@inject ISnackbar Snackbar
+@inject NavigationManager NavigationManager
+@inject IAccountService AccountService
+@inject ICategoryService CategoryService
+@inject IBudgetService BudgetService
+
+@if (!Loading)
+{
+    <MudForm @ref="form">
+        <MudGrid Spacing="2">
+            <MudItem xs="12">
+                <MudTextField @bind-Value="BudgetDto.Name" Label="Name" Variant="Variant.Outlined" Required="true"
+                                RequiredError="Name is required!">
+                </MudTextField>
+            </MudItem>
+            <MudItem xs="12">
+                <MudSelect @bind-Value="BudgetDto.BudgetType" Label="Type" Variant="Variant.Outlined"
+                           Required="true" RequiredError="Budget type is required!">
+                    @foreach (BudgetType? item in Enum.GetValues(typeof(BudgetType)))
+                    {
+                        <MudSelectItem Value="@((BudgetType?)item)">@item</MudSelectItem>
+                    }
+                </MudSelect>
+            </MudItem>
+            <MudItem xs="12">
+                <MudNumericField @bind-Value="BudgetDto.Amount" Label="Amount"
+                    Variant="Variant.Outlined" Required="true" RequiredError="Amount is required!"
+                                 Format="C2">
+                </MudNumericField>
+            </MudItem>
+            <MudItem xs="12">
+                <MudTextField @bind-Value="BudgetDto.Description" Label="Description" Variant="Variant.Outlined">
+                </MudTextField>
+            </MudItem>
+            <MudItem xs="12">
+                <MudSelect T="int" Label="Categories" @bind-SelectedValues="BudgetDto.Categories"
+                    MultiSelectionTextFunc="@(new Func<List<string>, string>(GetCategoryMultiSelectionText))"
+                    MultiSelection="true" Clearable="true" FullWidth="true" 
+                           Required="true" RequiredError="At least one category is required!">
+                    @foreach (var category in Categories)
+                    {
+                        <MudSelectItem T="int" Value="@((int)category.Id!)">
+                            <TextWithIcon Text="@category.Name" Icon="@category.Icon" IconColor="@category.Color" IconSize="Size.Small"></TextWithIcon>
+                        </MudSelectItem>
+                    }
+                </MudSelect>
+            </MudItem>
+            <MudItem xs="12">
+                <MudSelect T="int" Label="Accounts" @bind-SelectedValues="BudgetDto.Accounts"
+                    MultiSelectionTextFunc="@(new Func<List<string>, string>(GetAccountMultiSelectionText))"
+                    MultiSelection="true" Clearable="true" FullWidth="true" 
+                           Required="true" RequiredError="At least one account is required!">
+                    @foreach (var account in Accounts)
+                    {
+                        <MudSelectItem T="int" Value="@((int)account.Id!)">
+                            <TextWithIcon Text="@account.Name" Icon="@account.Icon" IconColor="@account.Color" IconSize="Size.Small"></TextWithIcon>
+                        </MudSelectItem>
+                    }
+                </MudSelect>
+            </MudItem>
+        </MudGrid>
+    </MudForm>
+    <MudStack Row Justify="Justify.Center" AlignItems="AlignItems.Center">
+        <MudButton OnClick="Submit" Color="Color.Primary" Variant="Variant.Filled" Class="mt-4">Save</MudButton>
+    </MudStack>
+}
+
+@code {
+    private MudForm form = null!;
+
+    [Parameter]
+    public BudgetDto BudgetDto {get; set;} = new();
+
+    [Parameter]
+    public EventCallback OnBudgetSaved { get; set; }
+
+    public List<CategoryDto> Categories{get; set;} = new();
+    public List<AccountDto> Accounts{get; set;} = new();
+
+    private bool Loading = true;
+    protected override async Task OnInitializedAsync()
+    {
+        var categoriesResult = await CategoryService.GetCategoriesAsync();
+        if (categoriesResult.IsSuccess)
+        {
+            Categories = categoriesResult.Data ?? new();
+        }
+        else if (categoriesResult.Reason == FailureReason.Unauthorized)
+        {
+            Snackbar.Add("Session expired. Please log in again.", Severity.Error);
+            NavigationManager.NavigateTo("login");
+            return;
+        }
+
+        var accountsResult = await AccountService.GetAccountsAsync();
+        if (accountsResult.IsSuccess)
+        {
+            Accounts = accountsResult.Data ?? new();
+        }
+        else if (accountsResult.Reason == FailureReason.Unauthorized)
+        {
+            Snackbar.Add("Session expired. Please log in again.", Severity.Error);
+            NavigationManager.NavigateTo("login");
+            return;
+        }
+
+        Loading = false;
+        await base.OnInitializedAsync();
+    }
+
+    private async Task Submit()
+    {
+        await form.Validate();
+        if (!form.IsValid)
+        {
+            StateHasChanged();
+            return;
+        }
+
+        Result result;
+        if (BudgetDto.Id == null)
+        {
+            result = await BudgetService.CreateBudgetAsync(BudgetDto);
+        }
+        else
+        {
+            result = await BudgetService.EditBudgetAsync(BudgetDto);
+        }
+
+        if (result.IsSuccess)
+        {
+            Snackbar.Add("Budget saved successfully!", Severity.Success);
+            await OnBudgetSaved.InvokeAsync();
+        }
+        else if (result.Reason == FailureReason.Unauthorized)
+        {
+            Snackbar.Add("Session expired. Please log in again.", Severity.Error);
+            NavigationManager.NavigateTo("login");
+        }
+        else
+        {
+            Snackbar.Add(result.ErrorMessage ?? "Error saving budget!", Severity.Error);
+        }
+    }
+
+    private string GetAccountMultiSelectionText(List<string> selectedValues)
+    {
+        return string.Join(separator: ", ", Accounts.Where(a => selectedValues.Contains(a.Id.ToString()!)).Select(a => a.Name));
+    }
+    private string GetCategoryMultiSelectionText(List<string> selectedValues)
+    {
+        return string.Join(separator: ", ", Categories.Where(c => selectedValues.Contains(c.Id.ToString()!)).Select(c => c.Name));
+    }
+}

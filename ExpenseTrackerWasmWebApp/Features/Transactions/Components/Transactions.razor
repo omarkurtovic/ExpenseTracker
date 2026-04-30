@@ -6,12 +6,12 @@
 @using ExpenseTrackerSharedCL.Features.Tags.Dtos
 @using ExpenseTrackerSharedCL.Features.Transactions.Dtos
 @using ExpenseTrackerSharedCL.Features.Transactions.Services
+@using ExpenseTrackerWasmWebApp.Features.SharedKernel.Components.Dialogs
 @using ExpenseTrackerWasmWebApp.Features.Transactions.Services
 @using Microsoft.AspNetCore.Authorization
 @using MudBlazor
 @using Microsoft.AspNetCore.Components.Web
 @using ExpenseTrackerWasmWebApp.Features.SharedKernel.Components
-@using ExpenseTrackerWasmWebApp.Features.SharedKernel.Components.Dialogs
 @using ExpenseTrackerWasmWebApp.Features.SharedKernel.Components.Titles
 @using System.Net.Http.Headers
 @using ExpenseTrackerWasmWebApp.Features.DataSeeding.Components
@@ -136,7 +136,24 @@
     </MudDataGrid>
 </MudContainer>
 
+<MudDrawer @bind-Open="@_isSideSheetOpen"
+           Fixed="true"
+           Anchor="Anchor.End"
+           Variant="@DrawerVariant.Temporary"
+           Width="min(100vw, 600px)"
+           Elevation="2">
 
+    <div class="px-6 mt-6">
+        <MudStack Row AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween">
+            <EditorTitle Title="@(TransactionDialog.EditMode ? "Edit Transaction" : "Add Transaction")"></EditorTitle>
+            <MudIconButton Icon="@Icons.Material.Filled.Close"
+                           Color="Color.Default"
+                           OnClick="@(() => _isSideSheetOpen = false)" />
+        </MudStack>
+        <TransactionEditor @ref="TransactionDialog" OnTransactionSaved="CloseDrawerRefresh" IsReoccuring="@IsReoccuring" />
+    </div>
+
+</MudDrawer>
 
 @code {
 
@@ -151,6 +168,10 @@
 
     private SortDefinition<TransactionDto>? _currentSort;
     private string email = "";
+
+    private bool _isSideSheetOpen = false;
+
+    private TransactionEditor TransactionDialog = null!;
 
     protected override async Task OnInitializedAsync()
     {
@@ -230,40 +251,25 @@
 
     private async Task OpenTransactionDialogAsync(TransactionDto? transactionDto)
     {
-        var options = new DialogOptions
-        {
-            CloseOnEscapeKey = true,
-            NoHeader = false,
-            CloseButton = true,
-            MaxWidth = MaxWidth.Medium
-        };
-        var parameters = new DialogParameters<TransactionDialog>
-        {
-            { x => x.TransactionDto, transactionDto },
-            { x => x.IsReoccuring, IsReoccuring }
-        };
+        TransactionDialog.SetupTransaction(transactionDto);
+        _isSideSheetOpen = true;
+    }
 
-        var dialog = await DialogService.ShowAsync<TransactionDialog>(title: "Simple Dialog", parameters, options);
-        var result = await dialog.Result;
+    private async Task CloseDrawerRefresh()
+    {
+        _isSideSheetOpen = false;
         await ReloadGrid();
     }
 
     private async Task ConfirmDelete(int transactionId)
     {
-        var options = new DialogOptions { CloseOnEscapeKey = true };
-        var parameters = new DialogParameters<ConfirmDialog>
-        {
-            { x => x.Message, "Are you sure you want to delete the transaction? " }
-        };
-
-        var dialog = await DialogService.ShowAsync<ConfirmDialog>(title: "Warning", parameters, options);
-        var result = await dialog.Result;
-        if (result is not null && !result.Canceled)
+        bool? result = await DialogService.ShowMessageBox("Warning", "Are you sure you want to delete the transaction? ", "Confirm", "Cancel");
+        if (result == true)
         {
             var deleteResult = await TransactionService.DeleteTransactionAsync(transactionId);
             if (deleteResult.IsSuccess)
             {
-                Snackbar.Add("Transaction succesfully deleted! ", Severity.Success);
+                Snackbar.Add("Transaction successfully deleted! ", Severity.Success);
                 await ReloadGrid();
             }
             else if (deleteResult.Reason == FailureReason.Unauthorized)

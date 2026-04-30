@@ -10,6 +10,7 @@
 @using Microsoft.AspNetCore.Authorization
 @using MudBlazor
 @using Microsoft.AspNetCore.Components.Web
+@using ExpenseTrackerWasmWebApp.Features.SharedKernel.Components
 @using ExpenseTrackerWasmWebApp.Features.SharedKernel.Components.Dialogs
 @using ExpenseTrackerWasmWebApp.Features.SharedKernel.Components.Titles
 @using ExpenseTrackerWasmWebApp.Features.Budgets.Services
@@ -25,8 +26,8 @@
 
     <MudStack Row Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center">
         <MainPageTitle Title="Budgets"></MainPageTitle>
-        <MudButton Class="d-none d-md-flex" Variant="Variant.Filled" Color="Color.Primary" OnClick="@(() => OpenBudgetDialogAsync(null))" StartIcon="@Icons.Material.Filled.Add">Add</MudButton>
-        <FabButton Class="d-flex d-md-none" Text="Add" IconClass="@Icons.Material.Filled.Add" OnClick="@(() => OpenBudgetDialogAsync(null))" />
+        <MudButton Class="d-none d-md-flex" Variant="Variant.Filled" Color="Color.Primary" OnClick="@(() => OpenBudgetSheetAsync(null))" StartIcon="@Icons.Material.Filled.Add">Add</MudButton>
+        <FabButton Class="d-flex d-md-none" Text="Add" IconClass="@Icons.Material.Filled.Add" OnClick="@(() => OpenBudgetSheetAsync(null))" />
     </MudStack>
     <MudGrid>
         <MudItem xs="12">
@@ -62,7 +63,7 @@
                             </CardHeaderContent>
                             <CardHeaderActions>
                                 <MudMenu Icon="@Icons.Material.Filled.MoreVert" AnchorOrigin="Origin.BottomRight" TransformOrigin="Origin.TopRight" Dense="false">
-                                    <MudMenuItem Icon="@Icons.Material.Filled.Edit" OnClick="@(() => OpenBudgetDialogAsync(budget))">
+                                    <MudMenuItem Icon="@Icons.Material.Filled.Edit" OnClick="@(() => OpenBudgetSheetAsync(budget))">
                                         Edit
                                     </MudMenuItem>
                                     <MudMenuItem Icon="@Icons.Material.Filled.Delete" IconColor="Color.Error" OnClick="@(() => ConfirmDelete((int)budget.Id!))">
@@ -87,6 +88,26 @@
         </MudGrid>
     }
 </MudContainer>
+
+<MudDrawer @bind-Open="@_isSideSheetOpen"
+           Fixed="true"
+           Anchor="Anchor.End"
+           Variant="@DrawerVariant.Temporary"
+           Width="min(100vw, 400px)"
+           Elevation="2">
+
+    <div class="px-6 mt-6">
+        <MudStack Row AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween">
+            <EditorTitle Title="@(BudgetToEdit.Id == null ? "Add Budget" : "Edit Budget")"></EditorTitle>
+            <MudIconButton Icon="@Icons.Material.Filled.Close"
+                           Color="Color.Default"
+                           OnClick="@(() => _isSideSheetOpen = false)" />
+        </MudStack>
+        <BudgetEditor OnBudgetSaved="CloseDrawerRefresh" BudgetDto="@BudgetToEdit" />
+    </div>
+
+
+</MudDrawer>
 
 
     @code {
@@ -132,7 +153,10 @@
         persistingSubscription.Dispose();
     }
 
-    private async Task OpenBudgetDialogAsync(BudgetWithProgressDto? budget)
+    private bool _isSideSheetOpen = false;
+    private BudgetDto BudgetToEdit = new BudgetDto();
+
+    private async Task OpenBudgetSheetAsync(BudgetWithProgressDto? budget)
     {
         var budgetDto = new BudgetDto();
         if (budget != null)
@@ -149,41 +173,20 @@
             };
         }
 
-        var options = new DialogOptions
-        {
-            CloseOnEscapeKey = true,
-            NoHeader = false,
-            CloseButton = true,
-            MaxWidth = MaxWidth.Medium
-        };
+        BudgetToEdit = budgetDto;
+        _isSideSheetOpen = true;
+    }
 
-        var parameters = new DialogParameters<BudgetDialog>
-        {
-            { x => x.BudgetDto, budgetDto }
-        };
-
-        var dialog = await DialogService.ShowAsync<BudgetDialog>(title: "", parameters, options);
-        var result = await dialog.Result;
-        if (result != null && !result.Canceled)
-        {
-            await RefreshPage();
-        }
+    private async Task CloseDrawerRefresh()
+    {
+        _isSideSheetOpen = false;
+        await RefreshPage();
     }
 
     private async Task ConfirmDelete(int budget_id)
     {
-        var options = new DialogOptions
-        {
-            CloseOnEscapeKey = true,
-        };
-        var parameters = new DialogParameters<ConfirmDialog>
-        {
-            { x => x.Message,  "Are you sure you want to delete the budget? " }
-        };
-
-        var dialog = await DialogService.ShowAsync<ConfirmDialog>(title: "", parameters, options);
-        var result = await dialog.Result;
-        if (result != null && !result.Canceled)
+        bool? result = await DialogService.ShowMessageBox("Warning", "Are you sure you want to delete the budget? ", "Confirm", "Cancel");
+        if (result == true)
         {
             var deleteResult = await BudgetService.DeleteBudgetAsync(budget_id);
             if (deleteResult.IsSuccess)
