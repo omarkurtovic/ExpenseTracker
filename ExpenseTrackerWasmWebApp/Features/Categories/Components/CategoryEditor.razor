@@ -15,7 +15,15 @@
 @if (CategoryDto is not null)
 {
     <MudForm @ref="form">
-        <MudGrid Spacing="2">
+        <MudGrid Spacing="2" Class="my-2">
+            <MudItem xs="12">
+                <MudStack Row AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween">
+                    <EditorTitle Title="@(CategoryDto.Id == null ? "Add Category" : "Edit Category")"></EditorTitle>
+                    <MudIconButton Icon="@Icons.Material.Filled.Close"
+                                   Color="Color.Default"
+                                   OnClick="@(async () => await Close.InvokeAsync())" />
+                </MudStack>
+            </MudItem>
             <MudItem xs="12">
                 <MudTextField @bind-Value="CategoryDto.Name" Label="Name" Variant="Variant.Outlined" Required="true"
                                 RequiredError="Name is required!">
@@ -43,13 +51,13 @@
             </MudItem>
             <MudItem xs="12">
                 <MudColorPicker @bind-Text="CategoryDto.Color" Label="Color" Variant="Variant.Outlined" Required="true"
-                                RequiredError="Color is required!" Style="flex-shrink: 0;">
+                                RequiredError="Color is required!">
                 </MudColorPicker>
             </MudItem>
         </MudGrid>
     </MudForm>
     <MudStack Row Justify="Justify.Center" AlignItems="AlignItems.Center">
-        <MudButton OnClick="Submit" Color="Color.Primary" Variant="Variant.Filled" Class="mt-4">Save</MudButton>
+        <MudButton OnClick="Submit" Color="Color.Primary" Variant="Variant.Filled" >Save</MudButton>
     </MudStack>
 }
 
@@ -63,6 +71,8 @@
     [Parameter]
     public EventCallback OnCategorySaved { get; set; }
 
+    [Parameter]
+    public EventCallback Close { get; set; }
 
     private async Task Submit()
     {

@@ -6,7 +6,7 @@
 @using ExpenseTrackerSharedCL.Features.Tags.Dtos
 @using ExpenseTrackerSharedCL.Features.Transactions.Dtos
 @using ExpenseTrackerSharedCL.Features.Transactions.Services
-@using ExpenseTrackerWasmWebApp.Features.SharedKernel.Components.Dialogs
+@using ExpenseTrackerWasmWebApp.Features.Transactions.Enums
 @using ExpenseTrackerWasmWebApp.Features.Transactions.Services
 @using Microsoft.AspNetCore.Authorization
 @using MudBlazor
@@ -31,29 +31,29 @@
     <MudStack Row Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center">
         <MainPageTitle Title="@(IsReoccuring ? "Reoccuring Transactions" : "Transactions")"></MainPageTitle>
         <MudStack Row>
-            <MudButton Class="d-none d-md-flex" Variant="Variant.Filled" Color="Color.Primary" OnClick="@(() => OpenTransactionEditorAsync(null))" StartIcon="@Icons.Material.Filled.Add">Add</MudButton>
+            <MudButton Class="d-none d-md-flex" Variant="Variant.Filled" Color="Color.Primary" OnClick="@(() => OpenEditor(null))" StartIcon="@Icons.Material.Filled.Add">Add</MudButton>
             <MudMenu Icon="@Icons.Material.Filled.MoreVert" AnchorOrigin="Origin.BottomRight" TransformOrigin="Origin.TopRight" Dense="false">
-                <MudMenuItem Icon="@Icons.Material.Filled.Filter" OnClick="OpenFiltersAsync">
+                <MudMenuItem Icon="@Icons.Material.Filled.Filter" OnClick="OpenFilters">
                     Filters
                 </MudMenuItem>
-                <MudMenuItem Icon="@Icons.Material.Filled.Refresh" OnClick="ReloadGrid">
-                    Refresh
-                </MudMenuItem>
-                <MudMenuItem Icon="@Icons.Material.Filled.ImportExport" OnClick="OpenExportDialog">
+                <MudMenuItem Icon="@Icons.Material.Filled.ImportExport" OnClick="OpenExport">
                     Export
                 </MudMenuItem>
                 @if (IsAdmin)
                 {
-                    <MudMenuItem Icon="@Icons.Material.Filled.Add" OnClick="AddTestData">
+                    <MudMenuItem Icon="@Icons.Material.Filled.Add" OnClick="OpenSeed">
                         Add Test Data
                     </MudMenuItem>
                 }
+                <MudMenuItem Icon="@Icons.Material.Filled.Refresh" OnClick="RefreshGrid">
+                    Refresh
+                </MudMenuItem>
             </MudMenu>
         </MudStack>
-        <FabButton Class="d-flex d-md-none" Text="Add" IconClass="@Icons.Material.Filled.Add" OnClick="@(() => OpenTransactionEditorAsync(null))" />
+        <FabButton Class="d-flex d-md-none" Text="Add" IconClass="@Icons.Material.Filled.Add" OnClick="@(() => OpenEditor(null))" />
     </MudStack>
 
-    <MudDataGrid @ref="@dataGrid" T="TransactionDto" Hover Groupable Height="65vh" ItemSize="30f"
+    <MudDataGrid @ref="@DataGrid" T="TransactionDto" Hover Groupable Height="65vh" ItemSize="30f"
                  SortMode="SortMode.Single" ServerData="ServerReload" FixedHeader FixedFooter>
         <Columns>
             <PropertyColumn Property="t => t.AccountDto!.Name" Title="Account" Sortable="true" Groupable="false">
@@ -120,7 +120,7 @@
             <TemplateColumn>
                 <CellTemplate>
                     <MudMenu Icon="@Icons.Material.Filled.MoreVert" AnchorOrigin="Origin.BottomRight" TransformOrigin="Origin.TopRight" Dense="false">
-                        <MudMenuItem Icon="@Icons.Material.Filled.Edit" OnClick="@(() => OpenTransactionEditorAsync(context.Item))">
+                        <MudMenuItem Icon="@Icons.Material.Filled.Edit" OnClick="@(() => OpenEditor(context.Item))">
                             Edit
                         </MudMenuItem>
                         <MudMenuItem Icon="@Icons.Material.Filled.Delete" IconColor="Color.Error" OnClick="@(() => ConfirmDelete((int)context.Item.Id!))">
@@ -136,32 +136,28 @@
     </MudDataGrid>
 </MudContainer>
 
-<MudDrawer @bind-Open="@_isSideDrawerOpen"
+<MudDrawer @bind-Open="@IsSideDrawerOpen" 
            Fixed="true"
            Anchor="Anchor.End"
            Variant="@DrawerVariant.Temporary"
            Width="min(100vw, 400px)"
            Elevation="2">
     <div class="px-6 mt-6">
-        @if (_drawerMode == DrawerMode.Filters)
+        @if (DrawerMode == DrawerMode.Filters)
         {
-            <MudStack Row AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween">
-                <EditorTitle Title="Filters"></EditorTitle>
-                <MudIconButton Icon="@Icons.Material.Filled.Close"
-                               Color="Color.Default"
-                               OnClick="@(() => _isSideDrawerOpen = false)" />
-            </MudStack>
-            <TransactionsFilters Filters="@Filters" RefreshDataGridAction="ReloadGrid"></TransactionsFilters>
+            <TransactionsFilters Close="CloseDrawer" Filters="@Filters" RefreshMainGrid="RefreshGrid"></TransactionsFilters>
         }
-        else if (_drawerMode == DrawerMode.AddTransaction)
+        else if (DrawerMode == DrawerMode.AddTransaction)
         {
-            <MudStack Row AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween">
-                <EditorTitle Title="@(TransactionDialog.EditMode ? "Edit Transaction" : "Add Transaction")"></EditorTitle>
-                <MudIconButton Icon="@Icons.Material.Filled.Close"
-                               Color="Color.Default"
-                               OnClick="@(() => _isSideDrawerOpen = false)" />
-            </MudStack>
-            <TransactionEditor @ref="TransactionDialog" OnTransactionSaved="CloseDrawerRefresh" IsReoccuring="@IsReoccuring" />
+            <TransactionEditor Close="CloseDrawer" @ref="TransactionDialog" OnTransactionSaved="CloseDrawerRefresh" IsReoccuring="@IsReoccuring" />
+        }
+        else if (DrawerMode == DrawerMode.Export)
+        {
+            <Export Close="CloseDrawer" Options="ExportOptions" OnExportFinished="CloseDrawer" />
+        }
+        else if (DrawerMode == DrawerMode.Seeding)
+        {
+            <DataSeed Close="CloseDrawer" OnSeedingFinished="CloseDrawerRefresh" />
         }
     </div>
 </MudDrawer>
@@ -172,23 +168,43 @@
 
     public bool IsReoccuring { get; set; } = false;
 
-    private MudDataGrid<TransactionDto> dataGrid = null!;
+    private MudDataGrid<TransactionDto> DataGrid = null!;
 
     private int NumberOfTransactions = -1;
 
-    private SortDefinition<TransactionDto>? _currentSort;
+    private SortDefinition<TransactionDto>? CurrentSort;
 
     private string email = "";
-
-    private enum DrawerMode { AddTransaction, Filters }
-
-    private DrawerMode _drawerMode;
-
-    private bool _isSideDrawerOpen = false;
 
     private TransactionEditor TransactionDialog = null!;
 
     private TransactionsFiltersDto Filters { get; set; } = new TransactionsFiltersDto();
+
+
+    private bool IsSideDrawerOpen = false;
+
+    private DrawerMode DrawerMode;
+
+    private void CloseDrawer() => IsSideDrawerOpen = false;
+
+    private void OpenDrawer(DrawerMode mode)
+    {
+        IsSideDrawerOpen = true;
+        DrawerMode = mode;
+    }
+    
+    private void OpenEditor(TransactionDto? transactionDto)
+    {
+        TransactionDialog.SetupTransaction(transactionDto);
+        OpenDrawer(DrawerMode.AddTransaction);
+    }
+
+    private void OpenFilters() => OpenDrawer(DrawerMode.Filters);
+
+    private void OpenSeed() => OpenDrawer(DrawerMode.Seeding);
+
+    private void OpenExport() => OpenDrawer(DrawerMode.Export);
+
 
     protected override async Task OnInitializedAsync()
     {
@@ -207,7 +223,7 @@
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        await dataGrid.ReloadServerData();
+        await DataGrid.ReloadServerData();
         await base.OnAfterRenderAsync(firstRender);
     }
 
@@ -220,7 +236,7 @@
         {
             options.SortBy = sortDefintion.SortBy;
             options.SortDescending = sortDefintion.Descending;
-            _currentSort = sortDefintion;
+            CurrentSort = sortDefintion;
         }
         options.PageSize = state.PageSize;
         options.CurrentPage = state.Page;
@@ -253,17 +269,6 @@
         };
     }
 
-    private async Task ReloadGrid()
-    {
-        if (dataGrid != null)
-        {
-            await dataGrid.ReloadServerData();
-        }
-        else
-        {
-            StateHasChanged();
-        }
-    }
 
     private async Task ConfirmDelete(int transactionId)
     {
@@ -274,7 +279,7 @@
             if (deleteResult.IsSuccess)
             {
                 Snackbar.Add("Transaction successfully deleted! ", Severity.Success);
-                await ReloadGrid();
+                await RefreshGrid();
             }
             else if (deleteResult.Reason == FailureReason.Unauthorized)
             {
@@ -288,75 +293,40 @@
         }
     }
 
-    private async Task AddTestData()
+    private TransactionsGridOptionsDto ExportOptions
     {
-        var options = new DialogOptions
+        get
         {
-            CloseOnEscapeKey = true,
-            NoHeader = false,
-            CloseButton = true,
-            MaxWidth = MaxWidth.Medium
-        };
+            var options = new TransactionsGridOptionsDto();
+            options.Filters = Filters;
+            options.IsReoccuring = IsReoccuring;
+            options.PageSize = int.MaxValue;
+            options.CurrentPage = 0;
 
-        var parameters = new DialogParameters<DataSeedDialog>
-        {
-            {x => x.RefreshData, new Func<Task>(async () => {
-                await ReloadGrid();
-            })}
-        };
-        var dialog = await DialogService.ShowAsync<DataSeedDialog>(title: "", parameters, options);
-        var result = await dialog.Result;
-
-        if (!result!.Canceled)
-        {
-            await ReloadGrid();
-        }
-    }
-
-    private async Task OpenExportDialog()
-    {
-        var dialogOptions = new DialogOptions
-        {
-            CloseOnEscapeKey = true,
-            NoHeader = false,
-            CloseButton = true,
-            MaxWidth = MaxWidth.Medium
-        };
-
-        var options = new TransactionsGridOptionsDto();
-        options.Filters = Filters;
-        options.IsReoccuring = IsReoccuring;
-        options.PageSize = int.MaxValue;
-        options.CurrentPage = 0;
-
-        if (_currentSort != null)
-        {
-            options.SortBy = _currentSort.SortBy;
-            options.SortDescending = _currentSort.Descending;
-        }
-
-        var parameters = new DialogParameters<ExportDialog>
-        {
-             {x => x.ExportOptions, options}
-        };
-        var dialog = await DialogService.ShowAsync<ExportDialog>(title: "", parameters, dialogOptions);
-    }
-
-    private async Task OpenTransactionEditorAsync(TransactionDto? transactionDto)
-    {
-        _drawerMode = DrawerMode.AddTransaction;
-        TransactionDialog.SetupTransaction(transactionDto);
-        _isSideDrawerOpen = true;
-    }
-    private async Task OpenFiltersAsync()
-    {
-        _drawerMode = DrawerMode.Filters;
-        _isSideDrawerOpen = true;
+            if (CurrentSort != null)
+            {
+                options.SortBy = CurrentSort.SortBy;
+                options.SortDescending = CurrentSort.Descending;
+            }
+            return options;
+        }    
     }
 
     private async Task CloseDrawerRefresh()
     {
-        _isSideDrawerOpen = false;
-        await ReloadGrid();
+        CloseDrawer();
+        await RefreshGrid();
+    }
+
+    private async Task RefreshGrid()
+    {
+        if (DataGrid != null)
+        {
+            await DataGrid.ReloadServerData();
+        }
+        else
+        {
+            StateHasChanged();
+        }
     }
 }

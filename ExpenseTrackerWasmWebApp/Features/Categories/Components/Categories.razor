@@ -109,13 +109,7 @@
            Elevation="2">
 
     <div class="px-6 mt-6">
-        <MudStack Row AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween">
-            <EditorTitle Title="@(CategoryToEdit.Id == null ? "Add Category" : "Edit Category")"></EditorTitle>
-            <MudIconButton Icon="@Icons.Material.Filled.Close"
-                           Color="Color.Default"
-                           OnClick="@(() => _isSideDrawerOpen = false)" />
-        </MudStack>
-        <CategoryEditor OnCategorySaved="CloseDrawerRefresh" CategoryDto="@CategoryToEdit" />
+        <CategoryEditor Close="CloseDrawer" OnCategorySaved="CloseDrawerRefresh" CategoryDto="@CategoryToEdit" />
     </div>
 
 
@@ -125,6 +119,8 @@
     public List<CategoryWithStatsDto> AllCategories { get; set; } = [];
 
     private bool _isSideDrawerOpen = false;
+
+    private void CloseDrawer() => _isSideDrawerOpen = false;
 
     private CategoryDto CategoryToEdit = new CategoryDto();
 
@@ -191,7 +187,7 @@
 
     private async Task CloseDrawerRefresh()
     {
-        _isSideDrawerOpen = false;
+        CloseDrawer();
         await RefreshPage();
     }
 

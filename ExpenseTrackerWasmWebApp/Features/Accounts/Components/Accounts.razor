@@ -100,28 +100,22 @@
            Elevation="2">
     
     <div class="px-6 mt-6">
-        <MudStack Row AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween">
-            <EditorTitle Title="@(AccountToEdit.Id == null ? "Add Account" : "Edit Account")"></EditorTitle>
-            <MudIconButton Icon="@Icons.Material.Filled.Close"
-                           Color="Color.Default"
-                           OnClick="@(() => _isSideDrawerOpen = false)" />
-        </MudStack>
-        <AccountEditor OnAccountSaved="CloseDrawerRefresh" AccountDto="@AccountToEdit" />
+        <AccountEditor Close="CloseDrawer" OnAccountSaved="CloseDrawerRefresh" AccountDto="@AccountToEdit" />
     </div>
-
-   
 </MudDrawer>
     
 @code {
 
     public List<AccountWithBalanceDto> AllAccounts { get; set; } = [];
-    
+
     private bool _isSideDrawerOpen = false;
-    
+
+    private void CloseDrawer() => _isSideDrawerOpen = false;
+
     private AccountDto AccountToEdit = new AccountDto();
-    
+
     private string searchString = "";
-    
+
     private PersistingComponentStateSubscription persistingSubscription;
 
     public List<AccountWithBalanceDto> FilteredAccounts
@@ -169,14 +163,14 @@
             accountDto.Color = accountWithBalance.Color;
             accountDto.Icon = accountWithBalance.Icon;
         }
-        
+
         AccountToEdit = accountDto;
         _isSideDrawerOpen = true;
     }
-    
+
     private async Task CloseDrawerRefresh()
     {
-        _isSideDrawerOpen = false;
+        CloseDrawer();
         await UpdatePage();
     }
 

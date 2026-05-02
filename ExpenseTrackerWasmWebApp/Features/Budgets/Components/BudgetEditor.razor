@@ -22,7 +22,15 @@
 @if (!Loading)
 {
     <MudForm @ref="form">
-        <MudGrid Spacing="2">
+        <MudGrid Spacing="2" Class="my-2">
+            <MudItem xs="12">
+                <MudStack Row AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween">
+                    <EditorTitle Title="@(BudgetDto.Id == null ? "Add Budget" : "Edit Budget")"></EditorTitle>
+                    <MudIconButton Icon="@Icons.Material.Filled.Close"
+                                   Color="Color.Default"
+                                   OnClick="@(async () => await Close.InvokeAsync())" />
+                </MudStack>
+            </MudItem>
             <MudItem xs="12">
                 <MudTextField @bind-Value="BudgetDto.Name" Label="Name" Variant="Variant.Outlined" Required="true"
                                 RequiredError="Name is required!">
@@ -51,7 +59,7 @@
                 <MudSelect T="int" Label="Categories" @bind-SelectedValues="BudgetDto.Categories"
                     MultiSelectionTextFunc="@(new Func<List<string>, string>(GetCategoryMultiSelectionText))"
                     MultiSelection="true" Clearable="true" FullWidth="true" 
-                           Required="true" RequiredError="At least one category is required!">
+                           Required="true" RequiredError="At least one category is required!" Variant="Variant.Outlined">
                     @foreach (var category in Categories)
                     {
                         <MudSelectItem T="int" Value="@((int)category.Id!)">
@@ -64,7 +72,7 @@
                 <MudSelect T="int" Label="Accounts" @bind-SelectedValues="BudgetDto.Accounts"
                     MultiSelectionTextFunc="@(new Func<List<string>, string>(GetAccountMultiSelectionText))"
                     MultiSelection="true" Clearable="true" FullWidth="true" 
-                           Required="true" RequiredError="At least one account is required!">
+                           Required="true" RequiredError="At least one account is required!" Variant="Variant.Outlined">
                     @foreach (var account in Accounts)
                     {
                         <MudSelectItem T="int" Value="@((int)account.Id!)">
@@ -76,7 +84,7 @@
         </MudGrid>
     </MudForm>
     <MudStack Row Justify="Justify.Center" AlignItems="AlignItems.Center">
-        <MudButton OnClick="Submit" Color="Color.Primary" Variant="Variant.Filled" Class="mt-4">Save</MudButton>
+        <MudButton OnClick="Submit" Color="Color.Primary" Variant="Variant.Filled">Save</MudButton>
     </MudStack>
 }
 
@@ -89,7 +97,11 @@
     [Parameter]
     public EventCallback OnBudgetSaved { get; set; }
 
+    [Parameter]
+    public EventCallback Close{ get; set; }
+
     public List<CategoryDto> Categories{get; set;} = new();
+
     public List<AccountDto> Accounts{get; set;} = new();
 
     private bool Loading = true;

@@ -11,7 +11,6 @@
 @using MudBlazor
 @using Microsoft.AspNetCore.Components.Web
 @using ExpenseTrackerWasmWebApp.Features.SharedKernel.Components
-@using ExpenseTrackerWasmWebApp.Features.SharedKernel.Components.Dialogs
 @using ExpenseTrackerWasmWebApp.Features.SharedKernel.Components.Titles
 @using ExpenseTrackerWasmWebApp.Features.Budgets.Services
 @inject IDialogService DialogService
@@ -97,13 +96,7 @@
            Elevation="2">
 
     <div class="px-6 mt-6">
-        <MudStack Row AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween">
-            <EditorTitle Title="@(BudgetToEdit.Id == null ? "Add Budget" : "Edit Budget")"></EditorTitle>
-            <MudIconButton Icon="@Icons.Material.Filled.Close"
-                           Color="Color.Default"
-                           OnClick="@(() => _isSideDrawerOpen = false)" />
-        </MudStack>
-        <BudgetEditor OnBudgetSaved="CloseDrawerRefresh" BudgetDto="@BudgetToEdit" />
+        <BudgetEditor Close="CloseDrawer" OnBudgetSaved="CloseDrawerRefresh" BudgetDto="@BudgetToEdit" />
     </div>
 
 
@@ -115,6 +108,8 @@
     public List<BudgetWithProgressDto> AllBudgets { get; set; } = [];
 
     private bool _isSideDrawerOpen = false;
+
+    private void CloseDrawer() => _isSideDrawerOpen = false;
 
     private BudgetDto BudgetToEdit = new BudgetDto();
 
@@ -178,7 +173,7 @@
 
     private async Task CloseDrawerRefresh()
     {
-        _isSideDrawerOpen = false;
+        CloseDrawer();
         await RefreshPage();
     }
 

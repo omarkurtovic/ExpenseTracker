@@ -17,42 +17,44 @@
 @inject ITransactionService TransactionService
 @inject NavigationManager NavigationManager
 
-    <MudDialog>
-        <TitleContent>
-            <EditorTitle Title="Export Data"></EditorTitle>
-        </TitleContent>
-        <DialogContent>
-            <MudGrid>
-            <MudItem xd = "12">
-                <MudText Typo="Typo.body1">Export your transaction data to csv. Please pick the columns you would like to export and drag and drop them to rearrange.</MudText>
-            </MudItem>
-                <MudItem xs="12">
-                    <MudDropContainer T="DropItem" Items="_items" ItemsSelector="@((item,dropzone) => item.Selector == dropzone)" ItemDropped="ItemUpdated" Class="d-flex flex-wrap flex-grow-1">
-                        <ChildContent>
-                            @{
-                                var dropzone = "1";
-                                <MudPaper Class="ma-4 flex-grow-1">
-                                    <MudList T="string" Class="d-flex flex-column mud-height-full">
-                                        <MudDropZone T="DropItem" Identifier="@dropzone" Class="flex-grow-1" AllowReorder="true" />
-                                    </MudList>
-                                </MudPaper>
-                            }
-                        </ChildContent>
-                        <ItemRenderer>
-                        <MudPaper Elevation="0" Class="d-flex gap-2">
-                            <MudCheckBox @bind-Value="context.Selected"></MudCheckBox>
-                            <MudListItem T="string" Text="@context.Name" />
-                        </MudPaper>
-                        </ItemRenderer>
-                    </MudDropContainer>
-                </MudItem>
-                <MudItem xs="12" Class="d-flex justify-end gap-2 mt-6">
-                    <MudButton OnClick="Cancel" Variant="Variant.Outlined">Cancel</MudButton>
-                    <MudButton OnClick="Export" Color="Color.Primary" Variant="Variant.Filled">Export</MudButton>
-                </MudItem>
-            </MudGrid>
-        </DialogContent>
-    </MudDialog>
+<MudGrid Spacing="2" Class="my-2">
+    <MudItem xs="12">
+        <MudStack Row AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween">
+            <EditorTitle Title="Export"></EditorTitle>
+            <MudIconButton Icon="@Icons.Material.Filled.Close"
+                           Color="Color.Default"
+                           OnClick="@(async () => await Close.InvokeAsync())" />
+        </MudStack>
+    </MudItem>
+<MudItem xd = "12">
+    <MudText Typo="Typo.body1">Export your transaction data to csv. Please pick the columns you would like to export and drag and drop them to rearrange.</MudText>
+</MudItem>
+    <MudItem xs="12">
+        <MudDropContainer T="DropItem" Items="_items" ItemsSelector="@((item,dropzone) => item.Selector == dropzone)" ItemDropped="ItemUpdated" Class="d-flex flex-wrap flex-grow-1">
+            <ChildContent>
+                @{
+                    var dropzone = "1";
+                    <MudPaper Class="ma-4 flex-grow-1">
+                        <MudList T="string" Class="d-flex flex-column mud-height-full">
+                            <MudDropZone T="DropItem" Identifier="@dropzone" Class="flex-grow-1" AllowReorder="true" />
+                        </MudList>
+                    </MudPaper>
+                }
+            </ChildContent>
+            <ItemRenderer>
+            <MudPaper Elevation="0" Class="d-flex gap-2">
+                <MudCheckBox @bind-Value="context.Selected"></MudCheckBox>
+                <MudListItem T="string" Text="@context.Name" />
+            </MudPaper>
+            </ItemRenderer>
+        </MudDropContainer>
+    </MudItem>
+    <MudItem xs="12">
+        <MudStack Row Justify="Justify.Center" AlignItems="AlignItems.Center">
+            <MudButton OnClick="ExportData" Color="Color.Primary" Variant="Variant.Filled">Export</MudButton>
+        </MudStack>
+    </MudItem>
+</MudGrid>
 
     <script>
         function downloadFileFromText(fileName, textContent) {
@@ -69,11 +71,15 @@
     </script>
 
 @code {
-    [CascadingParameter]
-    private IMudDialogInstance MudDialog { get; set; } = null!;
 
     [Parameter]
-    public TransactionsGridOptionsDto ExportOptions { get; set; } = new TransactionsGridOptionsDto();
+    public EventCallback OnExportFinished { get; set; }
+
+    [Parameter]
+    public EventCallback Close{get; set;}
+
+    [Parameter]
+    public TransactionsGridOptionsDto Options { get; set; } = new TransactionsGridOptionsDto();
 
     private void ItemUpdated(MudItemDropInfo<DropItem> dropItem)
     {
@@ -89,7 +95,7 @@
         new DropItem(){ Name = "DateTime", Selector = "1", Selected=true , Order=4 },
         new DropItem(){ Name = "Description", Selector = "1", Selected=true, Order=5 },
     };
-    
+
     public class DropItem
     {
         public string Name { get; init; } = null!;
@@ -98,25 +104,22 @@
         public int Order{get; set;}
     }
 
-    private void Cancel() => MudDialog.Cancel();
 
-    private async Task Export()
+    private async Task ExportData()
     {
         if(_items.Count(i => i.Selected) == 0){
             Snackbar.Add("Please pick at least one column for export!", Severity.Error);
             return;
         } 
-        
-        var result = await TransactionService.GetTransactionsAsync(ExportOptions);
+
+        var result = await TransactionService.GetTransactionsAsync(Options);
         if(!result.IsSuccess){
             if(result.Reason == FailureReason.Unauthorized){
                 Snackbar.Add("Session expired. Please log in again.", Severity.Error);
                 NavigationManager.NavigateTo("/login");
-                MudDialog.Close();
                 return;
             }
             else{
-                MudDialog.Close();
                 Snackbar.Add("An error occurred while fetching transactions for export.", Severity.Error);
                 return;
             }
@@ -127,12 +130,12 @@
             Snackbar.Add("No transactions found for export!", Severity.Error);
             return;
         }
-        
+
         var csvContent = GenerateCsvContent(transactions, _items.OrderBy(i => i.Order).ToList());
         var fileName = "ExpenseTrackerWebApp.csv";        
         await JSRuntime.InvokeVoidAsync("downloadFileFromText", fileName, csvContent);
         Snackbar.Add("Export successful!", Severity.Success);
-        MudDialog.Close();
+        await OnExportFinished.InvokeAsync();
     }
 
     public string GenerateCsvContent(List<TransactionDto> transactions, List<DropItem> dropItems)

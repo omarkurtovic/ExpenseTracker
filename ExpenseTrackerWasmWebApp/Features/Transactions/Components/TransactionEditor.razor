@@ -27,7 +27,15 @@
 @if (TransactionDto != null)
 {
     <MudForm @ref="form">
-        <MudGrid>
+        <MudItem xs="12">
+            <MudStack Row AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween">
+                <EditorTitle Title="@(EditMode ? "Edit Transaction" : "Add Transaction")"></EditorTitle>
+                <MudIconButton Icon="@Icons.Material.Filled.Close"
+                               Color="Color.Default"
+                               OnClick="@(async () => await Close.InvokeAsync())" />
+            </MudStack>
+        </MudItem>
+        <MudGrid Spacing="2" Class="my-2">
             @if (IsReoccuring)
             {
                 <MudItem xs="12">
@@ -100,7 +108,7 @@
             </MudItem>
             <MudItem xs="12">
                 <MudAutocomplete T="TagDto" @ref="tagAutocomplete" SearchFunc="@TagSearchFunc"
-                                 ToStringFunc="@(e => e == null ? null : e.Name)" Label="Add Tags" Variant="Variant.Outlined"
+                                 ToStringFunc="@(e => e == null ? null : e.Name)" Label="Tags" Variant="Variant.Outlined"
                                  ValueChanged="@OnTagSelected" Clearable="true" Class="flex-grow-1" MaxItems="null">
                     <ItemTemplate>
                         <MudPaper Elevation="0" Class="d-flex gap-2" Style="background-color:transparent;">
@@ -156,7 +164,7 @@
         </MudGrid>
     </MudForm>
     <MudStack Row Justify="Justify.Center" AlignItems="AlignItems.Center">
-        <MudButton OnClick="Submit" Color="Color.Primary" Variant="Variant.Filled" Class="mt-4">Save</MudButton>
+        <MudButton OnClick="Submit" Color="Color.Primary" Variant="Variant.Filled">Save</MudButton>
     </MudStack>
 }
 
@@ -168,6 +176,9 @@
 
     [Parameter]
     public EventCallback OnTransactionSaved { get; set; }
+
+    [Parameter]
+    public EventCallback Close{get; set;}
 
     public bool EditMode => TransactionDto != null && TransactionDto.Id != null;
 

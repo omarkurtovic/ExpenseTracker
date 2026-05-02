@@ -22,11 +22,19 @@
 @inject ISnackbar Snackbar
 @inject NavigationManager NavigationManager
 
-<MudGrid>
+<MudGrid Spacing="2">
+    <MudItem xs="12">
+        <MudStack Row AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween">
+            <EditorTitle Title="Filters"></EditorTitle>
+            <MudIconButton Icon="@Icons.Material.Filled.Close"
+                           Color="Color.Default"
+                           OnClick="@(async () => await Close.InvokeAsync())" />
+        </MudStack>
+    </MudItem>
     <MudItem xs="12">
         <MudSelect T="AccountDto" Label="Account" @bind-SelectedValues="Filters.AccountsFilter"
                     MultiSelectionTextFunc="@(new Func<List<string>, string>(GetAccountsMultiSelectionText))"
-                    MultiSelection="true" Clearable="true" FullWidth="true">
+                    MultiSelection="true" Clearable="true" FullWidth="true" Variant="Variant.Outlined">
             @foreach (var account in Accounts)
             {
                 <MudSelectItem T="AccountDto" Value="@(account)">
@@ -37,7 +45,7 @@
     </MudItem>
     <MudItem xs="12">
         <MudSelect T="DateFilterPreset?" Label="Date" @bind-Value="Filters.DateFilter"
-                    FullWidth="true" Clearable="true">
+                   FullWidth="true" Clearable="true" Variant="Variant.Outlined">
             <MudSelectItem Value="@((DateFilterPreset?)DateFilterPreset.ThisMonth)">
                 This Month
             </MudSelectItem>
@@ -54,7 +62,7 @@
     </MudItem>
     <MudItem xs="12">
         <MudSelect T="TransactionTypeDto?" Label="Type" @bind-Value="Filters.TypeFilter"
-                    Clearable="true" FullWidth="true">
+                    Clearable="true" FullWidth="true" Variant="Variant.Outlined">
             @foreach (TransactionTypeDto item in Enum.GetValues(typeof(TransactionTypeDto)))
             {
                 <MudSelectItem Value="@((TransactionTypeDto?)item)">@item</MudSelectItem>
@@ -64,7 +72,7 @@
     <MudItem xs="12">
         <MudSelect T="CategoryDto" Label="Category" @bind-SelectedValues="Filters.CategoriesFilter"
                     MultiSelectionTextFunc="@(new Func<List<string>, string>(GetCategoriesMultiSelectionText))"
-                    MultiSelection="true" Clearable="true" FullWidth="true">
+                   MultiSelection="true" Clearable="true" FullWidth="true" Variant="Variant.Outlined">
             @foreach (var category in Categories)
             {
                 <MudSelectItem T="CategoryDto" Value="@(category)">
@@ -76,7 +84,7 @@
     <MudItem xs="12">
         <MudSelect T="TagDto" Label="Tags" @bind-SelectedValues="Filters.TagsFilter"
                     MultiSelectionTextFunc="@(new Func<List<string>, string>(GetTagsMultiSelectionText))"
-                    MultiSelection="true" Clearable="true" FullWidth="true">
+                    MultiSelection="true" Clearable="true" FullWidth="true" Variant="Variant.Outlined">
             @foreach (var tag in Tags)
             {
                 <MudSelectItem Value="@(tag)">
@@ -96,7 +104,7 @@
                StartIcon="@Icons.Material.Filled.FilterListOff">
         Clear
     </MudButton>
-    <MudButton Variant="Variant.Outlined" OnClick="ApplyFilters"
+    <MudButton OnClick="ApplyFilters" Color="Color.Primary" Variant="Variant.Filled"
                StartIcon="@Icons.Material.Filled.FilterList">
         Apply
     </MudButton>
@@ -104,7 +112,10 @@
 
 @code {
     [Parameter]
-    public Func<Task> RefreshDataGridAction { get; set; } = null!;
+    public Func<Task> RefreshMainGrid { get; set; } = null!;
+
+    [Parameter]
+    public EventCallback Close{get; set;}
 
     [Parameter]
     public TransactionsFiltersDto Filters { get; set; } = new TransactionsFiltersDto();
@@ -153,12 +164,12 @@
     private async void ClearFilters()
     {
         Filters = new TransactionsFiltersDto();
-        await RefreshDataGridAction();
+        await RefreshMainGrid();
     }
 
     private async void ApplyFilters()
     {
-        await RefreshDataGridAction();
+        await RefreshMainGrid();
     }
 
     public bool AreAnyFiltersActive()
