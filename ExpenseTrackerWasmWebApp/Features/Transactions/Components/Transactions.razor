@@ -3,6 +3,7 @@
 @rendermode @(new InteractiveWebAssemblyRenderMode(prerender: false))
 
 @using ExpenseTrackerSharedCL.Features.Categories.Dtos
+@using ExpenseTrackerSharedCL.Features.SharedKernel
 @using ExpenseTrackerSharedCL.Features.Tags.Dtos
 @using ExpenseTrackerSharedCL.Features.Transactions.Dtos
 @using ExpenseTrackerSharedCL.Features.Transactions.Services
@@ -13,6 +14,7 @@
 @using Microsoft.AspNetCore.Components.Web
 @using ExpenseTrackerWasmWebApp.Features.SharedKernel.Components
 @using ExpenseTrackerWasmWebApp.Features.SharedKernel.Components.Titles
+@using ExpenseTrackerWasmWebApp.Features.SharedKernel.Components.Dialogs
 @using System.Net.Http.Headers
 @using ExpenseTrackerWasmWebApp.Features.DataSeeding.Components
 @using MudBlazor.Extensions
@@ -45,7 +47,7 @@
                         Add Test Data
                     </MudMenuItem>
                 }
-                <MudMenuItem Icon="@Icons.Material.Filled.Refresh" OnClick="RefreshGrid">
+                <MudMenuItem Icon="@Icons.Material.Filled.Refresh" OnClick="RefreshPage">
                     Refresh
                 </MudMenuItem>
             </MudMenu>
@@ -145,7 +147,7 @@
     <div class="px-6 mt-6">
         @if (DrawerMode == DrawerMode.Filters)
         {
-            <TransactionsFilters Close="CloseDrawer" Filters="@Filters" RefreshMainGrid="RefreshGrid"></TransactionsFilters>
+            <TransactionsFilters Close="CloseDrawer" Filters="@Filters" RefreshMainGrid="RefreshPage"></TransactionsFilters>
         }
         else if (DrawerMode == DrawerMode.AddTransaction)
         {
@@ -269,26 +271,29 @@
         };
     }
 
-
     private async Task ConfirmDelete(int transactionId)
     {
-        bool? result = await DialogService.ShowMessageBox("Warning", "Are you sure you want to delete the transaction? ", "Confirm", "Cancel");
-        if (result == true)
+        var parameters = new DialogParameters<ConfirmDeleteDialog>
         {
-            var deleteResult = await TransactionService.DeleteTransactionAsync(transactionId);
-            if (deleteResult.IsSuccess)
+            { x => x.Message, "Are you sure you want to delete this transaction?" },
+            { x => x.OnDelete, () => TransactionService.DeleteTransactionAsync(transactionId) }
+        };
+
+        var dialog = await DialogService.ShowAsync<ConfirmDeleteDialog>("Confirm", parameters);
+        var dialogResult = await dialog.Result;
+
+        if (!dialogResult!.Canceled)
+        {
+            var apiResult = (Result)dialogResult.Data!;
+        
+            if (apiResult.IsSuccess)
             {
-                Snackbar.Add("Transaction successfully deleted! ", Severity.Success);
-                await RefreshGrid();
-            }
-            else if (deleteResult.Reason == FailureReason.Unauthorized)
-            {
-                Snackbar.Add("Session expired. Please log in again.", Severity.Error);
-                NavigationManager.NavigateTo("/login");
+                Snackbar.Add("Transaction successfully deleted!", Severity.Success);
+                await RefreshPage();
             }
             else
             {
-                Snackbar.Add(deleteResult.ErrorMessage ?? "Error deleting transaction!", Severity.Error);
+                Snackbar.Add(apiResult.ErrorMessage ?? "Error deleting transaction!", Severity.Error);
             }
         }
     }
@@ -315,10 +320,10 @@
     private async Task CloseDrawerRefresh()
     {
         CloseDrawer();
-        await RefreshGrid();
+        await RefreshPage();
     }
 
-    private async Task RefreshGrid()
+    private async Task RefreshPage()
     {
         if (DataGrid != null)
         {

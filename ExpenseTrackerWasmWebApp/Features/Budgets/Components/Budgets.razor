@@ -6,10 +6,12 @@
 @using ExpenseTrackerSharedCL.Features.Budgets.Dtos
 @using ExpenseTrackerSharedCL.Features.Budgets.Services
 @using ExpenseTrackerSharedCL.Features.Categories.Dtos
+@using ExpenseTrackerSharedCL.Features.SharedKernel
 @using Microsoft.AspNetCore.Authorization
 @using MudBlazor
 @using Microsoft.AspNetCore.Components.Web
 @using ExpenseTrackerWasmWebApp.Features.SharedKernel.Components
+@using ExpenseTrackerWasmWebApp.Features.SharedKernel.Components.Dialogs
 @using ExpenseTrackerWasmWebApp.Features.SharedKernel.Components.Titles
 @using ExpenseTrackerWasmWebApp.Features.Budgets.Services
 @inject IDialogService DialogService
@@ -185,28 +187,33 @@
         await RefreshPage();
     }
 
-    private async Task ConfirmDelete(int budget_id)
+    private async Task ConfirmDelete(int budgetId)
     {
-        bool? result = await DialogService.ShowMessageBox("Warning", "Are you sure you want to delete the budget? ", "Confirm", "Cancel");
-        if (result == true)
+        var parameters = new DialogParameters<ConfirmDeleteDialog>
         {
-            var deleteResult = await BudgetService.DeleteBudgetAsync(budget_id);
-            if (deleteResult.IsSuccess)
+            { x => x.Message, "Are you sure you want to delete this budget?" },
+            { x => x.OnDelete, () => BudgetService.DeleteBudgetAsync(budgetId) }
+        };
+
+        var dialog = await DialogService.ShowAsync<ConfirmDeleteDialog>("Confirm", parameters);
+        var dialogResult = await dialog.Result;
+
+        if (!dialogResult!.Canceled)
+        {
+            var apiResult = (Result)dialogResult.Data!;
+        
+            if (apiResult.IsSuccess)
             {
                 Snackbar.Add("Budget successfully deleted!", Severity.Success);
                 await RefreshPage();
             }
-            else if (deleteResult.Reason == FailureReason.Unauthorized)
-            {
-                Snackbar.Add("Session expired. Please log in again.", Severity.Error);
-                NavigationManager.NavigateTo("login");
-            }
             else
             {
-                Snackbar.Add(deleteResult.ErrorMessage ?? "Error deleting budget!", Severity.Error);
+                Snackbar.Add(apiResult.ErrorMessage ?? "Error deleting budget!", Severity.Error);
             }
         }
     }
+
 
     async Task RefreshPage()
     {

@@ -3,6 +3,7 @@
 @using CsvHelper
 @using ExpenseTrackerSharedCL.Features.Transactions.Dtos
 @using ExpenseTrackerSharedCL.Features.Transactions.Services
+@using ExpenseTrackerWasmWebApp.Features.SharedKernel.Components
 @using ExpenseTrackerWasmWebApp.Features.SharedKernel.Components.Titles
 @using ExpenseTrackerWasmWebApp.Features.Transactions.Services
 @using Microsoft.AspNetCore.Authorization
@@ -51,7 +52,9 @@
     </MudItem>
     <MudItem xs="12">
         <MudStack Row Justify="Justify.Center" AlignItems="AlignItems.Center">
-            <MudButton OnClick="ExportData" Color="Color.Primary" Variant="Variant.Filled">Export</MudButton>
+            <LoadingButton OnClick="ExportData" Class="mt-4" LoadingText="Exporting...">
+                Export Data
+            </LoadingButton>
         </MudStack>
     </MudItem>
 </MudGrid>

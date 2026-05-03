@@ -4,13 +4,15 @@
 
 @using ExpenseTrackerSharedCL.Features.Accounts.Dtos
 @using ExpenseTrackerSharedCL.Features.Accounts.Services
+@using ExpenseTrackerSharedCL.Features.SharedKernel
 @using ExpenseTrackerWasmWebApp.Features.Accounts.Services
 @using ExpenseTrackerWasmWebApp.Features.SharedKernel
 @using ExpenseTrackerWasmWebApp.Features.SharedKernel.Components
+@using ExpenseTrackerWasmWebApp.Features.SharedKernel.Components.Titles
+@using ExpenseTrackerWasmWebApp.Features.SharedKernel.Components.Dialogs
 @using Microsoft.AspNetCore.Authorization
 @using MudBlazor
 @using Microsoft.AspNetCore.Components.Web
-@using ExpenseTrackerWasmWebApp.Features.SharedKernel.Components.Titles
 @using System.Net.Http.Headers
 @using MudBlazor.Utilities
 @inject IDialogService DialogService
@@ -188,23 +190,27 @@
 
     private async Task ConfirmDelete(int accountId)
     {
-        bool? result = await DialogService.ShowMessageBox("Warning", "Are you sure you want to delete the account and the related transactions?", "Confirm", "Cancel");
-        if (result == true)
+        var parameters = new DialogParameters<ConfirmDeleteDialog>
         {
-            var res = await AccountService.DeleteAccountAsync(accountId);
-            if (res.IsSuccess)
+            { x => x.Message, "Are you sure you want to delete this account?" },
+            { x => x.OnDelete, () => AccountService.DeleteAccountAsync(accountId) }
+        };
+
+        var dialog = await DialogService.ShowAsync<ConfirmDeleteDialog>("Confirm", parameters);
+        var dialogResult = await dialog.Result;
+
+        if (!dialogResult!.Canceled)
+        {
+            var apiResult = (Result)dialogResult.Data!;
+        
+            if (apiResult.IsSuccess)
             {
                 Snackbar.Add("Account successfully deleted!", Severity.Success);
                 await UpdatePage();
             }
-            else if (res.Reason == FailureReason.Unauthorized)
-            {
-                Snackbar.Add("Session expired. Please log in again.", Severity.Error);
-                NavigationManager.NavigateTo("/login");
-            }
             else
             {
-                Snackbar.Add(res.ErrorMessage?.ToString() ?? "Error deleting account!", Severity.Error);
+                Snackbar.Add(apiResult.ErrorMessage ?? "Error deleting account!", Severity.Error);
             }
         }
     }

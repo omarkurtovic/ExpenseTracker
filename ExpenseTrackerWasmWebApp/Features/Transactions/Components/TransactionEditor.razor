@@ -164,7 +164,9 @@
         </MudGrid>
     </MudForm>
     <MudStack Row Justify="Justify.Center" AlignItems="AlignItems.Center">
-        <MudButton OnClick="Submit" Color="Color.Primary" Variant="Variant.Filled">Save</MudButton>
+        <LoadingButton OnClick="SaveAsync" Class="mt-4">
+            Save Transactions
+        </LoadingButton>
     </MudStack>
 }
 
@@ -183,13 +185,19 @@
     public bool EditMode => TransactionDto != null && TransactionDto.Id != null;
 
     private MudForm form = new();
+
     private MudAutocomplete<TagDto>? tagAutocomplete;
+
     private TagDto? selectedTag;
+
     private List<TagDto> SelectedTags = new();
 
     private List<TagDto> AllTags = new();
+
     private List<CategoryDto> _allCategories = new();
+
     private List<CategoryDto> AllCategories = new();
+
     private List<AccountDto> AllAccounts = new();
 
     protected override async Task OnInitializedAsync()
@@ -359,7 +367,7 @@
         }
     }
 
-    private async Task Submit()
+    private async Task SaveAsync()
     {
         await form.Validate();
         if (!form.IsValid)

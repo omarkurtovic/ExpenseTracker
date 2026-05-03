@@ -1,5 +1,6 @@
 @rendermode @(new InteractiveWebAssemblyRenderMode(prerender: false))
 @using ExpenseTrackerWasmWebApp.Features.DataSeeding.Services
+@using ExpenseTrackerWasmWebApp.Features.SharedKernel.Components
 @using ExpenseTrackerWasmWebApp.Features.SharedKernel.Components.Titles
 @using MudBlazor
 @using ExpenseTrackerSharedCL.Features.DataSeeding.Dtos
@@ -8,10 +9,6 @@
 @inject DataSeedService DataSeedService
 @inject NavigationManager NavigationManager
 
-<div>
-<MudOverlay Visible="Loading" DarkBackground="true" Absolute="true" >
-    <MudProgressCircular Color="Color.Secondary" Indeterminate="true" />
-</MudOverlay>
 <MudGrid Spacing="2" Class="y-2">
     <MudItem xs="12">
         <MudStack Row AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween">
@@ -50,11 +47,12 @@
     </MudItem>
     <MudItem xs="12">
         <MudStack Row Justify="Justify.Center" AlignItems="AlignItems.Center">
-                <MudButton OnClick="Seed" Color="Color.Primary" Variant="Variant.Filled">Seed</MudButton>
-        </MudStack>
+                <LoadingButton OnClick="Seed" Class="mt-4" LoadingText="Seeding...">
+                Seed Data
+            </LoadingButton>
+    </MudStack>
     </MudItem>
 </MudGrid>
-</div>
 @code{
     MudForm? form = null!;
 
@@ -64,30 +62,24 @@
     [Parameter]
     public EventCallback OnSeedingFinished { get; set; }
 
-    private bool Loading = false;
     private DataSeedOptionsDto DataSeedOptionsDto = new DataSeedOptionsDto();
     private async Task Seed()
     {
-        Loading = true;
         StateHasChanged();
 
         var result = await DataSeedService.SeedDataAsync(DataSeedOptionsDto);
         if(result.IsSuccess)
         {
             Snackbar.Add("Data seeded successfully!", Severity.Success);
-            Loading = false;
             await OnSeedingFinished.InvokeAsync();
         }
         else if(result.Reason == FailureReason.Unauthorized)
         {
             Snackbar.Add("Session expired. Please log in again.", Severity.Error);
-            Loading = false;
             NavigationManager.NavigateTo("/login");
         }
         else{
             Snackbar.Add(result.ErrorMessage ?? "An error occurred while seeding data. Please try again.", Severity.Error);
-            Loading = false;
         }
-        Loading = true;
     }
 }

@@ -1,0 +1,45 @@
+﻿@using ExpenseTrackerSharedCL.Features.SharedKernel
+@using ExpenseTrackerWasmWebApp.Features.SharedKernel.Components
+@inject ISnackbar Snackbar
+
+<MudDialog>
+    <DialogContent>
+        <MudText>@Message</MudText>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel" Disabled="@_isDeleting">Cancel</MudButton>
+        <LoadingButton Color="Color.Error" 
+                       Variant="Variant.Filled" 
+                       OnClick="HandleDeleteAsync" 
+                       LoadingText="Deleting...">
+            Delete
+        </LoadingButton>
+    </DialogActions>
+</MudDialog>
+
+
+@code {
+    [CascadingParameter] private IMudDialogInstance MudDialog { get; set; }
+
+    [Parameter] public string Message { get; set; } = "Are you sure you want to delete this item?";
+    
+    [Parameter] public Func<Task<Result>> OnDelete { get; set; }
+
+    private bool _isDeleting = false;
+
+    private async Task HandleDeleteAsync()
+    {
+        _isDeleting = true;
+        try
+        {
+            Result result = await OnDelete();
+            MudDialog.Close(DialogResult.Ok(result));
+        }
+        finally
+        {
+            _isDeleting = false;
+        }
+    }
+    
+    private void Cancel() => MudDialog.Cancel();
+}

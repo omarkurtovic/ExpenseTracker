@@ -4,13 +4,15 @@
 
 @using ExpenseTrackerSharedCL.Features.Categories
 @using ExpenseTrackerSharedCL.Features.Categories.Dtos
+@using ExpenseTrackerSharedCL.Features.SharedKernel
 @using ExpenseTrackerWasmWebApp.Features.Categories.Services
 @using ExpenseTrackerWasmWebApp.Features.SharedKernel
 @using ExpenseTrackerWasmWebApp.Features.SharedKernel.Components
+@using ExpenseTrackerWasmWebApp.Features.SharedKernel.Components.Dialogs
+@using ExpenseTrackerWasmWebApp.Features.SharedKernel.Components.Titles
 @using Microsoft.AspNetCore.Authorization
 @using MudBlazor
 @using Microsoft.AspNetCore.Components.Web
-@using ExpenseTrackerWasmWebApp.Features.SharedKernel.Components.Titles
 @inject ISnackbar Snackbar
 @inject IDialogService DialogService
 @inject ICategoryService CategoryService
@@ -205,26 +207,30 @@
         CloseDrawer();
         await RefreshPage();
     }
-
-    private async Task ConfirmDelete(int category_id)
+    
+    private async Task ConfirmDelete(int categoryId)
     {
-        bool? result = await DialogService.ShowMessageBox("Warning", "Are you sure you want to delete the category?", "Confirm", "Cancel");
-        if (result == true)
+        var parameters = new DialogParameters<ConfirmDeleteDialog>
         {
-            var res = await CategoryService.DeleteCategoryAsync(category_id);
-            if (res.IsSuccess)
+            { x => x.Message, "Are you sure you want to delete the category?" },
+            { x => x.OnDelete, () => CategoryService.DeleteCategoryAsync(categoryId) }
+        };
+
+        var dialog = await DialogService.ShowAsync<ConfirmDeleteDialog>("Confirm", parameters);
+        var dialogResult = await dialog.Result;
+
+        if (!dialogResult!.Canceled)
+        {
+            var apiResult = (Result)dialogResult.Data!;
+        
+            if (apiResult.IsSuccess)
             {
                 Snackbar.Add("Category successfully deleted!", Severity.Success);
                 await RefreshPage();
             }
-            else if (res.Reason == FailureReason.Unauthorized)
-            {
-                Snackbar.Add("Session expired. Please log in again.", Severity.Error);
-                NavigationManager.NavigateTo("/login");
-            }
             else
             {
-                Snackbar.Add(res.ErrorMessage ?? "Error deleting category!", Severity.Error);
+                Snackbar.Add(apiResult.ErrorMessage ?? "Error deleting category!", Severity.Error);
             }
         }
     }

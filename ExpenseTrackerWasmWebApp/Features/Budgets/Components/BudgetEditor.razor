@@ -84,7 +84,9 @@
         </MudGrid>
     </MudForm>
     <MudStack Row Justify="Justify.Center" AlignItems="AlignItems.Center">
-        <MudButton OnClick="Submit" Color="Color.Primary" Variant="Variant.Filled">Save</MudButton>
+        <LoadingButton OnClick="SaveAsync" Class="mt-4">
+            Save Budget
+        </LoadingButton>
     </MudStack>
 }
 
@@ -135,7 +137,7 @@
         await base.OnInitializedAsync();
     }
 
-    private async Task Submit()
+    private async Task SaveAsync()
     {
         await form.Validate();
         if (!form.IsValid)
