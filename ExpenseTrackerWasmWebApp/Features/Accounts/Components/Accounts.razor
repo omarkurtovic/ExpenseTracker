@@ -72,16 +72,14 @@
         {
             <MudItem xs="12">
                 <NoRecords Title="No accounts created yet"
-                           Message="Create your first account to start tracking your money."
-                           Icon="@Icons.Material.Filled.Category"></NoRecords>
+                           Message="Create your first account to start tracking your money."></NoRecords>
             </MudItem>
         }
         else if (FilteredAccounts.Count == 0)
         {
             <MudItem xs="12">
                 <NoRecords Title="No accounts found"
-                           Message="Change your search terms to show accounts."
-                           Icon="@Icons.Material.Filled.SearchOff"></NoRecords>
+                           Message="Change your search terms to show accounts." Filtered></NoRecords>
             </MudItem>
         }
         else

@@ -39,7 +39,7 @@
                           Variant="Variant.Outlined" />
         </MudItem>
         <MudItem xs="12" md="6">
-            <MudSelect T="TransactionTypeDto?" @bind-Value="transactionType" Variant="Variant.Outlined">
+            <MudSelect T="TransactionTypeDto" @bind-Value="transactionType" Variant="Variant.Outlined">
                 <MudSelectItem Value="TransactionTypeDto.Expense">Expenses</MudSelectItem>
                 <MudSelectItem Value="TransactionTypeDto.Income">Incomes</MudSelectItem>
             </MudSelect>
@@ -76,16 +76,14 @@
         {
             <MudItem xs="12">
                 <NoRecords Title="No categories created yet"
-                           Message="Create your first category to start organizing your transactions."
-                           Icon="@Icons.Material.Filled.Category"></NoRecords>
+                           Message="Create your first category to start organizing your transactions."></NoRecords>
             </MudItem>
         }
         else if (FilteredCategories == null || FilteredCategories.Count == 0)
         {
             <MudItem xs="12">
                 <NoRecords Title="No categories found"
-                           Message="Change your search terms to show categories."
-                           Icon="@Icons.Material.Filled.SearchOff"></NoRecords>
+                           Message="Change your search terms to show categories." Filtered></NoRecords>
             </MudItem>
         }
         else
@@ -166,14 +164,14 @@
 
     public string searchString = "";
 
-    public TransactionTypeDto? transactionType = TransactionTypeDto.Expense;
+    public TransactionTypeDto transactionType = TransactionTypeDto.Expense;
 
     public List<CategoryWithStatsDto> FilteredCategories
     {
         get
         {
             return AllCategories
-            .Where(c => (string.IsNullOrWhiteSpace(searchString) || c.Name!.Contains(searchString, StringComparison.OrdinalIgnoreCase)) && (transactionType == null || c.Type == transactionType))
+            .Where(c => (string.IsNullOrWhiteSpace(searchString) || c.Name!.Contains(searchString, StringComparison.OrdinalIgnoreCase)) && c.Type == transactionType)
             .ToList();
         }
     }

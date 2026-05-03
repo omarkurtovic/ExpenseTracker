@@ -1,5 +1,12 @@
 ﻿<MudStack Spacing="1" Justify="Justify.Center" AlignItems="AlignItems.Center" Class="mt-10">
-    <MudIcon Icon="@Icon" Size="Size.Large" Color="Color.Surface" />
+    @if (Filtered)
+    {
+        <MudIcon Icon="@Icons.Material.Filled.SearchOff" Size="Size.Large" Color="Color.Surface" />
+    }
+    else
+    {
+        <MudIcon Icon="@Icons.Material.Filled.PostAdd" Size="Size.Large" Color="Color.Surface" />
+    }
     <MudText Typo="Typo.h5" Class="mt-4">@Title</MudText>
     <MudText Typo="Typo.body1" Class="mb-4">@Message</MudText>
 </MudStack>
@@ -12,5 +19,5 @@
     public string Message { get; set; } = null!;
 
     [Parameter]
-    public string Icon { get; set; } = null!;
+    public bool Filtered { get; set; }
 }

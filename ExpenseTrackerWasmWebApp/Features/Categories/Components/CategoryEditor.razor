@@ -40,13 +40,15 @@
             </MudItem>
             <MudItem xs="12">
                 <MudSelect @bind-Value="CategoryDto.Icon" Label="Icon" Variant="Variant.Outlined" Required="true"
-                            RequiredError="Icon is required!" Class="flex-grow-1" Style="width: 100%;" FullWidth="true">
-                    @foreach (string? item in CategoriesHelper.GetDefaultCategoryIcons())
-                    {
-                        <MudSelectItem Value="@item" Style="display: inline-block; width: 40px; height: 40px; padding: 8px;">
-                            <MudIcon Icon="@item" Style="@($"color:{CategoryDto.Color};")" Size="Size.Medium" />
-                        </MudSelectItem>
-                    }
+                           RequiredError="Icon is required!" Class="flex-grow-1" Style="width: 100%;" FullWidth="true">
+                    <MudStack Row="true" Wrap="Wrap.Wrap" Class="my-2">
+                        @foreach (string? item in CategoriesHelper.GetDefaultCategoryIcons())
+                        {
+                            <MudSelectItem Value="@item" Style="width: 40px; height: 40px; padding: 8px;">
+                                <MudIcon Icon="@item" Style="@($"color:{CategoryDto.Color};")" Size="Size.Medium" />
+                            </MudSelectItem>
+                        }
+                    </MudStack>
                 </MudSelect>
             </MudItem>
             <MudItem xs="12">

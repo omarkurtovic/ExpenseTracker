@@ -66,16 +66,14 @@
         {
             <MudItem xs="12">
                 <NoRecords Title="No tags created yet"
-                           Message="Create your first tag to organize your transactions."
-                           Icon="@Icons.Material.Filled.Label"></NoRecords>
+                           Message="Create your first tag to organize your transactions."></NoRecords>
             </MudItem>
         }
         else if (FilteredTags.Count == 0)
         {
             <MudItem xs="12">
                 <NoRecords Title="No tags found"
-                           Message="Change your search terms to show tags."
-                           Icon="@Icons.Material.Filled.SearchOff"></NoRecords>
+                           Message="Change your search terms to show tags." Filtered></NoRecords>
             </MudItem>
         }
         else

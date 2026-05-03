@@ -69,16 +69,14 @@
     {
         <MudItem xs="12">
                 <NoRecords Title="No budgets created yet" 
-                    Message="Create your first budget to start controlling your spending." 
-                    Icon="@Icons.Material.Filled.PieChart"></NoRecords>
+                    Message="Create your first budget to start controlling your spending."></NoRecords>
         </MudItem>
     }
     else if (FilteredBudgets == null || FilteredBudgets.Count == 0)
     {
         <MudItem xs="12">
                 <NoRecords Title="No budgets found"
-                           Message="Change your search terms to show budgets."
-                           Icon="@Icons.Material.Filled.SearchOff"></NoRecords>
+                           Message="Change your search terms to show budgets." Filtered></NoRecords>
         </MudItem>
     }
     else

@@ -108,6 +108,18 @@
 
     <MudDataGrid @ref="@DataGrid" T="TransactionDto" Hover Groupable Height="65vh" ItemSize="30f"
                  SortMode="SortMode.Single" ServerData="ServerReload" FixedHeader FixedFooter>
+        <NoRecordsContent>
+            @if (Filters.AreAnyFiltersActive)
+            {
+                <NoRecords Title="No transactions found"
+                           Message="Change your filters or search terms to show transactions." Filtered />
+            }
+            else
+            {
+                <NoRecords Title="No transactions yet"
+                           Message="Create your first transaction to start tracking your spending." />
+            }
+        </NoRecordsContent>
         <Columns>
             <PropertyColumn Property="t => t.AccountDto!.Name" Title="Account" Sortable="true" Groupable="false">
                 <CellTemplate>

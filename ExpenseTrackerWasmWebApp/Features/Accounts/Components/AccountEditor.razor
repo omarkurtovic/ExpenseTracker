@@ -27,24 +27,26 @@
             </MudItem>
             <MudItem xs="12">
                 <MudTextField @bind-Value="AccountDto.Name" Label="Name" Variant="Variant.Outlined" Required="true"
-                                RequiredError="Name is required!">
+                              RequiredError="Name is required!">
                 </MudTextField>
             </MudItem>
             <MudItem xs="12">
                 <MudNumericField @bind-Value="AccountDto.InitialBalance" Label="Initial Balance"
-                                    Variant="Variant.Outlined" Required="true" RequiredError="Initial balace is required!"
-                                    Format="F2">
+                                 Variant="Variant.Outlined" Required="true" RequiredError="Initial balace is required!"
+                                 Format="F2">
                 </MudNumericField>
             </MudItem>
             <MudItem xs="12">
                 <MudSelect @bind-Value="AccountDto.Icon" Label="Icon" Variant="Variant.Outlined" Required="true"
-                            RequiredError="Icon is required!" Class="flex-grow-1" Style="width: 100%;" FullWidth="true">
-                    @foreach (string? item in AccountsHelper.GetDefaultAccountIcons())
-                    {
-                        <MudSelectItem Value="@item" Style="display: inline-block; width: 40px; height: 40px; padding: 8px;">
-                            <MudIcon Icon="@item" Style="@($"color:{AccountDto.Color};")" Size="Size.Medium" />
-                        </MudSelectItem>
-                    }
+                           RequiredError="Icon is required!" Class="flex-grow-1" Style="width: 100%;" FullWidth="true">
+                    <MudStack Row="true" Wrap="Wrap.Wrap" Class="my-2">
+                        @foreach (string? item in AccountsHelper.GetDefaultAccountIcons())
+                        {
+                            <MudSelectItem Value="@item" Style="width: 40px; height: 40px; padding: 8px;">
+                                <MudIcon Icon="@item" Style="@($"color:{AccountDto.Color};")" Size="Size.Medium" />
+                            </MudSelectItem>
+                        }
+                    </MudStack>
                 </MudSelect>
             </MudItem>
             <MudItem xs="12">
@@ -84,7 +86,7 @@
         }
 
         Result result;
-        if(AccountDto.Id == null)
+        if (AccountDto.Id == null)
         {
             result = await AccountService.CreateAccountAsync(AccountDto);
         }
@@ -93,12 +95,12 @@
             result = await AccountService.EditAccountAsync(AccountDto);
         }
 
-        if(result.IsSuccess)
+        if (result.IsSuccess)
         {
             Snackbar.Add("Account saved successfully!", Severity.Success);
             await OnAccountSaved.InvokeAsync();
         }
-        else if(result.Reason == FailureReason.Unauthorized)
+        else if (result.Reason == FailureReason.Unauthorized)
         {
             Snackbar.Add("Session expired. Please log in again.", Severity.Error);
             NavigationManager.NavigateTo("/login");
