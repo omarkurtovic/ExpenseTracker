@@ -36,11 +36,10 @@
                           Adornment="Adornment.Start"
                           AdornmentIcon="@Icons.Material.Filled.Search"
                           IconSize="Size.Medium"
-                          Variant="Variant.Outlined"
-                          Immediate="true" Typo="Typo.body1" />
+                          Variant="Variant.Outlined" />
         </MudItem>
         <MudItem xs="12" md="6">
-            <MudSelect T="TransactionTypeDto" @bind-Value="transactionType" Variant="Variant.Outlined" Typo="Typo.body1">
+            <MudSelect T="TransactionTypeDto?" @bind-Value="transactionType" Variant="Variant.Outlined">
                 <MudSelectItem Value="TransactionTypeDto.Expense">Expenses</MudSelectItem>
                 <MudSelectItem Value="TransactionTypeDto.Income">Incomes</MudSelectItem>
             </MudSelect>
@@ -91,6 +90,12 @@
         }
         else
         {
+            @if (IsRefreshing)
+            {
+                <MudItem xs="12">
+                    <MudProgressLinear Color="Color.Primary" Indeterminate="true" Class="mb-4" />
+                </MudItem>
+            }
             @foreach (var category in FilteredCategories)
             {
                 <MudItem xs="12" md="6">
@@ -161,14 +166,14 @@
 
     public string searchString = "";
 
-    public TransactionTypeDto transactionType = TransactionTypeDto.Expense;
+    public TransactionTypeDto? transactionType = TransactionTypeDto.Expense;
 
     public List<CategoryWithStatsDto> FilteredCategories
     {
         get
         {
             return AllCategories
-            .Where(c => (string.IsNullOrWhiteSpace(searchString) || c.Name!.Contains(searchString, StringComparison.OrdinalIgnoreCase)) && c.Type == transactionType)
+            .Where(c => (string.IsNullOrWhiteSpace(searchString) || c.Name!.Contains(searchString, StringComparison.OrdinalIgnoreCase)) && (transactionType == null || c.Type == transactionType))
             .ToList();
         }
     }
@@ -234,22 +239,35 @@
             }
         }
     }
+    
+    private bool IsRefreshing = false;
 
     private async Task RefreshPage()
     {
-        var result = await CategoryService.GetCategoriesWithStatsAsync();
-        if (result.IsSuccess)
+        IsRefreshing = true;
+        StateHasChanged();
+
+        try
         {
-            AllCategories = result.Data ?? new();
+            var result = await CategoryService.GetCategoriesWithStatsAsync();
+            if (result.IsSuccess)
+            {
+                AllCategories = result.Data ?? new();
+            }
+            else if (result.Reason == FailureReason.Unauthorized)
+            {
+                Snackbar.Add("Session expired. Please log in again.", Severity.Error);
+                NavigationManager.NavigateTo("/login");
+            }
+            else
+            {
+                Snackbar.Add(result.ErrorMessage ?? "Error loading categories!", Severity.Error);
+            }
         }
-        else if (result.Reason == FailureReason.Unauthorized)
+        finally
         {
-            Snackbar.Add("Session expired. Please log in again.", Severity.Error);
-            NavigationManager.NavigateTo("/login");
-        }
-        else
-        {
-            Snackbar.Add(result.ErrorMessage ?? "Error loading categories!", Severity.Error);
+            IsRefreshing = false;
         }
     }
+
 }

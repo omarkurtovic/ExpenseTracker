@@ -21,7 +21,6 @@
 @inject IAccountService AccountService
 @inject NavigationManager NavigationManager
 
-
 <PageTitle>Accounts</PageTitle>
 
 <MudContainer MaxWidth="MaxWidth.Medium" Class="d-flex flex-column gap-5 mt-6">
@@ -87,6 +86,12 @@
         }
         else
         {
+            @if (IsRefreshing)
+            {
+                <MudItem xs="12">
+                    <MudProgressLinear Color="Color.Primary" Indeterminate="true" Class="mb-4" />
+                </MudItem>
+            }
             @foreach (var account in FilteredAccounts)
             {
                 <MudItem xs="12" md="6">
@@ -159,7 +164,7 @@
 
     protected override async Task OnInitializedAsync()
     {
-        await UpdatePage();
+        await RefreshPage();
     }
 
     private async Task OpenEditor(AccountWithBalanceDto? accountWithBalance)
@@ -185,7 +190,7 @@
     private async Task CloseDrawerRefresh()
     {
         CloseDrawer();
-        await UpdatePage();
+        await RefreshPage();
     }
 
     private async Task ConfirmDelete(int accountId)
@@ -202,11 +207,11 @@
         if (!dialogResult!.Canceled)
         {
             var apiResult = (Result)dialogResult.Data!;
-        
+
             if (apiResult.IsSuccess)
             {
                 Snackbar.Add("Account successfully deleted!", Severity.Success);
-                await UpdatePage();
+                await RefreshPage();
             }
             else
             {
@@ -215,22 +220,33 @@
         }
     }
 
-    private async Task UpdatePage()
+    private bool IsRefreshing = false;
+
+    private async Task RefreshPage()
     {
-        var result = await AccountService.GetAccountsWithBalanceAsync();
-        if (result.IsSuccess)
+        IsRefreshing = true;
+        StateHasChanged();
+
+        try
         {
-            AllAccounts = result.Data!;
+            var result = await AccountService.GetAccountsWithBalanceAsync();
+            if (result.IsSuccess)
+            {
+                AllAccounts = result.Data!;
+            }
+            else if (result.Reason == FailureReason.Unauthorized)
+            {
+                Snackbar.Add("Session expired. Please log in again.", Severity.Error);
+                NavigationManager.NavigateTo("/login");
+            }
+            else
+            {
+                Snackbar.Add(result.ErrorMessage!, Severity.Error);
+            }
         }
-        else if (result.Reason == FailureReason.Unauthorized)
+        finally
         {
-            Snackbar.Add("Session expired. Please log in again.", Severity.Error);
-            NavigationManager.NavigateTo("/login");
-        }
-        else
-        {
-            Snackbar.Add(result.ErrorMessage!, Severity.Error);
-            NavigationManager.NavigateTo("/login");
+            IsRefreshing = false;
         }
     }
 }

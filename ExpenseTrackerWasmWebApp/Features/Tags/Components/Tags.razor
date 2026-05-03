@@ -80,6 +80,12 @@
         }
         else
         {
+            @if (IsRefreshing)
+            {
+                <MudItem xs="12">
+                    <MudProgressLinear Color="Color.Primary" Indeterminate="true" Class="mb-4" />
+                </MudItem>
+            }
             @foreach (var tag in FilteredTags)
             {
                 <MudItem xs="12" md="6">
@@ -146,7 +152,7 @@
 
     protected override async Task OnInitializedAsync()
     {
-        await UpdatePage();
+        await RefreshPage();
     }
 
     private async Task OpenEditor(TagDto? tag)
@@ -170,7 +176,7 @@
     private async Task CloseDrawerRefresh()
     {
         CloseDrawer();
-        await UpdatePage();
+        await RefreshPage();
     }
 
     private async Task ConfirmDelete(int tagId)
@@ -191,7 +197,7 @@
             if (apiResult.IsSuccess)
             {
                 Snackbar.Add("Tag successfully deleted!", Severity.Success);
-                await UpdatePage();
+                await RefreshPage();
             }
             else
             {
@@ -200,22 +206,33 @@
         }
     }
 
-    private async Task UpdatePage()
+    private bool IsRefreshing = false;
+
+    private async Task RefreshPage()
     {
-        var result = await TagService.GetTagsAsync();
-        if (result.IsSuccess)
+        IsRefreshing = true;
+        StateHasChanged();
+
+        try
         {
-            AllTags = result.Data!;
+            var result = await TagService.GetTagsAsync();
+            if (result.IsSuccess)
+            {
+                AllTags = result.Data!;
+            }
+            else if (result.Reason == FailureReason.Unauthorized)
+            {
+                Snackbar.Add("Session expired. Please log in again.", Severity.Error);
+                NavigationManager.NavigateTo("/login");
+            }
+            else
+            {
+                Snackbar.Add(result.ErrorMessage!, Severity.Error);
+            }
         }
-        else if (result.Reason == FailureReason.Unauthorized)
+        finally
         {
-            Snackbar.Add("Session expired. Please log in again.", Severity.Error);
-            NavigationManager.NavigateTo("/login");
-        }
-        else
-        {
-            Snackbar.Add(result.ErrorMessage!, Severity.Error);
-            NavigationManager.NavigateTo("/login");
+            IsRefreshing = false;
         }
     }
 }

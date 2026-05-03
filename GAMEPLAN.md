@@ -1,6 +1,7 @@
 # Expense Tracker - Development Roadmap
 
 -- loading?? 
+-- loading on login?
 -- why isn't the caching working properly?
 -- should probably design a single query that retrives accounts, categories
 and tags immediately not all three seperately

@@ -83,6 +83,12 @@
     }
     else
     {
+        @if (IsRefreshing)
+        {
+            <MudItem xs="12">
+                <MudProgressLinear Color="Color.Primary" Indeterminate="true" Class="mb-4" />
+            </MudItem>
+        }
         @foreach (var budget in FilteredBudgets)
         {
             <MudItem xs="12" md="6">
@@ -213,23 +219,34 @@
             }
         }
     }
+    
+    private bool IsRefreshing = false;
 
-
-    async Task RefreshPage()
+    private async Task RefreshPage()
     {
-        var result = await BudgetService.GetBudgetsAsync();
-        if (result.IsSuccess)
+        IsRefreshing = true;
+        StateHasChanged();
+
+        try
         {
-            AllBudgets = result.Data;
+            var result = await BudgetService.GetBudgetsAsync();
+            if (result.IsSuccess)
+            {
+                AllBudgets = result.Data;
+            }
+            else if (result.Reason == FailureReason.Unauthorized)
+            {
+                Snackbar.Add("Session expired. Please log in again.", Severity.Error);
+                NavigationManager.NavigateTo("login");
+            }
+            else
+            {
+                Snackbar.Add(result.ErrorMessage ?? "Error fetching budgets!", Severity.Error);
+            }
         }
-        else if (result.Reason == FailureReason.Unauthorized)
+        finally
         {
-            Snackbar.Add("Session expired. Please log in again.", Severity.Error);
-            NavigationManager.NavigateTo("login");
-        }
-        else
-        {
-            Snackbar.Add(result.ErrorMessage ?? "Error fetching budgets!", Severity.Error);
+            IsRefreshing = false;
         }
     }
 }

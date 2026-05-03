@@ -39,12 +39,8 @@
                                Color="Color.Default"
                                OnClick="OpenFilters" />
             </MudBadge>
-            <MudButton Variant="Variant.Filled"
-                       Color="Color.Primary"
-                       StartIcon="@Icons.Material.Filled.Add"
-                       OnClick="@(() => OpenEditor(null))">
-                Add
-            </MudButton>
+            <MudButton Class="d-none d-md-flex" Variant="Variant.Filled" Color="Color.Primary" OnClick="@(() => OpenEditor(null))" StartIcon="@Icons.Material.Filled.Add">Add</MudButton>
+            <FabButton Class="d-flex d-md-none" Text="Add" IconClass="@Icons.Material.Filled.Add" OnClick="@(() => OpenEditor(null))" />
             <MudMenu Icon="@Icons.Material.Filled.MoreVert" AnchorOrigin="Origin.BottomRight" TransformOrigin="Origin.TopRight" Dense="false">
                 <MudMenuItem Icon="@Icons.Material.Filled.Refresh" OnClick="RefreshPage">Refresh</MudMenuItem>
                 <MudMenuItem Icon="@Icons.Material.Filled.Download" OnClick="OpenExport">Export CSV</MudMenuItem>
@@ -376,6 +372,7 @@
         CloseDrawer();
         await RefreshPage();
     }
+    
 
     private async Task RefreshPage()
     {
