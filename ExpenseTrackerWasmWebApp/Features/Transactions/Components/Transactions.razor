@@ -4,6 +4,7 @@
 
 @using ExpenseTrackerSharedCL.Features.Categories.Dtos
 @using ExpenseTrackerSharedCL.Features.SharedKernel
+@using ExpenseTrackerSharedCL.Features.SharedKernel.Services
 @using ExpenseTrackerSharedCL.Features.Tags.Dtos
 @using ExpenseTrackerSharedCL.Features.Transactions.Dtos
 @using ExpenseTrackerSharedCL.Features.Transactions.Services
@@ -105,7 +106,7 @@
             }
             
             <MudButton Color="Color.Default"
-            Variant="Variant.Text" Size="Size.Small" OnClick="Filters.ClearFilters">Clear All</MudButton>
+            Variant="Variant.Outlined" Size="Size.Small" OnClick="Filters.ClearFilters">Clear All</MudButton>
         </MudStack>
     }
 
@@ -161,16 +162,16 @@
             </PropertyColumn>
             <TemplateColumn Title="Tags" Filterable="false" Sortable="false" HeaderClass="d-none d-md-table-cell" CellClass="d-none d-md-table-cell" Groupable="false">
                 <CellTemplate>
-                    <MudPaper Elevation="0" Class="d-flex gap-1 flex-wrap"
-                              Style="background-color:transparent;">
+                    <MudStack Row="true" Spacing="2" Class="flex-wrap">
                         @foreach (var tag in context.Item.TransactionTags)
                         {
-                            <MudChip T="string" Style="@($"background-color:{tag.Tag.Color}; color:white;")"
-                                     Size="Size.Small" Variant="Variant.Filled">
+                            <MudChip T="TagDto"
+                                     Size="Size.Small"
+                                     Style="@($"background-color:{tag.Tag.Color}; color:{ColorService.GetContrastText(tag.Tag.Color)};")">
                                 @tag.Tag.Name
                             </MudChip>
                         }
-                    </MudPaper>
+                    </MudStack>
                 </CellTemplate>
             </TemplateColumn>
             <TemplateColumn>

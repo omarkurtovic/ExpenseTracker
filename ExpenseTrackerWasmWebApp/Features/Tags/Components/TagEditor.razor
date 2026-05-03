@@ -1,0 +1,93 @@
+@rendermode @(new InteractiveWebAssemblyRenderMode(prerender: false))
+@using ExpenseTrackerSharedCL.Features.Tags.Service
+@using ExpenseTrackerSharedCL.Features.SharedKernel
+@using ExpenseTrackerWasmWebApp.Features.Tags.Services
+@using ExpenseTrackerWasmWebApp.Features.SharedKernel.Components.Titles
+@using Microsoft.AspNetCore.Authorization
+@using MudBlazor
+@using ExpenseTrackerSharedCL.Features.Tags.Dtos
+@using ExpenseTrackerWasmWebApp.Features.SharedKernel.Components
+@using System.Net.Http.Headers
+@inject ISnackbar Snackbar
+@inject ITagService TagService
+@inject NavigationManager NavigationManager
+
+@if (TagDto is not null)
+{
+    <MudForm @ref="form">
+        <MudGrid Spacing="2" Class="my-2">
+            <MudItem xs="12">
+                <MudStack Row AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween">
+                    <EditorTitle Title="@(TagDto.Id == null ? "Add Tag" : "Edit Tag")"></EditorTitle>
+                    <MudIconButton Icon="@Icons.Material.Filled.Close"
+                                   Color="Color.Default"
+                                   OnClick="@(async () => await Close.InvokeAsync())" />
+                </MudStack>
+            </MudItem>
+            <MudItem xs="12">
+                <MudTextField @bind-Value="TagDto.Name" Label="Name" Variant="Variant.Outlined" Required="true"
+                                RequiredError="Name is required!">
+                </MudTextField>
+            </MudItem>
+            <MudItem xs="12">
+                <MudColorPicker @bind-Text="TagDto.Color" Label="Color" Variant="Variant.Outlined" Required="true"
+                                RequiredError="Color is required!">
+                </MudColorPicker>
+            </MudItem>
+        </MudGrid>
+    </MudForm>
+    <MudStack Row Justify="Justify.Center" AlignItems="AlignItems.Center">
+        <LoadingButton OnClick="SaveAsync" Class="mt-4">
+            Save Tag
+        </LoadingButton>
+    </MudStack>
+}
+
+@code {
+    MudForm form = null!;
+
+    [Parameter]
+    public TagDto TagDto { get; set; } = new TagDto();
+
+    [Parameter]
+    public EventCallback OnTagSaved { get; set; }
+
+    [Parameter]
+    public EventCallback Close { get; set; }
+
+
+    private async Task SaveAsync()
+    {
+        await form.Validate();
+        if (!form.IsValid)
+        {
+            StateHasChanged();
+            return;
+        }
+
+        Result<TagDto> result;
+        if(TagDto.Id == null)
+        {
+            result = await TagService.CreateTagAsync(TagDto);
+        }
+        else
+        {
+            result = await TagService.EditTagAsync(TagDto);
+        }
+
+        if(result.IsSuccess)
+        {
+            Snackbar.Add("Tag saved successfully!", Severity.Success);
+            await OnTagSaved.InvokeAsync();
+        }
+        else if(result.Reason == FailureReason.Unauthorized)
+        {
+            Snackbar.Add("Session expired. Please log in again.", Severity.Error);
+            NavigationManager.NavigateTo("/login");
+        }
+        else
+        {
+            Snackbar.Add(result.ErrorMessage?.ToString() ?? "Error saving tag!", Severity.Error);
+        }
+    }
+}

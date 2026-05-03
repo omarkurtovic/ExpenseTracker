@@ -3,6 +3,7 @@
 @using ExpenseTrackerSharedCL.Features.Accounts.Services
 @using ExpenseTrackerSharedCL.Features.Categories
 @using ExpenseTrackerSharedCL.Features.Categories.Dtos
+@using ExpenseTrackerSharedCL.Features.SharedKernel.Services
 @using ExpenseTrackerSharedCL.Features.Tags.Dtos
 @using ExpenseTrackerSharedCL.Features.Tags.Service
 @using ExpenseTrackerSharedCL.Features.Transactions.Dtos
@@ -108,63 +109,58 @@
             </MudItem>
             <MudItem xs="12">
                 <MudAutocomplete T="TagDto" @ref="tagAutocomplete" SearchFunc="@TagSearchFunc"
-                                 ToStringFunc="@(e => e == null ? null : e.Name)" Label="Tags" Variant="Variant.Outlined"
-                                 ValueChanged="@OnTagSelected" Clearable="true" Class="flex-grow-1" MaxItems="null">
+                                 ToStringFunc="@(e => e?.Name)" Label="Tags" Variant="Variant.Outlined"
+                                 ValueChanged="@OnTagSelected" Clearable="true" MaxItems="null">
+        
                     <ItemTemplate>
-                        <MudPaper Elevation="0" Class="d-flex gap-2" Style="background-color:transparent;">
-                            @if (!string.IsNullOrEmpty(context?.Color))
-                            {
-                                <MudPaper Elevation="0" Class="d-flex gap-2" Style="background-color:transparent;">
-
-                                    <MudChip T="TagDto" Style="@($"background-color:{context.Color}; color:white;")"
-                                             Size="Size.Small">@context.Name</MudChip>
-
-                                    <MudIconButton Icon="@Icons.Material.Filled.Close" Size="Size.Small"
-                                                   Color="Color.Inherit" Style="color:white;"
-                                                   OnClick="@(() => DeleteTag(context))"></MudIconButton>
-                                </MudPaper>
-                            }
-                            else
-                            {
-                                <MudText>@context?.Name</MudText>
-                            }
-                        </MudPaper>
+                        @if (!string.IsNullOrEmpty(context?.Color))
+                        {
+                            <MudChip T="TagDto" Style="@($"background-color:{context.Color}; color:{ColorService.GetContrastText(context.Color)};")" Size="Size.Small">
+                                @context.Name
+                            </MudChip>
+                        }
+                        else
+                        {
+                            <MudText Typo="Typo.body2">@context?.Name</MudText>
+                        }
                     </ItemTemplate>
+        
                     <NoItemsTemplate>
-                        <MudText Align="Align.Center" Class="px-4 py-1">
-                            <span>No tags found </span>
+                        <MudStack AlignItems="AlignItems.Center" Class="pa-3">
+                            <MudText Typo="Typo.body2" Color="Color.Default">No tags found</MudText>
                             @if (!string.IsNullOrWhiteSpace(tagAutocomplete?.Text))
                             {
-                                <MudPaper Elevation="0" Class="d-flex justify-center mt-2" Style="background-color:transparent;">
-                                    <MudButton Variant="Variant.Outlined" OnClick="@CreateNewTag"
-                                               StartIcon="@Icons.Material.Filled.Add">
-                                        Create new tag: @tagAutocomplete.Text
-                                    </MudButton>
-                                </MudPaper>
+                                <MudButton Variant="Variant.Text" Color="Color.Primary" OnClick="@CreateNewTag" StartIcon="@Icons.Material.Filled.Add">
+                                    Create "@tagAutocomplete.Text"
+                                </MudButton>
                             }
-
-                        </MudText>
+                        </MudStack>
                     </NoItemsTemplate>
+        
                 </MudAutocomplete>
             </MudItem>
-            <MudItem xs="12">
-                @foreach (var tag in SelectedTags)
-                {
-                    <MudPaper Elevation="0" Class="flex gap-2">
-                        <MudChip T="TagDto" Style="@($"background-color:{tag.Color}; color:white;")"
-                                 Size="Size.Medium">
-                            <MudText>@tag.Name</MudText>
-                            <MudIconButton Icon="@Icons.Material.Filled.Close" Size="Size.Small"
-                                           Color="Color.Inherit" Style="color:white;" OnClick="@(() => RemoveTag(tag))">
-                            </MudIconButton>
-                        </MudChip>
-                    </MudPaper>
-                }
-            </MudItem>
+
+            @if (SelectedTags.Any())
+            {
+                <MudItem xs="12">
+                    <MudStack Row="true" Spacing="2" Class="flex-wrap">
+                        @foreach (var tag in SelectedTags)
+                        {
+                            <MudChip T="TagDto"
+                                     Size="Size.Small"
+                                     Style="@($"background-color:{tag.Color}; color:{ColorService.GetContrastText(tag.Color)};")"
+                                     OnClose="@(() => RemoveTag(tag))"
+                                     CloseIcon="@Icons.Material.Filled.Cancel">
+                                @tag.Name
+                            </MudChip>
+                        }
+                    </MudStack>
+                </MudItem>
+            }
         </MudGrid>
     </MudForm>
-    <MudStack Row Justify="Justify.Center" AlignItems="AlignItems.Center">
-        <LoadingButton OnClick="SaveAsync" Class="mt-4">
+    <MudStack Row Justify="Justify.Center" AlignItems="AlignItems.Center" Class="mt-4">
+        <LoadingButton OnClick="SaveAsync">
             Save Transactions
         </LoadingButton>
     </MudStack>
@@ -316,7 +312,7 @@
             Color = "#9E9E9E"
         };
 
-        var result = await TagService.CreateTagAsync(tagDto);
+        Result<TagDto> result = await TagService.CreateTagAsync(tagDto);
         if (!result.IsSuccess)
         {
             HandleFailure(result.ErrorMessage, result.Reason);
@@ -331,40 +327,13 @@
         {
             await tagAutocomplete.ResetAsync();
         }
-        Snackbar.Add($"Tag '{result.Data.Name}' created!", Severity.Success);
+        Snackbar.Add($"Tag '{result.Data!.Name}' created!", Severity.Success);
     }
 
     private void RemoveTag(TagDto tag)
     {
         SelectedTags.Remove(tag);
         TransactionDto.TagIds.Remove((int)tag.Id!);
-    }
-
-    private async Task DeleteTag(TagDto tag)
-    {
-        if (tagAutocomplete != null)
-        {
-            await tagAutocomplete.CloseMenuAsync();
-        }
-        
-        bool? result = await DialogService.ShowMessageBox("Warning", @$"Are you sure you want to delete the ""{tag.Name}"" tag? ", "Confirm", "Cancel");
-        if (result == true)
-        {
-            var deleteResult = await TagService.DeleteTagAsync((int)tag.Id!);
-            if (!deleteResult.IsSuccess)
-            {
-                HandleFailure(deleteResult.ErrorMessage, deleteResult.Reason);
-                return;
-            }
-
-            AllTags.RemoveAll(t => t.Id == tag.Id);
-            RemoveTag(tag);
-            Snackbar.Add("Tag deleted successfully!", Severity.Success);
-            if (tagAutocomplete != null)
-            {
-                await tagAutocomplete.ResetAsync();
-            }
-        }
     }
 
     private async Task SaveAsync()

@@ -26,8 +26,8 @@
         <MudItem xs="12">
             <MudStack Row Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center">
                 <MainPageTitle Title="Categories"></MainPageTitle>
-                <MudButton Class="d-none d-md-flex" Variant="Variant.Filled" Color="Color.Primary" OnClick="@(() => OpenCategorySheetAsync(null))" StartIcon="@Icons.Material.Filled.Add">Add</MudButton>
-                <FabButton Class="d-flex d-md-none" Text="Add" IconClass="@Icons.Material.Filled.Add" OnClick="@(() => OpenCategorySheetAsync(null))" />
+                <MudButton Class="d-none d-md-flex" Variant="Variant.Filled" Color="Color.Primary" OnClick="@(() => OpenEditor(null))" StartIcon="@Icons.Material.Filled.Add">Add</MudButton>
+                <FabButton Class="d-flex d-md-none" Text="Add" IconClass="@Icons.Material.Filled.Add" OnClick="@(() => OpenEditor(null))" />
             </MudStack>
         </MudItem>
         <MudItem xs="12" md="6">
@@ -104,7 +104,7 @@
                             </CardHeaderContent>
                             <CardHeaderActions>
                                 <MudMenu Icon="@Icons.Material.Filled.MoreVert" AnchorOrigin="Origin.BottomRight" TransformOrigin="Origin.TopRight" Dense="false">
-                                    <MudMenuItem Icon="@Icons.Material.Filled.Edit" OnClick="@(() => OpenCategorySheetAsync(category))">
+                                    <MudMenuItem Icon="@Icons.Material.Filled.Edit" OnClick="@(() => OpenEditor(category))">
                                         Edit
                                     </MudMenuItem>
                                     <MudMenuItem Icon="@Icons.Material.Filled.Delete" IconColor="Color.Error" OnClick="@(() => ConfirmDelete((int)category.Id!))">
@@ -178,7 +178,7 @@
         await RefreshPage();
     }
 
-    private async Task OpenCategorySheetAsync(CategoryWithStatsDto? category)
+    private async Task OpenEditor(CategoryWithStatsDto? category)
     {
         var categoryDto = new CategoryDto();
         if (category == null)

@@ -9,7 +9,7 @@ and tags immediately not all three seperately
 -- need to revise category card
 -- need to add loading to dashboard graphs
 -- no transactions message?
-
+-- need to fix drawer when scrolling on categories
 
 gameplan for md3
 

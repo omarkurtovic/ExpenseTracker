@@ -15,6 +15,8 @@ namespace ExpenseTrackerSharedCL.Features.Tags.Service
 
         public Task<Result<TagDto>> CreateTagAsync(TagDto tagDto);
 
+        public Task<Result<TagDto>> EditTagAsync(TagDto tagDto);
+
         public Task<Result> DeleteTagAsync(int tagId);
     }
 }
