@@ -1,8 +1,7 @@
 @page "/categories"
 @attribute [Authorize]
-@rendermode InteractiveWebAssembly
+@rendermode @(new InteractiveWebAssemblyRenderMode(prerender: false))
 
-@implements IDisposable
 @using ExpenseTrackerSharedCL.Features.Categories
 @using ExpenseTrackerSharedCL.Features.Categories.Dtos
 @using ExpenseTrackerWasmWebApp.Features.Categories.Services
@@ -16,19 +15,19 @@
 @inject IDialogService DialogService
 @inject ICategoryService CategoryService
 @inject NavigationManager NavigationManager
-@inject PersistentComponentState ApplicationState
 
 <PageTitle>Categories</PageTitle>
 
 <MudContainer MaxWidth="MaxWidth.Medium" Class="d-flex flex-column gap-5 mt-6">
-
-    <MudStack Row Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center">
-        <MainPageTitle Title="Categories"></MainPageTitle>
-        <MudButton Class="d-none d-md-flex" Variant="Variant.Filled" Color="Color.Primary" OnClick="@(() => OpenCategorySheetAsync(null))" StartIcon="@Icons.Material.Filled.Add">Add</MudButton>
-        <FabButton Class="d-flex d-md-none" Text="Add" IconClass="@Icons.Material.Filled.Add" OnClick="@(() => OpenCategorySheetAsync(null))" />
-    </MudStack>
-
+    
     <MudGrid>
+        <MudItem xs="12">
+            <MudStack Row Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center">
+                <MainPageTitle Title="Categories"></MainPageTitle>
+                <MudButton Class="d-none d-md-flex" Variant="Variant.Filled" Color="Color.Primary" OnClick="@(() => OpenCategorySheetAsync(null))" StartIcon="@Icons.Material.Filled.Add">Add</MudButton>
+                <FabButton Class="d-flex d-md-none" Text="Add" IconClass="@Icons.Material.Filled.Add" OnClick="@(() => OpenCategorySheetAsync(null))" />
+            </MudStack>
+        </MudItem>
         <MudItem xs="12" md="6">
             <MudTextField @bind-Value="searchString"
                           Placeholder="Search categories..."
@@ -44,19 +43,52 @@
                 <MudSelectItem Value="TransactionTypeDto.Income">Incomes</MudSelectItem>
             </MudSelect>
         </MudItem>
-    </MudGrid>
 
-    @if (AllCategories == null || AllCategories.Count == 0)
-    {
-        <MudText Typo="Typo.subtitle1">No categories created yet!</MudText>
-    }
-    else if (FilteredCategories == null || FilteredCategories.Count == 0)
-    {
-        <MudText Typo="Typo.subtitle1">No categories found!</MudText>
-    }
-    else
-    {
-        <MudGrid>
+        @if (AllCategories == null)
+        {
+            @for (int i = 0; i < 4; i++)
+            {
+                <MudItem xs="12" md="6">
+                    <MudCard Elevation="1">
+                        <MudCardHeader>
+                            <CardHeaderAvatar>
+                                <MudSkeleton SkeletonType="SkeletonType.Circle" Width="40px" Height="40px" />
+                            </CardHeaderAvatar>
+                            <CardHeaderContent>
+                                <MudSkeleton SkeletonType="SkeletonType.Rectangle" Width="40%" Height="20px" />
+                            </CardHeaderContent>
+                        </MudCardHeader>
+                        <MudCardContent>
+                            <div style="display: grid; grid-template-rows: repeat(2, min-content); grid-template-columns: 120px 1fr; gap:1rem; align-items: center; justify-content: center;">
+                                <MudSkeleton SkeletonType="SkeletonType.Text" Width="100px" />
+                                <MudSkeleton SkeletonType="SkeletonType.Rectangle" Width="50%" Height="32px" />
+
+                                <MudSkeleton SkeletonType="SkeletonType.Text" Width="90px" />
+                                <MudSkeleton SkeletonType="SkeletonType.Rectangle" Width="40%" Height="32px" />
+                            </div>
+                        </MudCardContent>
+                    </MudCard>
+                </MudItem>
+            }
+        }
+        else if (AllCategories.Count == 0)
+        {
+            <MudItem xs="12">
+                <NoRecords Title="No categories created yet"
+                           Message="Create your first category to start organizing your transactions."
+                           Icon="@Icons.Material.Filled.Category"></NoRecords>
+            </MudItem>
+        }
+        else if (FilteredCategories == null || FilteredCategories.Count == 0)
+        {
+            <MudItem xs="12">
+                <NoRecords Title="No categories found"
+                           Message="Change your search terms to show categories."
+                           Icon="@Icons.Material.Filled.SearchOff"></NoRecords>
+            </MudItem>
+        }
+        else
+        {
             @foreach (var category in FilteredCategories)
             {
                 <MudItem xs="12" md="6">
@@ -66,7 +98,7 @@
                                 <MudIcon Icon="@category.Icon" Size="Size.Large" Style="@($"color:{category.Color};")"></MudIcon>
                             </CardHeaderAvatar>
                             <CardHeaderContent>
-                                <MudText Typo="Typo.subtitle1">@category.Name</MudText>
+                                <MudText Typo="Typo.caption">@category.Name</MudText>
                             </CardHeaderContent>
                             <CardHeaderActions>
                                 <MudMenu Icon="@Icons.Material.Filled.MoreVert" AnchorOrigin="Origin.BottomRight" TransformOrigin="Origin.TopRight" Dense="false">
@@ -80,8 +112,8 @@
                             </CardHeaderActions>
                         </MudCardHeader>
                         <MudCardContent>
-                            <div style="display: grid; grid-template-rows: repeat(3, min-content); grid-template-columns: 120px 1fr; gap:1rem; align-items: center; justify-content: center;">
-                                
+                            <div style="display: grid; grid-template-rows: repeat(2, min-content); grid-template-columns: 120px 1fr; gap:1rem; align-items: center; justify-content: center;">
+                            
                                 <MudText Typo="Typo.body1">@(category.Type == TransactionTypeDto.Income ? "Total income: " : "Total expenses: ")</MudText>
                                 <AmountDisplay Amount="@category.TotalAmount" FontSize="Typo.h5" />
 
@@ -89,13 +121,14 @@
                                 <MudText Typo="Typo.h5" Color="@category.ComparisonColor" Class="month-comparison">
                                     @category.ComparisonDisplay
                                 </MudText>
+                            
                             </div>
                         </MudCardContent>
                     </MudCard>
                 </MudItem>
             }
-        </MudGrid>
-    }
+        }
+    </MudGrid>
 
 
 
@@ -116,7 +149,7 @@
 </MudDrawer>
 
 @code {
-    public List<CategoryWithStatsDto> AllCategories { get; set; } = [];
+    public List<CategoryWithStatsDto> AllCategories { get; set; } = null;
 
     private bool _isSideDrawerOpen = false;
 
@@ -127,8 +160,6 @@
     public string searchString = "";
 
     public TransactionTypeDto transactionType = TransactionTypeDto.Expense;
-
-    public PersistingComponentStateSubscription persistingSubscription;
 
     public List<CategoryWithStatsDto> FilteredCategories
     {
@@ -142,23 +173,7 @@
 
     protected override async Task OnInitializedAsync()
     {
-        await base.OnInitializedAsync();
-
-        if (!ApplicationState.TryTakeFromJson<List<CategoryWithStatsDto>>(nameof(AllCategories), out var allCategories))
-        {
-            await RefreshPage();
-        }
-        else
-        {
-            AllCategories = allCategories;
-        }
-        persistingSubscription = ApplicationState.RegisterOnPersisting(PersistCategories);
-    }
-
-    private Task PersistCategories()
-    {
-        ApplicationState.PersistAsJson(nameof(AllCategories), AllCategories);
-        return Task.CompletedTask;
+        await RefreshPage();
     }
 
     private async Task OpenCategorySheetAsync(CategoryWithStatsDto? category)
@@ -230,10 +245,5 @@
         {
             Snackbar.Add(result.ErrorMessage ?? "Error loading categories!", Severity.Error);
         }
-    }
-
-    public void Dispose()
-    {
-        persistingSubscription.Dispose();
     }
 }

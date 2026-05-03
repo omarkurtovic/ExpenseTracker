@@ -5,14 +5,6 @@ using ExpenseTrackerSharedCL.Features.Dashboard;
 using ExpenseTrackerSharedCL.Features.Tags.Service;
 using ExpenseTrackerSharedCL.Features.Transactions.Services;
 using ExpenseTrackerSharedCL.Features.UserPreferences.Services;
-using ExpenseTrackerWasmWebApp;
-using ExpenseTrackerWasmWebApp.Features.Accounts.Services;
-using ExpenseTrackerWasmWebApp.Features.Budgets.Services;
-using ExpenseTrackerWasmWebApp.Features.Categories.Services;
-using ExpenseTrackerWasmWebApp.Features.Dashboard.Services;
-using ExpenseTrackerWasmWebApp.Features.DataSeeding.Services;
-using ExpenseTrackerWasmWebApp.Features.Tags.Services;
-using ExpenseTrackerWasmWebApp.Features.Transactions.Services;
 using ExpenseTrackerWebApi;
 using ExpenseTrackerWebApi.Database;
 using ExpenseTrackerWebApi.Features.Accounts.Services;
@@ -21,18 +13,15 @@ using ExpenseTrackerWebApi.Features.Budgets.Services;
 using ExpenseTrackerWebApi.Features.Categories.Services;
 using ExpenseTrackerWebApi.Features.Dashboard;
 using ExpenseTrackerWebApi.Features.SharedKernel.Behaviors;
-using ExpenseTrackerWebApi.Features.SharedKernel.Components;
 using ExpenseTrackerWebApi.Features.Tags.Services;
 using ExpenseTrackerWebApi.Features.Transactions.Services;
 using ExpenseTrackerWebApi.Features.UserPreferences.Services;
 using FluentValidation;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Components.WebAssembly.Authentication;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using MudBlazor.Services;
-using System.Globalization;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -121,8 +110,6 @@ app.MapFallbackToFile("index.html");
 
 app.Run();
 
-
-
 void ConfigureDatabase(IServiceCollection services, IWebHostEnvironment env)
 {
     if (env.IsDevelopment())
@@ -131,8 +118,6 @@ void ConfigureDatabase(IServiceCollection services, IWebHostEnvironment env)
     else
         services.AddDbContext<AppDbContext>(options =>
             options.UseSqlite("Data Source=/home/app.db"));
-
-
 }
 
 void ConfigureAuthentication(IServiceCollection services)
@@ -179,7 +164,6 @@ void ConfigureMediatR(IServiceCollection services)
 
 void InitializeDatabase(WebApplication app)
 {
-
     using var scope = app.Services.CreateScope();
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
     db.Database.Migrate();

@@ -1,8 +1,7 @@
 @page "/budgets"
 @attribute [Authorize]
-@rendermode InteractiveWebAssembly
+@rendermode @(new InteractiveWebAssemblyRenderMode(prerender: false))
 
-@implements IDisposable
 @using ExpenseTrackerSharedCL.Features.Accounts.Dtos
 @using ExpenseTrackerSharedCL.Features.Budgets.Dtos
 @using ExpenseTrackerSharedCL.Features.Budgets.Services
@@ -17,18 +16,18 @@
 @inject ISnackbar Snackbar
 @inject IBudgetService BudgetService
 @inject NavigationManager NavigationManager
-@inject PersistentComponentState ApplicationState
 
 <PageTitle>Budgets</PageTitle>
 
 <MudContainer MaxWidth="MaxWidth.Medium" Class="d-flex flex-column gap-5 mt-6">
-
-    <MudStack Row Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center">
-        <MainPageTitle Title="Budgets"></MainPageTitle>
-        <MudButton Class="d-none d-md-flex" Variant="Variant.Filled" Color="Color.Primary" OnClick="@(() => OpenBudgetSheetAsync(null))" StartIcon="@Icons.Material.Filled.Add">Add</MudButton>
-        <FabButton Class="d-flex d-md-none" Text="Add" IconClass="@Icons.Material.Filled.Add" OnClick="@(() => OpenBudgetSheetAsync(null))" />
-    </MudStack>
     <MudGrid>
+        <MudItem xs="12">
+            <MudStack Row Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center">
+                <MainPageTitle Title="Budgets"></MainPageTitle>
+                <MudButton Class="d-none d-md-flex" Variant="Variant.Filled" Color="Color.Primary" OnClick="@(() => OpenBudgetSheetAsync(null))" StartIcon="@Icons.Material.Filled.Add">Add</MudButton>
+                <FabButton Class="d-flex d-md-none" Text="Add" IconClass="@Icons.Material.Filled.Add" OnClick="@(() => OpenBudgetSheetAsync(null))" />
+            </MudStack>
+        </MudItem>
         <MudItem xs="12">
             <MudTextField @bind-Value="searchString"
                           Placeholder="Search budgets..."
@@ -38,54 +37,83 @@
                           Variant="Variant.Outlined"
                           Immediate="true"/>
         </MudItem>
-    </MudGrid>
 
-    @if (AllBudgets == null || AllBudgets.Count == 0)
+    @if (AllBudgets == null)
     {
-        <MudText>No budgets created yet!</MudText>
+        @for (int i = 0; i < 4; i++)
+        {
+            <MudItem xs="12" md="6">
+                <MudCard Elevation="1">
+                    <MudCardHeader>
+                        <CardHeaderContent>
+                            <MudSkeleton SkeletonType="SkeletonType.Rectangle" Width="40%" Height="20px" />
+                        </CardHeaderContent>
+                    </MudCardHeader>
+                    <MudCardContent>
+                        <MudStack>
+                            <MudSkeleton SkeletonType="SkeletonType.Rectangle" Width="100%" Height="10px" />
+                            
+                            <MudStack Row AlignItems="AlignItems.Center">
+                                <MudSkeleton SkeletonType="SkeletonType.Text" Width="50px" />
+                                <MudSkeleton SkeletonType="SkeletonType.Text" Width="120px" Height="70px" />
+                            </MudStack>
+                        </MudStack>
+                    </MudCardContent>
+                </MudCard>
+            </MudItem>
+        }
+    }
+    else if (AllBudgets.Count == 0)
+    {
+        <MudItem xs="12">
+                <NoRecords Title="No budgets created yet" 
+                    Message="Create your first budget to start controlling your spending." 
+                    Icon="@Icons.Material.Filled.PieChart"></NoRecords>
+        </MudItem>
     }
     else if (FilteredBudgets == null || FilteredBudgets.Count == 0)
     {
-        <MudText>No budgets found!</MudText>
+        <MudItem xs="12">
+                <NoRecords Title="No budgets found"
+                           Message="Change your search terms to show budgets."
+                           Icon="@Icons.Material.Filled.SearchOff"></NoRecords>
+        </MudItem>
     }
     else
     {
-
-        <MudGrid>
-            @foreach (var budget in FilteredBudgets)
-            {
-                <MudItem xs="12" md="6">
-                    <MudCard Elevation="1">
-                        <MudCardHeader>
-                            <CardHeaderContent>
-                                <MudText Typo="Typo.caption">@budget.Name</MudText>
-                            </CardHeaderContent>
-                            <CardHeaderActions>
-                                <MudMenu Icon="@Icons.Material.Filled.MoreVert" AnchorOrigin="Origin.BottomRight" TransformOrigin="Origin.TopRight" Dense="false">
-                                    <MudMenuItem Icon="@Icons.Material.Filled.Edit" OnClick="@(() => OpenBudgetSheetAsync(budget))">
-                                        Edit
-                                    </MudMenuItem>
-                                    <MudMenuItem Icon="@Icons.Material.Filled.Delete" IconColor="Color.Error" OnClick="@(() => ConfirmDelete((int)budget.Id!))">
-                                        <MudText Color="Color.Error">Delete</MudText>
-                                    </MudMenuItem>
-                                </MudMenu>
-                            </CardHeaderActions>
-                        </MudCardHeader>
-                        <MudCardContent>
-                            <MudStack>
-                                <MudProgressLinear Value="@(budget.Progress)" Color="@budget.ProgressColor"></MudProgressLinear>
-                                
-                                <MudStack Row AlignItems="AlignItems.Center">
-                                    <MudText >Spent: </MudText>
-                                    <MudText Typo="Typo.caption">$@budget.Spent.ToString("F2") / $@budget.Amount?.ToString("F2")</MudText>
-                                </MudStack>
+        @foreach (var budget in FilteredBudgets)
+        {
+            <MudItem xs="12" md="6">
+                <MudCard Elevation="1">
+                    <MudCardHeader>
+                        <CardHeaderContent>
+                            <MudText Typo="Typo.caption">@budget.Name</MudText>
+                        </CardHeaderContent>
+                        <CardHeaderActions>
+                            <MudMenu Icon="@Icons.Material.Filled.MoreVert" AnchorOrigin="Origin.BottomRight" TransformOrigin="Origin.TopRight" Dense="false">
+                                <MudMenuItem Icon="@Icons.Material.Filled.Edit" OnClick="@(() => OpenBudgetSheetAsync(budget))">
+                                    Edit
+                                </MudMenuItem>
+                                <MudMenuItem Icon="@Icons.Material.Filled.Delete" IconColor="Color.Error" OnClick="@(() => ConfirmDelete((int)budget.Id!))">
+                                    <MudText Color="Color.Error">Delete</MudText>
+                                </MudMenuItem>
+                            </MudMenu>
+                        </CardHeaderActions>
+                    </MudCardHeader>
+                    <MudCardContent>
+                        <MudStack>
+                            <MudProgressLinear Value="@(budget.Progress)" Color="@budget.ProgressColor"></MudProgressLinear>
+                            <MudStack Row AlignItems="AlignItems.Center">
+                                <MudText>Spent: </MudText>
+                                <MudText Typo="Typo.caption">$@budget.Spent.ToString("F2") / $@budget.Amount?.ToString("F2")</MudText>
                             </MudStack>
-                        </MudCardContent>
-                    </MudCard>
-                </MudItem>
-            }
-        </MudGrid>
+                        </MudStack>
+                    </MudCardContent>
+                </MudCard>
+            </MudItem>
+        }
     }
+</MudGrid>
 </MudContainer>
 
 <MudDrawer @bind-Open="@_isSideDrawerOpen"
@@ -105,7 +133,7 @@
 
     @code {
 
-    public List<BudgetWithProgressDto> AllBudgets { get; set; } = [];
+    public List<BudgetWithProgressDto> AllBudgets { get; set; } = null;
 
     private bool _isSideDrawerOpen = false;
 
@@ -114,9 +142,6 @@
     private BudgetDto BudgetToEdit = new BudgetDto();
 
     public string searchString = "";
-
-    public PersistingComponentStateSubscription persistingSubscription;
-
 
     public List<BudgetWithProgressDto> FilteredBudgets
     {
@@ -130,26 +155,9 @@
 
     protected override async Task OnInitializedAsync()
     {
-        await base.OnInitializedAsync();
-
-        if (!ApplicationState.TryTakeFromJson<List<BudgetWithProgressDto>>(nameof(AllBudgets), out var budgets))
-        {
-            await RefreshPage();
-        }
-        else
-        {
-            AllBudgets = budgets!;
-        }
-
-        persistingSubscription = ApplicationState.RegisterOnPersisting(PersistBudgets);
+        await RefreshPage();
     }
 
-    private Task PersistBudgets()
-    {
-        ApplicationState.PersistAsJson(nameof(AllBudgets), AllBudgets);
-        return Task.CompletedTask;
-    }
-    
     private async Task OpenBudgetSheetAsync(BudgetWithProgressDto? budget)
     {
         var budgetDto = new BudgetDto();
@@ -216,10 +224,5 @@
         {
             Snackbar.Add(result.ErrorMessage ?? "Error fetching budgets!", Severity.Error);
         }
-    }
-
-    public void Dispose()
-    {
-        persistingSubscription.Dispose();
     }
 }

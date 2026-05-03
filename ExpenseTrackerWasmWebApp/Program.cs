@@ -79,6 +79,4 @@ void ConfigureCustomServices(IServiceCollection services)
     services.AddScoped<ITagService, TagService>();
     services.AddScoped<IUserPreferenceService, UserPreferenceService>();
     services.AddScoped<DataSeedService>();
-
 }
-
