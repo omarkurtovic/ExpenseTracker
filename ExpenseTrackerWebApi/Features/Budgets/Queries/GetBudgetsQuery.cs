@@ -6,10 +6,10 @@ namespace ExpenseTrackerWebApi.Features.Budgets.Queries
 {
     public class GetBudgetsQuery : IRequest<List<BudgetDto>>
     {
-        public required string UserId{get; set;}
+        public required string UserId { get; set; }
     }
 
-    
+
     public class GetBudgetsQueryValidator : AbstractValidator<GetBudgetsQuery>
     {
         public GetBudgetsQueryValidator()

@@ -11,7 +11,7 @@ namespace ExpenseTrackerWebApi.Features.Dashboard.Controllers
     [Authorize]
     public class DashboardController : ControllerBase
     {
-        private readonly ISender _mediator;   
+        private readonly ISender _mediator;
         private readonly UserManager<IdentityUser> _userManager;
 
         public DashboardController(ISender mediator, UserManager<IdentityUser> userManager)
@@ -26,9 +26,9 @@ namespace ExpenseTrackerWebApi.Features.Dashboard.Controllers
             try
             {
                 var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
-                var dashboardSummary = await _mediator.Send(new GetDashboardSummaryQuery() 
-                { 
-                    UserId = userId!, 
+                var dashboardSummary = await _mediator.Send(new GetDashboardSummaryQuery()
+                {
+                    UserId = userId!,
                     MonthsBehindToConsider = monthsBehindToConsider,
                     MaxCategoriesToShow = maxCategoriesToShow
                 });

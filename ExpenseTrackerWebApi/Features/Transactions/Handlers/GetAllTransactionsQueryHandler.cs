@@ -28,7 +28,7 @@ namespace ExpenseTrackerWebApi.Features.Transactions.Handlers
             .Include(t => t.TransactionTags)
                 .ThenInclude(tt => tt.Tag)
             .Where(t => t.Account.IdentityUserId == request.UserId);
-            if(request.IsReoccuring)
+            if (request.IsReoccuring)
             {
                 transactionsQuery = transactionsQuery.Where(t => t.IsReoccuring == true);
             }
@@ -37,7 +37,7 @@ namespace ExpenseTrackerWebApi.Features.Transactions.Handlers
                 transactionsQuery = transactionsQuery.Where(t => t.IsReoccuring == null || t.IsReoccuring == false);
             }
             transactionsQuery = transactionsQuery.OrderByDescending(t => t.Date);
-            
+
             return [.. (await transactionsQuery.ToListAsync(cancellationToken)).Select(transaction => new TransactionDto()
             {
                 Id = transaction.Id,

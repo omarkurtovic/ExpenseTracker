@@ -26,14 +26,14 @@ namespace ExpenseTrackerWebApp.Features.SharedKernel.Transactions.Handlers
             .Include(t => t.TransactionTags)
                 .ThenInclude(tt => tt.Tag)
             .Where(b => b.Id == request.Id).FirstOrDefaultAsync(cancellationToken);
-            
 
-            if(transaction == null)
+
+            if (transaction == null)
             {
                 throw new ArgumentException("Transaction not found!");
             }
 
-            if(transaction.Category.IdentityUserId != request.UserId)
+            if (transaction.Category.IdentityUserId != request.UserId)
             {
                 throw new UnauthorizedAccessException("Transaction does not belong to user!");
             }

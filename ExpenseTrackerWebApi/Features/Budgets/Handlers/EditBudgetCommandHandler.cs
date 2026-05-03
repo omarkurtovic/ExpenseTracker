@@ -9,7 +9,7 @@ namespace ExpenseTrackerWebApi.Features.Budgets.Handlers
 {
     public class EditBudgetCommandHandler : IRequestHandler<EditBudgetCommand, int>
     {
-        
+
         private readonly AppDbContext _context;
 
         public EditBudgetCommandHandler(AppDbContext context)
@@ -21,14 +21,14 @@ namespace ExpenseTrackerWebApi.Features.Budgets.Handlers
         {
             var oldBudget = await _context.Budgets
                 .Where(b => b.Id == request.Id)
-                .FirstOrDefaultAsync(cancellationToken); 
+                .FirstOrDefaultAsync(cancellationToken);
 
-            if(oldBudget == null)
+            if (oldBudget == null)
             {
                 throw new ArgumentException("Budget not found!");
             }
 
-            if(oldBudget.IdentityUserId != request.UserId)
+            if (oldBudget.IdentityUserId != request.UserId)
             {
                 throw new UnauthorizedAccessException("Budget does not belong to user!");
             }
@@ -63,14 +63,14 @@ namespace ExpenseTrackerWebApi.Features.Budgets.Handlers
             oldBudget.Amount = budget.Amount;
             oldBudget.BudgetType = budget.BudgetType;
             oldBudget.Description = budget.Description;
-            
+
             await _context.BudgetCategories.Where(bc => bc.BudgetId == request.Id).ExecuteDeleteAsync(cancellationToken);
             await _context.BudgetAccounts.Where(ba => ba.BudgetId == request.Id).ExecuteDeleteAsync(cancellationToken);
             await _context.SaveChangesAsync(cancellationToken);
             _context.ChangeTracker.Clear();
 
             var budgetCategories = new List<BudgetCategory>();
-            foreach(var categoryId in request.BudgetDto.Categories!)
+            foreach (var categoryId in request.BudgetDto.Categories!)
             {
                 var bc = new BudgetCategory()
                 {
@@ -80,7 +80,7 @@ namespace ExpenseTrackerWebApi.Features.Budgets.Handlers
                 budgetCategories.Add(bc);
             }
             var budgetAccounts = new List<BudgetAccount>();
-            foreach(var accountId in request.BudgetDto.Accounts!)
+            foreach (var accountId in request.BudgetDto.Accounts!)
             {
                 var ba = new BudgetAccount()
                 {

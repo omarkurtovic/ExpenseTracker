@@ -1,173 +1,250 @@
 @page "/accounts"
 @attribute [Authorize]
-@rendermode InteractiveWebAssembly
+@rendermode @(new InteractiveWebAssemblyRenderMode(prerender: false))
 
-@implements IDisposable
 @using ExpenseTrackerSharedCL.Features.Accounts.Dtos
 @using ExpenseTrackerSharedCL.Features.Accounts.Services
+@using ExpenseTrackerSharedCL.Features.SharedKernel
 @using ExpenseTrackerWasmWebApp.Features.Accounts.Services
 @using ExpenseTrackerWasmWebApp.Features.SharedKernel
+@using ExpenseTrackerWasmWebApp.Features.SharedKernel.Components
+@using ExpenseTrackerWasmWebApp.Features.SharedKernel.Components.Titles
+@using ExpenseTrackerWasmWebApp.Features.SharedKernel.Components.Dialogs
 @using Microsoft.AspNetCore.Authorization
 @using MudBlazor
 @using Microsoft.AspNetCore.Components.Web
-@using ExpenseTrackerWasmWebApp.Features.SharedKernel.Components
 @using System.Net.Http.Headers
+@using MudBlazor.Utilities
 @inject IDialogService DialogService
 @inject ISnackbar Snackbar
 @inject IJSRuntime JSRuntime
 @inject IAccountService AccountService
 @inject NavigationManager NavigationManager
-@inject PersistentComponentState ApplicationState
-
 
 <PageTitle>Accounts</PageTitle>
 
-<MudContainer MaxWidth="MaxWidth.Medium">
-    <MudPaper Class="pa-6 mt-6" Elevation="15">
-        <MudGrid>
-            <MudItem xs="12" Class="d-flex justify-center">
-                <MudText Typo="Typo.h4">Accounts</MudText>
-            </MudItem>
-            <MudItem xs="12" Class="mb-4 d-none d-md-flex justify-center">
-                <MudButton Variant="Variant.Filled" Color="Color.Primary"
-                    OnClick="@(() => OpenAccountDialogAsync(null))" StartIcon="@Icons.Material.Filled.Add">Add
-                </MudButton>
-            </MudItem>
-            <FabButton Class="d-flex d-md-none" Text="Add" IconClass="@Icons.Material.Filled.Add" OnClick="@(() => OpenAccountDialogAsync(null))" />
-                    
-                
-            @if (MyAccounts == null || MyAccounts.Count == 0)
+<MudContainer MaxWidth="MaxWidth.Medium" Class="d-flex flex-column gap-5 mt-6">
+    
+    <MudGrid>
+        <MudItem xs="12">
+            <MudStack Row Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center">
+                <MainPageTitle Title="Accounts"></MainPageTitle>
+                <MudButton Class="d-none d-md-flex" Variant="Variant.Filled" Color="Color.Primary" OnClick="@(() => OpenEditor(null))" StartIcon="@Icons.Material.Filled.Add">Add</MudButton>
+                <FabButton Class="d-flex d-md-none" Text="Add" IconClass="@Icons.Material.Filled.Add" OnClick="@(() => OpenEditor(null))" />
+            </MudStack>
+        </MudItem>
+
+        <MudItem xs="12">
+            <MudTextField @bind-Value="searchString"
+                          Placeholder="Search accounts..."
+                          Adornment="Adornment.Start"
+                          AdornmentIcon="@Icons.Material.Filled.Search"
+                          IconSize="Size.Medium"
+                          Variant="Variant.Outlined"
+                          Immediate="true" />
+        </MudItem>
+           
+        @if (AllAccounts == null)
+        {
+            @for (int i = 0; i < 4; i++)
             {
-                <MudItem xs="12" Class="d-flex justify-center">
-                    <MudText Typo="Typo.h5">No accounts created yet!</MudText>
+                <MudItem xs="12" md="6">
+                    <MudCard Elevation="1">
+                        <MudCardHeader>
+                            <CardHeaderAvatar>
+                                <MudSkeleton SkeletonType="SkeletonType.Circle" Width="40px" Height="40px" />
+                            </CardHeaderAvatar>
+                            <CardHeaderContent>
+                                <MudSkeleton SkeletonType="SkeletonType.Rectangle" Width="100%" Height="20px" />
+                            </CardHeaderContent>
+                        </MudCardHeader>
+                        <MudCardContent>
+                            <MudStack Row AlignItems="AlignItems.Center">
+                                <MudText>Balance: </MudText>
+                                <MudSkeleton SkeletonType="SkeletonType.Rectangle" Width="50%" Height="32px" />
+                            </MudStack>
+                        </MudCardContent>
+                    </MudCard>
                 </MudItem>
             }
-            else
-            {
-                @foreach (var account in MyAccounts)
-                {
-                    <MudItem xs="12" md="6">
-                        <AccountCard Account="@account" OnEdit="@(() => OpenAccountDialogAsync(account))" OnDelete="@(() => ConfirmDelete((int)account.Id!))"></AccountCard>
-                    </MudItem>
-                }
-            }
-        </MudGrid>
-    </MudPaper>
-</MudContainer>
-
-@code {
-
-    public List<AccountWithBalanceDto> MyAccounts { get; set; } = new List<AccountWithBalanceDto>();
-    private PersistingComponentStateSubscription persistingSubscription;
-
-
-    protected override async Task OnInitializedAsync()
-    {
-        if (!ApplicationState.TryTakeFromJson<List<AccountWithBalanceDto>>(nameof(MyAccounts), out var accounts))
+        }
+        else if (AllAccounts.Count == 0)
         {
-            await UpdatePage();
+            <MudItem xs="12">
+                <NoRecords Title="No accounts created yet"
+                           Message="Create your first account to start tracking your money."></NoRecords>
+            </MudItem>
+        }
+        else if (FilteredAccounts.Count == 0)
+        {
+            <MudItem xs="12">
+                <NoRecords Title="No accounts found"
+                           Message="Change your search terms to show accounts." Filtered></NoRecords>
+            </MudItem>
         }
         else
         {
-            MyAccounts = accounts;
+            @if (IsRefreshing)
+            {
+                <MudItem xs="12">
+                    <MudProgressLinear Color="Color.Primary" Indeterminate="true" Class="mb-4" />
+                </MudItem>
+            }
+            @foreach (var account in FilteredAccounts)
+            {
+                <MudItem xs="12" md="6">
+                    <MudCard Elevation="1">
+                        <MudCardHeader>
+                            <CardHeaderAvatar>
+                                <MudIcon Icon="@account.Icon" Size="Size.Large" Style="@($"color:{account.Color};")"></MudIcon>
+                            </CardHeaderAvatar>
+                            <CardHeaderContent>
+                                <MudText Typo="Typo.caption">@account.Name</MudText>
+                            </CardHeaderContent>
+                            <CardHeaderActions>
+                                <MudMenu Icon="@Icons.Material.Filled.MoreVert" AnchorOrigin="Origin.BottomRight" TransformOrigin="Origin.TopRight" Dense="false">
+                                    <MudMenuItem Icon="@Icons.Material.Filled.Edit" OnClick="@(() => OpenEditor(account))">
+                                        Edit
+                                    </MudMenuItem>
+                                    <MudMenuItem Icon="@Icons.Material.Filled.Delete" IconColor="Color.Error" OnClick="@(() => ConfirmDelete((int)account.Id!))">
+                                        <MudText Color="Color.Error">Delete</MudText>
+                                    </MudMenuItem>
+                                </MudMenu>
+                            </CardHeaderActions>
+                        </MudCardHeader>
+                        <MudCardContent>
+                            <MudStack Row AlignItems="AlignItems.Center">
+                                <MudText>Balance: </MudText>
+                                <AmountDisplay Amount="@account!.CurrentBalance" FontSize="Typo.h5" />
+                            </MudStack>
+                        </MudCardContent>
+                    </MudCard>
+                </MudItem>
+            }
         }
+    
+    </MudGrid>
+</MudContainer>
 
-        persistingSubscription = ApplicationState.RegisterOnPersisting(PersistAccounts);
-    }
+<MudDrawer @bind-Open="@_isSideDrawerOpen"
+           Fixed="true"
+           Anchor="Anchor.End"
+           Variant="@DrawerVariant.Temporary"
+           Width="min(100vw, 400px)"
+           Elevation="2">
+    
+    <div class="px-6 mt-6">
+        <AccountEditor Close="CloseDrawer" OnAccountSaved="CloseDrawerRefresh" AccountDto="@AccountToEdit" />
+    </div>
+</MudDrawer>
+    
+@code {
 
-    private Task PersistAccounts()
+    public List<AccountWithBalanceDto> AllAccounts { get; set; } = null;
+
+    private bool _isSideDrawerOpen = false;
+
+    private void CloseDrawer() => _isSideDrawerOpen = false;
+
+    private AccountDto AccountToEdit = new AccountDto();
+
+    private string searchString = "";
+
+    public List<AccountWithBalanceDto> FilteredAccounts
     {
-        ApplicationState.PersistAsJson(nameof(MyAccounts), MyAccounts);
-        return Task.CompletedTask;
-    }
-    public void Dispose()
-    {
-        persistingSubscription.Dispose();
+        get
+        {
+            return AllAccounts
+            .Where(c => (string.IsNullOrWhiteSpace(searchString) || c.Name!.Contains(searchString, StringComparison.OrdinalIgnoreCase)))
+            .ToList();
+        }
     }
 
-    private async Task OpenAccountDialogAsync(AccountWithBalanceDto? accountWithBalance)
+    protected override async Task OnInitializedAsync()
+    {
+        await RefreshPage();
+    }
+
+    private async Task OpenEditor(AccountWithBalanceDto? accountWithBalance)
     {
         var accountDto = new AccountDto();
-        if(accountWithBalance == null)
+        if (accountWithBalance == null)
         {
             accountDto.Color = "#1976d2";
         }
-        else{
+        else
+        {
             accountDto.Id = accountWithBalance.Id;
             accountDto.Name = accountWithBalance.Name;
             accountDto.InitialBalance = accountWithBalance.InitialBalance;
             accountDto.Color = accountWithBalance.Color;
             accountDto.Icon = accountWithBalance.Icon;
         }
-        var options = new DialogOptions
-        {
-            CloseOnEscapeKey = true,
-            NoHeader = false,
-            CloseButton = true,
-            MaxWidth = MaxWidth.Medium
-        };
 
-        var parameters = new DialogParameters<AccountDialog>
-        {
-            { x => x.AccountDto, accountDto }
-        };
-
-        var dialog = await DialogService.ShowAsync<AccountDialog>(title: "", parameters, options);
-        var result = await dialog.Result;
-        if (!result!.Canceled)
-        {
-            await UpdatePage();
-        }
+        AccountToEdit = accountDto;
+        _isSideDrawerOpen = true;
     }
 
+    private async Task CloseDrawerRefresh()
+    {
+        CloseDrawer();
+        await RefreshPage();
+    }
 
     private async Task ConfirmDelete(int accountId)
     {
-        var options = new DialogOptions { CloseOnEscapeKey = true };
-        var parameters = new DialogParameters<ConfirmDialog>
+        var parameters = new DialogParameters<ConfirmDeleteDialog>
         {
-            { x => x.Message, "Are you sure you want to delete the account and the related transactions? " }
+            { x => x.Message, "Are you sure you want to delete this account?" },
+            { x => x.OnDelete, () => AccountService.DeleteAccountAsync(accountId) }
         };
 
-        var dialog = await DialogService.ShowAsync<ConfirmDialog>(title: "", parameters, options);
-        var result = await dialog.Result;
-        if (!result!.Canceled)
+        var dialog = await DialogService.ShowAsync<ConfirmDeleteDialog>("Confirm", parameters);
+        var dialogResult = await dialog.Result;
+
+        if (!dialogResult!.Canceled)
         {
-            var res= await AccountService.DeleteAccountAsync(accountId);
-            if(res.IsSuccess)
+            var apiResult = (Result)dialogResult.Data!;
+
+            if (apiResult.IsSuccess)
             {
                 Snackbar.Add("Account successfully deleted!", Severity.Success);
-                await UpdatePage();
+                await RefreshPage();
             }
-            else if(res.Reason == FailureReason.Unauthorized)
+            else
+            {
+                Snackbar.Add(apiResult.ErrorMessage ?? "Error deleting account!", Severity.Error);
+            }
+        }
+    }
+
+    private bool IsRefreshing = false;
+
+    private async Task RefreshPage()
+    {
+        IsRefreshing = true;
+        StateHasChanged();
+
+        try
+        {
+            var result = await AccountService.GetAccountsWithBalanceAsync();
+            if (result.IsSuccess)
+            {
+                AllAccounts = result.Data!;
+            }
+            else if (result.Reason == FailureReason.Unauthorized)
             {
                 Snackbar.Add("Session expired. Please log in again.", Severity.Error);
                 NavigationManager.NavigateTo("/login");
             }
             else
             {
-                Snackbar.Add(res.ErrorMessage?.ToString() ?? "Error deleting account!", Severity.Error);
+                Snackbar.Add(result.ErrorMessage!, Severity.Error);
             }
         }
-    }
-
-
-    private async Task UpdatePage()
-    {
-        var result = await AccountService.GetAccountsWithBalanceAsync();
-        if (result.IsSuccess)
+        finally
         {
-            MyAccounts = result.Data!;
-        }
-        else if(result.Reason == FailureReason.Unauthorized)
-        {
-            Snackbar.Add("Session expired. Please log in again.", Severity.Error);
-            NavigationManager.NavigateTo("/login");
-        }
-        else
-        {
-            Snackbar.Add(result.ErrorMessage!, Severity.Error);
-            NavigationManager.NavigateTo("/login");
+            IsRefreshing = false;
         }
     }
 }

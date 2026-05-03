@@ -1,16 +1,12 @@
-html, body {
-    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+
+body{
+    overflow-x:hidden;
 }
 
 a, .btn-link {
     color: #006bb7;
 }
 
-.btn-primary {
-    color: #fff;
-    background-color: #1b6ec2;
-    border-color: #1861ac;
-}
 
 .btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
   box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
@@ -58,3 +54,36 @@ h1:focus {
 .form-floating > .form-control-plaintext:focus::placeholder, .form-floating > .form-control:focus::placeholder {
     text-align: start;
 }
+
+.mud-card {
+    transition: box-shadow 0.2s ease-in-out !important;
+}
+
+.mud-card:hover {
+    box-shadow: var(--mud-elevation-3) !important;
+}
+
+.mud-dialog {
+    border-radius: 28px !important;
+    padding: 8px;
+}
+
+.mud-button-filled,
+.mud-button-outlined,
+.mud-button-text {
+    border-radius: 9999px !important;
+}
+
+.mud-nav-link{
+    border-radius: 9999px !important;
+    margin-inline: 10px;
+    margin-bottom: 5px;
+}
+
+.mud-navmenu.mud-navmenu-default .mud-nav-link.active:not(.mud-nav-link-disabled) {
+    background-color: var(--mud-palette-secondary) !important; 
+    color: var(--mud-palette-secondary-text) !important; 
+}
+    .mud-navmenu.mud-navmenu-default .mud-nav-link.active:not(.mud-nav-link-disabled) svg {
+        color: var(--mud-palette-secondary-text) !important;
+    }

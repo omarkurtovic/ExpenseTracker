@@ -88,4 +88,33 @@ public class TagService(HttpClient httpClient) : ITagService
             return Result.Failure("An error occurred while deleting the tag.");
         }
     }
+
+    public async Task<Result<TagDto>> EditTagAsync(TagDto tagDto)
+    {
+        try
+        {
+            var request = new HttpRequestMessage(HttpMethod.Put, $"api/tags/{tagDto.Id}");
+            request.Content = JsonContent.Create(tagDto);
+            request.Content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
+            var response = await _httpClient.SendAsync(request);
+            if (response.IsSuccessStatusCode)
+            {
+                return Result<TagDto>.Success(tagDto);
+            }
+            else if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+            {
+                return Result<TagDto>.Failure("Unauthorized access.", FailureReason.Unauthorized);
+            }
+            else
+            {
+                Console.WriteLine($"Error updating tag! Status Code: {response.StatusCode}!");
+                return Result<TagDto>.Failure("Failed to update tag.");
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+            return Result<TagDto>.Failure("An error occurred while updating the tag.");
+        }
+    }
 }

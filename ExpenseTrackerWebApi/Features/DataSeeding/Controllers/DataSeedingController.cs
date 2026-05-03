@@ -13,7 +13,7 @@ namespace ExpenseTrackerWebApi.Features.Dashboard.Controllers
     [Authorize]
     public class DataSeedingController : ControllerBase
     {
-        private readonly ISender _mediator;   
+        private readonly ISender _mediator;
         private readonly UserManager<IdentityUser> _userManager;
 
         public DataSeedingController(ISender mediator, UserManager<IdentityUser> userManager)
@@ -21,7 +21,7 @@ namespace ExpenseTrackerWebApi.Features.Dashboard.Controllers
             _mediator = mediator;
             _userManager = userManager;
         }
-        
+
         [HttpPost]
         public async Task<IActionResult> SeedUserData([FromBody] DataSeedOptionsDto dataSeedOptionsDto)
         {

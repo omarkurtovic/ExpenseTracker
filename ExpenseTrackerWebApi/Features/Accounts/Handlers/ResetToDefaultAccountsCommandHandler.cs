@@ -20,7 +20,7 @@ namespace ExpenseTrackerWebApi.Features.Accounts.Handlers
         {
             await _context.Accounts.Where(c => c.IdentityUserId == request.UserId)
                 .ExecuteDeleteAsync(cancellationToken);
-            
+
             _context.ChangeTracker.Clear();
 
             var accounts = new List<Account>()

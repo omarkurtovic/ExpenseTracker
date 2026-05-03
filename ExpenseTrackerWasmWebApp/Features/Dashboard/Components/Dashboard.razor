@@ -1,8 +1,7 @@
 @page "/"
 @attribute [Authorize]
-@rendermode InteractiveWebAssembly
+@rendermode @(new InteractiveWebAssemblyRenderMode(prerender: false))
 
-@implements IDisposable
 @using ExpenseTrackerSharedCL.Features.Dashboard
 @using ExpenseTrackerSharedCL.Features.Dashboard.Dtos
 @using ExpenseTrackerSharedCL.Features.Transactions.Dtos
@@ -16,137 +15,151 @@
 @inject IDashboardService DashboardService
 @inject ISnackbar Snackbar
 @inject NavigationManager NavigationManager
-@inject PersistentComponentState ApplicationState
 
 
 <PageTitle>Dashboard</PageTitle>
 
-<MudContainer>
-    <MudPaper Class="pa-6 mt-6" Elevation="0">
+<MudContainer MaxWidth="MaxWidth.Large" Class="d-flex flex-column gap-5 mt-6">
+    @if (DashboardSummary == null)
+    {
+        <MudGrid>
+            @for(int i = 0; i < 3; ++i)
+            {
+                <MudItem xs="12" md="4">
+                    <MudCard Elevation="1">
+                        <MudCardHeader>
+                            <CardHeaderAvatar>
+                                <MudSkeleton SkeletonType="SkeletonType.Circle" Width="40px" Height="40px"></MudSkeleton>
+                            </CardHeaderAvatar>
+                            <CardHeaderContent>
+                                <MudSkeleton SkeletonType="SkeletonType.Rectangle" Width="100%" Height="40px"></MudSkeleton>
+                            </CardHeaderContent>
+                        </MudCardHeader>
+                        <MudCardContent>
+                            <MudSkeleton SkeletonType="SkeletonType.Rectangle" Width="100%" Height="40px"></MudSkeleton>
+                        </MudCardContent>
+                    </MudCard>
+                </MudItem>
+            }
+            @for(int i = 0; i < 2; ++i)
+            {
+                <MudItem xs="12" md="6">
+                    <MudCard Elevation="1" Style="width: 100%; height: 100%;">
+                        <MudCardHeader>
+                            <CardHeaderContent>
+                                <MudSkeleton SkeletonType="SkeletonType.Rectangle" Width="100%" Height="40px"></MudSkeleton>
+                            </CardHeaderContent>
+                        </MudCardHeader>
+                        <MudCardContent>
+                            <MudSkeleton SkeletonType="SkeletonType.Rectangle" Width="100%" Height="250px"></MudSkeleton>
+                        </MudCardContent>
+                    </MudCard>
+                </MudItem>
+            }
+        </MudGrid>
+    }
+    else
+    {
         <MudGrid>
             <MudItem xs="12" md="4">
-                <MudPaper Elevation="5" Class="pa-4 d-flex flex-column gap-4">
-                    <MudText Typo="Typo.h6">
-                        Balance
-                    </MudText>
-                    <AmountDisplay Amount="@DashboardSummary.Balance" FontSize="Typo.h4" />
-                </MudPaper>
+                <MudCard Elevation="1">
+                    <MudCardHeader>
+                        <CardHeaderAvatar>
+                            <MudIcon Icon="@Icons.Material.Filled.Balance" Size="MudBlazor.Size.Large" Color="MudBlazor.Color.Info"></MudIcon>
+                        </CardHeaderAvatar>
+                        <CardHeaderContent>
+                            <MudText Typo="Typo.caption">Balance</MudText>
+                        </CardHeaderContent>
+                    </MudCardHeader>
+                    <MudCardContent>
+                        <AmountDisplay Amount="@DashboardSummary.Balance" FontSize="Typo.h4" />
+                    </MudCardContent>
+                </MudCard>
             </MudItem>
             <MudItem xs="12" md="4">
-                <MudPaper Elevation="5" Class="pa-4 d-flex flex-column gap-4">
-                    <MudText Typo="Typo.h6">
-                        Income this month
-                    </MudText>
-                    <AmountDisplay Amount="@DashboardSummary.IncomeThisMonth" FontSize="Typo.h4" />
-                </MudPaper>
+                <MudCard Elevation="1">
+                    <MudCardHeader>
+                        <CardHeaderAvatar>
+                            <MudIcon Icon="@Icons.Material.Filled.TrendingUp" Size="MudBlazor.Size.Large" Color="MudBlazor.Color.Success"></MudIcon>
+                        </CardHeaderAvatar>
+                        <CardHeaderContent>
+                            <MudText Typo="Typo.caption">Income this month</MudText>
+                        </CardHeaderContent>
+                    </MudCardHeader>
+                    <MudCardContent>
+                        <AmountDisplay Amount="@DashboardSummary.IncomeThisMonth" FontSize="Typo.h4" />
+                    </MudCardContent>
+                </MudCard>
             </MudItem>
             <MudItem xs="12" md="4">
-                <MudPaper Elevation="5" Class="pa-4 d-flex flex-column gap-4">
-                    <MudText Typo="Typo.h6">
-                        Expenses this month
-                    </MudText>
-                    <AmountDisplay Amount="@DashboardSummary.ExpensesThisMonth" FontSize="Typo.h4" />
-                </MudPaper>
+                <MudCard Elevation="1">
+                    <MudCardHeader>
+                        <CardHeaderAvatar>
+                            <MudIcon Icon="@Icons.Material.Filled.TrendingDown" Size="MudBlazor.Size.Large" Color="MudBlazor.Color.Error"></MudIcon>
+                        </CardHeaderAvatar>
+                        <CardHeaderContent>
+                            <MudText Typo="Typo.caption">Expenses this month</MudText>
+                        </CardHeaderContent>
+                    </MudCardHeader>
+                    <MudCardContent>
+                        <AmountDisplay Amount="@DashboardSummary.ExpensesThisMonth" FontSize="Typo.h4" />
+                    </MudCardContent>
+                </MudCard>
             </MudItem>
-            <MudItem xs="12" md="6" Class="d-flex">
-                <MudPaper Elevation="5" Class="pa-4 flex-grow-1">
-                    <MudText Typo="Typo.h6">
-                        Expenses and Income last 6 months
-                    </MudText>
-                    <ApexChart TItem="CumulativeData">
+            <MudItem xs="12" md="6">
+                <MudCard Elevation="1" Style="width: 100%; height: 100%;">
+                    <MudCardHeader>
+                        <CardHeaderContent>
+                            <MudText Typo="Typo.caption">Expenses and Income last 6 months</MudText>
+                        </CardHeaderContent>
+                    </MudCardHeader>
+                    <MudCardContent>
+                        <ApexChart TItem="CumulativeData">
+                            <ApexPointSeries TItem="CumulativeData" Items="DashboardSummary.CumulativeIncomePerMonth" Name="Income"
+                                             XValue="@(e => e.TimePeriod)" YValue="@(e => e.Amount)"
+                                             SeriesType="SeriesType.Bar" />
 
-                        <ApexPointSeries TItem="CumulativeData" Items="DashboardSummary.CumulativeIncomePerMonth" Name="Income"
-                            XValue="@(e => e.TimePeriod)" YValue="@(e => e.Amount)"
-                            SeriesType="SeriesType.Bar" />
-
-                        <ApexPointSeries TItem="CumulativeData" Items="DashboardSummary.CumulativeExpensesPerMonth" Name="Expenses"
-                            XValue="@(e => e.TimePeriod)" YValue="@(e => e.Amount)"
-                            SeriesType="SeriesType.Bar" />
-                    </ApexChart>
-                </MudPaper>
+                            <ApexPointSeries TItem="CumulativeData" Items="DashboardSummary.CumulativeExpensesPerMonth" Name="Expenses"
+                                             XValue="@(e => e.TimePeriod)" YValue="@(e => e.Amount)"
+                                             SeriesType="SeriesType.Bar" />
+                        </ApexChart>
+                    </MudCardContent>
+                </MudCard>
             </MudItem>
-            <MudItem xs="12" md="6" Class="d-flex">
-                <MudPaper Elevation="5" Class="pa-4 flex-grow-1">
-                    <MudText Typo="Typo.h6">
-                        Top Expenses last 6 months
-                    </MudText>
-                    <ApexChart TItem="CategoryData">
-                        <ApexPointSeries TItem="CategoryData" Items="DashboardSummary.TopExpenseCategories" SeriesType="SeriesType.Donut"
-                            Name="Top Expenses by Category" XValue="@(e => e.Category)" YValue="@(e => e.Amount)">
-                        </ApexPointSeries>
-                    </ApexChart>
-                </MudPaper>
-            </MudItem>
-            <MudItem xs="12">
-                <MudPaper Elevation="5" Class="pa-4">
-                    <MudText Typo="Typo.h6">
-                        Latest transactions
-                    </MudText>
-                    <MudDataGrid T="TransactionDto" Items="@DashboardSummary.RecentTransactions" Class="mt-4">
-                        <Columns>
-                            <TemplateColumn Title="Account">
-                                <CellTemplate>
-                                    <MudPaper Elevation="0" Class="d-flex gap-2 align-center">
-                                        <TextWithIcon Text="@context.Item.AccountDto!.Name" Icon="@context.Item.AccountDto!.Icon" IconColor="@context.Item.AccountDto!.Color" IconSize="MudBlazor.Size.Small" TextTypo="Typo.body2"></TextWithIcon>
-                                    </MudPaper>
-                                </CellTemplate>
-                            </TemplateColumn>
-                            <TemplateColumn Title="Category">
-                                <CellTemplate>
-                                    <TextWithIcon Text="@context.Item.CategoryDto!.Name" Icon="@context.Item.CategoryDto!.Icon" IconColor="@context.Item.CategoryDto!.Color" IconSize="MudBlazor.Size.Small" TextTypo="Typo.body2"></TextWithIcon>
-                                </CellTemplate>
-                            </TemplateColumn>
-                            <PropertyColumn Property="t => t.Date" Format="dd/MM/yyyy" Title="Date"></PropertyColumn>
-                            <TemplateColumn Title="Amount">
-                                <CellTemplate>
-                                    <AmountDisplay Amount="(decimal)context.Item.Amount!" />
-                                </CellTemplate>
-                            </TemplateColumn>
-                        </Columns>
-                    </MudDataGrid>
-                </MudPaper>
+            <MudItem xs="12" md="6">
+                <MudCard Elevation="1" Style="width: 100%; height: 100%;">
+                    <MudCardHeader>
+                        <CardHeaderContent>
+                            <MudText Typo="Typo.caption">Top Expenses last 6 months</MudText>
+                        </CardHeaderContent>
+                    </MudCardHeader>
+                    <MudCardContent>
+                        <ApexChart TItem="CategoryData">
+                            <ApexPointSeries TItem="CategoryData" Items="DashboardSummary.TopExpenseCategories" SeriesType="SeriesType.Donut"
+                                             Name="Top Expenses by Category" XValue="@(e => e.Category)" YValue="@(e => e.Amount)">
+                            </ApexPointSeries>
+                        </ApexChart>
+                    </MudCardContent>
+                </MudCard>
             </MudItem>
         </MudGrid>
-    </MudPaper>
+    }
+    
 </MudContainer>
-
-<AddTransactionFab Class="d-flex d-md-none" OnClose="@(() => RefreshPage(false))" IsReoccuring="false" />
 
 @code {
 
-    public DashboardSummaryDto DashboardSummary { get; set; }
-
-    private PersistingComponentStateSubscription persistingSubscription;
+    public DashboardSummaryDto DashboardSummary { get; set; } = null!;
 
     protected override async Task OnInitializedAsync()
     {
-        if (!ApplicationState.TryTakeFromJson<DashboardSummaryDto>(nameof(DashboardSummary), out var dashboardSummary))
-        {
-            await RefreshPage();
-        }
-        else
-        {
-            DashboardSummary = dashboardSummary;
-        }
-
-        persistingSubscription = ApplicationState.RegisterOnPersisting(PersistDashboard);
-    }
-
-    private Task PersistDashboard()
-    {
-        ApplicationState.PersistAsJson(nameof(DashboardSummary), DashboardSummary);
-        return Task.CompletedTask;
-    }
-    public void Dispose()
-    {
-        persistingSubscription.Dispose();
+        await RefreshPage();
     }
 
     private async Task RefreshPage(bool showMessage = false)
     {
-
         var result = await DashboardService.GetDashboardSummaryAsync();
-        if(result.IsSuccess)
+        if (result.IsSuccess)
         {
             DashboardSummary = result.Data!;
             return;
@@ -161,6 +174,5 @@
         {
             Snackbar.Add("Failed to load dashboard data. Please try again.", Severity.Error);
         }
-
     }
 }

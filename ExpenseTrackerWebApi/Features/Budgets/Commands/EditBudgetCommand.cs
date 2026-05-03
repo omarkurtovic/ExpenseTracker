@@ -6,11 +6,11 @@ namespace ExpenseTrackerWebApi.Features.Budgets.Commands
 {
     public class EditBudgetCommand : IRequest<int>
     {
-        public required int Id{get; set;}
-        public required string UserId{get; set;}
-        public required BudgetDto BudgetDto{get; set;}
+        public required int Id { get; set; }
+        public required string UserId { get; set; }
+        public required BudgetDto BudgetDto { get; set; }
     }
-    
+
     public class EditBudgetCommandValidator : AbstractValidator<EditBudgetCommand>
     {
         public EditBudgetCommandValidator()

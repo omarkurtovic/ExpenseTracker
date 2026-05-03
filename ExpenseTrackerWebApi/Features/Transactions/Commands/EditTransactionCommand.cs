@@ -6,9 +6,9 @@ namespace ExpenseTrackerWebApi.Features.Transactions.Commands
 {
     public class EditTransactionCommand : IRequest<int>
     {
-        public int Id{get; set;}
-        public required string UserId{get; set;}
-        public required TransactionDto TransactionDto{get; set;}
+        public int Id { get; set; }
+        public required string UserId { get; set; }
+        public required TransactionDto TransactionDto { get; set; }
     }
 
     public class EditTransactionCommandValidator : AbstractValidator<EditTransactionCommand>
@@ -27,7 +27,7 @@ namespace ExpenseTrackerWebApi.Features.Transactions.Commands
             RuleFor(x => x.TransactionDto.Amount)
                 .NotEmpty().WithMessage("Amount is required!")
                 .When(x => x.TransactionDto != null);
-                
+
             RuleFor(x => x.TransactionDto.Amount)
                 .GreaterThan(0).WithMessage("Amount must be greater than 0!")
                 .When(x => x.TransactionDto != null);

@@ -19,10 +19,10 @@ namespace ExpenseTrackerWebApi.Database
         public virtual DbSet<Account> Accounts { get; set; }
         public virtual DbSet<Tag> Tags { get; set; }
         public virtual DbSet<TransactionTag> TransactionTags { get; set; }
-        public virtual DbSet<UserPreference> UserPreferences{get; set;}
+        public virtual DbSet<UserPreference> UserPreferences { get; set; }
         public virtual DbSet<Budget> Budgets { get; set; }
         public virtual DbSet<BudgetAccount> BudgetAccounts { get; set; }
-        public virtual DbSet<BudgetCategory> BudgetCategories {get; set;}
+        public virtual DbSet<BudgetCategory> BudgetCategories { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -30,11 +30,11 @@ namespace ExpenseTrackerWebApi.Database
             modelBuilder.Entity<UserPreference>()
              .HasKey(up => up.UserId);
 
-             modelBuilder.Entity<UserPreference>()
-                .HasOne(up => up.IdentityUser)
-                .WithOne() 
-                .HasForeignKey<UserPreference>(up => up.UserId)
-                .OnDelete(DeleteBehavior.Cascade);
+            modelBuilder.Entity<UserPreference>()
+               .HasOne(up => up.IdentityUser)
+               .WithOne()
+               .HasForeignKey<UserPreference>(up => up.UserId)
+               .OnDelete(DeleteBehavior.Cascade);
 
             modelBuilder.Entity<Account>()
                 .HasOne(a => a.IdentityUser)
@@ -89,25 +89,25 @@ namespace ExpenseTrackerWebApi.Database
                 .HasForeignKey(b => b.IdentityUserId)
                 .IsRequired();
 
-            
+
             modelBuilder.Entity<BudgetCategory>()
                 .HasKey(bc => new { bc.BudgetId, bc.CategoryId });
 
             modelBuilder.Entity<BudgetAccount>()
                 .HasKey(ba => new { ba.BudgetId, ba.AccountId });
-            
+
             modelBuilder.Entity<BudgetCategory>()
                 .HasOne(bc => bc.Budget)
                 .WithMany(bc => bc.BudgetCategories)
                 .HasForeignKey(bc => bc.BudgetId)
                 .OnDelete(DeleteBehavior.Cascade);
-            
+
             modelBuilder.Entity<BudgetAccount>()
                 .HasOne(ac => ac.Budget)
                 .WithMany(ac => ac.BudgetAccounts)
                 .HasForeignKey(ac => ac.BudgetId)
                 .OnDelete(DeleteBehavior.Cascade);
-                
+
             modelBuilder.Entity<Transaction>()
                 .Property(t => t.Amount)
                 .HasPrecision(18, 2);
@@ -117,10 +117,10 @@ namespace ExpenseTrackerWebApi.Database
                 .HasPrecision(18, 2);
 
 
-            modelBuilder.Entity<IdentityRole>().HasData(new IdentityRole 
+            modelBuilder.Entity<IdentityRole>().HasData(new IdentityRole
             {
-                Id = "1b1c59f2-891f-4732-a974-3b755208d0d9", 
-                Name = "Administrator", 
+                Id = "1b1c59f2-891f-4732-a974-3b755208d0d9",
+                Name = "Administrator",
                 NormalizedName = "ADMINISTRATOR",
                 ConcurrencyStamp = "a95a997e-84dd-4ef6-a759-1f36700a41f4"
             });
@@ -135,18 +135,18 @@ namespace ExpenseTrackerWebApi.Database
                 ConcurrencyStamp = "a95a997e-84dd-4ef6-a759-1f36700a41f4",
                 SecurityStamp = "c3691bab-bed8-4bcc-91fa-62bb12e2b245"
             });
-            
+
             modelBuilder.Entity<UserPreference>().HasData(
             new UserPreference
             {
-                UserId = "4e08d54b-16f0-47a0-afaf-afc12dbdedc8", 
+                UserId = "4e08d54b-16f0-47a0-afaf-afc12dbdedc8",
                 DarkMode = false
             });
-            
+
             modelBuilder.Entity<IdentityUserRole<string>>().HasData(
             new IdentityUserRole<string>
             {
-                RoleId = "1b1c59f2-891f-4732-a974-3b755208d0d9", 
+                RoleId = "1b1c59f2-891f-4732-a974-3b755208d0d9",
                 UserId = "4e08d54b-16f0-47a0-afaf-afc12dbdedc8"
             });
         }

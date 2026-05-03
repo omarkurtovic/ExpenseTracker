@@ -6,10 +6,10 @@ namespace ExpenseTrackerWebApi.Features.Transactions.Queries
 {
     public class GetAllTransactionsQuery : IRequest<List<TransactionDto>>
     {
-        public required string UserId{get; set; }
-        public required bool IsReoccuring{get; set;}
+        public required string UserId { get; set; }
+        public required bool IsReoccuring { get; set; }
     }
-    
+
     public class GetAllTransactionsQueryValidator : AbstractValidator<GetAllTransactionsQuery>
     {
         public GetAllTransactionsQueryValidator()

@@ -13,7 +13,7 @@ namespace ExpenseTrackerWebApi.Features.Accounts.Handlers
         {
             _context = context;
         }
-        
+
         public Task<List<AccountWithBalanceDto>> Handle(GetAccountsWithBalanceQuery request, CancellationToken cancellationToken)
         {
             return _context.Accounts.Where(a => a.IdentityUserId == request.UserId)

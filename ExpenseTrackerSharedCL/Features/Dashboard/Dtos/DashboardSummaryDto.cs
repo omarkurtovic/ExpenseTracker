@@ -5,17 +5,17 @@ namespace ExpenseTrackerSharedCL.Features.Dashboard.Dtos
 {
     public class DashboardSummaryDto
     {
-        public string Username{get; set;}
-        public decimal Balance{get; set;}
-        public decimal ExpensesThisMonth{get; set;}
-        public decimal IncomeThisMonth{get; set;}
+        public string Username { get; set; }
+        public decimal Balance { get; set; }
+        public decimal ExpensesThisMonth { get; set; }
+        public decimal IncomeThisMonth { get; set; }
 
         public List<CategoryData> TopExpenseCategories { get; set; }
 
-        public List<CumulativeData> CumulativeExpensesPerMonth {get; set;}
-        public List<CumulativeData> CumulativeIncomePerMonth {get; set;}
+        public List<CumulativeData> CumulativeExpensesPerMonth { get; set; }
+        public List<CumulativeData> CumulativeIncomePerMonth { get; set; }
 
-        public List<TransactionDto> Transactions{get; set;}
+        public List<TransactionDto> Transactions { get; set; }
 
         public List<TransactionDto> RecentTransactions
         {
@@ -37,7 +37,7 @@ namespace ExpenseTrackerSharedCL.Features.Dashboard.Dtos
             Transactions = [];
         }
     }
-    
+
     public class CategoryData
     {
         public string Category { get; set; } = string.Empty;
@@ -46,7 +46,7 @@ namespace ExpenseTrackerSharedCL.Features.Dashboard.Dtos
 
     public class CumulativeData
     {
-        public string TimePeriod {get; set;} = string.Empty;
-        public decimal Amount {get; set;}
+        public string TimePeriod { get; set; } = string.Empty;
+        public decimal Amount { get; set; }
     }
 }

@@ -4,7 +4,7 @@ namespace ExpenseTrackerSharedCL.Features.Budgets.Dtos
 {
     public class BudgetWithProgressDto
     {
-        public int Id{get; set;}
+        public int Id { get; set; }
         public string? Name { get; set; }
         public BudgetType? BudgetType { get; set; }
         public decimal? Amount { get; set; }
@@ -41,7 +41,7 @@ namespace ExpenseTrackerSharedCL.Features.Budgets.Dtos
                     return 0;
 
                 var progress = Math.Floor(Spent / (decimal)Amount * 100);
-                if(progress > 100)
+                if (progress > 100)
                     progress = 100;
                 return (int)progress;
             }

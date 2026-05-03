@@ -7,11 +7,11 @@ namespace ExpenseTrackerSharedCL.Features.Transactions.Dtos
 {
     public class TransactionsFiltersDto
     {
-        public TransactionTypeDto? TypeFilter{get; set;}
-        public DateFilterPreset? DateFilter{get; set;}
-        public IEnumerable<AccountDto> AccountsFilter{get; set;} = [];
-        public IEnumerable<CategoryDto> CategoriesFilter{get; set;} = [];
-        public IEnumerable<TagDto> TagsFilter{get; set;} = [];
+        public TransactionTypeDto? TypeFilter { get; set; }
+        public DateFilterPreset? DateFilter { get; set; }
+        public IEnumerable<AccountDto> AccountsFilter { get; set; } = [];
+        public IEnumerable<CategoryDto> CategoriesFilter { get; set; } = [];
+        public IEnumerable<TagDto> TagsFilter { get; set; } = [];
 
         public void ClearFilters()
         {
@@ -22,15 +22,40 @@ namespace ExpenseTrackerSharedCL.Features.Transactions.Dtos
             TagsFilter = [];
         }
 
-        public bool AreAnyFiltersActive()
+        public bool AreAnyFiltersActive
         {
-            return TypeFilter != null ||
+            get
+            {
+                return TypeFilter != null ||
                    DateFilter != null ||
                    AccountsFilter.Any() ||
                    CategoriesFilter.Any() ||
                    TagsFilter.Any();
+            }
         }
 
-        
+        public int ActiveFilterCount
+        {
+            get
+            {
+                int result = 0;
+                if (TypeFilter != null)
+                    result++;
+
+                if (DateFilter != null)
+                    result++;
+
+                if (AccountsFilter.Any())
+                    result++;
+
+                if (CategoriesFilter.Any())
+                    result++;
+
+                if (TagsFilter.Any())
+                    result++;
+
+                return result;
+            }
+        }
     }
 }

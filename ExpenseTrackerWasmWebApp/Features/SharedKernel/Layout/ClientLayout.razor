@@ -1,5 +1,6 @@
 ﻿@rendermode InteractiveWebAssembly
 @using ApexCharts
+@using ExpenseTrackerSharedCL.Features.SharedKernel.Services
 @using ExpenseTrackerSharedCL.Features.UserPreferences.Dtos
 @using ExpenseTrackerSharedCL.Features.UserPreferences.Services
 @using Microsoft.AspNetCore.Components.Routing
@@ -14,20 +15,21 @@
 @inject AuthenticationStateProvider AuthenticationStateProvider
 
 
-<MudPopoverProvider />
-<MudDialogProvider />
+<MudPopoverProvider  />
+<MudDialogProvider  />
 <MudSnackbarProvider />
-<MudThemeProvider @bind-IsDarkMode="@UserPreference.DarkMode" Theme="_theme" />
+<MudThemeProvider @bind-IsDarkMode="@UserPreference.DarkMode" Theme="ThemeService.Theme" />
 
-<MudAppBar Elevation="1">
-    <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="MudBlazor.Color.Inherit" Edge="Edge.Start"
-                    OnClick="@((e) => DrawerToggle())" />
+<MudAppBar Elevation="0">
+    <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="MudBlazor.Color.Default" Edge="Edge.Start"
+                   OnClick="@((e) => DrawerToggle())" />
     <MudSpacer />
-    <MudSwitch @bind-Value="UserPreference.DarkMode" Color="MudBlazor.Color.Primary" Class="ma-4" T="bool" Label="Dark Mode"
-                @bind-Value:after="this.ThemeChanged" />
+    <MudIconButton Icon="@(UserPreference.DarkMode ? Icons.Material.Filled.LightMode : Icons.Material.Filled.DarkMode)"
+                   Color="MudBlazor.Color.Default"
+                   OnClick="ThemeChanged" />
     <MudMenu AnchorOrigin="Origin.BottomLeft" Icon="@Icons.Material.Filled.AccountCircle">
         <ActivatorContent>
-            <MudAvatar Color="MudBlazor.Color.Primary">
+            <MudAvatar Color="MudBlazor.Color.Secondary">
                 <MudIcon Icon="@Icons.Material.Filled.Person" />
             </MudAvatar>
         </ActivatorContent>
@@ -38,17 +40,17 @@
             <MudDivider />
             <MudMenuItem Icon="@Icons.Material.Filled.Logout" OnClick="Logout" Color="MudBlazor.Color.Error">Logout</MudMenuItem>
         </ChildContent>
-        </MudMenu>
+    </MudMenu>
 </MudAppBar>
-<MudDrawer @bind-Open="_drawerOpen" Elevation="2" Fixed="true">
+<MudDrawer @bind-Open="_drawerOpen" Elevation="2" Fixed="true" >
     <MudDrawerHeader>
         <MudText Typo="Typo.h5" Class="mt-1">Expense Tracker</MudText>
     </MudDrawerHeader>
     <MudNavMenu>
-        <MudNavLink Href="" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Dashboard">
+        <MudNavLink Href="" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.SpaceDashboard">
             Dashboard
         </MudNavLink>
-        <MudNavLink Href="transactions?isReoccuring=false" Icon="@Icons.Material.Filled.CompareArrows" ForceLoad="true">
+        <MudNavLink Href="transactions?isReoccuring=false" Icon="@Icons.Material.Filled.ReceiptLong" ForceLoad="true">
             Transactions
         </MudNavLink>
         <MudNavLink Href="accounts" Icon="@Icons.Material.Filled.AccountBalance" ForceLoad="true">
@@ -57,11 +59,14 @@
         <MudNavLink Href="categories" Icon="@Icons.Material.Filled.Category">
             Categories
         </MudNavLink>
-        <MudNavLink Href="transactions?isReoccuring=true" Icon="@Icons.Material.Filled.Category" ForceLoad="true">
+        <MudNavLink Href="transactions?isReoccuring=true" Icon="@Icons.Material.Filled.EventRepeat" ForceLoad="true">
             Reoccuring transactions
         </MudNavLink>
-        <MudNavLink Href="budgets" Icon="@Icons.Material.Filled.Money">
+        <MudNavLink Href="budgets" Icon="@Icons.Material.Filled.Savings">
             Budgets
+        </MudNavLink>
+        <MudNavLink Href="tags" Icon="@Icons.Material.Filled.LocalOffer">
+            Tags
         </MudNavLink>
     </MudNavMenu>
 </MudDrawer>
@@ -93,9 +98,8 @@
     private string email = "";
 
     [PersistentState]
-    public UserPreferenceDto UserPreference{ get; set; } = new();
+    public UserPreferenceDto UserPreference { get; set; } = new();
 
-    private MudTheme _theme = new();
 
     protected override async Task OnInitializedAsync()
     {
@@ -172,6 +176,7 @@
 
     private async Task ThemeChanged()
     {
+        UserPreference.DarkMode = !UserPreference.DarkMode;
         var result = await UserPreferenceService.UpdateUserPreferencesAsync(UserPreference);
         await RefreshGraphs();
         StateHasChanged();
@@ -179,7 +184,7 @@
 
     private async Task RefreshGraphs()
     {
-        if(apexChartService == null)
+        if (apexChartService == null)
         {
             return;
         }
@@ -198,6 +203,4 @@
             }
         }, true);
     }
-
-
 }

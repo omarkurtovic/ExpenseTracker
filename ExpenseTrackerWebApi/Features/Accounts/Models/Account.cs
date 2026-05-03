@@ -9,16 +9,17 @@ namespace ExpenseTrackerWebApi.Features.Accounts.Models
         public int Id { get; set; }
         public string Name { get; set; } = string.Empty;
         public decimal InitialBalance { get; set; }
-        public string? Icon {get; set;}
-        public string? Color {get; set;}
-        public string IdentityUserId {get; set;} = string.Empty;
+        public string? Icon { get; set; }
+        public string? Color { get; set; }
+        public string IdentityUserId { get; set; } = string.Empty;
         public IdentityUser IdentityUser { get; set; } = null!;
         public ICollection<Transaction> Transactions { get; set; } = [];
         public ICollection<BudgetAccount> BudgetAccounts { get; set; } = [];
 
         public bool Equals(Account? other)
-        {if (ReferenceEquals(null, other)) return false;
-        if (ReferenceEquals(this, other)) return true;
+        {
+            if (ReferenceEquals(null, other)) return false;
+            if (ReferenceEquals(this, other)) return true;
             return Id == other.Id;
         }
 

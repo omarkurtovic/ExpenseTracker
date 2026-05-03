@@ -17,12 +17,12 @@ namespace ExpenseTrackerWebApi.Features.Accounts.Handlers
             var account = await _context.Accounts
                 .Where(a => a.Id == request.Id).FirstOrDefaultAsync(cancellationToken);
 
-            if(account == null)
+            if (account == null)
             {
                 throw new ArgumentException("Account not found!");
             }
 
-            if(account.IdentityUserId != request.UserId)
+            if (account.IdentityUserId != request.UserId)
             {
                 throw new UnauthorizedAccessException("Account does not belong to user!");
             }

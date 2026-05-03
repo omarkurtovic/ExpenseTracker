@@ -2,12 +2,12 @@ namespace ExpenseTrackerSharedCL.Features.DataSeeding.Dtos
 {
     public class DataSeedOptionsDto
     {
-        public int? NumberOfTransaction{get; set;}
-        public int? TransactionMinAmount{get; set;}
-        public int? TransactionMaxAmount{get; set;}
-        public DateTime? TransactionStartDate{get; set;}
-        public DateTime? TransactionEndDate{get; set;}
-        public  int? MaxNumberOfTags{get; set;}
+        public int? NumberOfTransaction { get; set; }
+        public int? TransactionMinAmount { get; set; }
+        public int? TransactionMaxAmount { get; set; }
+        public DateTime? TransactionStartDate { get; set; }
+        public DateTime? TransactionEndDate { get; set; }
+        public int? MaxNumberOfTags { get; set; }
 
         public DataSeedOptionsDto()
         {

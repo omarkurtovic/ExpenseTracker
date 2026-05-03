@@ -1,0 +1,236 @@
+@page "/tags"
+@attribute [Authorize]
+@rendermode @(new InteractiveWebAssemblyRenderMode(prerender: false))
+
+@using ExpenseTrackerSharedCL.Features.Tags.Dtos
+@using ExpenseTrackerSharedCL.Features.Tags.Service
+@using ExpenseTrackerSharedCL.Features.SharedKernel
+@using ExpenseTrackerWasmWebApp.Features.SharedKernel
+@using ExpenseTrackerWasmWebApp.Features.SharedKernel.Components
+@using ExpenseTrackerWasmWebApp.Features.SharedKernel.Components.Titles
+@using ExpenseTrackerWasmWebApp.Features.SharedKernel.Components.Dialogs
+@using Microsoft.AspNetCore.Authorization
+@using MudBlazor
+@using Microsoft.AspNetCore.Components.Web
+@using System.Net.Http.Headers
+@using MudBlazor.Utilities
+@inject IDialogService DialogService
+@inject ISnackbar Snackbar
+@inject IJSRuntime JSRuntime
+@inject ITagService TagService
+@inject NavigationManager NavigationManager
+
+
+<PageTitle>Tags</PageTitle>
+
+<MudContainer MaxWidth="MaxWidth.Medium" Class="d-flex flex-column gap-5 mt-6">
+
+    <MudGrid>
+        <MudItem xs="12">
+            <MudStack Row Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center">
+                <MainPageTitle Title="Tags"></MainPageTitle>
+                <MudButton Class="d-none d-md-flex" Variant="Variant.Filled" Color="Color.Primary" OnClick="@(() => OpenEditor(null))" StartIcon="@Icons.Material.Filled.Add">Add</MudButton>
+                <FabButton Class="d-flex d-md-none" Text="Add" IconClass="@Icons.Material.Filled.Add" OnClick="@(() => OpenEditor(null))" />
+            </MudStack>
+        </MudItem>
+
+        <MudItem xs="12">
+            <MudTextField @bind-Value="searchString"
+                          Placeholder="Search tags..."
+                          Adornment="Adornment.Start"
+                          AdornmentIcon="@Icons.Material.Filled.Search"
+                          IconSize="Size.Medium"
+                          Variant="Variant.Outlined"
+                          Immediate="true" />
+        </MudItem>
+
+        @if (AllTags == null)
+        {
+            @for (int i = 0; i < 4; i++)
+            {
+                <MudItem xs="12" md="6">
+                    <MudCard Elevation="1">
+                        <MudCardHeader>
+                            <CardHeaderAvatar>
+                                <MudSkeleton SkeletonType="SkeletonType.Circle" Width="40px" Height="40px" />
+                            </CardHeaderAvatar>
+                            <CardHeaderContent>
+                                <MudSkeleton SkeletonType="SkeletonType.Rectangle" Width="100%" Height="20px" />
+                            </CardHeaderContent>
+                        </MudCardHeader>
+                    </MudCard>
+                </MudItem>
+            }
+        }
+        else if (AllTags.Count == 0)
+        {
+            <MudItem xs="12">
+                <NoRecords Title="No tags created yet"
+                           Message="Create your first tag to organize your transactions."></NoRecords>
+            </MudItem>
+        }
+        else if (FilteredTags.Count == 0)
+        {
+            <MudItem xs="12">
+                <NoRecords Title="No tags found"
+                           Message="Change your search terms to show tags." Filtered></NoRecords>
+            </MudItem>
+        }
+        else
+        {
+            @if (IsRefreshing)
+            {
+                <MudItem xs="12">
+                    <MudProgressLinear Color="Color.Primary" Indeterminate="true" Class="mb-4" />
+                </MudItem>
+            }
+            @foreach (var tag in FilteredTags)
+            {
+                <MudItem xs="12" md="6">
+                    <MudCard Elevation="1">
+                        <MudCardHeader>
+                            <CardHeaderAvatar>
+                                <div style="@($"width:30px;height:30px;border-radius:50%;background-color:{tag.Color};")"></div>
+                            </CardHeaderAvatar>
+                            <CardHeaderContent>
+                                <MudText Typo="Typo.caption">@tag.Name</MudText>
+                            </CardHeaderContent>
+                            <CardHeaderActions>
+                                <MudMenu Icon="@Icons.Material.Filled.MoreVert" AnchorOrigin="Origin.BottomRight" TransformOrigin="Origin.TopRight" Dense="false">
+                                    <MudMenuItem Icon="@Icons.Material.Filled.Edit" OnClick="@(() => OpenEditor(tag))">
+                                        Edit
+                                    </MudMenuItem>
+                                    <MudMenuItem Icon="@Icons.Material.Filled.Delete" IconColor="Color.Error" OnClick="@(() => ConfirmDelete((int)tag.Id!))">
+                                        <MudText Color="Color.Error">Delete</MudText>
+                                    </MudMenuItem>
+                                </MudMenu>
+                            </CardHeaderActions>
+                        </MudCardHeader>
+                    </MudCard>
+                </MudItem>
+            }
+        }
+
+    </MudGrid>
+</MudContainer>
+
+<MudDrawer @bind-Open="@_isSideDrawerOpen"
+           Fixed="true"
+           Anchor="Anchor.End"
+           Variant="@DrawerVariant.Temporary"
+           Width="min(100vw, 400px)"
+           Elevation="2">
+
+    <div class="px-6 mt-6">
+        <TagEditor Close="CloseDrawer" OnTagSaved="CloseDrawerRefresh" TagDto="@TagToEdit" />
+    </div>
+</MudDrawer>
+
+@code {
+
+    public List<TagDto> AllTags { get; set; } = null;
+
+    private bool _isSideDrawerOpen = false;
+
+    private void CloseDrawer() => _isSideDrawerOpen = false;
+
+    private TagDto TagToEdit = new TagDto();
+
+    private string searchString = "";
+
+    public List<TagDto> FilteredTags
+    {
+        get
+        {
+            return AllTags
+            .Where(c => (string.IsNullOrWhiteSpace(searchString) || c.Name!.Contains(searchString, StringComparison.OrdinalIgnoreCase)))
+            .ToList();
+        }
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await RefreshPage();
+    }
+
+    private async Task OpenEditor(TagDto? tag)
+    {
+        var tagDto = new TagDto();
+        if (tag == null)
+        {
+            tagDto.Color = "#1976d2";
+        }
+        else
+        {
+            tagDto.Id = tag.Id;
+            tagDto.Name = tag.Name;
+            tagDto.Color = tag.Color;
+        }
+
+        TagToEdit = tagDto;
+        _isSideDrawerOpen = true;
+    }
+
+    private async Task CloseDrawerRefresh()
+    {
+        CloseDrawer();
+        await RefreshPage();
+    }
+
+    private async Task ConfirmDelete(int tagId)
+    {
+        var parameters = new DialogParameters<ConfirmDeleteDialog>
+        {
+            { x => x.Message, "Are you sure you want to delete this tag?" },
+            { x => x.OnDelete, () => TagService.DeleteTagAsync(tagId) }
+        };
+
+        var dialog = await DialogService.ShowAsync<ConfirmDeleteDialog>("Confirm", parameters);
+        var dialogResult = await dialog.Result;
+
+        if (!dialogResult!.Canceled)
+        {
+            var apiResult = (Result)dialogResult.Data!;
+
+            if (apiResult.IsSuccess)
+            {
+                Snackbar.Add("Tag successfully deleted!", Severity.Success);
+                await RefreshPage();
+            }
+            else
+            {
+                Snackbar.Add(apiResult.ErrorMessage ?? "Error deleting tag!", Severity.Error);
+            }
+        }
+    }
+
+    private bool IsRefreshing = false;
+
+    private async Task RefreshPage()
+    {
+        IsRefreshing = true;
+        StateHasChanged();
+
+        try
+        {
+            var result = await TagService.GetTagsAsync();
+            if (result.IsSuccess)
+            {
+                AllTags = result.Data!;
+            }
+            else if (result.Reason == FailureReason.Unauthorized)
+            {
+                Snackbar.Add("Session expired. Please log in again.", Severity.Error);
+                NavigationManager.NavigateTo("/login");
+            }
+            else
+            {
+                Snackbar.Add(result.ErrorMessage!, Severity.Error);
+            }
+        }
+        finally
+        {
+            IsRefreshing = false;
+        }
+    }
+}

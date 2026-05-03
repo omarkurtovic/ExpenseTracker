@@ -37,10 +37,10 @@ namespace ExpenseTrackerWebApp.SharedKernel.Transactions.Handlers
                 .Select(t => t.Id)
                 .ToListAsync(cancellationToken);
 
-            if(oldTransactions == null)
+            if (oldTransactions == null)
                 throw new ArgumentException("Transaction not found!");
 
-            if(oldTransactions.Category.IdentityUserId != request.UserId)
+            if (oldTransactions.Category.IdentityUserId != request.UserId)
                 throw new UnauthorizedAccessException("Transaction does not belong to user!");
 
             if (!userCategoryIds.Contains((int)request.TransactionDto.CategoryId!))
@@ -59,9 +59,11 @@ namespace ExpenseTrackerWebApp.SharedKernel.Transactions.Handlers
             oldTransactions.CategoryId = (int)request.TransactionDto.CategoryId!;
             oldTransactions.IsReoccuring = request.TransactionDto.IsReoccuring;
             oldTransactions.ReoccuranceFrequency = (ReoccuranceFrequency?)request.TransactionDto.ReoccuranceFrequency;
-            
-            if(oldTransactions.IsReoccuring!= null && oldTransactions.IsReoccuring == true && oldTransactions.ReoccuranceFrequency != null){
-                switch(oldTransactions.ReoccuranceFrequency){
+
+            if (oldTransactions.IsReoccuring != null && oldTransactions.IsReoccuring == true && oldTransactions.ReoccuranceFrequency != null)
+            {
+                switch (oldTransactions.ReoccuranceFrequency)
+                {
                     case ReoccuranceFrequency.Daily:
                         oldTransactions.NextReoccuranceDate = oldTransactions.Date.AddDays(1);
                         break;
@@ -76,7 +78,7 @@ namespace ExpenseTrackerWebApp.SharedKernel.Transactions.Handlers
                         break;
                 }
             }
-            
+
             oldTransactions.Amount = Math.Abs(oldTransactions.Amount);
             if ((TransactionType)request.TransactionDto.TransactionType! == TransactionType.Expense)
             {

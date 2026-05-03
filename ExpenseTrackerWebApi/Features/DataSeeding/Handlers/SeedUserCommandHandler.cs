@@ -11,7 +11,8 @@ using ExpenseTrackerWebApi.Features.Transactions.Models;
 using MediatR;
 
 
-namespace ExpenseTrackerWebApp.Features.Transactions.Handlers{
+namespace ExpenseTrackerWebApp.Features.Transactions.Handlers
+{
     public class SeedUserCommandHandler : IRequestHandler<SeedUserCommand>
     {
         private readonly AppDbContext _context;
@@ -25,16 +26,16 @@ namespace ExpenseTrackerWebApp.Features.Transactions.Handlers{
 
         public async Task Handle(SeedUserCommand request, CancellationToken cancellationToken)
         {
-            await _mediator.Send(new ResetToDefaultAccountsCommand { UserId =  request.UserId }, cancellationToken);
-            await _mediator.Send(new ResetToDefaultCategoriesCommand { UserId =  request.UserId }, cancellationToken);
-            await _mediator.Send(new ResetToDefaultTagsCommand { UserId =  request.UserId }, cancellationToken);
+            await _mediator.Send(new ResetToDefaultAccountsCommand { UserId = request.UserId }, cancellationToken);
+            await _mediator.Send(new ResetToDefaultCategoriesCommand { UserId = request.UserId }, cancellationToken);
+            await _mediator.Send(new ResetToDefaultTagsCommand { UserId = request.UserId }, cancellationToken);
             var accounts = await _mediator.Send(new GetAccountsQuery { UserId = request.UserId });
             var categories = await _mediator.Send(new GetCategoriesQuery { UserId = request.UserId });
             var tags = await _mediator.Send(new GetTagsQuery { UserId = request.UserId });
 
             var random = new Random();
             List<Transaction> transactions = new List<Transaction>();
-            
+
             for (int i = 0; i < request.Options.NumberOfTransaction; i++)
             {
                 var daysInterval = (DateTime)request.Options.TransactionEndDate! - (DateTime)request.Options.TransactionStartDate!;
@@ -44,7 +45,7 @@ namespace ExpenseTrackerWebApp.Features.Transactions.Handlers{
                 var category = categories[random.Next(categories.Count)];
                 var account = accounts[random.Next(accounts.Count)];
                 var amount = random.Next((int)request.Options.TransactionMinAmount!, (int)request.Options.TransactionMaxAmount! + 1);
-                if((TransactionType)category.Type! == TransactionType.Expense)
+                if ((TransactionType)category.Type! == TransactionType.Expense)
                 {
                     amount = -amount;
                 }
@@ -65,7 +66,7 @@ namespace ExpenseTrackerWebApp.Features.Transactions.Handlers{
             await _context.SaveChangesAsync();
 
             List<TransactionTag> transactionTags = new List<TransactionTag>();
-            foreach(var transaction in transactions)
+            foreach (var transaction in transactions)
             {
                 var tagCount = random.Next(0, (int)request.Options.MaxNumberOfTags! + 1);
                 var assignedTags = new List<int>();
@@ -92,7 +93,7 @@ namespace ExpenseTrackerWebApp.Features.Transactions.Handlers{
             _context.TransactionTags.AddRange(transactionTags);
             await _context.SaveChangesAsync();
         }
-        
+
         private static string? GetRandomDescription(Random random)
         {
             var descriptions = new List<string?>()
@@ -106,11 +107,11 @@ namespace ExpenseTrackerWebApp.Features.Transactions.Handlers{
                 "Pharmacy", "Doctor visit", "Gym membership", "Vitamins",
                 "Course fees", "Books", "Online class",
                 "Movie tickets", "Concert", "Games", "Hobby supplies",
-                "Pet food", "Vet visit", "Pet supplies", null 
+                "Pet food", "Vet visit", "Pet supplies", null
             };
 
             return descriptions[random.Next(descriptions.Count)];
         }
-    
+
     }
 }

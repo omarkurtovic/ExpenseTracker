@@ -26,13 +26,20 @@
 
 <PageTitle>Registration</PageTitle>
 
-<MudContainer MaxWidth="MaxWidth.Small" >
-    <MudPaper Class="pa-6 mt-6" Elevation="15">
+<MudCard>
+    <MudCardHeader>
+        <CardHeaderContent>
+            <MudStack Row Justify="Justify.Center">
+                <MudText Typo="Typo.h4" Class="">Create an Account</MudText>
+            </MudStack>
+        </CardHeaderContent>
+    </MudCardHeader>
+
+    <MudCardContent>
         <EditForm Model="@Input" method="post" OnValidSubmit="RegisterUser" FormName="register">
             <DataAnnotationsValidator />
             <MudGrid>
                 <MudItem xs="12" Class="d-flex justify-center">
-                    <MudText Typo="Typo.h4">Create an Account</MudText>
                 </MudItem>
                 <MudItem xs="12">
                     <MudStaticTextField T="string" @bind-Value="Input.Email" Label="E-Mail" InputType="InputType.Text" Variant="Variant.Text"></MudStaticTextField>
@@ -57,10 +64,8 @@
                 </MudItem>
             </MudGrid>
         </EditForm>
-    </MudPaper>
-</MudContainer>
-
-    
+    </MudCardContent>
+</MudCard>
 
 
 @code {

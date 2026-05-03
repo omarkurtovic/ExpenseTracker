@@ -3,8 +3,9 @@ using ExpenseTrackerWebApi.Features.Accounts.Commands;
 using ExpenseTrackerWebApi.Features.Accounts.Models;
 using MediatR;
 
-namespace ExpenseTrackerWebApi.Features.Accounts.Handlers{
-    
+namespace ExpenseTrackerWebApi.Features.Accounts.Handlers
+{
+
     public class CreateAccountCommandHandler : IRequestHandler<CreateAccountCommand, int>
     {
         private readonly AppDbContext _context;
@@ -30,5 +31,5 @@ namespace ExpenseTrackerWebApi.Features.Accounts.Handlers{
             return account.Id;
         }
     }
-    
+
 }
