@@ -22,15 +22,40 @@ namespace ExpenseTrackerSharedCL.Features.Transactions.Dtos
             TagsFilter = [];
         }
 
-        public bool AreAnyFiltersActive()
+        public bool AreAnyFiltersActive
         {
-            return TypeFilter != null ||
+            get
+            {
+                return TypeFilter != null ||
                    DateFilter != null ||
                    AccountsFilter.Any() ||
                    CategoriesFilter.Any() ||
                    TagsFilter.Any();
+            }
         }
 
+        public int ActiveFilterCount
+        {
+            get
+            {
+                int result = 0;
+                if (TypeFilter != null)
+                    result++;
 
+                if (DateFilter != null)
+                    result++;
+
+                if (AccountsFilter.Any())
+                    result++;
+
+                if (CategoriesFilter.Any())
+                    result++;
+
+                if (TagsFilter.Any())
+                    result++;
+
+                return result;
+            }
+        }
     }
 }

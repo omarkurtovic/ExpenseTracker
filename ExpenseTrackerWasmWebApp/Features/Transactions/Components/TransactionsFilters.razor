@@ -99,10 +99,10 @@
 </MudGrid>
 
 <MudStack Row="true" Justify="Justify.Center" AlignItems="AlignItems.Center" Spacing="2" Class="mt-4">
-    <MudButton Variant="Variant.Outlined" OnClick="ClearFilters"
-               Disabled="@(!AreAnyFiltersActive())"
+    <MudButton Variant="Variant.Text" OnClick="ClearFilters"
+               Disabled="@(!Filters.AreAnyFiltersActive)"
                StartIcon="@Icons.Material.Filled.FilterListOff">
-        Clear
+        Clear All
     </MudButton>
     <MudButton OnClick="ApplyFilters" Color="Color.Primary" Variant="Variant.Filled"
                StartIcon="@Icons.Material.Filled.FilterList">
@@ -112,17 +112,17 @@
 
 @code {
     [Parameter]
-    public Func<Task> RefreshMainGrid { get; set; } = null!;
-
-    [Parameter]
     public EventCallback Close{get; set;}
 
     [Parameter]
     public TransactionsFiltersDto Filters { get; set; } = new TransactionsFiltersDto();
 
     private List<AccountDto> Accounts = [];
+
     private List<CategoryDto> Categories = [];
+
     private List<TagDto> Tags = [];
+
     protected override async Task OnInitializedAsync()
     {
         var lookupsLoaded = await LoadLookupsAsync();
@@ -163,19 +163,15 @@
 
     private async void ClearFilters()
     {
-        Filters = new TransactionsFiltersDto();
-        await RefreshMainGrid();
+        Filters.ClearFilters();
+        await Close.InvokeAsync();
     }
 
     private async void ApplyFilters()
     {
-        await RefreshMainGrid();
+        await Close.InvokeAsync();
     }
 
-    public bool AreAnyFiltersActive()
-    {
-        return Filters.AreAnyFiltersActive();
-    }
     private string GetAccountsMultiSelectionText(List<string> selectedAccounts)
     {
         return string.Join(", ", selectedAccounts);

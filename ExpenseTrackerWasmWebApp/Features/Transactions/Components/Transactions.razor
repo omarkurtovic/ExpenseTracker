@@ -32,28 +32,82 @@
 
     <MudStack Row Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center">
         <MainPageTitle Title="@(IsReoccuring ? "Reoccuring Transactions" : "Transactions")"></MainPageTitle>
-        <MudStack Row>
-            <MudButton Class="d-none d-md-flex" Variant="Variant.Filled" Color="Color.Primary" OnClick="@(() => OpenEditor(null))" StartIcon="@Icons.Material.Filled.Add">Add</MudButton>
+        <MudStack Row Spacing="2" AlignItems="AlignItems.Center">
+            <MudBadge Content="@Filters.ActiveFilterCount" Color="Color.Primary" Overlap="true" Visible="@Filters.AreAnyFiltersActive">
+                <MudIconButton Icon="@Icons.Material.Filled.FilterList"
+                               Color="Color.Default"
+                               OnClick="OpenFilters" />
+            </MudBadge>
+            <MudButton Variant="Variant.Filled"
+                       Color="Color.Primary"
+                       StartIcon="@Icons.Material.Filled.Add"
+                       OnClick="@(() => OpenEditor(null))">
+                Add
+            </MudButton>
             <MudMenu Icon="@Icons.Material.Filled.MoreVert" AnchorOrigin="Origin.BottomRight" TransformOrigin="Origin.TopRight" Dense="false">
-                <MudMenuItem Icon="@Icons.Material.Filled.Filter" OnClick="OpenFilters">
-                    Filters
-                </MudMenuItem>
-                <MudMenuItem Icon="@Icons.Material.Filled.ImportExport" OnClick="OpenExport">
-                    Export
-                </MudMenuItem>
+                <MudMenuItem Icon="@Icons.Material.Filled.Refresh" OnClick="RefreshPage">Refresh</MudMenuItem>
+                <MudMenuItem Icon="@Icons.Material.Filled.Download" OnClick="OpenExport">Export CSV</MudMenuItem>
                 @if (IsAdmin)
                 {
                     <MudMenuItem Icon="@Icons.Material.Filled.Add" OnClick="OpenSeed">
-                        Add Test Data
+                        Seed Test Data
                     </MudMenuItem>
                 }
-                <MudMenuItem Icon="@Icons.Material.Filled.Refresh" OnClick="RefreshPage">
-                    Refresh
-                </MudMenuItem>
             </MudMenu>
         </MudStack>
-        <FabButton Class="d-flex d-md-none" Text="Add" IconClass="@Icons.Material.Filled.Add" OnClick="@(() => OpenEditor(null))" />
     </MudStack>
+
+    @if (Filters.AreAnyFiltersActive)
+    {
+        <MudStack Row="true" Spacing="2" AlignItems="AlignItems.Center" Class="mb-4 flex-wrap">
+            <MudText Typo="Typo.body2" Class="mr-2">Active Filters:</MudText>
+            
+            @if (Filters.AccountsFilter.Any())
+            {
+                <MudChip T="string" Variant="Variant.Filled" OnClose="@(() => Filters.AccountsFilter = [])">
+                    @(Filters.AccountsFilter.Count() == 1 ? $"Account: {Filters.AccountsFilter.First().Name}" : $"Accounts ({Filters.AccountsFilter.Count()})")
+                </MudChip>
+            }
+            
+            @if (Filters.CategoriesFilter.Any())
+            {
+                <MudChip T="string" Variant="Variant.Filled" OnClose="@(() => Filters.CategoriesFilter = [])">
+                    @(Filters.CategoriesFilter.Count() == 1 ? $"Category: {Filters.CategoriesFilter.First().Name}" : $"Accounts ({Filters.CategoriesFilter.Count()})")
+                </MudChip>
+            }
+            
+            @if (Filters.CategoriesFilter.Any())
+            {
+                <MudChip T="string" Variant="Variant.Filled" OnClose="@(() => Filters.CategoriesFilter = [])">
+                    @(Filters.CategoriesFilter.Count() == 1 ? $"Category: {Filters.CategoriesFilter.First().Name}" : $"Category ({Filters.CategoriesFilter.Count()})")
+                </MudChip>
+            }
+
+            @if (Filters.DateFilter != null)
+            {
+                <MudChip T="string" Variant="Variant.Filled" OnClose="@(() => Filters.DateFilter = null)">
+                    @($"Date: {Filters.DateFilter.ToString()}")
+                </MudChip>
+            }
+            
+            @if (Filters.TypeFilter != null)
+            {
+                <MudChip T="string" Variant="Variant.Filled" OnClose="@(() => Filters.TypeFilter = null)">
+                    @($"Type: {Filters.TypeFilter.ToString()}")
+                </MudChip>
+            }
+            
+            @if (Filters.TagsFilter.Any())
+            {
+                <MudChip T="string" Variant="Variant.Filled" OnClose="@(() => Filters.TagsFilter = [])">
+                    @(Filters.TagsFilter.Count() == 1 ? $"Tags: {Filters.TagsFilter.First().Name}" : $"Tags ({Filters.TagsFilter.Count()})")
+                </MudChip>
+            }
+            
+            <MudButton Color="Color.Default"
+            Variant="Variant.Text" Size="Size.Small" OnClick="Filters.ClearFilters">Clear All</MudButton>
+        </MudStack>
+    }
 
     <MudDataGrid @ref="@DataGrid" T="TransactionDto" Hover Groupable Height="65vh" ItemSize="30f"
                  SortMode="SortMode.Single" ServerData="ServerReload" FixedHeader FixedFooter>
@@ -147,7 +201,7 @@
     <div class="px-6 mt-6">
         @if (DrawerMode == DrawerMode.Filters)
         {
-            <TransactionsFilters Close="CloseDrawer" Filters="@Filters" RefreshMainGrid="RefreshPage"></TransactionsFilters>
+            <TransactionsFilters Close="CloseDrawerRefresh" Filters="@Filters"></TransactionsFilters>
         }
         else if (DrawerMode == DrawerMode.AddTransaction)
         {
@@ -181,7 +235,6 @@
     private TransactionEditor TransactionDialog = null!;
 
     private TransactionsFiltersDto Filters { get; set; } = new TransactionsFiltersDto();
-
 
     private bool IsSideDrawerOpen = false;
 
