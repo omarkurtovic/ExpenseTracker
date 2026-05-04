@@ -1,4 +1,5 @@
 ﻿using ExpenseTrackerWebApi.Features.Logging.Enums;
+using Microsoft.AspNetCore.Identity;
 
 namespace ExpenseTrackerWebApi.Features.Logging.Models
 {
@@ -6,7 +7,9 @@ namespace ExpenseTrackerWebApi.Features.Logging.Models
     {
         public Guid Id { get; set; } = Guid.NewGuid();
 
-        public string? UserId { get; set; }
+        public string IdentityUserId { get; set; } = string.Empty;
+
+        public IdentityUser IdentityUser { get; set; } = null!;
 
         public DateTime Timestamp { get; set; } = DateTime.UtcNow;
 
@@ -20,5 +23,4 @@ namespace ExpenseTrackerWebApi.Features.Logging.Models
 
         public long? ElapsedMilliseconds { get; set; }
     }
-
 }

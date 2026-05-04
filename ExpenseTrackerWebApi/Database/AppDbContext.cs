@@ -83,6 +83,11 @@ namespace ExpenseTrackerWebApi.Database
                 .HasForeignKey(tt => tt.TagId)
                 .OnDelete(DeleteBehavior.Cascade);
 
+            modelBuilder.Entity<SystemLog>()
+                .HasOne(a => a.IdentityUser)
+                .WithMany()
+                .HasForeignKey(a => a.IdentityUserId)
+                .IsRequired();
 
             // budget
             modelBuilder.Entity<Budget>()

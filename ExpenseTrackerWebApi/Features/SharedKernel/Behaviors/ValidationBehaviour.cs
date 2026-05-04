@@ -29,7 +29,7 @@ namespace ExpenseTrackerWebApi.Features.SharedKernel.Behaviors
                 failures.AddRange(result.Errors);
             }
 
-            if (failures.Any())
+            if (failures.Any()) 
                 throw new ValidationException(failures);
 
             return await next();

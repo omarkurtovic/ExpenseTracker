@@ -30,4 +30,8 @@
     <ProjectReference Include="..\ExpenseTrackerSharedCL\ExpenseTrackerSharedCL.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Features\Logging\" />
+  </ItemGroup>
+
 </Project>

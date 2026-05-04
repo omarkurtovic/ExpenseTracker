@@ -9,12 +9,12 @@ namespace ExpenseTrackerWebApi.Features.Dashboard.Controllers
     [ApiController]
     [Route("api/[controller]")]
     [Authorize]
-    public class DashboardController : ControllerBase
+    public class LogController : ControllerBase
     {
         private readonly ISender _mediator;
         private readonly UserManager<IdentityUser> _userManager;
 
-        public DashboardController(ISender mediator, UserManager<IdentityUser> userManager)
+        public LogController(ISender mediator, UserManager<IdentityUser> userManager)
         {
             _mediator = mediator;
             _userManager = userManager;
