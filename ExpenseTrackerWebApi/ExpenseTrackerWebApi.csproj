@@ -7,6 +7,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Database\Models\**" />
+    <Content Remove="Database\Models\**" />
+    <EmbeddedResource Remove="Database\Models\**" />
+    <None Remove="Database\Models\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Extensions.MudBlazor.StaticInput" Version="3.2.1" />
     <PackageReference Include="FluentValidation" Version="12.1.1" />
     <PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="12.1.1" />
@@ -27,10 +34,6 @@
   <ItemGroup>
     <ProjectReference Include="..\ExpenseTrackerSharedCL\ExpenseTrackerSharedCL.csproj" />
     <ProjectReference Include="..\ExpenseTrackerWasmWebApp\ExpenseTrackerWasmWebApp.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Database\Models\" />
   </ItemGroup>
 
 </Project>

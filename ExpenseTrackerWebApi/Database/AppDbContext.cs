@@ -1,6 +1,7 @@
 using ExpenseTrackerWebApi.Features.Accounts.Models;
 using ExpenseTrackerWebApi.Features.Budgets.Models;
 using ExpenseTrackerWebApi.Features.Categories.Models;
+using ExpenseTrackerWebApi.Features.Logging.Models;
 using ExpenseTrackerWebApi.Features.Tags.Models;
 using ExpenseTrackerWebApi.Features.Transactions.Models;
 using ExpenseTrackerWebApi.Features.UserPreferences.Models;
@@ -23,6 +24,7 @@ namespace ExpenseTrackerWebApi.Database
         public virtual DbSet<Budget> Budgets { get; set; }
         public virtual DbSet<BudgetAccount> BudgetAccounts { get; set; }
         public virtual DbSet<BudgetCategory> BudgetCategories { get; set; }
+        public virtual DbSet<SystemLog> SystemLogs { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
