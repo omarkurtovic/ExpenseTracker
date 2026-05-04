@@ -80,7 +80,7 @@
             <MudItem xs="12">
                 <MudSelect @bind-Value="TransactionDto.CategoryId" Label="Category" Variant="Variant.Outlined"
                            Required="true" RequiredError="Category is required!">
-                    @foreach (var category in AllCategories)
+                    @foreach (var category in _allCategories)
                     {
                         <MudSelectItem Value="@((int?)category.Id)">
                             <TextWithIcon Text="@category.Name" Icon="@category.Icon" IconColor="@category.Color" IconSize="Size.Small"></TextWithIcon>

@@ -21,6 +21,4 @@ namespace ExpenseTrackerSharedCL.Features.Logging.Dtos
 
         public long? ElapsedMilliseconds { get; set; }
     }
-
-
 }

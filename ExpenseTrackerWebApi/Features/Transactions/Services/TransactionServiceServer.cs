@@ -8,15 +8,11 @@ using System.Transactions;
 
 namespace ExpenseTrackerWebApi.Features.Transactions.Services
 {
-    public class TransactionServiceServer : ITransactionService
+    public class TransactionServiceServer(ISender mediator, IHttpContextAccessor httpContextAccessor) : ITransactionService
     {
-        private readonly ISender _mediator;
-        private readonly IHttpContextAccessor _httpContextAccessor;
-        public TransactionServiceServer(ISender mediator, IHttpContextAccessor httpContextAccessor)
-        {
-            _mediator = mediator;
-            _httpContextAccessor = httpContextAccessor;
-        }
+        private readonly ISender _mediator = mediator;
+        private readonly IHttpContextAccessor _httpContextAccessor = httpContextAccessor;
+
         public Task<Result> CreateTransactionAsync(TransactionDto transactionDto)
         {
             throw new NotImplementedException();

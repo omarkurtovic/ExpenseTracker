@@ -9,28 +9,20 @@ using System.Diagnostics;
 namespace ExpenseTrackerWebApi.Features.SharedKernel.Behaviors
 {
 
-    public class PerformanceBehaviour<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse>
+    public class PerformanceBehaviour<TRequest, TResponse>(
+        IServiceScopeFactory scopeFactory,
+        IHttpContextAccessor httpContextAccessor) : IPipelineBehavior<TRequest, TResponse>
         where TRequest : IRequest<TResponse>
     {
-        private readonly Stopwatch _timer; 
-        private readonly IHttpContextAccessor _httpContextAccessor; 
-        private readonly IServiceScopeFactory _scopeFactory;
-
-
-        public PerformanceBehaviour(
-            IServiceScopeFactory scopeFactory,
-            IHttpContextAccessor httpContextAccessor)
-        {
-            _timer = new Stopwatch();
-            _scopeFactory = scopeFactory;
-            _httpContextAccessor = httpContextAccessor;
-        }
+        private readonly Stopwatch _timer = new(); 
+        private readonly IHttpContextAccessor _httpContextAccessor = httpContextAccessor; 
+        private readonly IServiceScopeFactory _scopeFactory = scopeFactory;
 
         public async Task<TResponse> Handle(TRequest request, RequestHandlerDelegate<TResponse> next, CancellationToken cancellationToken)
         {
             _timer.Start();
 
-            var response = await next();
+            var response = await next(cancellationToken);
 
             _timer.Stop();
 
@@ -53,7 +45,7 @@ namespace ExpenseTrackerWebApi.Features.SharedKernel.Behaviors
                     var log = new SystemLog
                     {
                         Type = LogType.Performance,
-                        UserId = userId,
+                        IdentityUserId = userId,
                         RequestName = requestName,
                         ElapsedMilliseconds = elapsedMilliseconds,
                         Message = $"Long Running Request Detected: {requestName} ({elapsedMilliseconds} milliseconds)"
@@ -61,7 +53,7 @@ namespace ExpenseTrackerWebApi.Features.SharedKernel.Behaviors
 
                     dbContext.SystemLogs.Add(log);
                     await dbContext.SaveChangesAsync();
-                });
+                }, cancellationToken);
             }
 
             return response;

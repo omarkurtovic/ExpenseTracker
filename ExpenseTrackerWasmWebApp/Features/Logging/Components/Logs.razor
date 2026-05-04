@@ -1,0 +1,249 @@
+﻿@page "/logs"
+@attribute [Authorize]
+@rendermode @(new InteractiveWebAssemblyRenderMode(prerender: false))
+
+@using ExpenseTrackerSharedCL.Features.Categories.Dtos
+@using ExpenseTrackerSharedCL.Features.Logging.Dtos
+@using ExpenseTrackerSharedCL.Features.Logging.Services
+@using ExpenseTrackerSharedCL.Features.SharedKernel
+@using ExpenseTrackerSharedCL.Features.SharedKernel.Services
+@using ExpenseTrackerSharedCL.Features.Tags.Dtos
+@using ExpenseTrackerSharedCL.Features.Transactions.Dtos
+@using ExpenseTrackerSharedCL.Features.Transactions.Services
+@using ExpenseTrackerWasmWebApp.Features.Transactions.Enums
+@using ExpenseTrackerWasmWebApp.Features.Transactions.Services
+@using Microsoft.AspNetCore.Authorization
+@using MudBlazor
+@using Microsoft.AspNetCore.Components.Web
+@using ExpenseTrackerWasmWebApp.Features.SharedKernel.Components
+@using ExpenseTrackerWasmWebApp.Features.SharedKernel.Components.Titles
+@using ExpenseTrackerWasmWebApp.Features.SharedKernel.Components.Dialogs
+@using System.Net.Http.Headers
+@using ExpenseTrackerWasmWebApp.Features.DataSeeding.Components
+@using MudBlazor.Extensions
+@using ExpenseTrackerWasmWebApp.Features.Export.Components
+@inject IDialogService DialogService
+@inject ISnackbar Snackbar
+@inject IJSRuntime JSRuntime
+@inject ILogService LogService
+@inject NavigationManager NavigationManager
+@inject AuthenticationStateProvider AuthenticationStateProvider
+
+<PageTitle>Logs</PageTitle>
+
+<MudContainer MaxWidth="MaxWidth.Large" Class="d-flex flex-column gap-5 mt-6">
+
+    <MudStack Row Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center">
+        <MainPageTitle Title="Logs"></MainPageTitle>
+        <MudStack Row Spacing="2" AlignItems="AlignItems.Center">
+@*             <MudBadge Content="@Filters.ActiveFilterCount" Color="Color.Primary" Overlap="true" Visible="@Filters.AreAnyFiltersActive">
+                <MudIconButton Icon="@Icons.Material.Filled.FilterList"
+                               Color="Color.Default"
+                               OnClick="OpenFilters" />
+            </MudBadge> *@
+            <MudMenu Icon="@Icons.Material.Filled.MoreVert" AnchorOrigin="Origin.BottomRight" TransformOrigin="Origin.TopRight" Dense="false">
+                <MudMenuItem Icon="@Icons.Material.Filled.Refresh" OnClick="RefreshPage">Refresh</MudMenuItem>
+            </MudMenu>
+        </MudStack>
+    </MudStack>
+
+    @* @if (Filters.AreAnyFiltersActive)
+    {
+        <MudStack Row="true" Spacing="2" AlignItems="AlignItems.Center" Class="mb-4 flex-wrap">
+            <MudText Typo="Typo.body2" Class="mr-2">Active Filters:</MudText>
+            
+            @if (Filters.AccountsFilter.Any())
+            {
+                <MudChip T="string" Variant="Variant.Filled" OnClose="@(() => Filters.AccountsFilter = [])">
+                    @(Filters.AccountsFilter.Count() == 1 ? $"Account: {Filters.AccountsFilter.First().Name}" : $"Accounts ({Filters.AccountsFilter.Count()})")
+                </MudChip>
+            }
+            
+            @if (Filters.CategoriesFilter.Any())
+            {
+                <MudChip T="string" Variant="Variant.Filled" OnClose="@(() => Filters.CategoriesFilter = [])">
+                    @(Filters.CategoriesFilter.Count() == 1 ? $"Category: {Filters.CategoriesFilter.First().Name}" : $"Accounts ({Filters.CategoriesFilter.Count()})")
+                </MudChip>
+            }
+            
+            @if (Filters.CategoriesFilter.Any())
+            {
+                <MudChip T="string" Variant="Variant.Filled" OnClose="@(() => Filters.CategoriesFilter = [])">
+                    @(Filters.CategoriesFilter.Count() == 1 ? $"Category: {Filters.CategoriesFilter.First().Name}" : $"Category ({Filters.CategoriesFilter.Count()})")
+                </MudChip>
+            }
+
+            @if (Filters.DateFilter != null)
+            {
+                <MudChip T="string" Variant="Variant.Filled" OnClose="@(() => Filters.DateFilter = null)">
+                    @($"Date: {Filters.DateFilter.ToString()}")
+                </MudChip>
+            }
+            
+            @if (Filters.TypeFilter != null)
+            {
+                <MudChip T="string" Variant="Variant.Filled" OnClose="@(() => Filters.TypeFilter = null)">
+                    @($"Type: {Filters.TypeFilter.ToString()}")
+                </MudChip>
+            }
+            
+            @if (Filters.TagsFilter.Any())
+            {
+                <MudChip T="string" Variant="Variant.Filled" OnClose="@(() => Filters.TagsFilter = [])">
+                    @(Filters.TagsFilter.Count() == 1 ? $"Tags: {Filters.TagsFilter.First().Name}" : $"Tags ({Filters.TagsFilter.Count()})")
+                </MudChip>
+            }
+            
+            <MudButton Color="Color.Default"
+            Variant="Variant.Outlined" Size="Size.Small" OnClick="Filters.ClearFilters">Clear All</MudButton>
+        </MudStack>
+    } *@
+
+    <MudDataGrid @ref="@DataGrid" T="SystemLogDto" Hover Groupable Height="65vh" ItemSize="30f"
+                 SortMode="SortMode.Single" ServerData="ServerReload" FixedHeader FixedFooter>
+@*         <NoRecordsContent>
+            @if (Filters.AreAnyFiltersActive)
+            {
+                <NoRecords Title="No transactions found"
+                           Message="Change your filters or search terms to show transactions." Filtered />
+            }
+            else
+            {
+                <NoRecords Title="No transactions yet"
+                           Message="Create your first transaction to start tracking your spending." />
+            }
+        </NoRecordsContent> *@
+        <Columns>
+            <PropertyColumn Property="t => t.Username" Title="Username" Sortable="true" Groupable="false">
+            </PropertyColumn>
+            <PropertyColumn Property="t => t.Timestamp" Title="Timestamp" Sortable="true" Groupable="false">
+            </PropertyColumn>
+            <PropertyColumn Property="t => t.Type" Title="Type" Sortable="true" Groupable="false">
+            </PropertyColumn>
+            <PropertyColumn Property="t => t.RequestName" Title="Request Name" Sortable="true" Groupable="false">
+            </PropertyColumn>
+            <PropertyColumn Property="t => t.Message" Title="Message" Sortable="true" Groupable="false">
+            </PropertyColumn>
+            <PropertyColumn Property="t => t.Details" Title="Details" Sortable="true" Groupable="false">
+            </PropertyColumn>
+            <PropertyColumn Property="t => t.ElapsedMilliseconds" Title="Elapsed Time (ms)" Sortable="true" Groupable="false">
+            </PropertyColumn>
+        </Columns>
+        <PagerContent>
+            <MudDataGridPager T="SystemLogDto" />
+        </PagerContent>
+    </MudDataGrid>
+</MudContainer>
+
+@* <MudDrawer @bind-Open="@IsSideDrawerOpen" 
+           Fixed="true"
+           Anchor="Anchor.End"
+           Variant="@DrawerVariant.Temporary"
+           Width="min(100vw, 400px)"
+           Elevation="2">
+    <div class="px-6 mt-6">
+        @if (DrawerMode == DrawerMode.Filters)
+        {
+            <TransactionsFilters Close="CloseDrawerRefresh" Filters="@Filters"></TransactionsFilters>
+        }
+        else if (DrawerMode == DrawerMode.AddTransaction)
+        {
+            <TransactionEditor Close="CloseDrawer" @ref="TransactionDialog" OnTransactionSaved="CloseDrawerRefresh" IsReoccuring="@IsReoccuring" />
+        }
+        else if (DrawerMode == DrawerMode.Export)
+        {
+            <Export Close="CloseDrawer" Options="ExportOptions" OnExportFinished="CloseDrawer" />
+        }
+        else if (DrawerMode == DrawerMode.Seeding)
+        {
+            <DataSeed Close="CloseDrawer" OnSeedingFinished="CloseDrawerRefresh" />
+        }
+    </div>
+</MudDrawer> *@
+@code {
+
+    private MudDataGrid<SystemLogDto> DataGrid = null!;
+
+    private int NumberOfLogs = -1;
+
+    private SortDefinition<SystemLogDto>? CurrentSort;
+
+    //private TransactionsFiltersDto Filters { get; set; } = new TransactionsFiltersDto();
+
+   // private bool IsSideDrawerOpen = false;
+
+    // private void CloseDrawer() => IsSideDrawerOpen = false;
+
+    // private void OpenDrawer(DrawerMode mode)
+    // {
+    //     IsSideDrawerOpen = true;
+    //     DrawerMode = mode;
+    // }
+    
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        await DataGrid.ReloadServerData();
+        await base.OnAfterRenderAsync(firstRender);
+    }
+
+    private async Task<GridData<SystemLogDto>> ServerReload(GridState<SystemLogDto> state)
+    {
+        LogsGridOptionsDto options = new LogsGridOptionsDto();
+        var sortDefintion = state.SortDefinitions.FirstOrDefault();
+        if (sortDefintion != null)
+        {
+            options.SortBy = sortDefintion.SortBy;
+            options.SortDescending = sortDefintion.Descending;
+            CurrentSort = sortDefintion;
+        }
+        options.PageSize = state.PageSize;
+        options.CurrentPage = state.Page;
+        //options.Filters = Filters;
+        var result = await LogService.GetLogsAsync(options);
+
+        if (result.IsSuccess && result.Data is not null)
+        {
+            return new GridData<SystemLogDto>()
+            {
+                Items = result.Data.Logs,
+                TotalItems = result.Data.TotalItems
+            };
+        }
+
+        if (result.Reason == FailureReason.Unauthorized)
+        {
+            Snackbar.Add("Session expired. Please log in again.", Severity.Error);
+            NavigationManager.NavigateTo("/login");
+        }
+        else
+        {
+            Snackbar.Add(result.ErrorMessage ?? "Error fetching transactions!", Severity.Error);
+        }
+
+        return new GridData<SystemLogDto>()
+        {
+            Items = new List<SystemLogDto>(),
+            TotalItems = 0
+        };
+    }
+
+
+    // private async Task CloseDrawerRefresh()
+    // {
+    //     CloseDrawer();
+    //     await RefreshPage();
+    // }
+    
+
+    private async Task RefreshPage()
+    {
+        if (DataGrid != null)
+        {
+            await DataGrid.ReloadServerData();
+        }
+        else
+        {
+            StateHasChanged();
+        }
+    }
+}

@@ -4,6 +4,7 @@ using ExpenseTrackerSharedCL.Features.Accounts.Services;
 using ExpenseTrackerSharedCL.Features.Budgets.Services;
 using ExpenseTrackerSharedCL.Features.Categories;
 using ExpenseTrackerSharedCL.Features.Dashboard;
+using ExpenseTrackerSharedCL.Features.Logging.Services;
 using ExpenseTrackerSharedCL.Features.Tags.Service;
 using ExpenseTrackerSharedCL.Features.Transactions.Services;
 using ExpenseTrackerSharedCL.Features.UserPreferences.Services;
@@ -12,6 +13,7 @@ using ExpenseTrackerWasmWebApp.Features.Budgets.Services;
 using ExpenseTrackerWasmWebApp.Features.Categories.Services;
 using ExpenseTrackerWasmWebApp.Features.Dashboard.Services;
 using ExpenseTrackerWasmWebApp.Features.DataSeeding.Services;
+using ExpenseTrackerWasmWebApp.Features.Logging.Services;
 using ExpenseTrackerWasmWebApp.Features.Tags.Services;
 using ExpenseTrackerWasmWebApp.Features.Transactions.Services;
 using ExpenseTrackerWasmWebApp.Features.UserPreferences.Services;
@@ -78,5 +80,6 @@ void ConfigureCustomServices(IServiceCollection services)
     services.AddScoped<ITransactionService, TransactionService>();
     services.AddScoped<ITagService, TagService>();
     services.AddScoped<IUserPreferenceService, UserPreferenceService>();
+    services.AddScoped<ILogService, LogService>();
     services.AddScoped<DataSeedService>();
 }

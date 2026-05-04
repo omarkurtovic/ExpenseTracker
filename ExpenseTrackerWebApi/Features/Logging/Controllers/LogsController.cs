@@ -10,32 +10,18 @@ namespace ExpenseTrackerWebApi.Features.Logging.Controllers
     [ApiController]
     [Route("api/[controller]")]
     [Authorize]
-    public class LogsController : ControllerBase
+    public class LogsController(ISender mediator, UserManager<IdentityUser> userManager) : ControllerBase
     {
-        private readonly ISender _mediator;
-        private readonly UserManager<IdentityUser> _userManager;
-
-        public LogsController(ISender mediator, UserManager<IdentityUser> userManager)
-        {
-            _mediator = mediator;
-            _userManager = userManager;
-        }
+        private readonly ISender _mediator = mediator;
+        private readonly UserManager<IdentityUser> _userManager = userManager;
 
         [HttpPost]
-        [Route("logs")]
+        [Route("search")]
         public async Task<IActionResult> GetLogs([FromBody] LogsGridOptionsDto logOptions)
         {
-            try
-            {
-                var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value!;
-                var logs = await _mediator.Send(new GetLogsPageDataQuery() { UserId = userId, LogOptions = logOptions });
-                return Ok(logs);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error getting logs: {ex.Message}");
-                return StatusCode(500, "An error occurred while processing your request.");
-            }
+            var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value!;
+            var logs = await _mediator.Send(new GetLogsPageDataQuery() { UserId = userId, LogOptions = logOptions });
+            return Ok(logs);
         }
     }
 }

@@ -2,9 +2,11 @@ using ExpenseTrackerSharedCL.Features.Accounts.Services;
 using ExpenseTrackerSharedCL.Features.Budgets.Services;
 using ExpenseTrackerSharedCL.Features.Categories;
 using ExpenseTrackerSharedCL.Features.Dashboard;
+using ExpenseTrackerSharedCL.Features.Logging.Services;
 using ExpenseTrackerSharedCL.Features.Tags.Service;
 using ExpenseTrackerSharedCL.Features.Transactions.Services;
 using ExpenseTrackerSharedCL.Features.UserPreferences.Services;
+using ExpenseTrackerWasmWebApp.Features.Logging.Services;
 using ExpenseTrackerWebApi;
 using ExpenseTrackerWebApi.Database;
 using ExpenseTrackerWebApi.Features.Accounts.Services;
@@ -12,10 +14,12 @@ using ExpenseTrackerWebApi.Features.Auth;
 using ExpenseTrackerWebApi.Features.Budgets.Services;
 using ExpenseTrackerWebApi.Features.Categories.Services;
 using ExpenseTrackerWebApi.Features.Dashboard;
+using ExpenseTrackerWebApi.Features.Logging.Services;
 using ExpenseTrackerWebApi.Features.SharedKernel.Behaviors;
 using ExpenseTrackerWebApi.Features.Tags.Services;
 using ExpenseTrackerWebApi.Features.Transactions.Services;
 using ExpenseTrackerWebApi.Features.UserPreferences.Services;
+using ExpenseTrackerWebApi.Middleware;
 using FluentValidation;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
@@ -46,6 +50,7 @@ builder.Services.AddScoped<IBudgetService, BudgetServiceServer>();
 builder.Services.AddScoped<ITransactionService, TransactionServiceServer>();
 builder.Services.AddScoped<ITagService, TagServiceServer>();
 builder.Services.AddScoped<IUserPreferenceService, UserPreferenceServiceServer>();
+builder.Services.AddScoped<ILogService, LogServiceServer>();
 
 
 // this is needed for code outside of controllers
@@ -90,6 +95,7 @@ else
     app.UseHsts();
 }
 
+app.UseMiddleware<GlobalExceptionMiddleware>();
 app.UseHttpsRedirection();
 
 app.UseAuthentication();
@@ -118,37 +124,6 @@ void ConfigureDatabase(IServiceCollection services, IWebHostEnvironment env)
     else
         services.AddDbContext<AppDbContext>(options =>
             options.UseSqlite("Data Source=/home/app.db"));
-}
-
-void ConfigureAuthentication(IServiceCollection services)
-{
-    services.AddIdentity<IdentityUser, IdentityRole>()
-        .AddEntityFrameworkStores<AppDbContext>()
-        .AddDefaultTokenProviders();
-
-    services.AddAuthentication(options =>
-    {
-        options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-        options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-        options.DefaultSignInScheme = JwtBearerDefaults.AuthenticationScheme;
-        options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
-    })
-    .AddJwtBearer(options =>
-    {
-        options.TokenValidationParameters = new TokenValidationParameters
-        {
-            ValidateIssuer = true,
-            ValidateAudience = true,
-            ValidateLifetime = true,
-            ValidateIssuerSigningKey = true,
-            ValidIssuer = "ExpenseTrackerWebApi",
-            ValidAudience = "ExpenseTrackerWebApiUsers",
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("YourSuperSecretKeyThatIsAtLeast32CharactersLongForSecurity"))
-        };
-    });
-    services.AddAuthorization();
-
-
 }
 
 void ConfigureMediatR(IServiceCollection services)

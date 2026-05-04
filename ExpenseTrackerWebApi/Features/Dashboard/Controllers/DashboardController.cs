@@ -9,36 +9,22 @@ namespace ExpenseTrackerWebApi.Features.Dashboard.Controllers
     [ApiController]
     [Route("api/[controller]")]
     [Authorize]
-    public class LogController : ControllerBase
+    public class DashboardController(ISender mediator, UserManager<IdentityUser> userManager) : ControllerBase
     {
-        private readonly ISender _mediator;
-        private readonly UserManager<IdentityUser> _userManager;
-
-        public LogController(ISender mediator, UserManager<IdentityUser> userManager)
-        {
-            _mediator = mediator;
-            _userManager = userManager;
-        }
+        private readonly ISender _mediator = mediator;
+        private readonly UserManager<IdentityUser> _userManager = userManager;
 
         [HttpGet]
         public async Task<IActionResult> GetDashboardSummary([FromQuery] int monthsBehindToConsider = 5, [FromQuery] int maxCategoriesToShow = 6)
         {
-            try
+            var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+            var dashboardSummary = await _mediator.Send(new GetDashboardSummaryQuery()
             {
-                var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
-                var dashboardSummary = await _mediator.Send(new GetDashboardSummaryQuery()
-                {
-                    UserId = userId!,
-                    MonthsBehindToConsider = monthsBehindToConsider,
-                    MaxCategoriesToShow = maxCategoriesToShow
-                });
-                return Ok(dashboardSummary);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error getting dashboard summary: {ex.Message}");
-                return StatusCode(500, "An error occurred while processing your request.");
-            }
+                UserId = userId!,
+                MonthsBehindToConsider = monthsBehindToConsider,
+                MaxCategoriesToShow = maxCategoriesToShow
+            });
+            return Ok(dashboardSummary);
         }
     }
 }

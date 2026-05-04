@@ -67,8 +67,10 @@ public class TransactionService(HttpClient httpClient) : ITransactionService
         transactionDto.TransactionTags = [];
         try
         {
-            var request = new HttpRequestMessage(HttpMethod.Post, $"api/transactions");
-            request.Content = JsonContent.Create(transactionDto);
+            var request = new HttpRequestMessage(HttpMethod.Post, $"api/transactions")
+            {
+                Content = JsonContent.Create(transactionDto)
+            };
             request.Content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
             var response = await _httpClient.SendAsync(request);
             if (response.IsSuccessStatusCode)
@@ -97,8 +99,10 @@ public class TransactionService(HttpClient httpClient) : ITransactionService
         transactionDto.TransactionTags = [];
         try
         {
-            var request = new HttpRequestMessage(HttpMethod.Put, $"api/transactions");
-            request.Content = JsonContent.Create(transactionDto);
+            var request = new HttpRequestMessage(HttpMethod.Put, $"api/transactions")
+            {
+                Content = JsonContent.Create(transactionDto)
+            };
             request.Content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
             var response = await _httpClient.SendAsync(request);
             if (response.IsSuccessStatusCode)

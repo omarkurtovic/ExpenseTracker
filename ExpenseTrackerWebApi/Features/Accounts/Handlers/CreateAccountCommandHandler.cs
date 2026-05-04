@@ -6,14 +6,9 @@ using MediatR;
 namespace ExpenseTrackerWebApi.Features.Accounts.Handlers
 {
 
-    public class CreateAccountCommandHandler : IRequestHandler<CreateAccountCommand, int>
+    public class CreateAccountCommandHandler(AppDbContext context) : IRequestHandler<CreateAccountCommand, int>
     {
-        private readonly AppDbContext _context;
-
-        public CreateAccountCommandHandler(AppDbContext context)
-        {
-            _context = context;
-        }
+        private readonly AppDbContext _context = context;
 
         public async Task<int> Handle(CreateAccountCommand request, CancellationToken cancellationToken)
         {

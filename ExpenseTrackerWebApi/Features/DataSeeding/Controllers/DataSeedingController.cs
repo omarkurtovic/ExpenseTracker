@@ -6,21 +6,15 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
-namespace ExpenseTrackerWebApi.Features.Dashboard.Controllers
+namespace ExpenseTrackerWebApi.Features.DataSeeding.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
     [Authorize]
-    public class DataSeedingController : ControllerBase
+    public class DataSeedingController(ISender mediator, UserManager<IdentityUser> userManager) : ControllerBase
     {
-        private readonly ISender _mediator;
-        private readonly UserManager<IdentityUser> _userManager;
-
-        public DataSeedingController(ISender mediator, UserManager<IdentityUser> userManager)
-        {
-            _mediator = mediator;
-            _userManager = userManager;
-        }
+        private readonly ISender _mediator = mediator;
+        private readonly UserManager<IdentityUser> _userManager = userManager;
 
         [HttpPost]
         public async Task<IActionResult> SeedUserData([FromBody] DataSeedOptionsDto dataSeedOptionsDto)
@@ -32,16 +26,8 @@ namespace ExpenseTrackerWebApi.Features.Dashboard.Controllers
                 Options = dataSeedOptionsDto
             };
 
-            try
-            {
-                await _mediator.Send(command);
-                return Ok("User data seeded successfully.");
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error seeding user data: {ex.Message}");
-                return StatusCode(500, "An error occurred while processing your request.");
-            }
+            await _mediator.Send(command);
+            return Ok("User data seeded successfully.");
         }
     }
 }
