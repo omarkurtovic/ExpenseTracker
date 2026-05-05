@@ -72,3 +72,4 @@ publish
 
 
 .vs/
+/ExpenseTrackerWebApi/appsettings.Development.json
