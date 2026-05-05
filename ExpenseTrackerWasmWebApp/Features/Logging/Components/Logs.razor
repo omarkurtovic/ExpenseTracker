@@ -1,5 +1,5 @@
 ﻿@page "/logs"
-@attribute [Authorize]
+@attribute [Authorize(Roles = "Administrator")]
 @rendermode @(new InteractiveWebAssemblyRenderMode(prerender: false))
 
 @using ExpenseTrackerSharedCL.Features.Categories.Dtos

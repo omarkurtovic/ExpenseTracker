@@ -20,6 +20,7 @@ using ExpenseTrackerWebApi.Features.Tags.Services;
 using ExpenseTrackerWebApi.Features.Transactions.Services;
 using ExpenseTrackerWebApi.Features.UserPreferences.Services;
 using ExpenseTrackerWebApi.Middleware;
+using ExpenseTrackerWebApi.Services;
 using FluentValidation;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
@@ -42,7 +43,7 @@ builder.Services.AddCascadingAuthenticationState();
 builder.Services.AddMudServices();
 builder.Services.AddScoped<IdentityRedirectManager>();
 
-// potrebni su nam ovi ovdje zbog preloading
+// need this here for preloading to work
 builder.Services.AddScoped<IDashboardService, DashboardServiceServer>();
 builder.Services.AddScoped<IAccountService, AccountServiceServer>();
 builder.Services.AddScoped<ICategoryService, CategoryServiceServer>();
@@ -52,6 +53,7 @@ builder.Services.AddScoped<ITagService, TagServiceServer>();
 builder.Services.AddScoped<IUserPreferenceService, UserPreferenceServiceServer>();
 builder.Services.AddScoped<ILogService, LogServiceServer>();
 
+builder.Services.AddTransient<DatabaseSeeder>();
 
 // this is needed for code outside of controllers
 // so we can access the current logged in user
@@ -70,6 +72,7 @@ builder.Services.AddAuthorization();
 ConfigureDatabase(builder.Services, builder.Environment);
 
 builder.Services.AddIdentityCore<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = false)
+    .AddRoles<IdentityRole>()
     .AddEntityFrameworkStores<AppDbContext>()
     .AddSignInManager()
     .AddDefaultTokenProviders();
@@ -79,11 +82,10 @@ ConfigureMediatR(builder.Services);
 builder.Services.ConfigureApplicationCookie(options =>
 {
     options.LoginPath = "/login";
+    options.AccessDeniedPath = "/access-denied";
 });
 
 var app = builder.Build();
-
-// 1. Exception handling
 
 if (app.Environment.IsDevelopment())
 {
@@ -110,7 +112,11 @@ app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode()
     .AddAdditionalAssemblies(typeof(ExpenseTrackerWasmWebApp._Imports).Assembly);
 
-InitializeDatabase(app);
+using (var scope = app.Services.CreateScope())
+{
+    var seeder = scope.ServiceProvider.GetRequiredService<DatabaseSeeder>();
+    await seeder.SeedAsync();
+}
 
 app.MapFallbackToFile("index.html");
 
@@ -135,49 +141,4 @@ void ConfigureMediatR(IServiceCollection services)
         options.AddOpenBehavior(typeof(ValidationBehavior<,>));
     });
     services.AddValidatorsFromAssembly(typeof(Program).Assembly, includeInternalTypes: true);
-}
-
-void InitializeDatabase(WebApplication app)
-{
-    using var scope = app.Services.CreateScope();
-    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-    db.Database.Migrate();
-
-    var categoriesNeedingDefaults = db.Categories
-        .Where(c => string.IsNullOrEmpty(c.Color) || string.IsNullOrEmpty(c.Icon))
-        .ToList();
-
-    if (categoriesNeedingDefaults.Count != 0)
-    {
-        foreach (var category in categoriesNeedingDefaults)
-        {
-            category.Color ??= "#A9A9A9";
-            category.Icon ??= "Icons.Material.Filled.Category";
-        }
-        db.SaveChanges();
-    }
-
-    var accountsNeedingDefaults = db.Accounts
-        .Where(a => string.IsNullOrEmpty(a.Color) || string.IsNullOrEmpty(a.Icon))
-        .ToList();
-
-    if (accountsNeedingDefaults.Count != 0)
-    {
-        var iconColors = new[] { "#FF5733", "#33C1FF", "#33FF57", "#FF33A8" };
-        var icons = new[]
-        {
-            "Icons.Material.Filled.Payments",
-            "Icons.Material.Filled.AccountBalance",
-            "Icons.Material.Filled.Wallet",
-            "Icons.Material.Filled.CreditCard"
-        };
-
-        for (int i = 0; i < accountsNeedingDefaults.Count; i++)
-        {
-            var account = accountsNeedingDefaults[i];
-            account.Color ??= iconColors[i % iconColors.Length];
-            account.Icon ??= icons[i % icons.Length];
-        }
-        db.SaveChanges();
-    }
 }

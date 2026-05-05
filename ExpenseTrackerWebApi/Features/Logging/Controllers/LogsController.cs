@@ -9,7 +9,7 @@ namespace ExpenseTrackerWebApi.Features.Logging.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    [Authorize]
+    [Authorize(Roles = "Administrator")]
     public class LogsController(ISender mediator, UserManager<IdentityUser> userManager) : ControllerBase
     {
         private readonly ISender _mediator = mediator;
