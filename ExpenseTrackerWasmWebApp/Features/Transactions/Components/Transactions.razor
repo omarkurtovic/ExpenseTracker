@@ -44,12 +44,16 @@
             <MudMenu Icon="@Icons.Material.Filled.MoreVert" AnchorOrigin="Origin.BottomRight" TransformOrigin="Origin.TopRight" Dense="false">
                 <MudMenuItem Icon="@Icons.Material.Filled.Refresh" OnClick="RefreshPage">Refresh</MudMenuItem>
                 <MudMenuItem Icon="@Icons.Material.Filled.Download" OnClick="OpenExport">Export CSV</MudMenuItem>
-                @if (IsAdmin)
-                {
-                    <MudMenuItem Icon="@Icons.Material.Filled.Add" OnClick="OpenSeed">
-                        Seed Test Data
-                    </MudMenuItem>
-                }
+                <AuthorizeView>
+                    <Authorized>
+                        @if (context.User.IsInRole("Administrator") || context.User.Identity?.Name == "sa")
+                        {
+                            <MudMenuItem Icon="@Icons.Material.Filled.Add" OnClick="OpenSeed">
+                                Seed Test Data
+                            </MudMenuItem>
+                        }
+                    </Authorized>
+                </AuthorizeView>
             </MudMenu>
         </MudStack>
     </MudStack>
@@ -239,8 +243,6 @@
 
     private SortDefinition<TransactionDto>? CurrentSort;
 
-    private string email = "";
-
     private TransactionEditor TransactionDialog = null!;
 
     private TransactionsFiltersDto Filters { get; set; } = new TransactionsFiltersDto();
@@ -268,22 +270,6 @@
     private void OpenSeed() => OpenDrawer(DrawerMode.Seeding);
 
     private void OpenExport() => OpenDrawer(DrawerMode.Export);
-
-
-    protected override async Task OnInitializedAsync()
-    {
-        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
-        var user = authState.User;
-
-        if (user.Identity?.IsAuthenticated ?? false)
-        {
-            email = user.Identity.Name ?? "";
-        }
-
-        await base.OnInitializedAsync();
-    }
-
-    internal bool IsAdmin => !string.IsNullOrWhiteSpace(email) && email.ToLower() == "sa";
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
