@@ -7,8 +7,6 @@
 @using ExpenseTrackerSharedCL.Features.SharedKernel
 @using ExpenseTrackerWasmWebApp.Features.SharedKernel
 @using ExpenseTrackerWasmWebApp.Features.SharedKernel.Components
-@using ExpenseTrackerWasmWebApp.Features.SharedKernel.Components.Titles
-@using ExpenseTrackerWasmWebApp.Features.SharedKernel.Components.Dialogs
 @using Microsoft.AspNetCore.Authorization
 @using MudBlazor
 @using Microsoft.AspNetCore.Components.Web
@@ -28,7 +26,7 @@
     <MudGrid>
         <MudItem xs="12">
             <MudStack Row Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center">
-                <MainPageTitle Title="Tags"></MainPageTitle>
+                <MainHeading>Tags</MainHeading>
                 <MudButton Class="d-none d-md-flex" Variant="Variant.Filled" Color="Color.Primary" OnClick="@(() => OpenEditor(null))" StartIcon="@Icons.Material.Filled.Add">Add</MudButton>
                 <FabButton Class="d-flex d-md-none" Text="Add" IconClass="@Icons.Material.Filled.Add" OnClick="@(() => OpenEditor(null))" />
             </MudStack>
@@ -93,7 +91,7 @@
                                 <div style="@($"width:30px;height:30px;border-radius:50%;background-color:{tag.Color};")"></div>
                             </CardHeaderAvatar>
                             <CardHeaderContent>
-                                <MudText Typo="Typo.caption">@tag.Name</MudText>
+                                <SectionHeading>@tag.Name</SectionHeading>
                             </CardHeaderContent>
                             <CardHeaderActions>
                                 <MudMenu Icon="@Icons.Material.Filled.MoreVert" AnchorOrigin="Origin.BottomRight" TransformOrigin="Origin.TopRight" Dense="false">
@@ -101,7 +99,7 @@
                                         Edit
                                     </MudMenuItem>
                                     <MudMenuItem Icon="@Icons.Material.Filled.Delete" IconColor="Color.Error" OnClick="@(() => ConfirmDelete((int)tag.Id!))">
-                                        <MudText Color="Color.Error">Delete</MudText>
+                                        <BodyText Color="@Color.Error">Delete</BodyText>
                                     </MudMenuItem>
                                 </MudMenu>
                             </CardHeaderActions>

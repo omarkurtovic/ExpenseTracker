@@ -2,12 +2,12 @@
 @using ExpenseTrackerSharedCL.Features.Accounts.Services
 @using ExpenseTrackerSharedCL.Features.SharedKernel
 @using ExpenseTrackerWasmWebApp.Features.Accounts.Services
-@using ExpenseTrackerWasmWebApp.Features.SharedKernel.Components.Titles
 @using Microsoft.AspNetCore.Authorization
 @using MudBlazor
 @using ExpenseTrackerSharedCL.Features.Accounts.Dtos
 @using ExpenseTrackerWasmWebApp.Features.SharedKernel.Components
 @using System.Net.Http.Headers
+@using MudBlazor.Utilities
 @using global::ExpenseTrackerWasmWebApp.Features.Accounts
 @inject ISnackbar Snackbar
 @inject IAccountService AccountService
@@ -19,7 +19,7 @@
         <MudGrid Spacing="2" Class="my-2">
             <MudItem xs="12">
                 <MudStack Row AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween">
-                    <EditorTitle Title="@(AccountDto.Id == null ? "Add Account" : "Edit Account")"></EditorTitle>
+                    <SubHeading>@(AccountDto.Id == null ? "Add Account" : "Edit Account")</SubHeading>
                     <MudIconButton Icon="@Icons.Material.Filled.Close"
                                    Color="Color.Default"
                                    OnClick="@(async () => await Close.InvokeAsync())" />
@@ -50,14 +50,14 @@
                 </MudSelect>
             </MudItem>
             <MudItem xs="12">
-                <MudColorPicker @bind-Text="AccountDto.Color" Label="Color" Variant="Variant.Outlined" Required="true"
+                <MudColorPicker @bind-Value="SelectedColor" Label="Color" Variant="Variant.Outlined" Required="true"
                                 RequiredError="Color is required!">
                 </MudColorPicker>
             </MudItem>
         </MudGrid>
     </MudForm>
     <MudStack Row Justify="Justify.Center" AlignItems="AlignItems.Center">
-        <LoadingButton OnClick="SaveAsync" Class="mt-4">
+        <LoadingButton Color="@Color.Primary" Variant="@Variant.Filled" OnClick="SaveAsync" Class="mt-4">
             Save Account
         </LoadingButton>
     </MudStack>
@@ -67,7 +67,22 @@
     MudForm form = null!;
 
     [Parameter]
-    public AccountDto AccountDto { get; set; } = new AccountDto();
+    public AccountDto AccountDto { get; set; } = new AccountDto(); 
+    
+    private MudColor SelectedColor
+    {
+        get
+        {
+            if (string.IsNullOrEmpty(AccountDto.Color))
+                return new MudBlazor.Utilities.MudColor("#000000");
+                
+            return new MudBlazor.Utilities.MudColor(AccountDto.Color);
+        }
+        set
+        {
+            AccountDto.Color = value.Value;
+        }
+    }
 
     [Parameter]
     public EventCallback OnAccountSaved { get; set; }
@@ -78,7 +93,7 @@
 
     private async Task SaveAsync()
     {
-        await form.Validate();
+        await form.ValidateAsync();
         if (!form.IsValid)
         {
             StateHasChanged();

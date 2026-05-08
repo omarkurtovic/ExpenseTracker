@@ -68,11 +68,11 @@
                             <MudIcon Icon="@Icons.Material.Filled.Balance" Size="MudBlazor.Size.Large" Color="MudBlazor.Color.Info"></MudIcon>
                         </CardHeaderAvatar>
                         <CardHeaderContent>
-                            <MudText Typo="Typo.caption">Balance</MudText>
+                            <SectionHeading>Balance</SectionHeading>
                         </CardHeaderContent>
                     </MudCardHeader>
                     <MudCardContent>
-                        <AmountDisplay Amount="@DashboardSummary.Balance" FontSize="Typo.h4" />
+                        <AmountDisplay Amount="@DashboardSummary.Balance" TextType="TextType.MainHeading" />
                     </MudCardContent>
                 </MudCard>
             </MudItem>
@@ -83,11 +83,11 @@
                             <MudIcon Icon="@Icons.Material.Filled.TrendingUp" Size="MudBlazor.Size.Large" Color="MudBlazor.Color.Success"></MudIcon>
                         </CardHeaderAvatar>
                         <CardHeaderContent>
-                            <MudText Typo="Typo.caption">Income this month</MudText>
+                            <SectionHeading>Income this month</SectionHeading>
                         </CardHeaderContent>
                     </MudCardHeader>
                     <MudCardContent>
-                        <AmountDisplay Amount="@DashboardSummary.IncomeThisMonth" FontSize="Typo.h4" />
+                        <AmountDisplay Amount="@DashboardSummary.IncomeThisMonth" TextType="TextType.MainHeading" />
                     </MudCardContent>
                 </MudCard>
             </MudItem>
@@ -98,11 +98,11 @@
                             <MudIcon Icon="@Icons.Material.Filled.TrendingDown" Size="MudBlazor.Size.Large" Color="MudBlazor.Color.Error"></MudIcon>
                         </CardHeaderAvatar>
                         <CardHeaderContent>
-                            <MudText Typo="Typo.caption">Expenses this month</MudText>
+                            <SectionHeading>Expenses this month</SectionHeading>
                         </CardHeaderContent>
                     </MudCardHeader>
                     <MudCardContent>
-                        <AmountDisplay Amount="@DashboardSummary.ExpensesThisMonth" FontSize="Typo.h4" />
+                        <AmountDisplay Amount="@DashboardSummary.ExpensesThisMonth" TextType="TextType.MainHeading" />
                     </MudCardContent>
                 </MudCard>
             </MudItem>
@@ -110,7 +110,7 @@
                 <MudCard Elevation="1" Style="width: 100%; height: 100%;">
                     <MudCardHeader>
                         <CardHeaderContent>
-                            <MudText Typo="Typo.caption">Expenses and Income last 6 months</MudText>
+                            <SectionHeading>Expenses and Income last 6 months</SectionHeading>
                         </CardHeaderContent>
                     </MudCardHeader>
                     <MudCardContent>
@@ -130,7 +130,7 @@
                 <MudCard Elevation="1" Style="width: 100%; height: 100%;">
                     <MudCardHeader>
                         <CardHeaderContent>
-                            <MudText Typo="Typo.caption">Top Expenses last 6 months</MudText>
+                            <SectionHeading>Top Expenses last 6 months</SectionHeading>
                         </CardHeaderContent>
                     </MudCardHeader>
                     <MudCardContent>

@@ -26,7 +26,7 @@
     <MudGrid>
         <MudItem xs="12">
             <MudStack Row Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center">
-                <MainHeading Title="Accounts"></MainHeading>
+                <MainHeading>Accounts</MainHeading>
                 <MudButton Class="d-none d-md-flex" Variant="Variant.Filled" Color="Color.Primary" OnClick="@(() => OpenEditor(null))" StartIcon="@Icons.Material.Filled.Add">Add</MudButton>
                 <FabButton Class="d-flex d-md-none" Text="Add" IconClass="@Icons.Material.Filled.Add" OnClick="@(() => OpenEditor(null))" />
             </MudStack>
@@ -58,7 +58,7 @@
                         </MudCardHeader>
                         <MudCardContent>
                             <MudStack Row AlignItems="AlignItems.Center">
-                                <MudText>Balance: </MudText>
+                                <BodyText>Balance: </BodyText>
                                 <MudSkeleton SkeletonType="SkeletonType.Rectangle" Width="50%" Height="32px" />
                             </MudStack>
                         </MudCardContent>
@@ -97,7 +97,7 @@
                                 <MudIcon Icon="@account.Icon" Size="Size.Large" Style="@($"color:{account.Color};")"></MudIcon>
                             </CardHeaderAvatar>
                             <CardHeaderContent>
-                                <MudText Typo="Typo.caption">@account.Name</MudText>
+                                <SectionHeading>@account.Name</SectionHeading>
                             </CardHeaderContent>
                             <CardHeaderActions>
                                 <MudMenu Icon="@Icons.Material.Filled.MoreVert" AnchorOrigin="Origin.BottomRight" TransformOrigin="Origin.TopRight" Dense="false">
@@ -105,15 +105,15 @@
                                         Edit
                                     </MudMenuItem>
                                     <MudMenuItem Icon="@Icons.Material.Filled.Delete" IconColor="Color.Error" OnClick="@(() => ConfirmDelete((int)account.Id!))">
-                                        <MudText Color="Color.Error">Delete</MudText>
+                                        <BodyText Color="@Color.Error">Delete</BodyText>
                                     </MudMenuItem>
                                 </MudMenu>
                             </CardHeaderActions>
                         </MudCardHeader>
                         <MudCardContent>
                             <MudStack Row AlignItems="AlignItems.Center">
-                                <MudText>Balance: </MudText>
-                                <AmountDisplay Amount="@account!.CurrentBalance" FontSize="Typo.h5" />
+                                <BodyText>Balance: </BodyText>
+                                <AmountDisplay Amount="@account!.CurrentBalance" TextType="TextType.SubHeading" />
                             </MudStack>
                         </MudCardContent>
                     </MudCard>

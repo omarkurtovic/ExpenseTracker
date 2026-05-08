@@ -10,7 +10,6 @@
 @using ExpenseTrackerSharedCL.Features.Transactions.Services
 @using ExpenseTrackerWasmWebApp.Features.Accounts.Services
 @using ExpenseTrackerWasmWebApp.Features.Categories.Services
-@using ExpenseTrackerWasmWebApp.Features.SharedKernel.Components.Titles
 @using ExpenseTrackerWasmWebApp.Features.Tags.Services
 @using ExpenseTrackerWasmWebApp.Features.Transactions.Services
 @using MudBlazor
@@ -30,7 +29,7 @@
     <MudForm @ref="form">
         <MudItem xs="12">
             <MudStack Row AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween">
-                <EditorTitle Title="@(EditMode ? "Edit Transaction" : "Add Transaction")"></EditorTitle>
+                <SubHeading>@(EditMode ? "Edit Transaction" : "Add Transaction")</SubHeading>
                 <MudIconButton Icon="@Icons.Material.Filled.Close"
                                Color="Color.Default"
                                OnClick="@(async () => await Close.InvokeAsync())" />
@@ -160,7 +159,7 @@
         </MudGrid>
     </MudForm>
     <MudStack Row Justify="Justify.Center" AlignItems="AlignItems.Center" Class="mt-4">
-        <LoadingButton OnClick="SaveAsync">
+        <LoadingButton Color="@Color.Primary" Variant="@Variant.Filled" OnClick="SaveAsync">
             Save Transactions
         </LoadingButton>
     </MudStack>

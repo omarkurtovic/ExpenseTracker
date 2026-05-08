@@ -3,43 +3,47 @@
 @using Microsoft.AspNetCore.Components
 @using System.Globalization
 
-@if (Amount == 0)
-{
-    <MudText Typo="@FontSize">
-        @FormatCurrency(Amount)
-    </MudText>
-}
-else if (Amount < 0)
-{
-    <MudText Typo="@FontSize" Color="Color.Error">
-        @FormatCurrency(Amount)
-    </MudText>
-}
-else
-{
-    <MudText Typo="@FontSize" Color="Color.Success">
-        @FormatCurrency(Amount)
-    </MudText>
-}
-
+<Text Color="@TextColor" TextType="@TextType">@FormatCurrency</Text>
 
 @code{
     [Parameter]
-    public decimal Amount { get; set; }
+    public required decimal Amount { get; set; }
 
     [Parameter]
-    public Typo FontSize { get; set; } = Typo.body1;
+    public required TextType TextType{ get; set; }
 
-    private string FormatCurrency(decimal amount)
+    private Color TextColor
     {
-        var culture = CultureInfo.CurrentCulture;
-        var formatted = amount.ToString("C2", culture);
-        
-        if (amount < 0 && formatted.Contains("("))
+        get
         {
-            formatted = formatted.Replace("(", "-").Replace(")", "");
+            @if (Amount == 0)
+            {
+                return MudBlazor.Color.Default;
+            }
+            else if (Amount < 0)
+            {
+                return MudBlazor.Color.Error;
+            }
+            else
+            {
+                return MudBlazor.Color.Success;
+            }
         }
+    }
+
+    private string FormatCurrency
+    {
+        get
+        {
+            var culture = CultureInfo.CurrentCulture;
+            var formatted = Amount.ToString("C2", culture);
         
-        return formatted;
+            if (Amount < 0 && formatted.Contains("("))
+            {
+                formatted = formatted.Replace("(", "-").Replace(")", "");
+            }
+        
+            return formatted;
+        }
     }
 }

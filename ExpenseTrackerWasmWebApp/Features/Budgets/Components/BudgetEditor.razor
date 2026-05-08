@@ -5,7 +5,6 @@
 @using ExpenseTrackerSharedCL.Features.Budgets.Services
 @using ExpenseTrackerSharedCL.Features.Categories
 @using ExpenseTrackerSharedCL.Features.SharedKernel
-@using ExpenseTrackerWasmWebApp.Features.SharedKernel.Components.Titles
 @using Microsoft.AspNetCore.Authorization
 @using MudBlazor
 @using ExpenseTrackerSharedCL.Features.Categories.Dtos
@@ -25,7 +24,7 @@
         <MudGrid Spacing="2" Class="my-2">
             <MudItem xs="12">
                 <MudStack Row AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween">
-                    <EditorTitle Title="@(BudgetDto.Id == null ? "Add Budget" : "Edit Budget")"></EditorTitle>
+                    <SubHeading>@(BudgetDto.Id == null ? "Create a new budget" : "Edit budget")</SubHeading>
                     <MudIconButton Icon="@Icons.Material.Filled.Close"
                                    Color="Color.Default"
                                    OnClick="@(async () => await Close.InvokeAsync())" />
@@ -57,7 +56,7 @@
             </MudItem>
             <MudItem xs="12">
                 <MudSelect T="int" Label="Categories" @bind-SelectedValues="BudgetDto.Categories"
-                    MultiSelectionTextFunc="@(new Func<List<string>, string>(GetCategoryMultiSelectionText))"
+                           MultiSelectionTextFunc="@(new Func<IReadOnlyCollection<string>, string>(GetCategoryMultiSelectionText))"
                     MultiSelection="true" Clearable="true" FullWidth="true" 
                            Required="true" RequiredError="At least one category is required!" Variant="Variant.Outlined">
                     @foreach (var category in Categories)
@@ -70,7 +69,7 @@
             </MudItem>
             <MudItem xs="12">
                 <MudSelect T="int" Label="Accounts" @bind-SelectedValues="BudgetDto.Accounts"
-                    MultiSelectionTextFunc="@(new Func<List<string>, string>(GetAccountMultiSelectionText))"
+                           MultiSelectionTextFunc="@(new Func<IReadOnlyCollection<string>, string>(GetAccountMultiSelectionText))"
                     MultiSelection="true" Clearable="true" FullWidth="true" 
                            Required="true" RequiredError="At least one account is required!" Variant="Variant.Outlined">
                     @foreach (var account in Accounts)
@@ -84,7 +83,7 @@
         </MudGrid>
     </MudForm>
     <MudStack Row Justify="Justify.Center" AlignItems="AlignItems.Center">
-        <LoadingButton OnClick="SaveAsync" Class="mt-4">
+        <LoadingButton Color="@Color.Primary" Variant="@Variant.Filled" OnClick="SaveAsync" Class="mt-4">
             Save Budget
         </LoadingButton>
     </MudStack>
@@ -172,11 +171,11 @@
         }
     }
 
-    private string GetAccountMultiSelectionText(List<string> selectedValues)
+    private string GetAccountMultiSelectionText(IReadOnlyCollection<string> selectedValues)
     {
         return string.Join(separator: ", ", Accounts.Where(a => selectedValues.Contains(a.Id.ToString()!)).Select(a => a.Name));
     }
-    private string GetCategoryMultiSelectionText(List<string> selectedValues)
+    private string GetCategoryMultiSelectionText(IReadOnlyCollection<string> selectedValues)
     {
         return string.Join(separator: ", ", Categories.Where(c => selectedValues.Contains(c.Id.ToString()!)).Select(c => c.Name));
     }

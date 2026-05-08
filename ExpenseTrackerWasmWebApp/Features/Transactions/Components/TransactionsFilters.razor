@@ -8,7 +8,6 @@
 @using ExpenseTrackerSharedCL.Features.Tags.Service
 @using ExpenseTrackerWasmWebApp.Features.Accounts.Services
 @using ExpenseTrackerWasmWebApp.Features.Categories.Services
-@using ExpenseTrackerWasmWebApp.Features.SharedKernel.Components.Titles
 @using ExpenseTrackerWasmWebApp.Features.Tags.Services
 @using Microsoft.AspNetCore.Authorization
 @using MudBlazor
@@ -25,7 +24,7 @@
 <MudGrid Spacing="2">
     <MudItem xs="12">
         <MudStack Row AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween">
-            <EditorTitle Title="Filters"></EditorTitle>
+            <SubHeading>@(Filters.AreAnyFiltersActive ? "Edit Filters" : "Add Filters")</SubHeading>
             <MudIconButton Icon="@Icons.Material.Filled.Close"
                            Color="Color.Default"
                            OnClick="@(async () => await Close.InvokeAsync())" />
@@ -33,7 +32,7 @@
     </MudItem>
     <MudItem xs="12">
         <MudSelect T="AccountDto" Label="Account" @bind-SelectedValues="Filters.AccountsFilter"
-                    MultiSelectionTextFunc="@(new Func<List<string>, string>(GetAccountsMultiSelectionText))"
+                   MultiSelectionTextFunc="@(new Func<IReadOnlyCollection<string>, string>(GetAccountsMultiSelectionText))"
                     MultiSelection="true" Clearable="true" FullWidth="true" Variant="Variant.Outlined">
             @foreach (var account in Accounts)
             {
@@ -71,7 +70,7 @@
     </MudItem>
     <MudItem xs="12">
         <MudSelect T="CategoryDto" Label="Category" @bind-SelectedValues="Filters.CategoriesFilter"
-                    MultiSelectionTextFunc="@(new Func<List<string>, string>(GetCategoriesMultiSelectionText))"
+                   MultiSelectionTextFunc="@(new Func<IReadOnlyCollection<string>, string>(GetCategoriesMultiSelectionText))"
                    MultiSelection="true" Clearable="true" FullWidth="true" Variant="Variant.Outlined">
             @foreach (var category in Categories)
             {
@@ -83,7 +82,7 @@
     </MudItem>
     <MudItem xs="12">
         <MudSelect T="TagDto" Label="Tags" @bind-SelectedValues="Filters.TagsFilter"
-                    MultiSelectionTextFunc="@(new Func<List<string>, string>(GetTagsMultiSelectionText))"
+                   MultiSelectionTextFunc="@(new Func<IReadOnlyCollection<string>, string>(GetTagsMultiSelectionText))"
                     MultiSelection="true" Clearable="true" FullWidth="true" Variant="Variant.Outlined">
             @foreach (var tag in Tags)
             {
@@ -172,17 +171,17 @@
         await Close.InvokeAsync();
     }
 
-    private string GetAccountsMultiSelectionText(List<string> selectedAccounts)
+    private string GetAccountsMultiSelectionText(IReadOnlyCollection<string> selectedAccounts)
     {
         return string.Join(", ", selectedAccounts);
     }
 
-    private string GetCategoriesMultiSelectionText(List<string> selectedCategories)
+    private string GetCategoriesMultiSelectionText(IReadOnlyCollection<string> selectedCategories)
     {
         return string.Join(separator: ", ", selectedCategories);
     }
 
-    private string GetTagsMultiSelectionText(List<string> selectedTags)
+    private string GetTagsMultiSelectionText(IReadOnlyCollection<string> selectedTags)
     {
         return string.Join(separator: ", ", selectedTags);
     }

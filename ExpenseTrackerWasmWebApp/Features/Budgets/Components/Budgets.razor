@@ -11,8 +11,6 @@
 @using MudBlazor
 @using Microsoft.AspNetCore.Components.Web
 @using ExpenseTrackerWasmWebApp.Features.SharedKernel.Components
-@using ExpenseTrackerWasmWebApp.Features.SharedKernel.Components.Dialogs
-@using ExpenseTrackerWasmWebApp.Features.SharedKernel.Components.Titles
 @using ExpenseTrackerWasmWebApp.Features.Budgets.Services
 @inject IDialogService DialogService
 @inject ISnackbar Snackbar
@@ -25,7 +23,7 @@
     <MudGrid>
         <MudItem xs="12">
             <MudStack Row Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center">
-                <MainPageTitle Title="Budgets"></MainPageTitle>
+                <MainHeading>Budgets</MainHeading>
                 <MudButton Class="d-none d-md-flex" Variant="Variant.Filled" Color="Color.Primary" OnClick="@(() => OpenBudgetSheetAsync(null))" StartIcon="@Icons.Material.Filled.Add">Add</MudButton>
                 <FabButton Class="d-flex d-md-none" Text="Add" IconClass="@Icons.Material.Filled.Add" OnClick="@(() => OpenBudgetSheetAsync(null))" />
             </MudStack>
@@ -93,7 +91,7 @@
                 <MudCard Elevation="1">
                     <MudCardHeader>
                         <CardHeaderContent>
-                            <MudText Typo="Typo.caption">@budget.Name</MudText>
+                            <SubHeading>@budget.Name</SubHeading>
                         </CardHeaderContent>
                         <CardHeaderActions>
                             <MudMenu Icon="@Icons.Material.Filled.MoreVert" AnchorOrigin="Origin.BottomRight" TransformOrigin="Origin.TopRight" Dense="false">
@@ -101,7 +99,7 @@
                                     Edit
                                 </MudMenuItem>
                                 <MudMenuItem Icon="@Icons.Material.Filled.Delete" IconColor="Color.Error" OnClick="@(() => ConfirmDelete((int)budget.Id!))">
-                                    <MudText Color="Color.Error">Delete</MudText>
+                                    <BodyText Color="@Color.Error">Delete</BodyText>
                                 </MudMenuItem>
                             </MudMenu>
                         </CardHeaderActions>
@@ -110,8 +108,8 @@
                         <MudStack>
                             <MudProgressLinear Value="@(budget.Progress)" Color="@budget.ProgressColor"></MudProgressLinear>
                             <MudStack Row AlignItems="AlignItems.Center">
-                                <MudText>Spent: </MudText>
-                                <MudText Typo="Typo.caption">$@budget.Spent.ToString("F2") / $@budget.Amount?.ToString("F2")</MudText>
+                                <BodyText>Spent: </BodyText>
+                                <BodyText>$@budget.Spent.ToString("F2") / $@budget.Amount?.ToString("F2")</BodyText>
                             </MudStack>
                         </MudStack>
                     </MudCardContent>

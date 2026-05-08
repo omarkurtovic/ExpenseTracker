@@ -2,12 +2,12 @@
 @using ExpenseTrackerSharedCL.Features.Tags.Service
 @using ExpenseTrackerSharedCL.Features.SharedKernel
 @using ExpenseTrackerWasmWebApp.Features.Tags.Services
-@using ExpenseTrackerWasmWebApp.Features.SharedKernel.Components.Titles
 @using Microsoft.AspNetCore.Authorization
 @using MudBlazor
 @using ExpenseTrackerSharedCL.Features.Tags.Dtos
 @using ExpenseTrackerWasmWebApp.Features.SharedKernel.Components
 @using System.Net.Http.Headers
+@using MudBlazor.Utilities
 @inject ISnackbar Snackbar
 @inject ITagService TagService
 @inject NavigationManager NavigationManager
@@ -18,7 +18,7 @@
         <MudGrid Spacing="2" Class="my-2">
             <MudItem xs="12">
                 <MudStack Row AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween">
-                    <EditorTitle Title="@(TagDto.Id == null ? "Add Tag" : "Edit Tag")"></EditorTitle>
+                    <SubHeading>@(TagDto.Id == null ? "Add Tag" : "Edit Tag")</SubHeading>
                     <MudIconButton Icon="@Icons.Material.Filled.Close"
                                    Color="Color.Default"
                                    OnClick="@(async () => await Close.InvokeAsync())" />
@@ -30,14 +30,14 @@
                 </MudTextField>
             </MudItem>
             <MudItem xs="12">
-                <MudColorPicker @bind-Text="TagDto.Color" Label="Color" Variant="Variant.Outlined" Required="true"
+                <MudColorPicker @bind-Value="SelectedColor" Label="Color" Variant="Variant.Outlined" Required="true"
                                 RequiredError="Color is required!">
                 </MudColorPicker>
             </MudItem>
         </MudGrid>
     </MudForm>
     <MudStack Row Justify="Justify.Center" AlignItems="AlignItems.Center">
-        <LoadingButton OnClick="SaveAsync" Class="mt-4">
+        <LoadingButton Color="@Color.Primary" Variant="@Variant.Filled" OnClick="SaveAsync" Class="mt-4">
             Save Tag
         </LoadingButton>
     </MudStack>
@@ -48,6 +48,21 @@
 
     [Parameter]
     public TagDto TagDto { get; set; } = new TagDto();
+    
+    private MudColor SelectedColor
+    {
+        get
+        {
+            if (string.IsNullOrEmpty(TagDto.Color))
+                return new MudBlazor.Utilities.MudColor("#000000");
+                
+            return new MudBlazor.Utilities.MudColor(TagDto.Color);
+        }
+        set
+        {
+            TagDto.Color = value.Value;
+        }
+    }
 
     [Parameter]
     public EventCallback OnTagSaved { get; set; }
@@ -58,7 +73,7 @@
 
     private async Task SaveAsync()
     {
-        await form.Validate();
+        await form.ValidateAsync();
         if (!form.IsValid)
         {
             StateHasChanged();

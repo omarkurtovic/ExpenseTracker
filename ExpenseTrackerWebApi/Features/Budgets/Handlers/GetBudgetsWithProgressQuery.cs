@@ -62,7 +62,6 @@ namespace ExpenseTrackerWebApi.Features.Budgets.Handlers
 
         private decimal GetBudgetSpent(BudgetWithProgressDto budget, List<Transaction> transactions)
         {
-
             var filteredTransctions = new List<Transaction>();
             var categories = budget.BudgetCategories.Select(bc => bc.CategoryId).ToList().ToHashSet();
             var accounts = budget.BudgetAccounts.Select(ba => ba.AccountId).ToList().ToHashSet();
@@ -73,7 +72,7 @@ namespace ExpenseTrackerWebApi.Features.Budgets.Handlers
             switch (budget.BudgetType)
             {
                 case ExpenseTrackerSharedCL.Features.Budgets.Dtos.BudgetType.Weekly:
-                    var weekStart = DateTime.Now.StartOfWeek(DayOfWeek.Monday);
+                    var weekStart = DateTime.Now.StartOfWeek(DayOfWeek.Monday, CultureInfo.CurrentCulture);
                     var weekEnd = weekStart.AddDays(7).AddSeconds(-1);
                     filteredTransctions = [.. filteredTransctions.Where(t => t.Date >= weekStart && t.Date <= weekEnd)];
                     break;

@@ -9,9 +9,9 @@ namespace ExpenseTrackerSharedCL.Features.Transactions.Dtos
     {
         public TransactionTypeDto? TypeFilter { get; set; }
         public DateFilterPreset? DateFilter { get; set; }
-        public IEnumerable<AccountDto> AccountsFilter { get; set; } = [];
-        public IEnumerable<CategoryDto> CategoriesFilter { get; set; } = [];
-        public IEnumerable<TagDto> TagsFilter { get; set; } = [];
+        public IReadOnlyCollection<AccountDto> AccountsFilter { get; set; } = [];
+        public IReadOnlyCollection<CategoryDto> CategoriesFilter { get; set; } = [];
+        public IReadOnlyCollection<TagDto> TagsFilter { get; set; } = [];
 
         public void ClearFilters()
         {

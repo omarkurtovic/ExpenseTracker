@@ -14,8 +14,6 @@
 @using MudBlazor
 @using Microsoft.AspNetCore.Components.Web
 @using ExpenseTrackerWasmWebApp.Features.SharedKernel.Components
-@using ExpenseTrackerWasmWebApp.Features.SharedKernel.Components.Titles
-@using ExpenseTrackerWasmWebApp.Features.SharedKernel.Components.Dialogs
 @using System.Net.Http.Headers
 @using ExpenseTrackerWasmWebApp.Features.DataSeeding.Components
 @using MudBlazor.Extensions
@@ -32,7 +30,7 @@
 <MudContainer MaxWidth="MaxWidth.Large" Class="d-flex flex-column gap-5 mt-6">
 
     <MudStack Row Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center">
-        <MainPageTitle Title="@(IsReoccuring ? "Reoccuring Transactions" : "Transactions")"></MainPageTitle>
+        <MainHeading>@(IsReoccuring ? "Reoccuring Transactions" : "Transactions")</MainHeading>
         <MudStack Row Spacing="2" AlignItems="AlignItems.Center">
             <MudBadge Content="@Filters.ActiveFilterCount" Color="Color.Primary" Overlap="true" Visible="@Filters.AreAnyFiltersActive">
                 <MudIconButton Icon="@Icons.Material.Filled.FilterList"
@@ -57,7 +55,7 @@
     @if (Filters.AreAnyFiltersActive)
     {
         <MudStack Row="true" Spacing="2" AlignItems="AlignItems.Center" Class="mb-4 flex-wrap">
-            <MudText Typo="Typo.body2" Class="mr-2">Active Filters:</MudText>
+            <BodyText Class="mr-2">Active Filters:</BodyText>
             
             @if (Filters.AccountsFilter.Any())
             {
@@ -165,7 +163,7 @@
             }
             <PropertyColumn Property="t => t.Amount" Title="Amount" Sortable="true" Groupable="false">
                 <CellTemplate>
-                    <AmountDisplay Amount="(decimal)context.Item.Amount!" />
+                    <AmountDisplay Amount="(decimal)context.Item.Amount!" TextType="TextType.Body" />
                 </CellTemplate>
             </PropertyColumn>
             <TemplateColumn Title="Tags" Filterable="false" Sortable="false" HeaderClass="d-none d-md-table-cell" CellClass="d-none d-md-table-cell" Groupable="false">
@@ -189,7 +187,7 @@
                             Edit
                         </MudMenuItem>
                         <MudMenuItem Icon="@Icons.Material.Filled.Delete" IconColor="Color.Error" OnClick="@(() => ConfirmDelete((int)context.Item.Id!))">
-                            <MudText Color="Color.Error">Delete</MudText>
+                            <BodyText Color="@Color.Error">Delete</BodyText>
                         </MudMenuItem>
                     </MudMenu>
                 </CellTemplate>
@@ -291,7 +289,7 @@
         await base.OnAfterRenderAsync(firstRender);
     }
 
-    private async Task<GridData<TransactionDto>> ServerReload(GridState<TransactionDto> state)
+    private async Task<GridData<TransactionDto>> ServerReload(GridState<TransactionDto> state, CancellationToken token)
     {
         TransactionsGridOptionsDto options = new TransactionsGridOptionsDto();
         options.IsReoccuring = IsReoccuring;

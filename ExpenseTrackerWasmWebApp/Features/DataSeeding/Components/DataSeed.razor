@@ -1,7 +1,6 @@
 @rendermode @(new InteractiveWebAssemblyRenderMode(prerender: false))
 @using ExpenseTrackerWasmWebApp.Features.DataSeeding.Services
 @using ExpenseTrackerWasmWebApp.Features.SharedKernel.Components
-@using ExpenseTrackerWasmWebApp.Features.SharedKernel.Components.Titles
 @using MudBlazor
 @using ExpenseTrackerSharedCL.Features.DataSeeding.Dtos
 @using System.Net.Http.Headers
@@ -12,16 +11,14 @@
 <MudGrid Spacing="2" Class="y-2">
     <MudItem xs="12">
         <MudStack Row AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween">
-            <EditorTitle Title="Seeding"></EditorTitle>
+            <SubHeading>Data Seeding</SubHeading>
             <MudIconButton Icon="@Icons.Material.Filled.Close"
                             Color="Color.Default"
                             OnClick="@(async () => await Close.InvokeAsync())" />
         </MudStack>
     </MudItem>
     <MudItem xd = "12">
-        <MudAlert Severity="Severity.Info" Elevation="0" Variant="Variant.Filled" Class="mb-4">
-            You are about to seed sample transaction data into your account. This action will delete all existing accounts, categories, tags, and transactions and will create new sample data. This action cannot be undone.
-        </MudAlert>
+        <BodyText Typo="Typo.body1">You are about to seed sample transaction data into your account. This action will delete all existing accounts, categories, tags, and transactions and will create new sample data. This action cannot be undone.</BodyText>
     </MudItem>
     <MudItem xs="12">
         <MudForm  @ref="form">
@@ -47,7 +44,7 @@
     </MudItem>
     <MudItem xs="12">
         <MudStack Row Justify="Justify.Center" AlignItems="AlignItems.Center">
-                <LoadingButton OnClick="Seed" Class="mt-4" LoadingText="Seeding...">
+                <LoadingButton Color="@Color.Primary" Variant="@Variant.Filled" OnClick="Seed" Class="mt-4" LoadingText="Seeding...">
                 Seed Data
             </LoadingButton>
     </MudStack>
