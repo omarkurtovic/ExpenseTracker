@@ -27,6 +27,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\..\OmarDesignSystem\OmarDesignSystem\OmarDesignSystem.csproj" />
     <ProjectReference Include="..\ExpenseTrackerSharedCL\ExpenseTrackerSharedCL.csproj" />
   </ItemGroup>
 

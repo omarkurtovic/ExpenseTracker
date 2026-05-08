@@ -8,8 +8,6 @@
 @using ExpenseTrackerWasmWebApp.Features.Accounts.Services
 @using ExpenseTrackerWasmWebApp.Features.SharedKernel
 @using ExpenseTrackerWasmWebApp.Features.SharedKernel.Components
-@using ExpenseTrackerWasmWebApp.Features.SharedKernel.Components.Titles
-@using ExpenseTrackerWasmWebApp.Features.SharedKernel.Components.Dialogs
 @using Microsoft.AspNetCore.Authorization
 @using MudBlazor
 @using Microsoft.AspNetCore.Components.Web
@@ -28,7 +26,7 @@
     <MudGrid>
         <MudItem xs="12">
             <MudStack Row Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center">
-                <MainPageTitle Title="Accounts"></MainPageTitle>
+                <MainHeading Title="Accounts"></MainHeading>
                 <MudButton Class="d-none d-md-flex" Variant="Variant.Filled" Color="Color.Primary" OnClick="@(() => OpenEditor(null))" StartIcon="@Icons.Material.Filled.Add">Add</MudButton>
                 <FabButton Class="d-flex d-md-none" Text="Add" IconClass="@Icons.Material.Filled.Add" OnClick="@(() => OpenEditor(null))" />
             </MudStack>
@@ -196,7 +194,17 @@
         var parameters = new DialogParameters<ConfirmDeleteDialog>
         {
             { x => x.Message, "Are you sure you want to delete this account?" },
-            { x => x.OnDelete, () => AccountService.DeleteAccountAsync(accountId) }
+            { x => x.OnDelete, async () =>
+                {
+                    Result apiResult = await AccountService.DeleteAccountAsync(accountId);
+                    if (!apiResult.IsSuccess)
+                    {
+                        Snackbar.Add(apiResult.ErrorMessage ?? "Error deleting account!", Severity.Error);
+                    }
+                
+                    return apiResult.IsSuccess;
+                }
+            }
         };
 
         var dialog = await DialogService.ShowAsync<ConfirmDeleteDialog>("Confirm", parameters);
@@ -204,16 +212,12 @@
 
         if (!dialogResult!.Canceled)
         {
-            var apiResult = (Result)dialogResult.Data!;
+            bool isSuccess = (bool)dialogResult.Data!;
 
-            if (apiResult.IsSuccess)
+            if (isSuccess)
             {
                 Snackbar.Add("Account successfully deleted!", Severity.Success);
                 await RefreshPage();
-            }
-            else
-            {
-                Snackbar.Add(apiResult.ErrorMessage ?? "Error deleting account!", Severity.Error);
             }
         }
     }

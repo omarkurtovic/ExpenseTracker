@@ -215,8 +215,18 @@
     {
         var parameters = new DialogParameters<ConfirmDeleteDialog>
         {
-            { x => x.Message, "Are you sure you want to delete the category?" },
-            { x => x.OnDelete, () => CategoryService.DeleteCategoryAsync(categoryId) }
+            { x => x.Message, "Are you sure you want to delete this category?" },
+            { x => x.OnDelete, async () =>
+                {
+                    Result apiResult = await CategoryService.DeleteCategoryAsync(categoryId);
+                    if (!apiResult.IsSuccess)
+                    {
+                        Snackbar.Add(apiResult.ErrorMessage ?? "Error deleting category!", Severity.Error);
+                    }
+                
+                    return apiResult.IsSuccess;
+                }
+            }
         };
 
         var dialog = await DialogService.ShowAsync<ConfirmDeleteDialog>("Confirm", parameters);
@@ -224,16 +234,12 @@
 
         if (!dialogResult!.Canceled)
         {
-            var apiResult = (Result)dialogResult.Data!;
-        
-            if (apiResult.IsSuccess)
+            bool isSuccess = (bool)dialogResult.Data!;
+
+            if (isSuccess)
             {
                 Snackbar.Add("Category successfully deleted!", Severity.Success);
                 await RefreshPage();
-            }
-            else
-            {
-                Snackbar.Add(apiResult.ErrorMessage ?? "Error deleting category!", Severity.Error);
             }
         }
     }

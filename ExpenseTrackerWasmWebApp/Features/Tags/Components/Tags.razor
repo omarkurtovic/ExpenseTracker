@@ -182,7 +182,17 @@
         var parameters = new DialogParameters<ConfirmDeleteDialog>
         {
             { x => x.Message, "Are you sure you want to delete this tag?" },
-            { x => x.OnDelete, () => TagService.DeleteTagAsync(tagId) }
+            { x => x.OnDelete, async () =>
+                {
+                    Result apiResult = await TagService.DeleteTagAsync(tagId);
+                    if (!apiResult.IsSuccess)
+                    {
+                        Snackbar.Add(apiResult.ErrorMessage ?? "Error deleting tag!", Severity.Error);
+                    }
+                
+                    return apiResult.IsSuccess;
+                }
+            }
         };
 
         var dialog = await DialogService.ShowAsync<ConfirmDeleteDialog>("Confirm", parameters);
@@ -190,16 +200,12 @@
 
         if (!dialogResult!.Canceled)
         {
-            var apiResult = (Result)dialogResult.Data!;
+            bool isSuccess = (bool)dialogResult.Data!;
 
-            if (apiResult.IsSuccess)
+            if (isSuccess)
             {
                 Snackbar.Add("Tag successfully deleted!", Severity.Success);
                 await RefreshPage();
-            }
-            else
-            {
-                Snackbar.Add(apiResult.ErrorMessage ?? "Error deleting tag!", Severity.Error);
             }
         }
     }

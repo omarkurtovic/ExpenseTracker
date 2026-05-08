@@ -196,7 +196,17 @@
         var parameters = new DialogParameters<ConfirmDeleteDialog>
         {
             { x => x.Message, "Are you sure you want to delete this budget?" },
-            { x => x.OnDelete, () => BudgetService.DeleteBudgetAsync(budgetId) }
+            { x => x.OnDelete, async () =>
+                {
+                    Result apiResult = await BudgetService.DeleteBudgetAsync(budgetId);
+                    if (!apiResult.IsSuccess)
+                    {
+                        Snackbar.Add(apiResult.ErrorMessage ?? "Error deleting budget!", Severity.Error);
+                    }
+                
+                    return apiResult.IsSuccess;
+                }
+            }
         };
 
         var dialog = await DialogService.ShowAsync<ConfirmDeleteDialog>("Confirm", parameters);
@@ -204,16 +214,12 @@
 
         if (!dialogResult!.Canceled)
         {
-            var apiResult = (Result)dialogResult.Data!;
-        
-            if (apiResult.IsSuccess)
+            bool isSuccess = (bool)dialogResult.Data!;
+
+            if (isSuccess)
             {
                 Snackbar.Add("Budget successfully deleted!", Severity.Success);
                 await RefreshPage();
-            }
-            else
-            {
-                Snackbar.Add(apiResult.ErrorMessage ?? "Error deleting budget!", Severity.Error);
             }
         }
     }

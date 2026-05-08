@@ -333,12 +333,23 @@
         };
     }
 
+    
     private async Task ConfirmDelete(int transactionId)
     {
         var parameters = new DialogParameters<ConfirmDeleteDialog>
         {
             { x => x.Message, "Are you sure you want to delete this transaction?" },
-            { x => x.OnDelete, () => TransactionService.DeleteTransactionAsync(transactionId) }
+            { x => x.OnDelete, async () =>
+                {
+                    Result apiResult = await TransactionService.DeleteTransactionAsync(transactionId);
+                    if (!apiResult.IsSuccess)
+                    {
+                        Snackbar.Add(apiResult.ErrorMessage ?? "Error deleting transaction!", Severity.Error);
+                    }
+                
+                    return apiResult.IsSuccess;
+                }
+            }
         };
 
         var dialog = await DialogService.ShowAsync<ConfirmDeleteDialog>("Confirm", parameters);
@@ -346,16 +357,12 @@
 
         if (!dialogResult!.Canceled)
         {
-            var apiResult = (Result)dialogResult.Data!;
-        
-            if (apiResult.IsSuccess)
+            bool isSuccess = (bool)dialogResult.Data!;
+
+            if (isSuccess)
             {
                 Snackbar.Add("Transaction successfully deleted!", Severity.Success);
                 await RefreshPage();
-            }
-            else
-            {
-                Snackbar.Add(apiResult.ErrorMessage ?? "Error deleting transaction!", Severity.Error);
             }
         }
     }
