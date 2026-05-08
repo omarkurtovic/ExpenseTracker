@@ -17,7 +17,7 @@ namespace ExpenseTrackerWasmWebApp.Features.Categories.Services
                 var response = await _httpClient.GetAsync("api/categories");
                 if (response.IsSuccessStatusCode)
                 {
-                    var categories = await response.Content.ReadFromJsonAsync<List<CategoryDto>>() ?? new();
+                    var categories = await response.Content.ReadFromJsonAsync<List<CategoryDto>>() ?? [];
                     return Result<List<CategoryDto>>.Success(categories);
                 }
                 else if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
@@ -44,7 +44,7 @@ namespace ExpenseTrackerWasmWebApp.Features.Categories.Services
                 var response = await _httpClient.GetAsync("api/categories/with-stats");
                 if (response.IsSuccessStatusCode)
                 {
-                    var categories = await response.Content.ReadFromJsonAsync<List<CategoryWithStatsDto>>() ?? new();
+                    var categories = await response.Content.ReadFromJsonAsync<List<CategoryWithStatsDto>>() ?? [];
                     return Result<List<CategoryWithStatsDto>>.Success(categories);
                 }
                 else if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
@@ -68,8 +68,10 @@ namespace ExpenseTrackerWasmWebApp.Features.Categories.Services
         {
             try
             {
-                var request = new HttpRequestMessage(HttpMethod.Post, "api/categories");
-                request.Content = JsonContent.Create(categoryDto);
+                var request = new HttpRequestMessage(HttpMethod.Post, "api/categories")
+                {
+                    Content = JsonContent.Create(categoryDto)
+                };
                 request.Content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
                 var response = await _httpClient.SendAsync(request);
                 if (response.IsSuccessStatusCode)
@@ -97,8 +99,10 @@ namespace ExpenseTrackerWasmWebApp.Features.Categories.Services
         {
             try
             {
-                var request = new HttpRequestMessage(HttpMethod.Put, $"api/categories/{categoryDto.Id}");
-                request.Content = JsonContent.Create(categoryDto);
+                var request = new HttpRequestMessage(HttpMethod.Put, $"api/categories/{categoryDto.Id}")
+                {
+                    Content = JsonContent.Create(categoryDto)
+                };
                 request.Content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
                 var response = await _httpClient.SendAsync(request);
                 if (response.IsSuccessStatusCode)

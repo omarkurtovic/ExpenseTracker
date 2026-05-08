@@ -6,13 +6,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace ExpenseTrackerWebApi.Features.Accounts.Handlers
 {
-    public class GetAccountsWithBalanceQueryHandler : IRequestHandler<GetAccountsWithBalanceQuery, List<AccountWithBalanceDto>>
+    public class GetAccountsWithBalanceQueryHandler(AppDbContext context) : IRequestHandler<GetAccountsWithBalanceQuery, List<AccountWithBalanceDto>>
     {
-        private readonly AppDbContext _context;
-        public GetAccountsWithBalanceQueryHandler(AppDbContext context)
-        {
-            _context = context;
-        }
+        private readonly AppDbContext _context = context;
 
         public Task<List<AccountWithBalanceDto>> Handle(GetAccountsWithBalanceQuery request, CancellationToken cancellationToken)
         {
@@ -26,7 +22,7 @@ namespace ExpenseTrackerWebApi.Features.Accounts.Handlers
                 CurrentBalance = a.InitialBalance + a.Transactions.Sum(t => t.Amount),
                 Icon = a.Icon,
                 Color = a.Color
-            }).ToListAsync();
+            }).ToListAsync(cancellationToken: cancellationToken);
         }
     }
 }

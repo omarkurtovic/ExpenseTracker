@@ -7,14 +7,9 @@ using MudBlazor;
 
 namespace ExpenseTrackerWebApi.Features.Accounts.Handlers
 {
-    public class ResetToDefaultAccountsCommandHandler : IRequestHandler<ResetToDefaultAccountsCommand>
+    public class ResetToDefaultAccountsCommandHandler(AppDbContext context) : IRequestHandler<ResetToDefaultAccountsCommand>
     {
-        private readonly AppDbContext _context;
-
-        public ResetToDefaultAccountsCommandHandler(AppDbContext context)
-        {
-            _context = context;
-        }
+        private readonly AppDbContext _context = context;
 
         public async Task Handle(ResetToDefaultAccountsCommand request, CancellationToken cancellationToken)
         {
@@ -44,7 +39,7 @@ namespace ExpenseTrackerWebApi.Features.Accounts.Handlers
             };
 
             _context.Accounts.AddRange(accounts);
-            await _context.SaveChangesAsync();
+            await _context.SaveChangesAsync(cancellationToken);
         }
     }
 }

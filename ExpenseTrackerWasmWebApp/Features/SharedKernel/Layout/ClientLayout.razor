@@ -68,6 +68,13 @@
         <MudNavLink Href="tags" Icon="@Icons.Material.Filled.LocalOffer">
             Tags
         </MudNavLink>
+        <AuthorizeView Roles="Administrator">
+            <Authorized>
+                <MudNavLink Href="logs" Icon="@Icons.Material.Filled.List">
+                    Logs
+                </MudNavLink>
+            </Authorized>
+        </AuthorizeView>
     </MudNavMenu>
 </MudDrawer>
 

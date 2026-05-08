@@ -1,3 +1,6 @@
+using ExpenseTrackerWebApi.Database;
+using ExpenseTrackerWebApi.Features.Logging.Enums;
+using ExpenseTrackerWebApi.Features.Logging.Models;
 using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
@@ -6,28 +9,20 @@ using System.Diagnostics;
 namespace ExpenseTrackerWebApi.Features.SharedKernel.Behaviors
 {
 
-    public class PerformanceBehaviour<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse>
+    public class PerformanceBehaviour<TRequest, TResponse>(
+        IServiceScopeFactory scopeFactory,
+        IHttpContextAccessor httpContextAccessor) : IPipelineBehavior<TRequest, TResponse>
         where TRequest : IRequest<TResponse>
     {
-        private readonly Stopwatch _timer;
-        private readonly ILogger<TRequest> _logger; private readonly IHttpContextAccessor _httpContextAccessor;
-
-
-        public PerformanceBehaviour(
-            ILogger<TRequest> logger,
-            IHttpContextAccessor httpContextAccessor)
-        {
-            _timer = new Stopwatch();
-
-            _logger = logger;
-            _httpContextAccessor = httpContextAccessor;
-        }
+        private readonly Stopwatch _timer = new(); 
+        private readonly IHttpContextAccessor _httpContextAccessor = httpContextAccessor; 
+        private readonly IServiceScopeFactory _scopeFactory = scopeFactory;
 
         public async Task<TResponse> Handle(TRequest request, RequestHandlerDelegate<TResponse> next, CancellationToken cancellationToken)
         {
             _timer.Start();
 
-            var response = await next();
+            var response = await next(cancellationToken);
 
             _timer.Stop();
 
@@ -41,14 +36,24 @@ namespace ExpenseTrackerWebApi.Features.SharedKernel.Behaviors
                 var username = _httpContextAccessor.HttpContext?.User
                     .FindFirst(System.Security.Claims.ClaimTypes.Name)?.Value ?? "Unknown";
 
+                _ = Task.Run(async () =>
+                {
+                    using var scope = _scopeFactory.CreateScope();
 
-                _logger.LogWarning(
-                   "VerticalSlice Long Running Request: {Name} ({ElapsedMilliseconds} milliseconds) UserId: {UserId} Username: {Username} {@Request}",
-                   requestName,
-                   elapsedMilliseconds,
-                   userId,
-                   username,
-                   request);
+                    var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+
+                    var log = new SystemLog
+                    {
+                        Type = LogType.Performance,
+                        IdentityUserId = userId,
+                        RequestName = requestName,
+                        ElapsedMilliseconds = elapsedMilliseconds,
+                        Message = $"Long Running Request Detected: {requestName} ({elapsedMilliseconds} milliseconds)"
+                    };
+
+                    dbContext.SystemLogs.Add(log);
+                    await dbContext.SaveChangesAsync();
+                }, cancellationToken);
             }
 
             return response;

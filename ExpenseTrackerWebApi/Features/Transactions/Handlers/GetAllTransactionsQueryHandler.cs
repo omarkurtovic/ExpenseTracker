@@ -12,14 +12,10 @@ using MudBlazor.Extensions;
 
 namespace ExpenseTrackerWebApi.Features.Transactions.Handlers
 {
-    public class GetAllTransactionsQueryHandler : IRequestHandler<GetAllTransactionsQuery, List<TransactionDto>>
+    public class GetAllTransactionsQueryHandler(AppDbContext context) : IRequestHandler<GetAllTransactionsQuery, List<TransactionDto>>
     {
-        private readonly AppDbContext _context;
+        private readonly AppDbContext _context = context;
 
-        public GetAllTransactionsQueryHandler(AppDbContext context)
-        {
-            _context = context;
-        }
         public async Task<List<TransactionDto>> Handle(GetAllTransactionsQuery request, CancellationToken cancellationToken)
         {
             var transactionsQuery = _context.Transactions
@@ -67,7 +63,7 @@ namespace ExpenseTrackerWebApi.Features.Transactions.Handlers
                 IsReoccuring = transaction.IsReoccuring,
                 ReoccuranceFrequency = transaction.ReoccuranceFrequency != null ? (ReoccuranceFrequencyDto)transaction.ReoccuranceFrequency : null,
                 NextReoccuranceDate = transaction.NextReoccuranceDate,
-                TagIds = transaction.TransactionTags.Select(tt => tt.TagId).ToList(),
+                TagIds = [.. transaction.TransactionTags.Select(tt => tt.TagId)],
                 TransactionTags = [.. transaction.TransactionTags.Select(tt => new TransactionTagDto()
                 {
                     TagId = tt.TagId,
